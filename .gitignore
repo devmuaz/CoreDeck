@@ -1,0 +1,12 @@
+# Build
+build/
+cmake-build-*/
+
+# IDE
+.idea/
+
+# ImGui generated layout
+imgui.ini
+
+# macOS
+.DS_Store
