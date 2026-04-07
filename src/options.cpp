@@ -8,38 +8,38 @@ namespace Emu {
     std::vector<EmulatorOption> GetEmulatorOptions() {
         return {
             {
-                "-gpu",
-                "Set GPU Mode",
-                "Set GPU emulation mode (host, swiftshader_indirect, angle_indirect, guest)",
-                false,
-                false,
-                "e.g., host, swiftshader_indirect, ..."
+                .Flag = "-gpu",
+                .DisplayName = "Set GPU Mode",
+                .Description = "Set GPU emulation mode (host, swiftshader_indirect, angle_indirect, guest)",
+                .IsBoolean = false,
+                .Enabled = false,
+                .Hint = "e.g., host, swiftshader_indirect, ..."
             },
             {
-                "-memory",
-                "Set Physical RAM (MBs)",
-                "Physical RAM size in MBs",
-                false,
-                false,
-                "e.g., 1024"
+                .Flag = "-memory",
+                .DisplayName = "Set Physical RAM (MBs)",
+                .Description = "Physical RAM size in MBs",
+                .IsBoolean = false,
+                .Enabled = false,
+                .Hint = "e.g., 1024"
             },
             {
-                "-no-snapshot",
-                "Full Boot",
-                "Perform a full boot and do not auto-save on exit",
-                true
+                .Flag = "-no-snapshot",
+                .DisplayName = "Full Boot",
+                .Description = "Perform a full boot and do not auto-save on exit",
+                .IsBoolean = true
             },
             {
-                "-no-audio",
-                "Disable Audio",
-                "Disable audio support",
-                true
+                .Flag = "-no-audio",
+                .DisplayName = "Disable Audio",
+                .Description = "Disable audio support",
+                .IsBoolean = true
             },
             {
-                "-wipe-data",
-                "Factory Reset",
-                "Reset AVD to factory defaults (clears user data)",
-                true
+                .Flag = "-wipe-data",
+                .DisplayName = "Factory Reset",
+                .Description = "Reset AVD to factory defaults (clears user data)",
+                .IsBoolean = true
             }
         };
     }
