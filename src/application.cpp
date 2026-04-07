@@ -10,7 +10,7 @@
 
 namespace Emu {
     Application::Application() : m_Sdk(DetectAndroidSdk()),
-                                 m_Options(GetDefaultOptions()),
+                                 m_Options(GetEmulatorOptions()),
                                  m_Manager(m_Sdk) {
         m_RefreshAvds();
     }

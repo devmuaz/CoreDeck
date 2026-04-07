@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 3.20)
 project(Emu_Launcher)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -14,7 +14,16 @@ set(IMGUI_SOURCES
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
-find_package(glfw3 REQUIRED)
+find_package(glfw3 QUIET)
+if (NOT glfw3_FOUND)
+    message(STATUS "System GLFW not found, building from source")
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+    add_subdirectory(extern/glfw)
+endif()
+
 find_package(OpenGL REQUIRED)
 
 add_executable(Emu_Launcher

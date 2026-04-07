@@ -19,7 +19,7 @@ namespace Emu {
         char ValueBuffer[256] = {};
     };
 
-    std::vector<EmulatorOption> GetDefaultOptions();
+    std::vector<EmulatorOption> GetEmulatorOptions();
 
     std::vector<std::string> BuildArgs(const std::string &avdName, const std::vector<EmulatorOption> &options);
 }
