@@ -9,6 +9,7 @@
 #include "emulator.h"
 #include "options.h"
 #include "sdk.h"
+#include <unordered_map>
 
 namespace Emu {
     class Application {
@@ -22,7 +23,8 @@ namespace Emu {
         std::vector<std::string> m_AvdNames;
         std::vector<AvdInfo> m_Avds;
         int m_SelectedAvd = -1;
-        std::vector<EmulatorOption> m_Options;
+        int m_PreviousSelectedAvd = -1;
+        std::unordered_map<std::string, std::vector<EmulatorOption> > m_PerAvdOptions;
         EmulatorManager m_Manager;
         bool m_AutoScroll = true;
 
@@ -35,6 +37,12 @@ namespace Emu {
         void m_BuildAvdDetailsPanel();
 
         void m_BuildLogPanel();
+
+        void m_LoadAvdOptions(const std::string &avdName);
+
+        void m_SaveAvdOptions(const std::string &avdName);
+
+        std::vector<EmulatorOption> &m_GetCurrentAvdOptions();
     };
 }
 

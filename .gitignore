@@ -4,6 +4,7 @@ cmake-build-*/
 
 # IDE
 .idea/
+.cache/
 
 # ImGui generated layout
 imgui.ini

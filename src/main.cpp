@@ -54,14 +54,18 @@ int main() {
 
     ImGui::StyleColorsDark();
     Emu::ApplyCustomImGuiTheme();
+    Emu::Application app;
 
     const auto glsl_version = "#version 330";
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    Emu::Application app;
-
     glfwSetWindowUserPointer(window, &app);
+
+    glfwSetScrollCallback(window, [](GLFWwindow *w, const double x, const double y) {
+        ImGuiIO &imGuiIO = ImGui::GetIO();
+        imGuiIO.AddMouseWheelEvent(static_cast<float>(x) * 0.3f, static_cast<float>(y) * 0.3f);
+    });
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *w, const int width, const int height) {
         if (width == 0 || height == 0) return;

@@ -60,9 +60,9 @@ namespace Emu {
         c[ImGuiCol_HeaderActive] = HexColor("#333336");
 
         // Buttons
-        c[ImGuiCol_Button] = HexColor("#F2F2F2");
-        c[ImGuiCol_ButtonHovered] = HexColor("#CCCCCC");
-        c[ImGuiCol_ButtonActive] = HexColor("#B3B3B3");
+        c[ImGuiCol_Button] = HexColor("#1A1A1C");
+        c[ImGuiCol_ButtonHovered] = HexColor("#2E2E30");
+        c[ImGuiCol_ButtonActive] = HexColor("#0F0F12");
 
         // Frame
         c[ImGuiCol_FrameBg] = HexColor("#141417");

@@ -26,6 +26,10 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
+set(REFLECTCPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+add_subdirectory(extern/reflect-cpp)
+
 add_executable(Emu_Launcher
         ${IMGUI_SOURCES}
         src/main.cpp
@@ -48,4 +52,5 @@ target_include_directories(Emu_Launcher PRIVATE
 target_link_libraries(Emu_Launcher PRIVATE
         glfw
         OpenGL::GL
+        reflectcpp
 )

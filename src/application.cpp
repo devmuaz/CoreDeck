@@ -9,22 +9,38 @@
 #include "utilities.h"
 
 namespace Emu {
-    Application::Application() : m_Sdk(DetectAndroidSdk()),
-                                 m_Options(GetEmulatorOptions()),
-                                 m_Manager(m_Sdk) {
+    Application::Application() : m_Sdk(DetectAndroidSdk()), m_Manager(m_Sdk) {
+        EnsureConfigDirectoryExists();
         m_RefreshAvds();
     }
 
     void Application::m_RefreshAvds() {
         m_AvdNames = ListAvailableAvds(m_Sdk);
         m_Avds = LoadAvds(m_AvdNames);
-        m_SelectedAvd = -1;
+
+        for (const auto &avdName: m_AvdNames) m_LoadAvdOptions(avdName);
+
+        if (!m_Avds.empty()) m_SelectedAvd = 0;
+        else m_SelectedAvd = -1;
+        m_PreviousSelectedAvd = -1;
     }
 
     void Application::Build() {
+        if (m_SelectedAvd != m_PreviousSelectedAvd) {
+            if (m_SelectedAvd >= 0 && m_SelectedAvd < m_Avds.size()) {
+                const std::string &avdName = m_Avds[m_SelectedAvd].Name;
+                if (!m_PerAvdOptions.contains(avdName)) {
+                    m_LoadAvdOptions(avdName);
+                }
+            }
+            m_PreviousSelectedAvd = m_SelectedAvd;
+        }
+
         const ImGuiID dockSpaceId = ImGui::DockSpaceOverViewport(
-            0, ImGui::GetMainViewport(),
-            ImGuiDockNodeFlags_NoUndocking);
+            0,
+            ImGui::GetMainViewport(),
+            ImGuiDockNodeFlags_NoUndocking
+        );
 
         static bool firstLaunch = true;
         if (firstLaunch) {
@@ -71,28 +87,92 @@ namespace Emu {
 
     void Application::m_BuildOptionsPanel() {
         constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-        ImGui::Begin("Options", nullptr, panelFlags);
 
-        for (auto &[Flag, DisplayName, Description, IsBoolean, Enabled, Hint, ValueBuffer]
-             : m_Options) {
-            ImGui::PushID(Flag.c_str());
-
-            ImGui::Checkbox(DisplayName.c_str(), &Enabled);
-
-            ImGui::SameLine();
-            ImGui::TextColored(HexColor("#66666B"), Icons::Info);
-            if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("%s", Description.c_str());
-            }
-
-            if (!IsBoolean && Enabled) {
-                ImGui::SetNextItemWidth(-1.0f);
-                ImGui::InputTextWithHint("##val", Hint, ValueBuffer, IM_ARRAYSIZE(ValueBuffer));
-            }
-
-            ImGui::PopID();
+        std::string panelTitle = "Options";
+        if (m_SelectedAvd >= 0 && m_SelectedAvd < m_Avds.size()) {
+            panelTitle = std::format("Options - {}", m_Avds[m_SelectedAvd].DisplayName);
         }
 
+        ImGui::Begin(
+            std::format("{}###Options", panelTitle).c_str(),
+            nullptr,
+            panelFlags
+        );
+
+        if (m_SelectedAvd < 0) {
+            ImGui::TextDisabled("Select an AVD to configure options");
+            ImGui::End();
+            return;
+        }
+
+        auto &options = m_GetCurrentAvdOptions();
+        bool optionsChanged = false;
+
+        std::vector<std::string> categories;
+        for (const auto &option: options) {
+            if (std::ranges::find(categories, option.Category) == categories.end()) {
+                categories.push_back(option.Category);
+            }
+        }
+
+        for (const auto &category: categories) {
+            if (ImGui::CollapsingHeader(category.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                for (auto &[Flag, DisplayName, Description, Enabled, Type, Category, Hint, TextInput, Items,
+                         SelectedItem]
+                     : options) {
+                    if (category != Category) continue;
+
+                    ImGui::PushID(Flag.c_str());
+
+                    const bool wasEnabled = Enabled;
+                    ImGui::Checkbox(DisplayName.c_str(), &Enabled);
+                    if (wasEnabled != Enabled) optionsChanged = true;
+
+                    ImGui::SameLine();
+                    ImGui::TextColored(HexColor("#66666B"), Icons::Info);
+                    if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", Description.c_str());
+
+                    if (Enabled) {
+                        switch (Type) {
+                            case OptionType::TextInput: {
+                                ImGui::SetNextItemWidth(-1.0f);
+                                char buffer[256];
+                                strncpy(buffer, TextInput.c_str(), sizeof(buffer) - 1);
+                                buffer[sizeof(buffer) - 1] = '\0';
+                                if (ImGui::InputTextWithHint("##val", Hint.c_str(), buffer, sizeof(buffer))) {
+                                    TextInput = buffer;
+                                    optionsChanged = true;
+                                }
+                                break;
+                            }
+
+                            case OptionType::Selection: {
+                                ImGui::SetNextItemWidth(-1.0f);
+                                if (ImGui::BeginCombo("##selection", Items[SelectedItem].c_str())) {
+                                    for (int i = 0; i < Items.size(); ++i) {
+                                        const bool isSelected = SelectedItem == i;
+                                        if (ImGui::Selectable(Items[i].c_str(), isSelected)) {
+                                            SelectedItem = i;
+                                            optionsChanged = true;
+                                        }
+                                        if (isSelected) ImGui::SetItemDefaultFocus();
+                                    }
+                                    ImGui::EndCombo();
+                                }
+                                break;
+                            }
+
+                            default:
+                                break;
+                        }
+                    }
+
+                    ImGui::PopID();
+                }
+            }
+        }
+
+        if (optionsChanged) m_SaveAvdOptions(m_Avds[m_SelectedAvd].Name);
         ImGui::End();
     }
 
@@ -107,7 +187,7 @@ namespace Emu {
         if (m_SelectedAvd >= 0) {
             const auto &avd = m_Avds[m_SelectedAvd];
             const bool isRunning = m_Manager.IsRunning(avd.Name);
-            const auto args = BuildArgs(avd.Name, m_Options);
+            const auto args = BuildArgs(avd.Name, m_GetCurrentAvdOptions());
 
             ImGui::SameLine();
             if (isRunning) {
@@ -178,13 +258,16 @@ namespace Emu {
             Arch,
             Path
         ] = m_Avds[m_SelectedAvd];
-        const bool isRunning = m_Manager.IsRunning(Name);
-        const auto args = BuildArgs(Name, m_Options);
+        const auto args = BuildArgs(Name, m_GetCurrentAvdOptions());
 
         std::string preview = m_Sdk.EmulatorPath;
         for (const auto &arg: args) preview += " " + arg;
 
-        ImGui::Begin(std::format("{}###Details", DisplayName).c_str(), nullptr, panelFlags);
+        ImGui::Begin(
+            std::format("Details - {}###Details", DisplayName).c_str(),
+            nullptr,
+            panelFlags
+        );
 
         PropertyTextWrapped("AVD Path", Path.c_str());
         ImGui::Spacing();
@@ -237,5 +320,30 @@ namespace Emu {
 
         ImGui::EndChild();
         ImGui::End();
+    }
+
+    void Application::m_LoadAvdOptions(const std::string &avdName) {
+        const std::string configPath = GetOptionsConfigPath(avdName);
+        m_PerAvdOptions[avdName] = LoadOptionsFromFile(configPath);
+    }
+
+    void Application::m_SaveAvdOptions(const std::string &avdName) {
+        if (!m_PerAvdOptions.contains(avdName)) return;
+
+        const std::string configPath = GetOptionsConfigPath(avdName);
+        SaveOptionsToFile(configPath, m_PerAvdOptions[avdName]);
+    }
+
+    std::vector<EmulatorOption> &Application::m_GetCurrentAvdOptions() {
+        if (m_SelectedAvd >= 0 && m_SelectedAvd < m_Avds.size()) {
+            const std::string &avdName = m_Avds[m_SelectedAvd].Name;
+
+            if (!m_PerAvdOptions.contains(avdName)) m_LoadAvdOptions(avdName);
+            return m_PerAvdOptions[avdName];
+        }
+
+        // Fallback
+        static std::vector<EmulatorOption> defaultOptions = GetEmulatorOptions();
+        return defaultOptions;
     }
 }
