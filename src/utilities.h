@@ -47,6 +47,7 @@ namespace Emu {
         constexpr const char *Gear = "\xef\x80\x93";
         constexpr const char *Terminal = "\xef\x84\xa0";
         constexpr const char *Info = "\xef\x81\x9a";
+        constexpr const char *Search = "\xef\x80\x82";
     }
 
     namespace Colors {

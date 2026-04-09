@@ -136,4 +136,15 @@ namespace Emu {
         sc.push(ImGuiCol_Text, HexColor("#66666B"));
         ImGui::TextWrapped("%s", value);
     }
+
+    bool CollapsingHeader(const char *label, const ImGuiTreeNodeFlags flags) {
+        StyleColor sc;
+        sc.push(ImGuiCol_Header, HexColor("#000000", 0.0f));
+        sc.push(ImGuiCol_HeaderHovered, HexColor("#000000", 0.0f));
+        sc.push(ImGuiCol_HeaderActive, HexColor("#000000", 0.0f));
+        sc.push(ImGuiCol_Border, HexColor("#000000", 0.0f));
+        sc.push(ImGuiCol_BorderShadow, HexColor("#000000", 0.0f));
+        sc.push(ImGuiCol_Text, HexColor("#969696"));
+        return ImGui::CollapsingHeader(label, flags);
+    }
 }

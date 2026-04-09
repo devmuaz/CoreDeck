@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "utilities.h"
+#include <algorithm>
 
 namespace Emu {
     Application::Application() : m_Sdk(DetectAndroidSdk()), m_Manager(m_Sdk) {
@@ -116,7 +117,9 @@ namespace Emu {
         }
 
         for (const auto &category: categories) {
-            if (ImGui::CollapsingHeader(category.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (CollapsingHeader(category.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::Indent(20.0f);
+
                 for (auto &[Flag, DisplayName, Description, Enabled, Type, Category, Hint, TextInput, Items,
                          SelectedItem]
                      : options) {
@@ -169,6 +172,8 @@ namespace Emu {
 
                     ImGui::PopID();
                 }
+
+                ImGui::Unindent(20.0f);
             }
         }
 
@@ -178,7 +183,7 @@ namespace Emu {
 
     void Application::m_BuildAvdListPanel() {
         constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-        ImGui::Begin("AVDs", nullptr, panelFlags);
+        ImGui::Begin("AVDs - Main###AVDs", nullptr, panelFlags);
 
         if (PrimaryButton(IconWithLabel(Icons::Refresh, "Refresh").c_str())) {
             m_RefreshAvds();
@@ -303,19 +308,86 @@ namespace Emu {
         if (!log) ImGui::EndDisabled();
 
         ImGui::Checkbox("Auto-Scroll", &m_AutoScroll);
+
+        ImGui::SameLine();
+        constexpr float searchWidth = 300.0f;
+        const float windowWidth = ImGui::GetWindowWidth();
+        constexpr float rightPadding = 8.0f;
+        ImGui::SetCursorPosX(windowWidth - searchWidth - rightPadding);
+        ImGui::SetNextItemWidth(searchWidth);
+        const std::string searchHint = std::format("{} Search logs...", Icons::Search);
+
+        std::string currentSearch;
+        if (m_SelectedAvd >= 0) {
+            const std::string &avdName = m_Avds[m_SelectedAvd].Name;
+            currentSearch = m_PerAvdLogSearch[avdName];
+        }
+
+        char searchBuffer[256];
+        strncpy(searchBuffer, currentSearch.c_str(), sizeof(searchBuffer) - 1);
+        searchBuffer[sizeof(searchBuffer) - 1] = '\0';
+
+        if (ImGui::InputTextWithHint("##search", searchHint.c_str(), searchBuffer, sizeof(searchBuffer))) {
+            if (m_SelectedAvd >= 0) {
+                const std::string &avdName = m_Avds[m_SelectedAvd].Name;
+                m_PerAvdLogSearch[avdName] = searchBuffer;
+            }
+        }
+
         ImGui::Separator();
         ImGui::BeginChild("LogContent", ImVec2(0, 0), ImGuiChildFlags_None);
 
+        if (m_SelectedAvd < 0) {
+            ImGui::TextDisabled("Select an AVD to view logs");
+            ImGui::EndChild();
+            ImGui::End();
+            return;
+        }
+
         if (log) {
-            for (const auto lines = log->GetLines(); const auto &line: lines) {
-                ImGui::TextUnformatted(line.c_str());
+            const auto lines = log->GetLines();
+
+            if (lines.empty()) {
+                ImGui::TextDisabled("No available logs to view");
+                ImGui::EndChild();
+                ImGui::End();
+                return;
             }
-            if (m_AutoScroll && log->HasNewContent()) {
+
+            std::string searchQuery;
+            const std::string &avdName = m_Avds[m_SelectedAvd].Name;
+            searchQuery = m_PerAvdLogSearch[avdName];
+            const bool hasSearch = !searchQuery.empty();
+
+            bool hasVisibleLines = false;
+            for (const auto &line: lines) {
+                // Filter lines based on search query (case-insensitive)
+                if (hasSearch) {
+                    std::string lowerLine = line;
+                    std::string lowerQuery = searchQuery;
+                    std::ranges::transform(lowerLine, lowerLine.begin(), ::tolower);
+                    std::ranges::transform(lowerQuery, lowerQuery.begin(), ::tolower);
+
+                    if (lowerLine.find(lowerQuery) == std::string::npos) {
+                        continue;
+                    }
+                }
+
+                ImGui::TextUnformatted(line.c_str());
+                hasVisibleLines = true;
+            }
+
+            if (hasSearch && !hasVisibleLines) {
+                ImGui::TextDisabled("No matching log entries found");
+            }
+
+            if (m_AutoScroll && log->HasNewContent() && !hasSearch) {
                 ImGui::SetScrollHereY(1.0f);
                 log->ResetNewContentFlag();
             }
         } else {
-            ImGui::TextDisabled("Select an AVD to view logs");
+            const std::string &avdName = m_Avds[m_SelectedAvd].Name;
+            ImGui::TextDisabled("Run the \"%s\" AVD to view logs", avdName.c_str());
         }
 
         ImGui::EndChild();

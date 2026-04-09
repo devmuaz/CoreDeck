@@ -58,6 +58,8 @@ namespace Emu {
     void PropertyText(const char *label, const char *value);
 
     void PropertyTextWrapped(const char *label, const char *value);
+
+    bool CollapsingHeader(const char *label, ImGuiTreeNodeFlags flags = 0);
 }
 
 #endif //EMU_LAUNCHER_COMPONENTS_H

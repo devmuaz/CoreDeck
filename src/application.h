@@ -25,6 +25,7 @@ namespace Emu {
         int m_SelectedAvd = -1;
         int m_PreviousSelectedAvd = -1;
         std::unordered_map<std::string, std::vector<EmulatorOption> > m_PerAvdOptions;
+        std::unordered_map<std::string, std::string> m_PerAvdLogSearch;
         EmulatorManager m_Manager;
         bool m_AutoScroll = true;
 
