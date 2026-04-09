@@ -3,6 +3,7 @@
 //
 
 #include "sdk.h"
+#include "paths.h"
 #include <filesystem>
 #include <sstream>
 
@@ -18,25 +19,17 @@ namespace Emu {
         }
 
         if (!sdkEnv) {
-            const std::string defaultPath = std::string(std::getenv("HOME")) + "/Library/Android/sdk";
-
-            if (std::filesystem::exists(defaultPath)) {
-                sdk.SdkPath = defaultPath;
-            }
+            const std::string defaultPath = Paths::GetAndroidSdkDefaultPath();
+            if (std::filesystem::exists(defaultPath)) sdk.SdkPath = defaultPath;
         } else {
             sdk.SdkPath = sdkEnv;
         }
 
-        if (sdk.SdkPath.empty()) {
-            return sdk;
-        }
+        if (sdk.SdkPath.empty()) return sdk;
 
-        sdk.EmulatorPath = sdk.SdkPath + "/emulator/emulator";
+        sdk.EmulatorPath = Paths::JoinPaths({sdk.SdkPath, "emulator", "emulator" + Paths::GetExecutableExtension()});
 
-        if (std::filesystem::exists(sdk.EmulatorPath)) {
-            sdk.IsFound = true;
-        }
-
+        if (std::filesystem::exists(sdk.EmulatorPath)) sdk.IsFound = true;
         return sdk;
     }
 

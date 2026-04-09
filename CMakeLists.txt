@@ -22,7 +22,7 @@ if (NOT glfw3_FOUND)
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
     add_subdirectory(extern/glfw)
-endif()
+endif ()
 
 find_package(OpenGL REQUIRED)
 
@@ -40,8 +40,9 @@ add_executable(Emu_Launcher
         src/application.cpp
         src/components.cpp
         src/log_buffer.cpp
-        src/avd_info.cpp
+        src/avd.cpp
         src/utilities.cpp
+        src/paths.cpp
 )
 
 target_include_directories(Emu_Launcher PRIVATE
@@ -54,3 +55,12 @@ target_link_libraries(Emu_Launcher PRIVATE
         OpenGL::GL
         reflectcpp
 )
+
+if (WIN32)
+    target_compile_definitions(Emu_Launcher PRIVATE EMU_PLATFORM_WINDOWS)
+    target_link_libraries(Emu_Launcher PRIVATE shell32)
+elseif (APPLE)
+    target_compile_definitions(Emu_Launcher PRIVATE EMU_PLATFORM_MACOS)
+else ()
+    target_compile_definitions(Emu_Launcher PRIVATE EMU_PLATFORM_LINUX)
+endif ()

@@ -3,6 +3,7 @@
 //
 
 #include "options.h"
+#include "paths.h"
 #include <fstream>
 #include <iostream>
 #include <rfl/json.hpp>
@@ -229,18 +230,11 @@ namespace Emu {
     }
 
     std::string GetOptionsConfigPath(const std::string &avdName) {
-        const char *home = getenv("HOME");
-        if (!home) return "";
-
-        return std::string(home) + "/.config/emu-launcher/avd-options/" + avdName + ".json";
+        return Paths::GetOptionsConfigPath(avdName);
     }
 
     void EnsureConfigDirectoryExists() {
-        const char *home = getenv("HOME");
-        if (!home) return;
-
-        const std::filesystem::path configDir = std::string(home) + "/.config/emu-launcher/avd-options";
-        std::filesystem::create_directories(configDir);
+        Paths::EnsureConfigDirectoryExists();
     }
 
     void SaveOptionsToFile(const std::string &filePath, const std::vector<EmulatorOption> &options) {

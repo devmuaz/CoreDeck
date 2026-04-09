@@ -5,7 +5,7 @@
 #ifndef EMU_LAUNCHER_RENDERER_H
 #define EMU_LAUNCHER_RENDERER_H
 
-#include "avd_info.h"
+#include "avd.h"
 #include "emulator.h"
 #include "options.h"
 #include "sdk.h"

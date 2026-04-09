@@ -2,7 +2,8 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
-#include "avd_info.h"
+#include "avd.h"
+#include "paths.h"
 
 #include <fstream>
 #include <unordered_map>
@@ -38,17 +39,15 @@ namespace Emu {
     std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames) {
         std::vector<AvdInfo> avds;
 
-        const char *home = getenv("HOME");
-        if (!home) return avds;
-
-        const std::string avdRoot = std::format("{}/.android/avd", std::string(home));
+        const std::string avdRoot = Paths::GetAvdDirectory();
+        if (avdRoot.empty()) return avds;
         for (const auto &avdName: avdNames) {
             AvdInfo avd;
 
             avd.Name = avdName;
-            avd.Path = std::format("{}/{}.avd", avdRoot, avdName);
+            avd.Path = Paths::JoinPaths({avdRoot, avdName + ".avd"});
 
-            std::string configPath = std::format("{}/config.ini", avd.Path);
+            std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
 
             if (!std::filesystem::exists(configPath)) {
                 avds.push_back(avd);

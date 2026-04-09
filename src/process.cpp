@@ -3,6 +3,7 @@
 //
 
 #include "process.h"
+#include "paths.h"
 #include <array>
 #include <csignal>
 #include <string>
@@ -12,9 +13,7 @@
 namespace Emu {
     std::string RunCommand(const std::string &cmd) {
         FILE *pipe = popen(cmd.c_str(), "r");
-        if (!pipe) {
-            return "";
-        }
+        if (!pipe) return "";
 
         std::string result;
         std::array<char, 256> buffer{};
@@ -43,7 +42,8 @@ namespace Emu {
             }
             argv.push_back(nullptr);
 
-            if (const int devnull = open("/dev/null", O_WRONLY); devnull != -1) {
+            const std::string nullDevice = Paths::GetNullDevice();
+            if (const int devnull = open(nullDevice.c_str(), O_WRONLY); devnull != -1) {
                 dup2(devnull, STDOUT_FILENO);
                 dup2(devnull, STDERR_FILENO);
                 close(devnull);
