@@ -64,6 +64,8 @@ if (WIN32)
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN NOMINMAX)
     target_link_libraries(CoreDeck PRIVATE shell32)
 elseif (APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_MACOS GL_SILENCE_DEPRECATION)
     target_link_libraries(CoreDeck PRIVATE "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
     set_target_properties(CoreDeck PROPERTIES
