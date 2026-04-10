@@ -2,6 +2,15 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#endif
+
 #include "application.h"
 #include "components.h"
 #include "imgui.h"

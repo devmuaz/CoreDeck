@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <array>
 
 #ifdef _WIN32
 #include <io.h>

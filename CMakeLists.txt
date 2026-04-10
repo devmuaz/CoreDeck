@@ -61,7 +61,7 @@ add_custom_command(TARGET CoreDeck POST_BUILD
 )
 
 if (WIN32)
-    target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_WINDOWS)
+    target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN NOMINMAX)
     target_link_libraries(CoreDeck PRIVATE shell32)
 elseif (APPLE)
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_MACOS GL_SILENCE_DEPRECATION)
