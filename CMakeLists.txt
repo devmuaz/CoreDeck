@@ -25,6 +25,7 @@ set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/reflect-cpp)
 
 find_package(OpenGL REQUIRED)
+find_package(Threads REQUIRED)
 
 add_executable(CoreDeck
         ${IMGUI_SOURCES}
@@ -63,6 +64,8 @@ if (WIN32)
     target_link_libraries(CoreDeck PRIVATE shell32)
 elseif (APPLE)
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_MACOS)
+    target_link_libraries(CoreDeck PRIVATE "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
 else ()
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_LINUX)
+    target_link_libraries(CoreDeck PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
 endif ()
