@@ -66,6 +66,13 @@ if (WIN32)
 elseif (APPLE)
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_MACOS GL_SILENCE_DEPRECATION)
     target_link_libraries(CoreDeck PRIVATE "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
+    set_target_properties(CoreDeck PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_GUI_IDENTIFIER com.coredeck.CoreDeck
+        MACOSX_BUNDLE_BUNDLE_NAME "CoreDeck"
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+    )
 else ()
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_LINUX)
     target_link_libraries(CoreDeck PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
