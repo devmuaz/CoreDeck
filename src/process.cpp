@@ -5,13 +5,36 @@
 #include "process.h"
 #include "paths.h"
 #include <array>
-#include <csignal>
 #include <string>
+
+#ifdef _WIN32
+#include <windows.h>
+#include <io.h>
+#include <fcntl.h>
+#include <process.h>
+#else
+#include <csignal>
 #include <unistd.h>
 #include <sys/fcntl.h>
+#include <sys/wait.h>
+#endif
 
-namespace Emu {
+namespace CoreDeck {
     std::string RunCommand(const std::string &cmd) {
+#ifdef _WIN32
+        FILE *pipe = _popen(cmd.c_str(), "r");
+        if (!pipe) return "";
+
+        std::string result;
+        std::array<char, 256> buffer{};
+
+        while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+            result += buffer.data();
+        }
+
+        _pclose(pipe);
+        return result;
+#else
         FILE *pipe = popen(cmd.c_str(), "r");
         if (!pipe) return "";
 
@@ -24,9 +47,41 @@ namespace Emu {
 
         pclose(pipe);
         return result;
+#endif
     }
 
-    pid_t SpawnProcess(const std::string &path, const std::vector<std::string> &args) {
+    ProcessId SpawnProcess(const std::string &path, const std::vector<std::string> &args) {
+#ifdef _WIN32
+        std::string cmdLine = "\"" + path + "\"";
+        for (const auto &arg: args) {
+            cmdLine += " \"" + arg + "\"";
+        }
+
+        STARTUPINFOA si = {};
+        si.cb = sizeof(si);
+        si.dwFlags = STARTF_USESTDHANDLES;
+
+        const std::string nullDevice = Paths::GetNullDevice();
+        HANDLE hNull = CreateFileA(nullDevice.c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                   nullptr, OPEN_EXISTING, 0, nullptr);
+        if (hNull != INVALID_HANDLE_VALUE) {
+            si.hStdOutput = hNull;
+            si.hStdError = hNull;
+        }
+
+        PROCESS_INFORMATION pi = {};
+
+        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr,
+                            TRUE, 0, nullptr, nullptr, &si, &pi)) {
+            if (hNull != INVALID_HANDLE_VALUE) CloseHandle(hNull);
+            return 0;
+        }
+
+        CloseHandle(pi.hThread);
+        if (hNull != INVALID_HANDLE_VALUE) CloseHandle(hNull);
+
+        return pi.dwProcessId;
+#else
         const pid_t pid = fork();
 
         if (pid < 0) {
@@ -55,9 +110,57 @@ namespace Emu {
         }
 
         return pid;
+#endif
     }
 
-    pid_t SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {
+    ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {
+#ifdef _WIN32
+        HANDLE hReadPipe, hWritePipe;
+        SECURITY_ATTRIBUTES sa = {};
+        sa.nLength = sizeof(sa);
+        sa.bInheritHandle = TRUE;
+
+        if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0)) {
+            return 0;
+        }
+
+        if (!SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0)) {
+            CloseHandle(hReadPipe);
+            CloseHandle(hWritePipe);
+            return 0;
+        }
+
+        std::string cmdLine = "\"" + path + "\"";
+        for (const auto &arg: args) {
+            cmdLine += " \"" + arg + "\"";
+        }
+
+        STARTUPINFOA si = {};
+        si.cb = sizeof(si);
+        si.dwFlags = STARTF_USESTDHANDLES;
+        si.hStdOutput = hWritePipe;
+        si.hStdError = hWritePipe;
+
+        PROCESS_INFORMATION pi = {};
+
+        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr,
+                            TRUE, 0, nullptr, nullptr, &si, &pi)) {
+            CloseHandle(hReadPipe);
+            CloseHandle(hWritePipe);
+            return 0;
+        }
+
+        CloseHandle(pi.hThread);
+        CloseHandle(hWritePipe);
+
+        outputFd = _open_osfhandle(reinterpret_cast<intptr_t>(hReadPipe), _O_RDONLY);
+        if (outputFd == -1) {
+            CloseHandle(hReadPipe);
+            return 0;
+        }
+
+        return pi.dwProcessId;
+#else
         int pipeFd[2];
         if (pipe(pipeFd) == -1) {
             return -1;
@@ -96,9 +199,35 @@ namespace Emu {
         fcntl(outputFd, F_SETFL, flags | O_NONBLOCK);
 
         return pid;
+#endif
     }
 
-    bool KillProcess(const pid_t pid) {
+    bool KillProcess(const ProcessId pid) {
+#ifdef _WIN32
+        if (pid == 0) return false;
+
+        HANDLE hProcess = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, FALSE, pid);
+        if (hProcess == nullptr) return false;
+
+        DWORD exitCode;
+        if (!GetExitCodeProcess(hProcess, &exitCode)) {
+            CloseHandle(hProcess);
+            return false;
+        }
+
+        if (exitCode != STILL_ACTIVE) {
+            CloseHandle(hProcess);
+            return true;
+        }
+
+        const bool result = TerminateProcess(hProcess, 1);
+        if (result) {
+            WaitForSingleObject(hProcess, 500);
+        }
+
+        CloseHandle(hProcess);
+        return result;
+#else
         if (pid <= 0) return false;
 
         if (kill(pid, SIGTERM) == 0) {
@@ -110,9 +239,22 @@ namespace Emu {
             return true;
         }
         return false;
+#endif
     }
 
-    bool IsProcessRunning(const pid_t pid) {
+    bool IsProcessRunning(const ProcessId pid) {
+#ifdef _WIN32
+        if (pid == 0) return false;
+
+        HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+        if (hProcess == nullptr) return false;
+
+        DWORD exitCode;
+        const bool success = GetExitCodeProcess(hProcess, &exitCode);
+        CloseHandle(hProcess);
+
+        return success && exitCode == STILL_ACTIVE;
+#else
         if (pid <= 0) return false;
 
         int status;
@@ -120,5 +262,6 @@ namespace Emu {
             return true;
         }
         return false;
+#endif
     }
 }

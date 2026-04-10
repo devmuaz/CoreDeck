@@ -9,7 +9,7 @@
 #include "utilities.h"
 #include <algorithm>
 
-namespace Emu {
+namespace CoreDeck {
     Application::Application() : m_Sdk(DetectAndroidSdk()), m_Manager(m_Sdk) {
         EnsureConfigDirectoryExists();
         m_RefreshAvds();

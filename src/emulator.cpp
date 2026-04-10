@@ -8,11 +8,16 @@
 
 #include "process.h"
 #include <thread>
-#include <unistd.h>
 #include <utility>
 #include <vector>
 
-namespace Emu {
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
+namespace CoreDeck {
     EmulatorManager::EmulatorManager(SdkInfo sdk)
         : m_Sdk(std::move(sdk)) {
     }
@@ -25,18 +30,26 @@ namespace Emu {
         }
 
         int outputFd = -1;
-        const pid_t pid = SpawnProcessWithPipe(m_Sdk.EmulatorPath, args, outputFd);
+        const ProcessId pid = SpawnProcessWithPipe(m_Sdk.EmulatorPath, args, outputFd);
 
-        if (pid <= 0) {
-            return false;
-        } {
+#ifdef _WIN32
+        if (pid == 0) return false;
+#else
+        if (pid <= 0) return false;
+#endif
+
+        {
             auto log = std::make_shared<LogBuffer>();
             std::jthread reader([outputFd, log](const std::stop_token &st) {
                 std::array<char, 1024> buf{};
                 std::string partial;
 
                 while (!st.stop_requested()) {
+#ifdef _WIN32
+                    if (const int n = _read(outputFd, buf.data(), buf.size()); n > 0) {
+#else
                     if (const ssize_t n = read(outputFd, buf.data(), buf.size()); n > 0) {
+#endif
                         partial.append(buf.data(), n);
 
                         std::size_t pos;
@@ -57,7 +70,11 @@ namespace Emu {
                     log->Push(partial);
                 }
 
+#ifdef _WIN32
+                _close(outputFd);
+#else
                 close(outputFd);
+#endif
             });
 
             std::lock_guard lock(m_Mutex);

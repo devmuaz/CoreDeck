@@ -4,7 +4,7 @@
 
 #include "log_buffer.h"
 
-namespace Emu {
+namespace CoreDeck {
     LogBuffer::LogBuffer(const std::size_t maxLines) : m_MaxLines(maxLines) {
     }
 

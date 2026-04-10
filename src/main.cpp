@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 #include <ostream>
+#include <filesystem>
 #include "application.h"
 #include "utilities.h"
 
@@ -22,7 +23,7 @@ int main() {
 #endif
 
     GLFWwindow *window = glfwCreateWindow(
-        1200, 800, "Emu Launcher", nullptr, nullptr
+        1200, 800, "CoreDeck", nullptr, nullptr
     );
     if (!window) {
         std::fprintf(stderr, "Failed to create GLFW window\n");
@@ -37,24 +38,29 @@ int main() {
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrainsMono-Regular.ttf", 16.0f);
 
-    ImFontConfig iconConfig;
-    iconConfig.MergeMode = true;
-    iconConfig.PixelSnapH = true;
-    iconConfig.GlyphMinAdvanceX = 16.0f;
+    if (std::filesystem::exists("assets/fonts/JetBrainsMono-Regular.ttf")) {
+        io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrainsMono-Regular.ttf", 16.0f);
+    }
 
-    static constexpr ImWchar iconRanges[] = {0xf000, 0xf8ff, 0};
-    io.Fonts->AddFontFromFileTTF(
-        "assets/fonts/FontAwesome7Free-Solid-900.otf",
-        12.0f,
-        &iconConfig,
-        iconRanges
-    );
+    if (std::filesystem::exists("assets/fonts/FontAwesome7Free-Solid-900.otf")) {
+        ImFontConfig iconConfig;
+        iconConfig.MergeMode = true;
+        iconConfig.PixelSnapH = true;
+        iconConfig.GlyphMinAdvanceX = 16.0f;
+
+        static constexpr ImWchar iconRanges[] = {0xf000, 0xf8ff, 0};
+        io.Fonts->AddFontFromFileTTF(
+            "assets/fonts/FontAwesome7Free-Solid-900.otf",
+            12.0f,
+            &iconConfig,
+            iconRanges
+        );
+    }
 
     ImGui::StyleColorsDark();
-    Emu::ApplyCustomImGuiTheme();
-    Emu::Application app;
+    CoreDeck::ApplyCustomImGuiTheme();
+    CoreDeck::Application app;
 
     const auto glsl_version = "#version 330";
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -70,7 +76,7 @@ int main() {
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *w, const int width, const int height) {
         if (width == 0 || height == 0) return;
 
-        auto *a = static_cast<Emu::Application *>(glfwGetWindowUserPointer(w));
+        auto *a = static_cast<CoreDeck::Application *>(glfwGetWindowUserPointer(w));
 
         glViewport(0, 0, width, height);
 

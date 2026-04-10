@@ -9,7 +9,7 @@
 
 #include "process.h"
 
-namespace Emu {
+namespace CoreDeck {
     SdkInfo DetectAndroidSdk() {
         SdkInfo sdk;
 

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <rfl/json.hpp>
 
-namespace Emu {
+namespace CoreDeck {
     std::vector<EmulatorOption> GetEmulatorOptions() {
         return {
             // Display

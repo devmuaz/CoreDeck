@@ -12,7 +12,7 @@
 #include <shlobj.h>
 #endif
 
-namespace Emu::Paths {
+namespace CoreDeck::Paths {
     Platform GetCurrentPlatform() {
 #ifdef _WIN32
         return Platform::Windows;
@@ -111,7 +111,6 @@ namespace Emu::Paths {
         const std::string home = GetHomeDirectory();
         if (home.empty()) return "";
 
-        // AVD directory is consistent across platforms
         return JoinPaths({home, ".android", "avd"});
     }
 
@@ -120,9 +119,9 @@ namespace Emu::Paths {
         if (configDir.empty()) return "";
 
         if (subPath.empty()) {
-            return JoinPaths({configDir, "emu-launcher"});
+            return JoinPaths({configDir, "coredeck"});
         }
-        return JoinPaths({configDir, "emu-launcher", subPath});
+        return JoinPaths({configDir, "coredeck", subPath});
     }
 
     std::string GetNullDevice() {

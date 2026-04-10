@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace Emu {
+namespace CoreDeck {
     struct SdkInfo {
         std::string SdkPath;
         std::string EmulatorPath;

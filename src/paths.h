@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace Emu::Paths {
+namespace CoreDeck::Paths {
     enum class Platform {
         Windows,
         macOS,

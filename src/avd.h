@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace Emu {
+namespace CoreDeck {
     struct AvdInfo {
         std::string Name;
         std::string DisplayName;

@@ -8,7 +8,7 @@
 #include <fstream>
 #include <unordered_map>
 
-namespace Emu {
+namespace CoreDeck {
     static std::unordered_map<std::string, std::string> ParseConfigFile(const std::string &path) {
         std::unordered_map<std::string, std::string> config;
         std::ifstream file(path);

@@ -6,7 +6,7 @@
 
 #include "imgui.h"
 
-namespace Emu {
+namespace CoreDeck {
     void ApplyCustomImGuiTheme() {
         auto &style = ImGui::GetStyle();
 

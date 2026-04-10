@@ -6,7 +6,7 @@
 #define EMU_LAUNCHER_COMPONENTS_H
 #include "imgui.h"
 
-namespace Emu {
+namespace CoreDeck {
     struct StyleColor {
         int count = 0;
 

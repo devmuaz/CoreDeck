@@ -7,18 +7,25 @@
 
 #include <string>
 #include <vector>
-#include <sys/types.h>
 
-namespace Emu {
+#ifdef _WIN32
+    #include <windows.h>
+    using ProcessId = DWORD;
+#else
+    #include <sys/types.h>
+    using ProcessId = pid_t;
+#endif
+
+namespace CoreDeck {
     std::string RunCommand(const std::string &cmd);
 
-    pid_t SpawnProcess(const std::string &path, const std::vector<std::string> &args);
+    ProcessId SpawnProcess(const std::string &path, const std::vector<std::string> &args);
 
-    pid_t SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd);
+    ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd);
 
-    bool KillProcess(pid_t pid);
+    bool KillProcess(ProcessId pid);
 
-    bool IsProcessRunning(pid_t pid);
+    bool IsProcessRunning(ProcessId pid);
 }
 
 #endif //EMU_LAUNCHER_PROCESS_H

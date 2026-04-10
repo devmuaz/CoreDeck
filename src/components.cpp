@@ -7,7 +7,7 @@
 #include "imgui.h"
 #include "utilities.h"
 
-namespace Emu {
+namespace CoreDeck {
     bool PrimaryButton(const char *label, const bool isEnabled) {
         if (!isEnabled) ImGui::BeginDisabled();
 

@@ -11,7 +11,7 @@
 #include "sdk.h"
 #include <unordered_map>
 
-namespace Emu {
+namespace CoreDeck {
     class Application {
     public:
         Application();

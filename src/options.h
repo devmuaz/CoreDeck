@@ -9,7 +9,7 @@
 #include <vector>
 #include <rfl.hpp>
 
-namespace Emu {
+namespace CoreDeck {
     enum class OptionType {
         Default = 0,
         TextInput,

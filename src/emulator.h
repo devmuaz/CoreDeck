@@ -11,11 +11,12 @@
 
 #include "log_buffer.h"
 #include "sdk.h"
+#include "process.h"
 
-namespace Emu {
+namespace CoreDeck {
     struct EmulatorInstance {
         std::string AvdName;
-        pid_t Pid;
+        ProcessId Pid;
         bool IsRunning = false;
         std::shared_ptr<LogBuffer> Log;
         std::jthread ReaderThread;

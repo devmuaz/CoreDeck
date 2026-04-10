@@ -9,7 +9,7 @@
 #include <deque>
 #include <mutex>
 
-namespace Emu {
+namespace CoreDeck {
     class LogBuffer {
     public:
         explicit LogBuffer(std::size_t maxLines = 1000);

@@ -9,7 +9,7 @@
 
 #include "imgui.h"
 
-namespace Emu {
+namespace CoreDeck {
     void ApplyCustomImGuiTheme();
 
     constexpr ImVec4 HexColor(const char *hex, float alpha = 1.0f) {
