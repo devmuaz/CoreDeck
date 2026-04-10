@@ -87,6 +87,21 @@ jobs:
           # Professional code signing for ARM64 binary
           codesign --force --options runtime --deep --sign "$CERTIFICATE_NAME" release/${{ matrix.artifact_name }}/CoreDeck.app
 
+          # Create ZIP for notarization (notarytool requires zip for app bundles)
+          cd release/${{ matrix.artifact_name }}
+          zip -r ../CoreDeck-notarize.zip CoreDeck.app
+          cd ../..
+
+          # Notarize the app bundle
+          xcrun notarytool submit release/CoreDeck-notarize.zip \
+            --apple-id "${{ secrets.APPLE_ID }}" \
+            --password "${{ secrets.APPLE_PASSWORD }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --wait
+
+          # Staple notarization to the app bundle
+          xcrun stapler staple release/${{ matrix.artifact_name }}/CoreDeck.app
+
           # Create DMG for better distribution
           mkdir dmg_temp
           cp -r release/${{ matrix.artifact_name }}/CoreDeck.app dmg_temp/
@@ -95,16 +110,6 @@ jobs:
 
           # Sign the DMG too
           codesign --force --sign "$CERTIFICATE_NAME" release/CoreDeck-${{ steps.version.outputs.version || 'latest' }}.dmg
-
-          # Notarize (submit for Apple approval)
-          xcrun notarytool submit release/CoreDeck-${{ steps.version.outputs.version || 'latest' }}.dmg \
-            --apple-id "${{ secrets.APPLE_ID }}" \
-            --password "${{ secrets.APPLE_PASSWORD }}" \
-            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
-            --wait
-
-          # Staple notarization
-          xcrun stapler staple release/CoreDeck-${{ steps.version.outputs.version || 'latest' }}.dmg
 
           cd release
           tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
