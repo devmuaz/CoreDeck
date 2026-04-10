@@ -54,11 +54,19 @@ target_link_libraries(CoreDeck PRIVATE
         reflectcpp
 )
 
-add_custom_command(TARGET CoreDeck POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets
-        $<IF:$<PLATFORM_ID:Darwin>,$<TARGET_BUNDLE_CONTENT_DIR:CoreDeck>/Resources/assets,$<TARGET_FILE_DIR:CoreDeck>/assets>
-)
+if (APPLE)
+    add_custom_command(TARGET CoreDeck POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_BUNDLE_CONTENT_DIR:CoreDeck>/Resources/assets
+    )
+else ()
+    add_custom_command(TARGET CoreDeck POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:CoreDeck>/assets
+    )
+endif ()
 
 if (WIN32)
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN NOMINMAX)
