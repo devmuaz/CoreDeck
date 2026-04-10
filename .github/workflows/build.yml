@@ -23,13 +23,14 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Set up CMake
+    - name: Check built-in CMake version
+      run: cmake --version
+
+    - name: Set up CMake (if needed)
+      if: matrix.os != 'windows-latest'
       uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.23.0'
-
-    - name: Verify CMake version
-      run: cmake --version
 
     - name: Install dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
