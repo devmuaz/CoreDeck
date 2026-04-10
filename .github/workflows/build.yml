@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop ]
   pull_request:
     branches: [ main ]
 
@@ -14,48 +14,48 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        build_type: [Release]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        build_type: [ Release ]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: Check built-in CMake version
-      run: cmake --version
+      - name: Check built-in CMake version
+        run: cmake --version
 
-    - name: Set up CMake (if needed)
-      if: matrix.os != 'windows-latest'
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        cmake-version: '3.23.0'
+      - name: Set up CMake (if needed)
+        if: matrix.os != 'windows-latest'
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.23.0'
 
-    - name: Install dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+      - name: Install dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
 
-    - name: Install dependencies (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        # macOS has OpenGL frameworks built-in
-        echo "No additional dependencies needed for macOS"
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          # macOS has OpenGL frameworks built-in
+          echo "No additional dependencies needed for macOS"
 
-    - name: Configure CMake
-      run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Configure CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
-    - name: Build
-      run: |
-        cmake --build build --config ${{ matrix.build_type }} --parallel
+      - name: Build
+        run: |
+          cmake --build build --config ${{ matrix.build_type }} --parallel
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: coredeck-${{ matrix.os }}-${{ matrix.build_type }}
-        path: |
-          build/CoreDeck*
-          build/assets/
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coredeck-${{ matrix.os }}-${{ matrix.build_type }}
+          path: |
+            build/CoreDeck*
+            build/assets/

@@ -25,68 +25,72 @@ jobs:
             asset_name: coredeck-macos.tar.gz
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: Check built-in CMake version
-      run: cmake --version
+      - name: Check built-in CMake version
+        run: cmake --version
 
-    - name: Set up CMake (if needed)
-      if: matrix.os != 'windows-latest'
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        cmake-version: '3.23.0'
+      - name: Set up CMake (if needed)
+        if: matrix.os != 'windows-latest'
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.23.0'
 
-    - name: Install dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+      - name: Install dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
 
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build
-      run: cmake --build build --config Release --parallel
+      - name: Build
+        run: cmake --build build --config Release --parallel
 
-    - name: Package artifacts (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        mkdir -p release/${{ matrix.artifact_name }}
-        cp build/CoreDeck release/${{ matrix.artifact_name }}/
-        cp -r build/assets release/${{ matrix.artifact_name }}/
-        cp README.md release/${{ matrix.artifact_name }}/
-        cd release
-        tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
+      - name: Package artifacts (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p release/${{ matrix.artifact_name }}
+          cp build/CoreDeck release/${{ matrix.artifact_name }}/
+          cp -r build/assets release/${{ matrix.artifact_name }}/
+          cp README.md release/${{ matrix.artifact_name }}/
+          cd release
+          tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
 
-    - name: Package artifacts (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        mkdir -p release/${{ matrix.artifact_name }}
-        cp -r build/CoreDeck.app release/${{ matrix.artifact_name }}/
-        mkdir -p release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources
-        cp -r build/assets release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources/
-        cp README.md release/${{ matrix.artifact_name }}/
-        cd release
-        tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
+      - name: Package artifacts (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p release/${{ matrix.artifact_name }}
+          cp -r build/CoreDeck.app release/${{ matrix.artifact_name }}/
+          mkdir -p release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources
+          if [ -d "build/assets" ]; then
+            cp -r build/assets release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources/
+          elif [ -d "assets" ]; then
+            cp -r assets release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources/
+          fi
+          cp README.md release/${{ matrix.artifact_name }}/
+          cd release
+          tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
 
-    - name: Package artifacts (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        mkdir release\${{ matrix.artifact_name }}
-        copy build\Release\CoreDeck.exe release\${{ matrix.artifact_name }}\
-        xcopy /E build\assets release\${{ matrix.artifact_name }}\assets\
-        copy README.md release\${{ matrix.artifact_name }}\
-        cd release
-        powershell Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ${{ matrix.asset_name }}
+      - name: Package artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          mkdir release\${{ matrix.artifact_name }}
+          copy build\Release\CoreDeck.exe release\${{ matrix.artifact_name }}\
+          xcopy /E build\assets release\${{ matrix.artifact_name }}\assets\
+          copy README.md release\${{ matrix.artifact_name }}\
+          cd release
+          powershell Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ${{ matrix.asset_name }}
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.artifact_name }}
-        path: release/${{ matrix.asset_name }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release/${{ matrix.asset_name }}
 
   create-release:
     name: Create GitHub Release
@@ -94,43 +98,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
-    - name: Extract version from tag
-      id: version
-      run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ steps.version.outputs.version }}
-        name: CoreDeck ${{ steps.version.outputs.version }}
-        body: |
-          ## CoreDeck ${{ steps.version.outputs.version }}
-
-          Download the appropriate version for your platform:
-
-          - **Windows**: `coredeck-windows.zip`
-          - **macOS**: `coredeck-macos.tar.gz`
-          - **Linux**: `coredeck-linux.tar.gz`
-
-          ### Installation
-          1. Download the archive for your platform
-          2. Extract the archive
-          3. Run the `CoreDeck` executable
-
-          🤖 *This release was automatically generated by GitHub Actions*
-        files: |
-          artifacts/coredeck-windows/coredeck-windows.zip
-          artifacts/coredeck-macos/coredeck-macos.tar.gz
-          artifacts/coredeck-linux/coredeck-linux.tar.gz
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: CoreDeck ${{ steps.version.outputs.version }}
+          body: |
+            ## CoreDeck ${{ steps.version.outputs.version }}
+            
+            Download the appropriate version for your platform:
+            
+            - **Windows**: `coredeck-windows.zip`
+            - **macOS**: `coredeck-macos.tar.gz`
+            - **Linux**: `coredeck-linux.tar.gz`
+            
+            ### Installation
+            1. Download the archive for your platform
+            2. Extract the archive
+            3. Run the `CoreDeck` executable
+            
+            🤖 *This release was automatically generated by GitHub Actions*
+          files: |
+            artifacts/coredeck-windows/coredeck-windows.zip
+            artifacts/coredeck-macos/coredeck-macos.tar.gz
+            artifacts/coredeck-linux/coredeck-linux.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
