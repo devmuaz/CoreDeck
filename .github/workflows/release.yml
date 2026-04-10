@@ -82,12 +82,6 @@ jobs:
         run: |
           mkdir -p release/${{ matrix.artifact_name }}
           cp -r build/CoreDeck.app release/${{ matrix.artifact_name }}/
-          mkdir -p release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources
-          if [ -d "build/assets" ]; then
-            cp -r build/assets release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources/
-          elif [ -d "assets" ]; then
-            cp -r assets release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources/
-          fi
           cp README.md release/${{ matrix.artifact_name }}/
 
           # Professional code signing for universal binary

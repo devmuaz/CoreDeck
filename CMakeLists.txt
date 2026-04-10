@@ -57,7 +57,7 @@ target_link_libraries(CoreDeck PRIVATE
 add_custom_command(TARGET CoreDeck POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
-        $<TARGET_FILE_DIR:CoreDeck>/assets
+        $<IF:$<PLATFORM_ID:Darwin>,$<TARGET_BUNDLE_CONTENT_DIR:CoreDeck>/Resources/assets,$<TARGET_FILE_DIR:CoreDeck>/assets>
 )
 
 if (WIN32)
