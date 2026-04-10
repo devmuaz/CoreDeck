@@ -315,7 +315,7 @@ namespace CoreDeck {
         constexpr float rightPadding = 8.0f;
         ImGui::SetCursorPosX(windowWidth - searchWidth - rightPadding);
         ImGui::SetNextItemWidth(searchWidth);
-        constexpr std::string searchHint = std::string{Icons::Search} + " Search logs...";
+        const std::string searchHint = std::string{Icons::Search} + " Search logs...";
 
         std::string currentSearch;
         if (m_SelectedAvd >= 0) {
