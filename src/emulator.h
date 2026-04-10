@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <thread>
 #include <atomic>
+#include <memory>
 
 #include "log_buffer.h"
 #include "sdk.h"

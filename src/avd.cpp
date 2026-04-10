@@ -7,6 +7,8 @@
 
 #include <fstream>
 #include <unordered_map>
+#include <filesystem>
+#include <sstream>
 
 namespace CoreDeck {
     static std::unordered_map<std::string, std::string> ParseConfigFile(const std::string &path) {
@@ -101,7 +103,9 @@ namespace CoreDeck {
             }
 
             if (!width.empty() && !height.empty()) {
-                avd.ScreenResolution = std::format("{}x{}", width, height);
+                std::stringstream ss;
+                ss << width << "x" << height;
+                avd.ScreenResolution = ss.str();
             }
 
             if (auto it = config.find("hw.gpu.mode"); it != config.end()) {

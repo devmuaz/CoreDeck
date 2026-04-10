@@ -91,11 +91,11 @@ namespace CoreDeck {
 
         std::string panelTitle = "Options";
         if (m_SelectedAvd >= 0 && m_SelectedAvd < m_Avds.size()) {
-            panelTitle = std::format("Options - {}", m_Avds[m_SelectedAvd].DisplayName);
+            panelTitle = "Options - " + m_Avds[m_SelectedAvd].DisplayName;
         }
 
         ImGui::Begin(
-            std::format("{}###Options", panelTitle).c_str(),
+            (panelTitle + "###Options").c_str(),
             nullptr,
             panelFlags
         );
@@ -269,7 +269,7 @@ namespace CoreDeck {
         for (const auto &arg: args) preview += " " + arg;
 
         ImGui::Begin(
-            std::format("Details - {}###Details", DisplayName).c_str(),
+            ("Details - " + DisplayName + "###Details").c_str(),
             nullptr,
             panelFlags
         );
@@ -286,7 +286,7 @@ namespace CoreDeck {
         if (!ApiLevel.empty()) PropertyText("API Level", ApiLevel.c_str());
         if (!Abi.empty()) PropertyText("ABI", Abi.c_str());
         if (!Arch.empty()) PropertyText("Arch", Arch.c_str());
-        if (!RamSize.empty()) PropertyText("RAM", std::format("{} MB", RamSize).c_str());
+        if (!RamSize.empty()) PropertyText("RAM", (RamSize + " MB").c_str());
         if (!ScreenResolution.empty()) PropertyText("Resolution", ScreenResolution.c_str());
         if (!SdCard.empty()) PropertyText("Storage", SdCard.c_str());
         if (!GpuMode.empty()) PropertyText("GPU Mode", GpuMode.c_str());
@@ -315,7 +315,7 @@ namespace CoreDeck {
         constexpr float rightPadding = 8.0f;
         ImGui::SetCursorPosX(windowWidth - searchWidth - rightPadding);
         ImGui::SetNextItemWidth(searchWidth);
-        const std::string searchHint = std::format("{} Search logs...", Icons::Search);
+        constexpr std::string searchHint = std::string{Icons::Search} + " Search logs...";
 
         std::string currentSearch;
         if (m_SelectedAvd >= 0) {

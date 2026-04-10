@@ -8,6 +8,7 @@
 #include <string>
 #include <deque>
 #include <mutex>
+#include <vector>
 
 namespace CoreDeck {
     class LogBuffer {

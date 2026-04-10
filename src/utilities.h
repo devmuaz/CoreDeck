@@ -34,7 +34,7 @@ namespace CoreDeck {
     }
 
     inline std::string IconWithLabel(const char *icon, const char *label) {
-        return std::format("{} {}", icon, label);
+        return std::string{icon} + " " + label;
     }
 
     namespace Icons {
