@@ -84,9 +84,7 @@ jobs:
           cp -r build/CoreDeck.app release/${{ matrix.artifact_name }}/
           cp README.md release/${{ matrix.artifact_name }}/
 
-          # Professional code signing for universal binary
-          # Sign each architecture separately first, then the bundle
-          codesign --force --options runtime --sign "$CERTIFICATE_NAME" release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/MacOS/CoreDeck
+          # Professional code signing for ARM64 binary
           codesign --force --options runtime --deep --sign "$CERTIFICATE_NAME" release/${{ matrix.artifact_name }}/CoreDeck.app
 
           # Create DMG for better distribution
