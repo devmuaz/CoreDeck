@@ -66,6 +66,7 @@ jobs:
       run: |
         mkdir -p release/${{ matrix.artifact_name }}
         cp -r build/CoreDeck.app release/${{ matrix.artifact_name }}/
+        mkdir -p release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources
         cp -r build/assets release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/Resources/
         cp README.md release/${{ matrix.artifact_name }}/
         cd release
