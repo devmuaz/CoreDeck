@@ -1,4 +1,4 @@
-name: Release (Windows, MacOS, and Linux)
+name: Release (Windows, Linux, and Mac)
 
 on:
   push:
@@ -90,7 +90,9 @@ jobs:
           fi
           cp README.md release/${{ matrix.artifact_name }}/
 
-          # Professional code signing
+          # Professional code signing for universal binary
+          # Sign each architecture separately first, then the bundle
+          codesign --force --options runtime --sign "$CERTIFICATE_NAME" release/${{ matrix.artifact_name }}/CoreDeck.app/Contents/MacOS/CoreDeck
           codesign --force --options runtime --deep --sign "$CERTIFICATE_NAME" release/${{ matrix.artifact_name }}/CoreDeck.app
 
           # Create DMG for better distribution
