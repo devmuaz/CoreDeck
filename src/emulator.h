@@ -7,7 +7,8 @@
 
 #include <string>
 #include <unordered_map>
-#include <__thread/jthread.h>
+#include <thread>
+#include <atomic>
 
 #include "log_buffer.h"
 #include "sdk.h"
@@ -19,12 +20,14 @@ namespace CoreDeck {
         ProcessId Pid;
         bool IsRunning = false;
         std::shared_ptr<LogBuffer> Log;
-        std::jthread ReaderThread;
+        std::thread ReaderThread;
+        std::shared_ptr<std::atomic<bool> > StopRequested;
     };
 
     class EmulatorManager {
     public:
         explicit EmulatorManager(SdkInfo sdk);
+        ~EmulatorManager();
 
         bool Launch(const std::string &avdName, const std::vector<std::string> &args);
 
@@ -32,7 +35,7 @@ namespace CoreDeck {
 
         bool IsRunning(const std::string &avdName);
 
-        std::shared_ptr<LogBuffer> GetLog(const std::string& avdName);
+        std::shared_ptr<LogBuffer> GetLog(const std::string &avdName);
 
         void Update();
 

@@ -22,6 +22,29 @@ namespace CoreDeck {
         : m_Sdk(std::move(sdk)) {
     }
 
+    EmulatorManager::~EmulatorManager() {
+        std::lock_guard lock(m_Mutex);
+
+        // Stop all running instances and clean up threads
+        for (auto &instance: m_Instances | std::views::values) {
+            if (instance.IsRunning) {
+                // Signal thread to stop
+                if (instance.StopRequested) {
+                    instance.StopRequested->store(true);
+                }
+
+                // Kill the process
+                KillProcess(instance.Pid);
+                instance.IsRunning = false;
+            }
+
+            // Clean up thread
+            if (instance.ReaderThread.joinable()) {
+                instance.ReaderThread.join();
+            }
+        }
+    }
+
     bool EmulatorManager::Launch(const std::string &avdName, const std::vector<std::string> &args) { {
             std::lock_guard lock(m_Mutex);
             if (const auto it = m_Instances.find(avdName); it != m_Instances.end() && it->second.IsRunning) {
@@ -40,11 +63,12 @@ namespace CoreDeck {
 
         {
             auto log = std::make_shared<LogBuffer>();
-            std::jthread reader([outputFd, log](const std::stop_token &st) {
+            auto stopFlag = std::make_shared<std::atomic<bool> >(false);
+            std::thread reader([outputFd, log, stopFlag]() {
                 std::array<char, 1024> buf{};
                 std::string partial;
 
-                while (!st.stop_requested()) {
+                while (!stopFlag->load()) {
 #ifdef _WIN32
                     if (const int n = _read(outputFd, buf.data(), buf.size()); n > 0) {
 #else
@@ -84,6 +108,7 @@ namespace CoreDeck {
             instance.IsRunning = true;
             instance.Log = log;
             instance.ReaderThread = std::move(reader);
+            instance.StopRequested = stopFlag;
             m_Instances[avdName] = std::move(instance);
         }
 
@@ -97,9 +122,19 @@ namespace CoreDeck {
             return false;
         }
 
+        // Signal the thread to stop
+        if (it->second.StopRequested) {
+            it->second.StopRequested->store(true);
+        }
+
         const bool killed = KillProcess(it->second.Pid);
         if (killed) {
             it->second.IsRunning = false;
+
+            // Wait for the thread to finish
+            if (it->second.ReaderThread.joinable()) {
+                it->second.ReaderThread.join();
+            }
         }
         return killed;
     }
