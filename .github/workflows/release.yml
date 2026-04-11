@@ -31,10 +31,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Check built-in CMake version
-        run: cmake --version
-
-      - name: Set up CMake (if needed)
+      - name: Set up CMake
         if: matrix.os != 'windows-latest'
         uses: jwlawson/actions-setup-cmake@v2
         with:
@@ -64,18 +61,15 @@ jobs:
 
       - name: Setup Apple Developer Signing (macOS)
         if: matrix.os == 'macos-latest'
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
         run: |
-          # Create keychain
           security create-keychain -p "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" build.keychain
-
-          # Import certificate
           echo "${{ secrets.APPLE_CERTIFICATE_BASE64 }}" | base64 -d > certificate.p12
           security import certificate.p12 -k build.keychain -P "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" build.keychain
-
-          # Find the certificate identity
           echo "CERTIFICATE_NAME=$(security find-identity -v -p codesigning build.keychain | grep 'Developer ID Application' | head -1 | sed 's/.*"\(.*\)"/\1/')" >> $GITHUB_ENV
 
       - name: Package and Sign (macOS)
@@ -84,91 +78,49 @@ jobs:
           mkdir -p release/${{ matrix.artifact_name }}
           cp -r build/CoreDeck.app release/${{ matrix.artifact_name }}/
           cp README.md release/${{ matrix.artifact_name }}/
-
-          # Professional code signing for ARM64 binary
           codesign --force --options runtime --deep --sign "$CERTIFICATE_NAME" release/${{ matrix.artifact_name }}/CoreDeck.app
-
-          # Create ZIP for notarization (notarytool requires zip for app bundles)
           cd release/${{ matrix.artifact_name }}
           zip -r ../CoreDeck-notarize.zip CoreDeck.app
           cd ../..
-
-          # Notarize the app bundle
           xcrun notarytool submit release/CoreDeck-notarize.zip \
             --apple-id "${{ secrets.APPLE_ID }}" \
             --password "${{ secrets.APPLE_PASSWORD }}" \
             --team-id "${{ secrets.APPLE_TEAM_ID }}" \
             --wait
-
-          # Staple notarization to the app bundle
           xcrun stapler staple release/${{ matrix.artifact_name }}/CoreDeck.app
-
-          # Create DMG for better distribution
-          mkdir dmg_temp
-          cp -r release/${{ matrix.artifact_name }}/CoreDeck.app dmg_temp/
-          cp README.md dmg_temp/
-          hdiutil create -size 100m -format UDZO -srcfolder dmg_temp -volname "CoreDeck" release/CoreDeck-${{ steps.version.outputs.version || 'latest' }}.dmg
-
-          # Sign the DMG too
-          codesign --force --sign "$CERTIFICATE_NAME" release/CoreDeck-${{ steps.version.outputs.version || 'latest' }}.dmg
-
           cd release
           tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
 
       - name: Install WiX Toolset (Windows)
         if: matrix.os == 'windows-latest'
-        run: |
-          choco install wixtoolset
+        run: choco install wixtoolset
 
       - name: Package artifacts (Windows)
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
-          rem Create MSI and ZIP installers using CPack
           cd build
-
-          rem Generate ZIP package
-          echo "Generating ZIP package..."
           cpack -G ZIP
-
-          rem Generate MSI package
-          echo "Generating MSI package..."
           cpack -G WIX
-
-          rem List all generated files for debugging
-          echo "Generated files:"
-          dir /b *.msi *.zip 2>nul
-
-          rem Create release directory
           mkdir ..\release
+          for %%i in (*.msi) do copy "%%i" "..\release\coredeck-windows.msi"
+          for %%i in (*.zip) do copy "%%i" "..\release\coredeck-windows.zip"
 
-          rem Copy individual files with proper names
-          if exist *.msi (
-              echo "Copying MSI file..."
-              for %%i in (*.msi) do copy "%%i" "..\release\coredeck-windows.msi"
-          ) else (
-              echo "No MSI files found!"
-          )
-
-          if exist *.zip (
-              echo "Copying ZIP file..."
-              for %%i in (*.zip) do copy "%%i" "..\release\coredeck-windows.zip"
-          ) else (
-              echo "No ZIP files found!"
-          )
-
-          rem Show what we created
-          echo "Contents of release directory:"
-          dir "..\release"
-
-      - name: Upload artifacts
+      - name: Upload artifacts (Windows)
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            ${{ matrix.os == 'windows-latest' && 'release/coredeck-windows.msi' || '' }}
-            ${{ matrix.os == 'windows-latest' && 'release/coredeck-windows.zip' || '' }}
-            ${{ matrix.os != 'windows-latest' && format('release/{0}', matrix.asset_name) || '' }}
+            release/coredeck-windows.msi
+            release/coredeck-windows.zip
+
+      - name: Upload artifacts (Linux and macOS)
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release/${{ matrix.asset_name }}
 
   create-release:
     name: Create GitHub Release
@@ -195,28 +147,24 @@ jobs:
           name: CoreDeck ${{ steps.version.outputs.version }}
           body: |
             ## CoreDeck ${{ steps.version.outputs.version }}
-            
+
             Download the appropriate version for your platform:
 
             **Windows:**
             - `coredeck-windows.msi` - Professional installer (recommended)
             - `coredeck-windows.zip` - Portable version
 
-            **Other platforms:**
-            - **macOS**: `coredeck-macos.tar.gz`
-            - **Linux**: `coredeck-linux.tar.gz`
+            **macOS:** `coredeck-macos.tar.gz`
+
+            **Linux:** `coredeck-linux.tar.gz`
 
             ### Installation
-            **Windows users:**
-            - **MSI**: Double-click to install with Start Menu shortcuts
-            - **ZIP**: Extract and run CoreDeck.exe
+            **Windows:** Double-click the MSI to install, or extract the ZIP and run CoreDeck.exe directly.
 
-            **macOS/Linux users:**
-            1. Download and extract the archive
-            2. Run the `CoreDeck` executable
+            **macOS/Linux:** Extract the archive and run the `CoreDeck` executable.
 
             ### Troubleshooting (macOS)
-            If the app won't open after downloading via messaging apps (WhatsApp, iMessage, etc.), this is due to quarantine attributes that macOS adds to files from "untrusted" sources. Remove them with:
+            If the app won't open, remove the quarantine attribute:
             ```bash
             xattr -cr CoreDeck.app
             ```
