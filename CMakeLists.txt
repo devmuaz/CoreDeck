@@ -35,6 +35,13 @@ endif ()
 
 project(CoreDeck VERSION ${PROJECT_VERSION})
 
+string(TIMESTAMP CURRENT_YEAR "%Y")
+
+set(APP_VENDOR "AbdulMuaz Aqeel")
+set(APP_DESCRIPTION "Professional Android emulator and AVD management tool with an intuitive GUI interface.")
+set(APP_DESCRIPTION_SHORT "Android Emulator and AVD Manager")
+set(APP_BUNDLE_ID "com.devmuaz.coredeck")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -62,7 +69,7 @@ add_subdirectory(extern/reflect-cpp)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
-add_executable(CoreDeck
+add_executable(${PROJECT_NAME}
         ${IMGUI_SOURCES}
         src/main.cpp
         src/sdk.cpp
@@ -77,76 +84,76 @@ add_executable(CoreDeck
         src/paths.cpp
 )
 
-target_include_directories(CoreDeck PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
 )
 
-target_link_libraries(CoreDeck PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
         glfw
         OpenGL::GL
         reflectcpp
 )
 
 if (APPLE)
-    add_custom_command(TARGET CoreDeck POST_BUILD
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/assets
-            $<TARGET_BUNDLE_CONTENT_DIR:CoreDeck>/Resources/assets
+            $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets
     )
 else ()
-    add_custom_command(TARGET CoreDeck POST_BUILD
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/assets
-            $<TARGET_FILE_DIR:CoreDeck>/assets
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
     )
 endif ()
 
 if (WIN32)
-    target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN NOMINMAX)
-    target_link_libraries(CoreDeck PRIVATE shell32)
-    target_link_options(CoreDeck PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE COREDECK_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE shell32)
+    target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
     if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
-        set_property(TARGET CoreDeck PROPERTY WIN32_EXECUTABLE_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
+        set_property(TARGET ${PROJECT_NAME} PROPERTY WIN32_EXECUTABLE_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
     endif ()
 elseif (APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
-    target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_MACOS GL_SILENCE_DEPRECATION)
-    target_link_libraries(CoreDeck PRIVATE "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
-    set_target_properties(CoreDeck PROPERTIES
+    target_compile_definitions(${PROJECT_NAME} PRIVATE COREDECK_PLATFORM_MACOS GL_SILENCE_DEPRECATION)
+    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
             MACOSX_BUNDLE TRUE
-            MACOSX_BUNDLE_GUI_IDENTIFIER com.devmuaz.coredeck
-            MACOSX_BUNDLE_BUNDLE_NAME "CoreDeck"
+            MACOSX_BUNDLE_GUI_IDENTIFIER "${APP_BUNDLE_ID}"
+            MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
             MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_BUILD_NUMBER}"
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION}"
-            MACOSX_BUNDLE_EXECUTABLE_NAME "CoreDeck"
-            MACOSX_BUNDLE_INFO_STRING "Android Emulator and AVD Manager"
-            MACOSX_BUNDLE_COPYRIGHT "Copyright © 2026 CoreDeck"
+            MACOSX_BUNDLE_EXECUTABLE_NAME "${PROJECT_NAME}"
+            MACOSX_BUNDLE_INFO_STRING "${APP_DESCRIPTION_SHORT}"
+            MACOSX_BUNDLE_COPYRIGHT "Copyright © ${CURRENT_YEAR} ${PROJECT_NAME}"
     )
     if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
-        set_target_properties(CoreDeck PROPERTIES MACOSX_BUNDLE_ICON_FILE icon.icns)
-        add_custom_command(TARGET CoreDeck POST_BUILD
+        set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE icon.icns)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
                 "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns"
-                "$<TARGET_BUNDLE_CONTENT_DIR:CoreDeck>/Resources/icon.icns"
+                "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/icon.icns"
         )
     endif ()
 else ()
-    target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_LINUX)
-    target_link_libraries(CoreDeck PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE COREDECK_PLATFORM_LINUX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
 endif ()
 
 set(CPACK_GENERATOR "WIX;ZIP")
-set(CPACK_PACKAGE_NAME "CoreDeck")
-set(CPACK_PACKAGE_VENDOR "AbdulMuaz Aqeel")
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_PACKAGE_VENDOR "${APP_VENDOR}")
 set(CPACK_PACKAGE_VERSION "${CMAKE_PROJECT_VERSION}")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Android Emulator and AVD Manager")
-set(CPACK_PACKAGE_DESCRIPTION "Professional Android emulator and AVD management tool with an intuitive GUI interface.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${APP_DESCRIPTION_SHORT}")
+set(CPACK_PACKAGE_DESCRIPTION "${APP_DESCRIPTION}")
 
 if (WIN32)
     set(CPACK_WIX_UPGRADE_GUID "B8F3E5D2-4A7C-4D2B-9E1F-6C8A5B3D7E9F")
-    set(CPACK_WIX_PROGRAM_MENU_FOLDER "CoreDeck")
+    set(CPACK_WIX_PROGRAM_MENU_FOLDER "${PROJECT_NAME}")
     set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://github.com/devmuaz")
     if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
         set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
