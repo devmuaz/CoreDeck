@@ -1,5 +1,39 @@
 cmake_minimum_required(VERSION 3.23)
-project(CoreDeck)
+
+find_package(Git QUIET)
+if (GIT_FOUND)
+    execute_process(
+            COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE GIT_TAG_VERSION
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    execute_process(
+            COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE GIT_COMMIT_COUNT
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    if (GIT_TAG_VERSION)
+        string(REGEX REPLACE "^v" "" PROJECT_VERSION ${GIT_TAG_VERSION})
+    else ()
+        set(PROJECT_VERSION "0.0.8-dev")
+    endif ()
+
+    if (GIT_COMMIT_COUNT)
+        set(PROJECT_BUILD_NUMBER ${GIT_COMMIT_COUNT})
+    else ()
+        set(PROJECT_BUILD_NUMBER "1")
+    endif ()
+else ()
+    set(PROJECT_VERSION "0.0.8-dev")
+    set(PROJECT_BUILD_NUMBER "1")
+endif ()
+
+project(CoreDeck VERSION ${PROJECT_VERSION})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -84,8 +118,8 @@ elseif (APPLE)
             MACOSX_BUNDLE TRUE
             MACOSX_BUNDLE_GUI_IDENTIFIER com.devmuaz.coredeck
             MACOSX_BUNDLE_BUNDLE_NAME "CoreDeck"
-            MACOSX_BUNDLE_BUNDLE_VERSION "2"
-            MACOSX_BUNDLE_SHORT_VERSION_STRING "0.0.8"
+            MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_BUILD_NUMBER}"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION}"
             MACOSX_BUNDLE_EXECUTABLE_NAME "CoreDeck"
             MACOSX_BUNDLE_INFO_STRING "Android Emulator and AVD Manager"
             MACOSX_BUNDLE_COPYRIGHT "Copyright © 2026 CoreDeck"
@@ -106,7 +140,7 @@ endif ()
 set(CPACK_GENERATOR "WIX;ZIP")
 set(CPACK_PACKAGE_NAME "CoreDeck")
 set(CPACK_PACKAGE_VENDOR "AbdulMuaz Aqeel")
-set(CPACK_PACKAGE_VERSION "0.0.8")
+set(CPACK_PACKAGE_VERSION "${CMAKE_PROJECT_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Android Emulator and AVD Manager")
 set(CPACK_PACKAGE_DESCRIPTION "Professional Android emulator and AVD management tool with an intuitive GUI interface.")
 
