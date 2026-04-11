@@ -5,6 +5,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#include <windows.h>
 #endif
 
 #include "imgui.h"
@@ -18,8 +19,23 @@
 #include "utilities.h"
 
 int main() {
+#ifdef _WIN32
+    // Ensure working directory is always the folder containing the executable.
+    // Without this, relative paths like "assets/..." fail when launched from
+    // a Desktop or Start Menu shortcut.
+    {
+        char exePath[MAX_PATH];
+        GetModuleFileNameA(nullptr, exePath, MAX_PATH);
+        std::filesystem::current_path(std::filesystem::path(exePath).parent_path());
+    }
+#endif
+
     if (!glfwInit()) {
+#ifdef _WIN32
+        MessageBoxA(nullptr, "Failed to initialize GLFW.", "CoreDeck", MB_OK | MB_ICONERROR);
+#else
         std::fprintf(stderr, "Failed to initialize GLFW\n");
+#endif
         return 1;
     }
 
@@ -35,7 +51,12 @@ int main() {
         1200, 800, "CoreDeck", nullptr, nullptr
     );
     if (!window) {
+#ifdef _WIN32
+        MessageBoxA(nullptr, "Failed to create window.\nYour system may not support OpenGL 3.3.", "CoreDeck",
+                    MB_OK | MB_ICONERROR);
+#else
         std::fprintf(stderr, "Failed to create GLFW window\n");
+#endif
         glfwTerminate();
         return 1;
     }
