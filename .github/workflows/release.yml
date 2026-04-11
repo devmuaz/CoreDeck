@@ -121,21 +121,22 @@ jobs:
 
       - name: Package artifacts (Windows)
         if: matrix.os == 'windows-latest'
+        shell: cmd
         run: |
-          # Create MSI and ZIP installers using CPack
+          rem Create MSI and ZIP installers using CPack
           cd build
           cpack -G WIX -G ZIP
 
-          # Move CPack-generated files to release directory
+          rem Move CPack-generated files to release directory
           mkdir ..\release\${{ matrix.artifact_name }}
 
-          # Copy CPack outputs (MSI and ZIP)
-          for /f %%i in ('dir /b *.msi 2^>nul') do copy "%%i" "..\release\${{ matrix.artifact_name }}\"
-          for /f %%i in ('dir /b *.zip 2^>nul') do copy "%%i" "..\release\${{ matrix.artifact_name }}\"
+          rem Copy CPack outputs (MSI and ZIP)
+          for %%i in (*.msi) do copy "%%i" "..\release\${{ matrix.artifact_name }}\"
+          for %%i in (*.zip) do copy "%%i" "..\release\${{ matrix.artifact_name }}\"
 
           copy ..\README.md ..\release\${{ matrix.artifact_name }}\
 
-          # Create final release archive containing both MSI and ZIP
+          rem Create final release archive containing both MSI and ZIP
           cd ..\release
           powershell Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ${{ matrix.asset_name }}
 
