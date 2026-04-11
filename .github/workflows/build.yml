@@ -20,11 +20,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
-      - name: Check built-in CMake version
-        run: cmake --version
-
-      - name: Set up CMake (if needed)
+      - name: Set up CMake
         if: matrix.os != 'windows-latest'
         uses: jwlawson/actions-setup-cmake@v2
         with:
@@ -36,19 +34,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
 
-      - name: Install dependencies (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          # macOS has OpenGL frameworks built-in
-          echo "No additional dependencies needed for macOS"
-
       - name: Configure CMake
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
-        run: |
-          cmake --build build --config ${{ matrix.build_type }} --parallel
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
