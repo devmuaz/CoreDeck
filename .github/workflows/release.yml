@@ -19,7 +19,7 @@ jobs:
             asset_name: coredeck-linux.tar.gz
           - os: windows-latest
             artifact_name: coredeck-windows
-            asset_name: coredeck-windows.zip
+            asset_name: coredeck-windows
           - os: macos-latest
             artifact_name: coredeck-macos
             asset_name: coredeck-macos.tar.gz
@@ -125,26 +125,49 @@ jobs:
         run: |
           rem Create MSI and ZIP installers using CPack
           cd build
-          cpack -G WIX -G ZIP
 
-          rem Move CPack-generated files to release directory
-          mkdir ..\release\${{ matrix.artifact_name }}
+          rem Generate ZIP package
+          echo "Generating ZIP package..."
+          cpack -G ZIP
 
-          rem Copy CPack outputs (MSI and ZIP)
-          for %%i in (*.msi) do copy "%%i" "..\release\${{ matrix.artifact_name }}\"
-          for %%i in (*.zip) do copy "%%i" "..\release\${{ matrix.artifact_name }}\"
+          rem Generate MSI package
+          echo "Generating MSI package..."
+          cpack -G WIX
 
-          copy ..\README.md ..\release\${{ matrix.artifact_name }}\
+          rem List all generated files for debugging
+          echo "Generated files:"
+          dir /b *.msi *.zip 2>nul
 
-          rem Create final release archive containing both MSI and ZIP
-          cd ..\release
-          powershell Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ${{ matrix.asset_name }}
+          rem Create release directory
+          mkdir ..\release
+
+          rem Copy individual files with proper names
+          if exist *.msi (
+              echo "Copying MSI file..."
+              for %%i in (*.msi) do copy "%%i" "..\release\coredeck-windows.msi"
+          ) else (
+              echo "No MSI files found!"
+          )
+
+          if exist *.zip (
+              echo "Copying ZIP file..."
+              for %%i in (*.zip) do copy "%%i" "..\release\coredeck-windows.zip"
+          ) else (
+              echo "No ZIP files found!"
+          )
+
+          rem Show what we created
+          echo "Contents of release directory:"
+          dir "..\release"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: release/${{ matrix.asset_name }}
+          path: |
+            ${{ matrix.os == 'windows-latest' && 'release/coredeck-windows.msi' || '' }}
+            ${{ matrix.os == 'windows-latest' && 'release/coredeck-windows.zip' || '' }}
+            ${{ matrix.os != 'windows-latest' && format('release/{0}', matrix.asset_name) || '' }}
 
   create-release:
     name: Create GitHub Release
@@ -173,20 +196,23 @@ jobs:
             ## CoreDeck ${{ steps.version.outputs.version }}
             
             Download the appropriate version for your platform:
-            
-            - **Windows**: `coredeck-windows.zip`
+
+            **Windows:**
+            - `coredeck-windows.msi` - Professional installer (recommended)
+            - `coredeck-windows.zip` - Portable version
+
+            **Other platforms:**
             - **macOS**: `coredeck-macos.tar.gz`
             - **Linux**: `coredeck-linux.tar.gz`
-            
+
             ### Installation
-            **Windows users:** Extract the zip and choose between:
-            - `CoreDeck-0.x.x.msi` - Professional installer (recommended)
-            - `CoreDeck-0.x.x.zip` - Portable version
+            **Windows users:**
+            - **MSI**: Double-click to install with Start Menu shortcuts
+            - **ZIP**: Extract and run CoreDeck.exe
 
             **macOS/Linux users:**
-            1. Download the archive for your platform
-            2. Extract the archive
-            3. Run the `CoreDeck` executable
+            1. Download and extract the archive
+            2. Run the `CoreDeck` executable
 
             ### Troubleshooting (macOS)
             If the app won't open after downloading via messaging apps (WhatsApp, iMessage, etc.), this is due to quarantine attributes that macOS adds to files from "untrusted" sources. Remove them with:
@@ -194,6 +220,7 @@ jobs:
             xattr -cr CoreDeck.app
             ```
           files: |
+            artifacts/coredeck-windows/coredeck-windows.msi
             artifacts/coredeck-windows/coredeck-windows.zip
             artifacts/coredeck-macos/coredeck-macos.tar.gz
             artifacts/coredeck-linux/coredeck-linux.tar.gz
