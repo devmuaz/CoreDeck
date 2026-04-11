@@ -71,6 +71,10 @@ endif ()
 if (WIN32)
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN NOMINMAX)
     target_link_libraries(CoreDeck PRIVATE shell32)
+    set_target_properties(CoreDeck PROPERTIES WIN32_EXECUTABLE TRUE)
+    if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
+        set_property(TARGET CoreDeck PROPERTY WIN32_EXECUTABLE_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
+    endif ()
 elseif (APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
@@ -86,7 +90,33 @@ elseif (APPLE)
             MACOSX_BUNDLE_INFO_STRING "Android Emulator and AVD Manager"
             MACOSX_BUNDLE_COPYRIGHT "Copyright © 2026 CoreDeck"
     )
+    if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
+        set_target_properties(CoreDeck PROPERTIES MACOSX_BUNDLE_ICON_FILE icon.icns)
+        add_custom_command(TARGET CoreDeck POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns"
+                "$<TARGET_BUNDLE_CONTENT_DIR:CoreDeck>/Resources/icon.icns"
+        )
+    endif ()
 else ()
     target_compile_definitions(CoreDeck PRIVATE COREDECK_PLATFORM_LINUX)
     target_link_libraries(CoreDeck PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
 endif ()
+
+set(CPACK_GENERATOR "WIX;ZIP")
+set(CPACK_PACKAGE_NAME "CoreDeck")
+set(CPACK_PACKAGE_VENDOR "AbdulMuaz Aqeel")
+set(CPACK_PACKAGE_VERSION "0.0.8")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Android Emulator and AVD Manager")
+set(CPACK_PACKAGE_DESCRIPTION "Professional Android emulator and AVD management tool with an intuitive GUI interface.")
+
+if (WIN32)
+    set(CPACK_WIX_UPGRADE_GUID "B8F3E5D2-4A7C-4D2B-9E1F-6C8A5B3D7E9F")
+    set(CPACK_WIX_PROGRAM_MENU_FOLDER "CoreDeck")
+    set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://github.com/devmuaz")
+    if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
+        set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
+    endif ()
+endif ()
+
+include(CPack)
