@@ -6,12 +6,16 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
 #endif
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
+#ifdef _WIN32
+#include <GLFW/glfw3native.h>
+#endif
 #include <cstdio>
 #include <ostream>
 #include <filesystem>
@@ -23,11 +27,9 @@ int main() {
     // Ensure working directory is always the folder containing the executable.
     // Without this, relative paths like "assets/..." fail when launched from
     // a Desktop or Start Menu shortcut.
-    {
-        char exePath[MAX_PATH];
-        GetModuleFileNameA(nullptr, exePath, MAX_PATH);
-        std::filesystem::current_path(std::filesystem::path(exePath).parent_path());
-    }
+    char exePath[MAX_PATH];
+    GetModuleFileNameA(nullptr, exePath, MAX_PATH);
+    std::filesystem::current_path(std::filesystem::path(exePath).parent_path());
 #endif
 
     if (!glfwInit()) {
@@ -63,6 +65,13 @@ int main() {
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+
+#ifdef _WIN32
+    HWND hwnd = glfwGetWin32Window(window);
+    HICON icon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(1));
+    SendMessage(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(icon));
+    SendMessage(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon));
+#endif
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

@@ -167,7 +167,16 @@ install(TARGETS ${PROJECT_NAME}
         BUNDLE DESTINATION .
         RUNTIME DESTINATION .
 )
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)
+if (WIN32)
+    # App icon embedded in the .exe file, assets/acons is redundant here!
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION . PATTERN "icons" EXCLUDE)
+elseif (APPLE)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION . PATTERN "icons" EXCLUDE)
+    install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.icns DESTINATION assets/icons)
+else ()
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION . PATTERN "icons" EXCLUDE)
+    install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.png DESTINATION assets/icons)
+endif ()
 
 if (WIN32)
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
