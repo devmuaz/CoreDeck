@@ -20,7 +20,9 @@
 #include <ostream>
 #include <filesystem>
 #include "application.h"
+#include "paths.h"
 #include "utilities.h"
+
 
 int main() {
 #ifdef _WIN32
@@ -49,9 +51,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow *window = glfwCreateWindow(
-        1200, 800, "CoreDeck", nullptr, nullptr
-    );
+    GLFWwindow *window = glfwCreateWindow(1200, 800, "CoreDeck", nullptr, nullptr);
     if (!window) {
 #ifdef _WIN32
         MessageBoxA(nullptr, "Failed to create window.\nYour system may not support OpenGL 3.3.", "CoreDeck",
@@ -77,6 +77,9 @@ int main() {
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    static std::string imguiIniPath = CoreDeck::Paths::GetAppConfigPath("imgui.ini");
+    io.IniFilename = imguiIniPath.c_str();
 
     if (std::filesystem::exists("assets/fonts/JetBrainsMono-Regular.ttf")) {
         io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrainsMono-Regular.ttf", 16.0f);

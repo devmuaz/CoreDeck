@@ -6,11 +6,12 @@
 #define EMU_LAUNCHER_UTILITIES_H
 #include <format>
 #include <string>
-
 #include "imgui.h"
 
 namespace CoreDeck {
     void ApplyCustomImGuiTheme();
+
+    void OpenUrl(const char *url);
 
     constexpr ImVec4 HexColor(const char *hex, float alpha = 1.0f) {
         auto hexToByte = [](const char hi, const char lo) -> float {

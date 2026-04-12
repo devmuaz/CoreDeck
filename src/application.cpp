@@ -56,41 +56,48 @@ namespace CoreDeck {
         if (firstLaunch) {
             firstLaunch = false;
 
-            ImGui::DockBuilderRemoveNode(dockSpaceId);
-            ImGui::DockBuilderAddNode(dockSpaceId, ImGuiDockNodeFlags_DockSpace);
-            ImGui::DockBuilderSetNodeSize(dockSpaceId, ImGui::GetMainViewport()->Size);
+            // Only build the default layout if ImGui has no saved layout
+            if (ImGui::DockBuilderGetNode(dockSpaceId) == nullptr ||
+                ImGui::DockBuilderGetNode(dockSpaceId)->ChildNodes[0] == nullptr) {
+                ImGui::DockBuilderRemoveNode(dockSpaceId);
+                ImGui::DockBuilderAddNode(dockSpaceId, ImGuiDockNodeFlags_DockSpace);
+                ImGui::DockBuilderSetNodeSize(dockSpaceId, ImGui::GetMainViewport()->Size);
 
-            ImGuiID topId, bottomId;
-            ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.40f, &bottomId, &topId);
+                ImGuiID topId, bottomId;
+                ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.40f, &bottomId, &topId);
 
-            ImGuiID leftId, centerId;
-            ImGui::DockBuilderSplitNode(topId, ImGuiDir_Left, 0.25, &leftId, &centerId);
+                ImGuiID leftId, centerId;
+                ImGui::DockBuilderSplitNode(topId, ImGuiDir_Left, 0.25, &leftId, &centerId);
 
-            ImGuiID middleId, rightId;
-            ImGui::DockBuilderSplitNode(centerId, ImGuiDir_Right, 0.40f, &rightId, &middleId);
+                ImGuiID middleId, rightId;
+                ImGui::DockBuilderSplitNode(centerId, ImGuiDir_Right, 0.40f, &rightId, &middleId);
 
-            ImGui::DockBuilderDockWindow("Options", leftId);
-            ImGui::DockBuilderDockWindow("AVDs", middleId);
-            ImGui::DockBuilderDockWindow("Details", rightId);
-            ImGui::DockBuilderDockWindow("Output Log", bottomId);
+                ImGui::DockBuilderDockWindow("Options", leftId);
+                ImGui::DockBuilderDockWindow("AVDs", middleId);
+                ImGui::DockBuilderDockWindow("Details", rightId);
+                ImGui::DockBuilderDockWindow("Output Log", bottomId);
 
-            ImGui::DockBuilderFinish(dockSpaceId);
+                ImGui::DockBuilderFinish(dockSpaceId);
 
-            auto configureNode = [](const ImGuiID id) {
-                if (ImGuiDockNode *node = ImGui::DockBuilderGetNode(id)) {
-                    node->LocalFlags |= ImGuiDockNodeFlags_NoWindowMenuButton;
-                }
-            };
-            configureNode(leftId);
-            configureNode(middleId);
-            configureNode(rightId);
-            configureNode(bottomId);
+                auto configureNode = [](const ImGuiID id) {
+                    if (ImGuiDockNode *node = ImGui::DockBuilderGetNode(id)) {
+                        node->LocalFlags |= ImGuiDockNodeFlags_NoWindowMenuButton;
+                    }
+                };
+                configureNode(leftId);
+                configureNode(middleId);
+                configureNode(rightId);
+                configureNode(bottomId);
+            }
         }
 
+        m_BuildMenuBar();
         m_BuildOptionsPanel();
         m_BuildAvdListPanel();
         m_BuildAvdDetailsPanel();
         m_BuildLogPanel();
+        m_BuildAboutDialog();
+        m_BuildDeleteDialog();
 
         m_Manager.Update();
     }
@@ -217,6 +224,10 @@ namespace CoreDeck {
                     auto wipeArgs = args;
                     wipeArgs.emplace_back("-wipe-data");
                     m_Manager.Launch(avd.Name, wipeArgs);
+                }
+                ImGui::SameLine();
+                if (NegativeButton(IconWithLabel(Icons::Trash, "Delete").c_str())) {
+                    m_ShowDeleteDialog = true;
                 }
             }
         }
@@ -401,6 +412,98 @@ namespace CoreDeck {
 
         ImGui::EndChild();
         ImGui::End();
+    }
+
+    void Application::m_BuildMenuBar() {
+        if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("Help")) {
+                if (ImGui::MenuItem(IconWithLabel(Icons::Info, "About CoreDeck").c_str())) {
+                    m_ShowAboutDialog = true;
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+    }
+
+    void Application::m_BuildAboutDialog() {
+        if (!m_ShowAboutDialog) return;
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(420, 0), ImGuiCond_Appearing);
+
+        constexpr ImGuiWindowFlags flags =
+                ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoDocking;
+
+        if (ImGui::Begin("About CoreDeck", &m_ShowAboutDialog, flags)) {
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            const float titleWidth = ImGui::CalcTextSize("CoreDeck").x;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5f);
+            ImGui::TextColored(HexColor("#F2F2F2"), "CoreDeck");
+            ImGui::PopFont();
+
+            const std::string versionText = "Version " COREDECK_VERSION " (Build " COREDECK_BUILD_NUMBER ")";
+            const float versionWidth = ImGui::CalcTextSize(versionText.c_str()).x;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - versionWidth) * 0.5f);
+            ImGui::TextColored(HexColor("#66666B"), "%s", versionText.c_str());
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            const auto desc = COREDECK_DESCRIPTION;
+            const float descWidth = ImGui::CalcTextSize(desc).x;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - descWidth) * 0.5f);
+            ImGui::TextUnformatted(desc);
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            PropertyText("Author", COREDECK_VENDOR);
+            PropertyText("License", "MIT");
+            if (PropertyText("GitHub", "github.com/devmuaz/CoreDeck", true)) {
+                OpenUrl("https://github.com/devmuaz/CoreDeck");
+            }
+            PropertyText("Built with", "C++20, Dear ImGui, GLFW, OpenGL");
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            const std::string copyright = "Copyright " "\xC2\xA9" " " COREDECK_YEAR " " COREDECK_VENDOR;
+            const float copyrightWidth = ImGui::CalcTextSize(copyright.c_str()).x;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - copyrightWidth) * 0.5f);
+            ImGui::TextColored(HexColor("#66666B"), "%s", copyright.c_str());
+
+            ImGui::Spacing();
+        }
+        ImGui::End();
+    }
+
+    void Application::m_BuildDeleteDialog() {
+        if (m_SelectedAvd < 0 || m_SelectedAvd >= static_cast<int>(m_Avds.size())) return;
+
+        const auto &avdName = m_Avds[m_SelectedAvd].Name;
+        const std::string title = "Delete \"" + avdName + "\"?";
+        const DialogResult result = CustomDialog(
+            {
+                .Id = "Delete###DeleteAvdDialog",
+                .isOpen = m_ShowDeleteDialog,
+                .title = title.c_str(),
+                .message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
+                .confirmButtonTitle = "Delete",
+                .cancelButtonTitle = "Cancel",
+                .type = DialogType::Negative
+            }
+        );
+
+        if (result == DialogResult::Confirmed) {
+            DeleteAvd(m_Sdk, avdName);
+            m_RefreshAvds();
+        }
     }
 
     void Application::m_LoadAvdOptions(const std::string &avdName) {

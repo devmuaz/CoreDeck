@@ -28,6 +28,8 @@ namespace CoreDeck {
         std::unordered_map<std::string, std::string> m_PerAvdLogSearch;
         EmulatorManager m_Manager;
         bool m_AutoScroll = true;
+        bool m_ShowAboutDialog = false;
+        bool m_ShowDeleteDialog = false;
 
         void m_RefreshAvds();
 
@@ -38,6 +40,12 @@ namespace CoreDeck {
         void m_BuildAvdDetailsPanel();
 
         void m_BuildLogPanel();
+
+        void m_BuildMenuBar();
+
+        void m_BuildAboutDialog();
+
+        void m_BuildDeleteDialog();
 
         void m_LoadAvdOptions(const std::string &avdName);
 

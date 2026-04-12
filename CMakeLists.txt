@@ -115,16 +115,24 @@ else ()
     )
 endif ()
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+        COREDECK_VERSION="${CMAKE_PROJECT_VERSION}"
+        COREDECK_BUILD_NUMBER="${PROJECT_BUILD_NUMBER}"
+        COREDECK_VENDOR="${APP_VENDOR}"
+        COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
+        COREDECK_YEAR="${CURRENT_YEAR}"
+)
+
 if (WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/resources.rc.in ${CMAKE_BINARY_DIR}/resources.rc @ONLY)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE COREDECK_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
     target_link_libraries(${PROJECT_NAME} PRIVATE shell32)
     target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
     target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/resources.rc)
 elseif (APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE COREDECK_PLATFORM_MACOS GL_SILENCE_DEPRECATION)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE GL_SILENCE_DEPRECATION)
     target_link_libraries(${PROJECT_NAME} PRIVATE "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
     set_target_properties(${PROJECT_NAME} PROPERTIES
             MACOSX_BUNDLE TRUE
@@ -145,7 +153,6 @@ elseif (APPLE)
         )
     endif ()
 else ()
-    target_compile_definitions(${PROJECT_NAME} PRIVATE COREDECK_PLATFORM_LINUX)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
 endif ()
 
