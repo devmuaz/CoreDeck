@@ -40,80 +40,85 @@ namespace CoreDeck {
 
     std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames) {
         std::vector<AvdInfo> avds;
+        avds.reserve(avdNames.size());
 
-        const std::string avdRoot = Paths::GetAvdDirectory();
-        if (avdRoot.empty()) return avds;
         for (const auto &avdName: avdNames) {
-            AvdInfo avd;
-
-            avd.Name = avdName;
-            avd.Path = Paths::JoinPaths({avdRoot, avdName + ".avd"});
-
-            std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
-
-            if (!std::filesystem::exists(configPath)) {
-                avds.push_back(avd);
-                continue;
-            }
-
-            auto config = ParseConfigFile(configPath);
-
-
-            if (auto it = config.find("hw.device.name"); it != config.end()) {
-                avd.Device = it->second;
-            }
-
-            if (auto it = config.find("avd.ini.displayname"); it != config.end()) {
-                avd.DisplayName = it->second;
-            }
-
-            if (auto it = config.find("image.sysdir.1"); it != config.end()) {
-                auto &sysdir = it->second;
-                if (auto start = sysdir.find("android-"); start != std::string::npos) {
-                    start += 8;
-                    if (const auto end = sysdir.find('/', start); end != std::string::npos) {
-                        avd.ApiLevel = sysdir.substr(start, end - start);
-                    }
-                }
-            }
-
-            if (auto it = config.find("abi.type"); it != config.end()) {
-                avd.Abi = it->second;
-            }
-
-            if (auto it = config.find("sdcard.size"); it != config.end()) {
-                avd.SdCard = it->second;
-            }
-
-            if (auto it = config.find("hw.ramSize"); it != config.end()) {
-                avd.RamSize = it->second;
-            }
-
-            if (auto it = config.find("hw.cpu.arch"); it != config.end()) {
-                avd.Arch = it->second;
-            }
-
-            std::string width, height;
-            if (auto it = config.find("hw.lcd.width"); it != config.end()) {
-                width = it->second;
-            }
-
-            if (auto it = config.find("hw.lcd.height"); it != config.end()) {
-                height = it->second;
-            }
-
-            if (!width.empty() && !height.empty()) {
-                std::stringstream ss;
-                ss << width << "x" << height;
-                avd.ScreenResolution = ss.str();
-            }
-
-            if (auto it = config.find("hw.gpu.mode"); it != config.end()) {
-                avd.GpuMode = it->second;
-            }
-
-            avds.push_back(std::move(avd));
+            const auto &avd = LoadAvd(avdName);
+            avds.push_back(avd);
         }
         return avds;
+    }
+
+    static AvdInfo LoadAvd(const std::string &avdName) {
+        AvdInfo avd;
+
+        const std::string avdRoot = Paths::GetAvdDirectory();
+        if (avdRoot.empty()) return avd;
+
+        const std::string path = Paths::JoinPaths({avdRoot, avdName + ".avd"});
+
+        avd.Name = avdName;
+        avd.Path = path;
+
+        std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
+
+        if (!std::filesystem::exists(configPath)) return avd;
+
+        auto config = ParseConfigFile(configPath);
+
+        if (auto it = config.find("hw.device.name"); it != config.end()) {
+            avd.Device = it->second;
+        }
+
+        if (auto it = config.find("avd.ini.displayname"); it != config.end()) {
+            avd.DisplayName = it->second;
+        }
+
+        if (auto it = config.find("image.sysdir.1"); it != config.end()) {
+            auto &sysdir = it->second;
+            if (auto start = sysdir.find("android-"); start != std::string::npos) {
+                start += 8;
+                if (const auto end = sysdir.find('/', start); end != std::string::npos) {
+                    avd.ApiLevel = sysdir.substr(start, end - start);
+                }
+            }
+        }
+
+        if (auto it = config.find("abi.type"); it != config.end()) {
+            avd.Abi = it->second;
+        }
+
+        if (auto it = config.find("sdcard.size"); it != config.end()) {
+            avd.SdCard = it->second;
+        }
+
+        if (auto it = config.find("hw.ramSize"); it != config.end()) {
+            avd.RamSize = it->second;
+        }
+
+        if (auto it = config.find("hw.cpu.arch"); it != config.end()) {
+            avd.Arch = it->second;
+        }
+
+        std::string width, height;
+        if (auto it = config.find("hw.lcd.width"); it != config.end()) {
+            width = it->second;
+        }
+
+        if (auto it = config.find("hw.lcd.height"); it != config.end()) {
+            height = it->second;
+        }
+
+        if (!width.empty() && !height.empty()) {
+            std::stringstream ss;
+            ss << width << "x" << height;
+            avd.ScreenResolution = ss.str();
+        }
+
+        if (auto it = config.find("hw.gpu.mode"); it != config.end()) {
+            avd.GpuMode = it->second;
+        }
+
+        return avd;
     }
 }
