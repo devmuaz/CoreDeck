@@ -24,6 +24,8 @@ namespace CoreDeck {
     };
 
     std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames);
+
+    static AvdInfo LoadAvd(const std::string &avdName);
 }
 
 #endif //EMU_LAUNCHER_AVD_INFO_H
