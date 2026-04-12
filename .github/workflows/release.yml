@@ -14,15 +14,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            artifact_name: coredeck-linux
-            asset_name: coredeck-linux.tar.gz
+          # ubuntu-latest disabled to save Actions minutes
+          # - os: ubuntu-latest
+          #   artifact_name: coredeck-linux
+          #   asset_name: coredeck-linux.tar.gz
           - os: windows-latest
             artifact_name: coredeck-windows
             asset_name: coredeck-windows
-          - os: macos-latest
-            artifact_name: coredeck-macos
-            asset_name: coredeck-macos.tar.gz
+          # macos-latest disabled to save Actions minutes
+          # - os: macos-latest
+          #   artifact_name: coredeck-macos
+          #   asset_name: coredeck-macos.tar.gz
 
     steps:
       - name: Checkout code
@@ -171,8 +173,8 @@ jobs:
           files: |
             artifacts/coredeck-windows/coredeck-windows.msi
             artifacts/coredeck-windows/coredeck-windows.zip
-            artifacts/coredeck-macos/coredeck-macos.tar.gz
-            artifacts/coredeck-linux/coredeck-linux.tar.gz
+            # artifacts/coredeck-macos/coredeck-macos.tar.gz
+            # artifacts/coredeck-linux/coredeck-linux.tar.gz
           draft: false
           prerelease: false
         env:
