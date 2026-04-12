@@ -3,17 +3,30 @@
 //
 
 #include "utilities.h"
-
 #include "imgui.h"
+#include <cstdlib>
+#include <string>
 
 namespace CoreDeck {
+    void OpenUrl(const char *url) {
+#if defined(_WIN32)
+        const std::string cmd = std::string("start ") + url;
+#elif defined(__APPLE__)
+        const std::string cmd = std::string("open ") + url;
+#else
+        const std::string cmd = std::string("xdg-open ") + url;
+#endif
+        std::system(cmd.c_str());
+    }
+
     void ApplyCustomImGuiTheme() {
         auto &style = ImGui::GetStyle();
 
-        style.WindowRounding = 0.0f;
+        style.WindowRounding = 6.0f;
         style.FrameRounding = 6.0f;
         style.GrabRounding = 6.0f;
         style.ScrollbarRounding = 6.0f;
+        style.PopupRounding = 4.0f;
         style.FramePadding = ImVec2(8.0f, 8.0f);
         style.ItemSpacing = ImVec2(8.0f, 8.0f);
         style.WindowPadding = ImVec2(8.0f, 8.0f);
@@ -83,9 +96,12 @@ namespace CoreDeck {
         c[ImGuiCol_ScrollbarGrabActive] = HexColor("#5C5C5E");
 
         // Separator
-        c[ImGuiCol_Separator] = HexColor("#2E2E33");
+        c[ImGuiCol_Separator] = HexColor("#1A1A1E");
         c[ImGuiCol_SeparatorHovered] = HexColor("#4D4D4F");
         c[ImGuiCol_SeparatorActive] = HexColor("#666669");
+
+        // Menu bar
+        c[ImGuiCol_MenuBarBg] = HexColor("#0A0A0C");
 
         // Title bar
         c[ImGuiCol_TitleBg] = HexColor("#0F0F12");

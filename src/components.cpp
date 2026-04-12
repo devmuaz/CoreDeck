@@ -8,7 +8,7 @@
 #include "utilities.h"
 
 namespace CoreDeck {
-    bool PrimaryButton(const char *label, const bool isEnabled) {
+    bool PrimaryButton(const char *label, const bool isEnabled, const ImVec2 size) {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
@@ -19,10 +19,10 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Border, HexColor("#4D4D52"));
 
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label);
+        return ImGui::Button(label, size);
     }
 
-    bool NegativeButton(const char *label, const bool isEnabled) {
+    bool NegativeButton(const char *label, const bool isEnabled, const ImVec2 size) {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
@@ -33,10 +33,10 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Border, HexColor("#E64D40"));
 
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label);
+        return ImGui::Button(label, size);
     }
 
-    bool WarningButton(const char *label, const bool isEnabled) {
+    bool WarningButton(const char *label, const bool isEnabled, const ImVec2 size) {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
@@ -47,10 +47,10 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Border, HexColor("#E6BF26"));
 
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label);
+        return ImGui::Button(label, size);
     }
 
-    bool PositiveButton(const char *label, const bool isEnabled) {
+    bool PositiveButton(const char *label, const bool isEnabled, const ImVec2 size) {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
@@ -61,7 +61,7 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Border, HexColor("#33CC47"));
 
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label);
+        return ImGui::Button(label, size);
     }
 
     void StatusBadge(const char *label, const bool isActive) {
@@ -123,10 +123,39 @@ namespace CoreDeck {
         return clicked;
     }
 
-    void PropertyText(const char *label, const char *value) {
+    bool PropertyText(const char *label, const char *value, const bool isClickable) {
         ImGui::TextDisabled("%s", label);
         ImGui::SameLine();
-        ImGui::Text("%s", value);
+
+        if (!isClickable) {
+            ImGui::Text("%s", value);
+            return false;
+        }
+
+        ImGui::PushID(label);
+        const ImVec2 textPos = ImGui::GetCursorScreenPos();
+        const ImVec2 textSize = ImGui::CalcTextSize(value);
+
+        const bool clicked = ImGui::InvisibleButton("##link", textSize);
+        const bool hovered = ImGui::IsItemHovered();
+
+        const ImU32 color = hovered
+                                ? ImGui::ColorConvertFloat4ToU32(HexColor("#7AB8FF"))
+                                : ImGui::ColorConvertFloat4ToU32(HexColor("#4D9AFF"));
+
+        ImGui::GetWindowDrawList()->AddText(textPos, color, value);
+
+        if (hovered) {
+            ImGui::GetWindowDrawList()->AddLine(
+                ImVec2(textPos.x, textPos.y + textSize.y),
+                ImVec2(textPos.x + textSize.x, textPos.y + textSize.y),
+                color
+            );
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+
+        ImGui::PopID();
+        return clicked;
     }
 
     void PropertyTextWrapped(const char *label, const char *value) {
@@ -146,5 +175,57 @@ namespace CoreDeck {
         sc.push(ImGuiCol_BorderShadow, HexColor("#000000", 0.0f));
         sc.push(ImGuiCol_Text, HexColor("#969696"));
         return ImGui::CollapsingHeader(label, flags);
+    }
+
+    DialogResult CustomDialog(const DialogData &data) {
+        auto result = DialogResult::None;
+        if (!data.isOpen) return result;
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(380, 0), ImGuiCond_Appearing);
+
+        constexpr ImGuiWindowFlags flags =
+                ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoDocking;
+
+        if (ImGui::Begin(data.Id, &data.isOpen, flags)) {
+            ImGui::TextWrapped("%s", data.title);
+            ImGui::Spacing();
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor("#66666B"));
+            ImGui::TextWrapped("%s", data.message);
+            ImGui::PopStyleColor();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
+
+            bool confirmed = false;
+            switch (data.type) {
+                case DialogType::Negative:
+                    confirmed = NegativeButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                    break;
+                case DialogType::Positive:
+                    confirmed = PositiveButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                    break;
+                default:
+                    confirmed = PrimaryButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                    break;
+            }
+            if (confirmed) {
+                result = DialogResult::Confirmed;
+                data.isOpen = false;
+            }
+
+            ImGui::SameLine();
+            if (PrimaryButton(data.cancelButtonTitle, true, ImVec2(halfWidth, 0))) {
+                result = DialogResult::Cancelled;
+                data.isOpen = false;
+            }
+        }
+        ImGui::End();
+        return result;
     }
 }

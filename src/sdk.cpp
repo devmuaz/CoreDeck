@@ -29,6 +29,29 @@ namespace CoreDeck {
 
         sdk.EmulatorPath = Paths::JoinPaths({sdk.SdkPath, "emulator", "emulator" + Paths::GetExecutableExtension()});
 
+        // Detect avdmanager in cmdline-tools (latest or versioned)
+        const std::string cmdlineLatest = Paths::JoinPaths({
+            sdk.SdkPath, "cmdline-tools", "latest", "bin", "avdmanager" + Paths::GetExecutableExtension()
+        });
+        if (std::filesystem::exists(cmdlineLatest)) {
+            sdk.AvdManagerPath = cmdlineLatest;
+        } else {
+            // Search versioned cmdline-tools directories
+            const std::string cmdlineRoot = Paths::JoinPaths({sdk.SdkPath, "cmdline-tools"});
+            if (std::filesystem::exists(cmdlineRoot) && std::filesystem::is_directory(cmdlineRoot)) {
+                for (const auto &entry: std::filesystem::directory_iterator(cmdlineRoot)) {
+                    if (!entry.is_directory()) continue;
+                    const std::string candidate = Paths::JoinPaths({
+                        entry.path().string(), "bin", "avdmanager" + Paths::GetExecutableExtension()
+                    });
+                    if (std::filesystem::exists(candidate)) {
+                        sdk.AvdManagerPath = candidate;
+                        break;
+                    }
+                }
+            }
+        }
+
         if (std::filesystem::exists(sdk.EmulatorPath)) sdk.IsFound = true;
         return sdk;
     }
@@ -50,5 +73,30 @@ namespace CoreDeck {
         }
 
         return avds;
+    }
+
+    bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName) {
+        if (!sdk.AvdManagerPath.empty()) {
+            const std::string cmd = "\"" + sdk.AvdManagerPath + "\" delete avd -n " + avdName;
+            RunCommand(cmd);
+        } else {
+            // Fallback: manually delete the AVD files
+            const std::string avdDir = Paths::GetAvdDirectory();
+            if (avdDir.empty()) return false;
+
+            const std::string avdFolder = Paths::JoinPaths({avdDir, avdName + ".avd"});
+            const std::string avdIni = Paths::JoinPaths({avdDir, avdName + ".ini"});
+
+            std::error_code ec;
+            std::filesystem::remove_all(avdFolder, ec);
+            if (ec) return false;
+
+            std::filesystem::remove(avdIni, ec);
+        }
+
+        // Verify the AVD no longer exists
+        const std::string avdDir = Paths::GetAvdDirectory();
+        const std::string avdFolder = Paths::JoinPaths({avdDir, avdName + ".avd"});
+        return !std::filesystem::exists(avdFolder);
     }
 }
