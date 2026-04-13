@@ -529,7 +529,7 @@ namespace CoreDeck {
         const auto &avdName = m_Avds[m_SelectedAvd].Name;
         const std::string title = "Delete \"" + avdName + "\"?";
         const bool isDeleting = m_AsyncBusy.load();
-        const DialogResult result = CustomDialog(
+        const DialogResult result = SimpleDialog(
             {
                 .Id = "Delete###DeleteAvdDialog",
                 .isOpen = m_ShowDeleteDialog,

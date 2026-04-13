@@ -177,7 +177,7 @@ namespace CoreDeck {
         return ImGui::CollapsingHeader(label, flags);
     }
 
-    DialogResult CustomDialog(const DialogData &data) {
+    DialogResult SimpleDialog(const DialogData &data) {
         auto result = DialogResult::None;
         if (!data.isOpen) return result;
 
