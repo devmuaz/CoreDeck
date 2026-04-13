@@ -40,7 +40,7 @@ namespace CoreDeck::Paths {
 
     std::string GetOptionsConfigPath(const std::string &avdName);
 
-    std::string EnsureConfigDirectoryExists();
+    std::string EnsureOptionsConfigDirectoryExists();
 }
 
 #endif //EMU_LAUNCHER_PATHS_H

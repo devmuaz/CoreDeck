@@ -53,7 +53,7 @@ namespace CoreDeck {
 
     std::string GetOptionsConfigPath(const std::string &avdName);
 
-    void EnsureConfigDirectoryExists();
+    void EnsureOptionsConfigDirectoryExists();
 }
 
 #endif //EMU_LAUNCHER_OPTIONS_H

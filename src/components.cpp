@@ -190,7 +190,7 @@ namespace CoreDeck {
                 ImGuiWindowFlags_NoResize |
                 ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::Begin(data.Id, &data.isOpen, flags)) {
+        if (ImGui::Begin(data.Id, data.isBusy ? nullptr : &data.isOpen, flags)) {
             ImGui::TextWrapped("%s", data.title);
             ImGui::Spacing();
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor("#66666B"));
@@ -202,27 +202,45 @@ namespace CoreDeck {
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
-            bool confirmed = false;
-            switch (data.type) {
-                case DialogType::Negative:
-                    confirmed = NegativeButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
-                    break;
-                case DialogType::Positive:
-                    confirmed = PositiveButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
-                    break;
-                default:
-                    confirmed = PrimaryButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
-                    break;
-            }
-            if (confirmed) {
-                result = DialogResult::Confirmed;
-                data.isOpen = false;
-            }
+            if (data.isBusy) {
+                ImGui::BeginDisabled();
+                const char *busyLabel = data.busyButtonTitle ? data.busyButtonTitle : data.confirmButtonTitle;
+                switch (data.type) {
+                    case DialogType::Negative:
+                        NegativeButton(busyLabel, false, ImVec2(halfWidth, 0));
+                        break;
+                    case DialogType::Positive:
+                        PositiveButton(busyLabel, false, ImVec2(halfWidth, 0));
+                        break;
+                    default:
+                        PrimaryButton(busyLabel, false, ImVec2(halfWidth, 0));
+                        break;
+                }
+                ImGui::SameLine();
+                PrimaryButton(data.cancelButtonTitle, false, ImVec2(halfWidth, 0));
+                ImGui::EndDisabled();
+            } else {
+                bool confirmed = false;
+                switch (data.type) {
+                    case DialogType::Negative:
+                        confirmed = NegativeButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                        break;
+                    case DialogType::Positive:
+                        confirmed = PositiveButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                        break;
+                    default:
+                        confirmed = PrimaryButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                        break;
+                }
+                if (confirmed) {
+                    result = DialogResult::Confirmed;
+                }
 
-            ImGui::SameLine();
-            if (PrimaryButton(data.cancelButtonTitle, true, ImVec2(halfWidth, 0))) {
-                result = DialogResult::Cancelled;
-                data.isOpen = false;
+                ImGui::SameLine();
+                if (PrimaryButton(data.cancelButtonTitle, true, ImVec2(halfWidth, 0))) {
+                    result = DialogResult::Cancelled;
+                    data.isOpen = false;
+                }
             }
         }
         ImGui::End();

@@ -4,7 +4,10 @@
 
 #ifndef EMU_LAUNCHER_COMPONENTS_H
 #define EMU_LAUNCHER_COMPONENTS_H
+#include <string>
+
 #include "imgui.h"
+#include "utilities.h"
 
 namespace CoreDeck {
     struct StyleColor {
@@ -49,8 +52,14 @@ namespace CoreDeck {
         const char *message{};
         const char *confirmButtonTitle{};
         const char *cancelButtonTitle{};
+        const char *busyButtonTitle{};
         DialogType type = DialogType::Default;
+        bool isBusy = false;
     };
+
+    inline std::string IconWithLabel(const char *icon, const char *label) {
+        return StrConcat(icon, " ", label);
+    }
 
     bool PrimaryButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
 
