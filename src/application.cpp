@@ -20,12 +20,12 @@
 
 namespace CoreDeck {
     Application::Application() : m_Sdk(DetectAndroidSdk()), m_Manager(m_Sdk) {
-        EnsureConfigDirectoryExists();
+        EnsureOptionsConfigDirectoryExists();
         m_RefreshAvds();
     }
 
     void Application::m_RefreshAvds() {
-        m_AvdNames = ListAvailableAvds(m_Sdk);
+        m_AvdNames = ListAvdNames(m_Sdk);
         m_Avds = LoadAvds(m_AvdNames);
 
         for (const auto &avdName: m_AvdNames) m_LoadAvdOptions(avdName);
@@ -98,6 +98,7 @@ namespace CoreDeck {
         m_BuildLogPanel();
         m_BuildAboutDialog();
         m_BuildDeleteDialog();
+        m_BuildCreateDialog();
 
         m_Manager.Update();
     }
@@ -199,11 +200,13 @@ namespace CoreDeck {
 
     void Application::m_BuildAvdListPanel() {
         constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-        ImGui::Begin("AVDs - Main###AVDs", nullptr, panelFlags);
+        ImGui::Begin("Available AVDs (Android Virtual Device)###AVDs", nullptr, panelFlags);
 
-        if (PrimaryButton(IconWithLabel(Icons::Refresh, "Refresh").c_str())) {
-            m_RefreshAvds();
-        }
+        if (PrimaryButton(Icons::Refresh)) m_RefreshAvds();
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Refresh the AVD list");
+
+        ImGui::SameLine();
+
 
         if (m_SelectedAvd >= 0) {
             const auto &avd = m_Avds[m_SelectedAvd];
@@ -212,24 +215,54 @@ namespace CoreDeck {
 
             ImGui::SameLine();
             if (isRunning) {
-                if (NegativeButton(IconWithLabel(Icons::Stop, "Turn AVD Off").c_str())) {
+                if (NegativeButton(IconWithLabel(Icons::Stop, "Stop").c_str())) {
                     m_Manager.Stop(avd.Name);
                 }
             } else {
-                if (PositiveButton(IconWithLabel(Icons::Play, "Run").c_str())) {
+                if (PositiveButton(Icons::Play)) {
                     m_Manager.Launch(avd.Name, args);
                 }
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("Run the selected AVD");
                 ImGui::SameLine();
                 if (WarningButton(IconWithLabel(Icons::Terminal, "Wipe & Run").c_str())) {
                     auto wipeArgs = args;
                     wipeArgs.emplace_back("-wipe-data");
                     m_Manager.Launch(avd.Name, wipeArgs);
                 }
-                ImGui::SameLine();
-                if (NegativeButton(IconWithLabel(Icons::Trash, "Delete").c_str())) {
+                ImGui::SameLine(0, 15.0f);
+                ImGui::Text("-");
+                ImGui::SameLine(0, 15.0f);
+                if (NegativeButton(Icons::Trash)) {
                     m_ShowDeleteDialog = true;
                 }
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("Delete currently selected AVD");
             }
+
+            if (isRunning) {
+                ImGui::SameLine(0, 15.0f);
+                ImGui::Text("-");
+            }
+
+            ImGui::SameLine();
+            if (PositiveButton(Icons::Plus)) {
+                m_CreateParams = {};
+                m_SelectedSystemImage = 0;
+                m_SelectedDevice = 0;
+                m_SelectedGpuMode = 0;
+                m_CreateDataReady = false;
+                m_CreateDataLoading = true;
+                m_ShowCreateDialog = true;
+
+                m_CreateDataFuture = std::async(std::launch::async, [this]() {
+                    auto images = ListSystemImages(m_Sdk);
+                    auto devices = ListDeviceProfiles(m_Sdk);
+                    m_SystemImages = std::move(images);
+                    m_DeviceProfiles = std::move(devices);
+                    m_CreateDataLoading = false;
+                    m_CreateDataReady = true;
+                });
+            }
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Create new AVD");
         }
 
         ImGui::Separator();
@@ -486,8 +519,16 @@ namespace CoreDeck {
     void Application::m_BuildDeleteDialog() {
         if (m_SelectedAvd < 0 || m_SelectedAvd >= static_cast<int>(m_Avds.size())) return;
 
+        if (m_ShowDeleteDialog && !m_AsyncBusy && m_AsyncFuture.valid()) {
+            m_AsyncFuture.get();
+            m_ShowDeleteDialog = false;
+            m_RefreshAvds();
+            return;
+        }
+
         const auto &avdName = m_Avds[m_SelectedAvd].Name;
         const std::string title = "Delete \"" + avdName + "\"?";
+        const bool isDeleting = m_AsyncBusy.load();
         const DialogResult result = CustomDialog(
             {
                 .Id = "Delete###DeleteAvdDialog",
@@ -496,14 +537,193 @@ namespace CoreDeck {
                 .message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
                 .confirmButtonTitle = "Delete",
                 .cancelButtonTitle = "Cancel",
-                .type = DialogType::Negative
+                .busyButtonTitle = "Deleting...",
+                .type = DialogType::Negative,
+                .isBusy = isDeleting
             }
         );
 
         if (result == DialogResult::Confirmed) {
-            DeleteAvd(m_Sdk, avdName);
-            m_RefreshAvds();
+            m_AsyncBusy = true;
+            const std::string deletableAvdName = avdName;
+            m_AsyncFuture = std::async(std::launch::async, [this, deletableAvdName]() {
+                DeleteAvd(m_Sdk, deletableAvdName);
+                m_AsyncBusy = false;
+            });
         }
+    }
+
+    void Application::m_BuildCreateDialog() {
+        if (!m_ShowCreateDialog) return;
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Appearing);
+
+        constexpr ImGuiWindowFlags flags =
+                ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoDocking;
+
+        if (ImGui::Begin("Create New AVD###CreateAvdDialog", &m_ShowCreateDialog, flags)) {
+            const bool isLoading = m_CreateDataLoading.load();
+            const bool isCreating = m_AsyncBusy.load();
+            const bool formDisabled = isLoading || isCreating;
+
+            if (formDisabled) ImGui::BeginDisabled();
+
+            ImGui::Text("AVD Name");
+            ImGui::SetNextItemWidth(-1.0f);
+            char nameBuffer[128];
+            strncpy(nameBuffer, m_CreateParams.Name.c_str(), sizeof(nameBuffer) - 1);
+            nameBuffer[sizeof(nameBuffer) - 1] = '\0';
+            if (ImGui::InputTextWithHint("##AvdName", "e.g. MyPixel7", nameBuffer, sizeof(nameBuffer))) {
+                m_CreateParams.Name = nameBuffer;
+            }
+
+            ImGui::Spacing();
+
+            ImGui::Text("Display Name");
+            ImGui::SetNextItemWidth(-1.0f);
+            char displayBuffer[128];
+            strncpy(displayBuffer, m_CreateParams.DisplayName.c_str(), sizeof(displayBuffer) - 1);
+            displayBuffer[sizeof(displayBuffer) - 1] = '\0';
+            if (ImGui::InputTextWithHint("##DisplayName", "e.g. My Pixel 7", displayBuffer, sizeof(displayBuffer))) {
+                m_CreateParams.DisplayName = displayBuffer;
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            ImGui::Text("System Image");
+            if (m_CreateDataReady && m_SystemImages.empty()) {
+                ImGui::TextColored(
+                    HexColor("#E64D40"),
+                    "No system images found. Install one via Android Studio SDK Manager."
+                );
+            } else if (!m_SystemImages.empty()) {
+                ImGui::SetNextItemWidth(-1.0f);
+                if (ImGui::BeginCombo("##SystemImage", m_SystemImages[m_SelectedSystemImage].DisplayName.c_str())) {
+                    for (int i = 0; i < static_cast<int>(m_SystemImages.size()); i++) {
+                        const bool isSelected = (m_SelectedSystemImage == i);
+                        if (ImGui::Selectable(m_SystemImages[i].DisplayName.c_str(), isSelected)) {
+                            m_SelectedSystemImage = i;
+                        }
+                        if (isSelected) ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+            } else {
+                ImGui::SetNextItemWidth(-1.0f);
+                ImGui::BeginCombo("##SystemImage", "Loading...");
+            }
+
+            ImGui::Spacing();
+
+            ImGui::Text("Device");
+            if (m_CreateDataReady && m_DeviceProfiles.empty()) {
+                ImGui::TextColored(HexColor("#E64D40"), "No device profiles found.");
+            } else if (!m_DeviceProfiles.empty()) {
+                ImGui::SetNextItemWidth(-1.0f);
+                if (ImGui::BeginCombo("##device", m_DeviceProfiles[m_SelectedDevice].Name.c_str())) {
+                    for (int i = 0; i < static_cast<int>(m_DeviceProfiles.size()); i++) {
+                        const bool isSelected = (m_SelectedDevice == i);
+                        if (ImGui::Selectable(m_DeviceProfiles[i].Name.c_str(), isSelected)) {
+                            m_SelectedDevice = i;
+                        }
+                        if (isSelected) ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+            } else {
+                ImGui::SetNextItemWidth(-1.0f);
+                ImGui::BeginCombo("##device", "Loading...");
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            ImGui::Text("RAM (MB)");
+            ImGui::SetNextItemWidth(-1.0f);
+            char ramBuffer[32];
+            strncpy(ramBuffer, m_CreateParams.RamSize.c_str(), sizeof(ramBuffer) - 1);
+            ramBuffer[sizeof(ramBuffer) - 1] = '\0';
+            if (ImGui::InputTextWithHint("##ram", "e.g. 2048", ramBuffer, sizeof(ramBuffer))) {
+                m_CreateParams.RamSize = ramBuffer;
+            }
+
+            ImGui::Spacing();
+
+            ImGui::Text("SD Card Size");
+            ImGui::SetNextItemWidth(-1.0f);
+            char sdBuffer[32];
+            strncpy(sdBuffer, m_CreateParams.SdCardSize.c_str(), sizeof(sdBuffer) - 1);
+            sdBuffer[sizeof(sdBuffer) - 1] = '\0';
+            if (ImGui::InputTextWithHint("##sdcard", "e.g. 512M", sdBuffer, sizeof(sdBuffer))) {
+                m_CreateParams.SdCardSize = sdBuffer;
+            }
+
+            ImGui::Spacing();
+
+            ImGui::Text("GPU Mode");
+            static const char *gpuModes[] = {"auto", "host", "swiftshader_indirect", "guest"};
+            ImGui::SetNextItemWidth(-1.0f);
+            if (ImGui::BeginCombo("##gpu", gpuModes[m_SelectedGpuMode])) {
+                for (int i = 0; i < 4; i++) {
+                    const bool isSelected = (m_SelectedGpuMode == i);
+                    if (ImGui::Selectable(gpuModes[i], isSelected)) {
+                        m_SelectedGpuMode = i;
+                    }
+                    if (isSelected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            if (formDisabled) ImGui::EndDisabled();
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
+
+            const bool canCreate = !m_CreateParams.Name.empty() && !m_SystemImages.empty()
+                                   && !m_DeviceProfiles.empty() && !formDisabled;
+
+            if (isCreating) {
+                ImGui::BeginDisabled();
+                PositiveButton("Creating...", false, ImVec2(halfWidth, 0));
+                ImGui::EndDisabled();
+            } else {
+                if (PositiveButton("Create", canCreate, ImVec2(halfWidth, 0))) {
+                    m_CreateParams.SystemImagePackagePath = m_SystemImages[m_SelectedSystemImage].PackagePath;
+                    m_CreateParams.DeviceId = m_DeviceProfiles[m_SelectedDevice].Id;
+                    m_CreateParams.GpuMode = gpuModes[m_SelectedGpuMode];
+
+                    m_AsyncBusy = true;
+                    m_AsyncFuture = std::async(std::launch::async, [this]() {
+                        CreateAvd(m_Sdk, m_CreateParams);
+                        m_AsyncBusy = false;
+                    });
+                }
+            }
+            ImGui::SameLine();
+            if (PrimaryButton("Cancel", !isCreating, ImVec2(halfWidth, 0))) {
+                m_ShowCreateDialog = false;
+            }
+
+            // Check if async create finished
+            if (!m_AsyncBusy && m_AsyncFuture.valid()) {
+                m_AsyncFuture.get();
+                m_ShowCreateDialog = false;
+                m_RefreshAvds();
+            }
+
+            ImGui::Spacing();
+        }
+        ImGui::End();
     }
 
     void Application::m_LoadAvdOptions(const std::string &avdName) {

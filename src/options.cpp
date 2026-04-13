@@ -233,8 +233,8 @@ namespace CoreDeck {
         return Paths::GetOptionsConfigPath(avdName);
     }
 
-    void EnsureConfigDirectoryExists() {
-        Paths::EnsureConfigDirectoryExists();
+    void EnsureOptionsConfigDirectoryExists() {
+        Paths::EnsureOptionsConfigDirectoryExists();
     }
 
     void SaveOptionsToFile(const std::string &filePath, const std::vector<EmulatorOption> &options) {

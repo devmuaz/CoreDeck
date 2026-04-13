@@ -16,10 +16,6 @@ namespace CoreDeck {
     };
 
     SdkInfo DetectAndroidSdk();
-
-    std::vector<std::string> ListAvailableAvds(const SdkInfo &sdk);
-
-    bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName);
 }
 
 #endif //EMU_LAUNCHER_SDK_H

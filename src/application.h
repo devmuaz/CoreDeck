@@ -9,6 +9,8 @@
 #include "emulator.h"
 #include "options.h"
 #include "sdk.h"
+#include <atomic>
+#include <future>
 #include <unordered_map>
 
 namespace CoreDeck {
@@ -30,6 +32,22 @@ namespace CoreDeck {
         bool m_AutoScroll = true;
         bool m_ShowAboutDialog = false;
         bool m_ShowDeleteDialog = false;
+        bool m_ShowCreateDialog = false;
+
+        // Create dialog data
+        std::vector<SystemImage> m_SystemImages;
+        std::vector<DeviceProfile> m_DeviceProfiles;
+        CreateAvdParams m_CreateParams;
+        int m_SelectedSystemImage = 0;
+        int m_SelectedDevice = 0;
+        int m_SelectedGpuMode = 0;
+        std::atomic<bool> m_CreateDataLoading{false};
+        std::atomic<bool> m_CreateDataReady{false};
+        std::future<void> m_CreateDataFuture;
+
+        // Async operation state (shared for delete/create actions)
+        std::atomic<bool> m_AsyncBusy{false};
+        std::future<void> m_AsyncFuture;
 
         void m_RefreshAvds();
 
@@ -46,6 +64,8 @@ namespace CoreDeck {
         void m_BuildAboutDialog();
 
         void m_BuildDeleteDialog();
+
+        void m_BuildCreateDialog();
 
         void m_LoadAvdOptions(const std::string &avdName);
 

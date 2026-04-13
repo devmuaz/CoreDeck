@@ -177,8 +177,8 @@ namespace CoreDeck::Paths {
         return JoinPaths({configPath, avdName + ".json"});
     }
 
-    std::string EnsureConfigDirectoryExists() {
-        const std::string configPath = GetAppConfigPath("avd-options");
+    std::string EnsureOptionsConfigDirectoryExists() {
+        std::string configPath = GetAppConfigPath("avd-options");
         if (configPath.empty()) return "";
 
         try {

@@ -9,9 +9,16 @@
 #include "imgui.h"
 
 namespace CoreDeck {
+    void OpenUrl(const char *url);
+
     void ApplyCustomImGuiTheme();
 
-    void OpenUrl(const char *url);
+    template<typename... Args>
+    std::string StrConcat(Args &&... args) {
+        std::string result;
+        (result += ... += std::forward<Args>(args));
+        return result;
+    }
 
     constexpr ImVec4 HexColor(const char *hex, float alpha = 1.0f) {
         auto hexToByte = [](const char hi, const char lo) -> float {
@@ -34,10 +41,6 @@ namespace CoreDeck {
         };
     }
 
-    inline std::string IconWithLabel(const char *icon, const char *label) {
-        return std::string{icon} + " " + label;
-    }
-
     namespace Icons {
         constexpr const char *Play = "\xef\x81\x8b";
         constexpr const char *Stop = "\xef\x81\x8d";
@@ -49,6 +52,7 @@ namespace CoreDeck {
         constexpr const char *Terminal = "\xef\x84\xa0";
         constexpr const char *Info = "\xef\x81\x9a";
         constexpr const char *Search = "\xef\x80\x82";
+        constexpr const char *Plus = "\xef\x81\xa7";
     }
 
     namespace Colors {
