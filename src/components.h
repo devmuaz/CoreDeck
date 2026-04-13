@@ -88,7 +88,7 @@ namespace CoreDeck {
 
     bool MenuPopupItem(const char *label);
 
-    DialogResult CustomDialog(const DialogData &data);
+    DialogResult SimpleDialog(const DialogData &data);
 }
 
 #endif //EMU_LAUNCHER_COMPONENTS_H
