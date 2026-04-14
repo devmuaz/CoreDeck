@@ -1,0 +1,64 @@
+//
+// Created by AbdulMuaz Aqeel on 14/04/2026.
+//
+#include "imgui.h"
+
+#include "avd_info.h"
+#include "../application.h"
+#include "../widgets.h"
+
+namespace CoreDeck {
+    void BuildAvdInfoWindow(Context &context) {
+        constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+
+        if (context.SelectedAvd < 0) {
+            ImGui::Begin("Details###Details", nullptr, panelFlags);
+            ImGui::TextDisabled("Select an AVD to view details");
+            ImGui::End();
+            return;
+        }
+
+        const auto &[
+            Name,
+            DisplayName,
+            Device,
+            ApiLevel,
+            Abi,
+            SdCard,
+            RamSize,
+            ScreenResolution,
+            GpuMode,
+            Arch,
+            Path
+        ] = context.Avds[context.SelectedAvd];
+        const auto args = BuildArgs(Name, GetDefaultAvdOptions(context));
+
+        std::string preview = context.Sdk.EmulatorPath;
+        for (const auto &arg: args) preview += " " + arg;
+
+        ImGui::Begin(
+            ("Details - " + DisplayName + "###Details").c_str(),
+            nullptr,
+            panelFlags
+        );
+
+        PropertyTextWrapped("AVD Path", Path.c_str());
+        ImGui::Spacing();
+        PropertyTextWrapped("Command", preview.c_str());
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        if (!Device.empty()) PropertyText("Device", Device.c_str());
+        if (!ApiLevel.empty()) PropertyText("API Level", ApiLevel.c_str());
+        if (!Abi.empty()) PropertyText("ABI", Abi.c_str());
+        if (!Arch.empty()) PropertyText("Arch", Arch.c_str());
+        if (!RamSize.empty()) PropertyText("RAM", (RamSize + " MB").c_str());
+        if (!ScreenResolution.empty()) PropertyText("Resolution", ScreenResolution.c_str());
+        if (!SdCard.empty()) PropertyText("Storage", SdCard.c_str());
+        if (!GpuMode.empty()) PropertyText("GPU Mode", GpuMode.c_str());
+
+        ImGui::End();
+    }
+}

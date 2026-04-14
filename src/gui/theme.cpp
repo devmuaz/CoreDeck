@@ -1,24 +1,12 @@
 //
-// Created by AbdulMuaz Aqeel on 06/04/2026.
+// Created by AbdulMuaz Aqeel on 14/04/2026.
 //
 
-#include "utilities.h"
 #include "imgui.h"
-#include <cstdlib>
-#include <string>
+
+#include "theme.h"
 
 namespace CoreDeck {
-    void OpenUrl(const char *url) {
-#if defined(_WIN32)
-        const std::string cmd = std::string("start ") + url;
-#elif defined(__APPLE__)
-        const std::string cmd = std::string("open ") + url;
-#else
-        const std::string cmd = std::string("xdg-open ") + url;
-#endif
-        std::system(cmd.c_str());
-    }
-
     void ApplyCustomImGuiTheme() {
         auto &style = ImGui::GetStyle();
 

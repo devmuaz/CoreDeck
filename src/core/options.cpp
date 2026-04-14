@@ -2,11 +2,12 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#include "options.h"
-#include "paths.h"
 #include <fstream>
 #include <iostream>
 #include <rfl/json.hpp>
+
+#include "options.h"
+#include "paths.h"
 
 namespace CoreDeck {
     std::vector<EmulatorOption> GetEmulatorOptions() {

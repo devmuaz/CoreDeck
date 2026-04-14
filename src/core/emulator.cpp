@@ -2,16 +2,15 @@
 // Created by AbdulMuaz Aqeel on 03/04/2026.
 //
 
-#include "emulator.h"
-
 #include <ranges>
-
-#include "process.h"
 #include <thread>
 #include <utility>
 #include <vector>
 #include <memory>
 #include <array>
+
+#include "emulator.h"
+#include "process.h"
 
 #ifdef _WIN32
 #include <io.h>

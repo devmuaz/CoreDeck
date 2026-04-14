@@ -5,7 +5,6 @@
 #include "paths.h"
 #include <filesystem>
 #include <iostream>
-#include <cstdlib>
 
 #ifdef _WIN32
 #include <windows.h>
