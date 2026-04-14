@@ -1,24 +1,14 @@
 //
-// Created by AbdulMuaz Aqeel on 06/04/2026.
+// Created by AbdulMuaz Aqeel on 14/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_UTILITIES_H
-#define EMU_LAUNCHER_UTILITIES_H
-#include <format>
-#include <string>
+#ifndef COREDECK_THEME_H
+#define COREDECK_THEME_H
+
 #include "imgui.h"
 
 namespace CoreDeck {
-    void OpenUrl(const char *url);
-
     void ApplyCustomImGuiTheme();
-
-    template<typename... Args>
-    std::string StrConcat(Args &&... args) {
-        std::string result;
-        (result += ... += std::forward<Args>(args));
-        return result;
-    }
 
     constexpr ImVec4 HexColor(const char *hex, float alpha = 1.0f) {
         auto hexToByte = [](const char hi, const char lo) -> float {
@@ -59,4 +49,4 @@ namespace CoreDeck {
     }
 }
 
-#endif //EMU_LAUNCHER_UTILITIES_H
+#endif //COREDECK_THEME_H

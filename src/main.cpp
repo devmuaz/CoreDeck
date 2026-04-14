@@ -19,10 +19,11 @@
 #include <cstdio>
 #include <ostream>
 #include <filesystem>
-#include "application.h"
-#include "paths.h"
-#include "utilities.h"
 
+#include "gui/application.h"
+#include "gui/theme.h"
+#include "core/paths.h"
+#include "core/utilities.h"
 
 int main() {
 #ifdef _WIN32

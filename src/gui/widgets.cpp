@@ -2,10 +2,10 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#include "components.h"
-
 #include "imgui.h"
-#include "utilities.h"
+
+#include "widgets.h"
+#include "theme.h"
 
 namespace CoreDeck {
     bool PrimaryButton(const char *label, const bool isEnabled, const ImVec2 size) {

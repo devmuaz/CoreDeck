@@ -83,16 +83,27 @@ find_package(Threads REQUIRED)
 add_executable(${PROJECT_NAME}
         ${IMGUI_SOURCES}
         src/main.cpp
-        src/sdk.cpp
-        src/process.cpp
-        src/emulator.cpp
-        src/options.cpp
-        src/application.cpp
-        src/components.cpp
-        src/log_buffer.cpp
-        src/avd.cpp
-        src/utilities.cpp
-        src/paths.cpp
+        # Core
+        src/core/avd.cpp
+        src/core/emulator.cpp
+        src/core/log_buffer.cpp
+        src/core/options.cpp
+        src/core/paths.cpp
+        src/core/process.cpp
+        src/core/sdk.cpp
+        src/core/utilities.cpp
+        # Gui
+        src/gui/windows/about.cpp
+        src/gui/windows/avd_info.cpp
+        src/gui/windows/avd_list.cpp
+        src/gui/windows/avd_logs.cpp
+        src/gui/windows/avd_options.cpp
+        src/gui/windows/delete_avd.cpp
+        src/gui/windows/create_avd.cpp
+        src/gui/windows/main_menu_bar.cpp
+        src/gui/application.cpp
+        src/gui/theme.cpp
+        src/gui/widgets.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

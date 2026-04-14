@@ -2,15 +2,12 @@
 // Created by AbdulMuaz Aqeel on 02/04/2026.
 //
 
-#include "sdk.h"
-#include "paths.h"
-#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
 
-#include "process.h"
-#include "utilities.h"
+#include "sdk.h"
+#include "paths.h"
 
 namespace CoreDeck {
     SdkInfo DetectAndroidSdk() {

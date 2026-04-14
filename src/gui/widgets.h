@@ -4,10 +4,11 @@
 
 #ifndef EMU_LAUNCHER_COMPONENTS_H
 #define EMU_LAUNCHER_COMPONENTS_H
+
 #include <string>
 
 #include "imgui.h"
-#include "utilities.h"
+#include "../core/utilities.h"
 
 namespace CoreDeck {
     struct StyleColor {
