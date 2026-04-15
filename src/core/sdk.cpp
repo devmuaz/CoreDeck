@@ -7,22 +7,26 @@
 #include <sstream>
 
 #include "sdk.h"
+#include "onboarding.h"
 #include "paths.h"
 
 namespace CoreDeck {
     SdkInfo DetectAndroidSdk() {
         SdkInfo sdk;
 
-        const char *sdkEnv = std::getenv("ANDROID_HOME");
-        if (!sdkEnv) {
-            sdkEnv = std::getenv("ANDROID_SDK_ROOT");
-        }
-
-        if (!sdkEnv) {
-            const std::string defaultPath = Paths::GetAndroidSdkDefaultPath();
-            if (std::filesystem::exists(defaultPath)) sdk.SdkPath = defaultPath;
+        const std::string savedPath = LoadSdkPathOverride();
+        if (!savedPath.empty() && std::filesystem::exists(savedPath)) {
+            sdk.SdkPath = savedPath;
         } else {
-            sdk.SdkPath = sdkEnv;
+            const char *sdkEnv = std::getenv("ANDROID_HOME");
+            if (!sdkEnv) sdkEnv = std::getenv("ANDROID_SDK_ROOT");
+
+            if (sdkEnv) {
+                sdk.SdkPath = sdkEnv;
+            } else {
+                const std::string defaultPath = Paths::GetAndroidSdkDefaultPath();
+                if (std::filesystem::exists(defaultPath)) sdk.SdkPath = defaultPath;
+            }
         }
 
         if (sdk.SdkPath.empty()) return sdk;

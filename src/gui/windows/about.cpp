@@ -49,7 +49,7 @@ namespace CoreDeck {
             PropertyText("Author", COREDECK_VENDOR);
             PropertyText("License", "MIT");
             if (PropertyText("GitHub", "github.com/devmuaz/CoreDeck", true)) {
-                OpenUrl("https://github.com/devmuaz/CoreDeck");
+                OpenUrl(COREDECK_GITHUB);
             }
             PropertyText("Built with", "C++20, Dear ImGui, GLFW, OpenGL");
 

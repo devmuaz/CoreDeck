@@ -16,6 +16,7 @@
 
 #include "application.h"
 #include "widgets.h"
+#include "../core/onboarding.h"
 #include "windows/about.h"
 #include "windows/avd_info.h"
 #include "windows/avd_list.h"
@@ -24,14 +25,26 @@
 #include "windows/create_avd.h"
 #include "windows/delete_avd.h"
 #include "windows/main_menu_bar.h"
+#include "windows/onboarding.h"
 
 namespace CoreDeck {
     Application::Application() : m_Context(DetectAndroidSdk()) {
         EnsureOptionsConfigDirectoryExists();
-        RefreshAvds(m_Context);
+
+        if (!IsFirstRunComplete() || !m_Context.Sdk.IsFound) {
+            m_Context.CurrentScreen = Screen::Onboarding;
+        } else {
+            m_Context.CurrentScreen = Screen::Main;
+            RefreshAvds(m_Context);
+        }
     }
 
     void Application::Build() {
+        if (m_Context.CurrentScreen == Screen::Onboarding) {
+            BuildOnboardingWindow(m_Context);
+            return;
+        }
+
         if (m_Context.SelectedAvd != m_Context.PreviousSelectedAvd) {
             if (m_Context.SelectedAvd >= 0 && m_Context.SelectedAvd < m_Context.Avds.size()) {
                 const std::string &avdName = m_Context.Avds[m_Context.SelectedAvd].Name;
