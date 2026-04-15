@@ -8,3 +8,6 @@
 [submodule "extern/reflect-cpp"]
 	path = extern/reflect-cpp
 	url = https://github.com/getml/reflect-cpp.git
+[submodule "extern/tinyfiledialogs"]
+	path = extern/tinyfiledialogs
+	url = https://github.com/native-toolkit/libtinyfiledialogs.git

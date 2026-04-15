@@ -77,16 +77,21 @@ set(REFLECTCPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/reflect-cpp)
 
+set(TINYFD_DIR ${CMAKE_SOURCE_DIR}/extern/tinyfiledialogs)
+
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
 add_executable(${PROJECT_NAME}
         ${IMGUI_SOURCES}
+        ${TINYFD_DIR}/tinyfiledialogs.c
         src/main.cpp
         # Core
         src/core/avd.cpp
         src/core/emulator.cpp
+        src/core/file_dialog.cpp
         src/core/log_buffer.cpp
+        src/core/onboarding.cpp
         src/core/options.cpp
         src/core/paths.cpp
         src/core/process.cpp
@@ -101,6 +106,7 @@ add_executable(${PROJECT_NAME}
         src/gui/windows/delete_avd.cpp
         src/gui/windows/create_avd.cpp
         src/gui/windows/main_menu_bar.cpp
+        src/gui/windows/onboarding.cpp
         src/gui/application.cpp
         src/gui/theme.cpp
         src/gui/widgets.cpp
@@ -109,6 +115,7 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
+        ${TINYFD_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -137,12 +144,13 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         COREDECK_VENDOR="${APP_VENDOR}"
         COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
         COREDECK_YEAR="${CURRENT_YEAR}"
+        COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
 )
 
 if (WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/resources.rc.in ${CMAKE_BINARY_DIR}/resources.rc @ONLY)
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-    target_link_libraries(${PROJECT_NAME} PRIVATE shell32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE shell32 comdlg32 ole32)
     target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
     target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/resources.rc)
 elseif (APPLE)

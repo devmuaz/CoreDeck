@@ -15,9 +15,15 @@
 #include "../core/options.h"
 
 namespace CoreDeck {
+    enum class Screen {
+        Onboarding,
+        Main
+    };
+
     struct Context {
         SdkInfo Sdk;
         EmulatorManager Manager;
+        Screen CurrentScreen = Screen::Main;
         std::vector<std::string> AvdNames;
         std::vector<AvdInfo> Avds;
         int SelectedAvd = -1;
