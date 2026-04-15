@@ -15,8 +15,7 @@
 #include "imgui_internal.h"
 
 #include "application.h"
-#include "widgets.h"
-#include "../core/onboarding.h"
+#include "../core/paths.h"
 #include "windows/about.h"
 #include "windows/avd_info.h"
 #include "windows/avd_list.h"
@@ -31,7 +30,7 @@ namespace CoreDeck {
     Application::Application() : m_Context(DetectAndroidSdk()) {
         EnsureOptionsConfigDirectoryExists();
 
-        if (!IsFirstRunComplete() || !m_Context.Sdk.IsFound) {
+        if (!Paths::Onboarding::IsFirstRunComplete() || !m_Context.Sdk.IsFound) {
             m_Context.CurrentScreen = Screen::Onboarding;
         } else {
             m_Context.CurrentScreen = Screen::Main;

@@ -41,6 +41,20 @@ namespace CoreDeck::Paths {
     std::string GetOptionsConfigPath(const std::string &avdName);
 
     std::string EnsureOptionsConfigDirectoryExists();
+
+    namespace Onboarding {
+        bool IsFirstRunComplete();
+
+        void MarkFirstRunComplete();
+
+        bool ValidateSdkPath(const std::string &path);
+
+        std::string LoadSdkPathOverride();
+
+        void SaveSdkPathOverride(const std::string &path);
+
+        void ClearSdkPathOverride();
+    }
 }
 
 #endif //EMU_LAUNCHER_PATHS_H

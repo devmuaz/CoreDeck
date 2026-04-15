@@ -91,7 +91,6 @@ add_executable(${PROJECT_NAME}
         src/core/emulator.cpp
         src/core/file_dialog.cpp
         src/core/log_buffer.cpp
-        src/core/onboarding.cpp
         src/core/options.cpp
         src/core/paths.cpp
         src/core/process.cpp
