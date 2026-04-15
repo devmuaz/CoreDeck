@@ -7,14 +7,13 @@
 #include <sstream>
 
 #include "sdk.h"
-#include "onboarding.h"
 #include "paths.h"
 
 namespace CoreDeck {
     SdkInfo DetectAndroidSdk() {
         SdkInfo sdk;
 
-        const std::string savedPath = LoadSdkPathOverride();
+        const std::string savedPath = Paths::Onboarding::LoadSdkPathOverride();
         if (!savedPath.empty() && std::filesystem::exists(savedPath)) {
             sdk.SdkPath = savedPath;
         } else {

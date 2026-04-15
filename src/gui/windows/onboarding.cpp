@@ -8,7 +8,7 @@
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/file_dialog.h"
-#include "../../core/onboarding.h"
+#include "../../core/paths.h"
 #include "../../core/sdk.h"
 
 namespace CoreDeck {
@@ -93,7 +93,7 @@ namespace CoreDeck {
 
         ImGui::Spacing();
         const std::string currentPath = pathBuffer;
-        const bool isValid = ValidateSdkPath(currentPath);
+        const bool isValid = Paths::Onboarding::ValidateSdkPath(currentPath);
         if (!currentPath.empty()) {
             if (isValid) {
                 ImGui::TextColored(
@@ -127,8 +127,8 @@ namespace CoreDeck {
 
         ImGui::SameLine();
         if (PositiveButton("Continue", isValid, ImVec2(130, 0))) {
-            SaveSdkPathOverride(currentPath);
-            MarkFirstRunComplete();
+            Paths::Onboarding::SaveSdkPathOverride(currentPath);
+            Paths::Onboarding::MarkFirstRunComplete();
 
             context.Sdk = DetectAndroidSdk();
             RefreshAvds(context);
@@ -137,7 +137,6 @@ namespace CoreDeck {
 
         ImGui::EndGroup();
     }
-
 
     void BuildOnboardingWindow(Context &context) {
         static auto step = Step::Welcome;
