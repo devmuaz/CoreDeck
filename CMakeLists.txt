@@ -78,13 +78,14 @@ set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/reflect-cpp)
 
 set(TINYFD_DIR ${CMAKE_SOURCE_DIR}/extern/tinyfiledialogs)
+add_library(tinyfiledialogs STATIC ${TINYFD_DIR}/tinyfiledialogs.c)
+target_include_directories(tinyfiledialogs PUBLIC ${TINYFD_DIR})
 
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
 add_executable(${PROJECT_NAME}
         ${IMGUI_SOURCES}
-        ${TINYFD_DIR}/tinyfiledialogs.c
         src/main.cpp
         # Core
         src/core/avd.cpp
@@ -114,13 +115,13 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
-        ${TINYFD_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         glfw
         OpenGL::GL
         reflectcpp
+        tinyfiledialogs
 )
 
 if (APPLE)
