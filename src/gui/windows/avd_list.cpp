@@ -43,7 +43,7 @@ namespace CoreDeck {
                 ImGui::SameLine(0, 15.0f);
                 ImGui::Text("-");
                 ImGui::SameLine(0, 15.0f);
-                if (NegativeButton(Icons::Trash)) {
+                if (PrimaryButton(Icons::Trash)) {
                     context.ShowDeleteDialog = true;
                 }
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("Delete currently selected AVD");
@@ -55,7 +55,7 @@ namespace CoreDeck {
             }
 
             ImGui::SameLine();
-            if (PositiveButton(Icons::Plus)) {
+            if (PrimaryButton(Icons::Plus)) {
                 context.CreateParams = {};
                 context.SelectedSystemImage = 0;
                 context.SelectedDevice = 0;

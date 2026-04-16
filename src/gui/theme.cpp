@@ -46,6 +46,7 @@ namespace CoreDeck {
         c[ImGuiCol_WindowBg] = HexColor("#0F0F12");
         c[ImGuiCol_ChildBg] = HexColor("#0F0F12");
         c[ImGuiCol_PopupBg] = HexColor("#141417", 0.98f);
+        c[ImGuiCol_ModalWindowDimBg] = HexColor("#000000", 0.55f);
 
         // Borders
         c[ImGuiCol_Border] = HexColor("#2E2E33");

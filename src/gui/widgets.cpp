@@ -179,7 +179,10 @@ namespace CoreDeck {
 
     DialogResult SimpleDialog(const DialogData &data) {
         auto result = DialogResult::None;
-        if (!data.isOpen) return result;
+
+        if (data.isOpen && !ImGui::IsPopupOpen(data.Id)) {
+            ImGui::OpenPopup(data.Id);
+        }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -188,9 +191,16 @@ namespace CoreDeck {
         constexpr ImGuiWindowFlags flags =
                 ImGuiWindowFlags_NoCollapse |
                 ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::Begin(data.Id, data.isBusy ? nullptr : &data.isOpen, flags)) {
+        if (ImGui::BeginPopupModal(data.Id, data.isBusy ? nullptr : &data.isOpen, flags)) {
+            if (!data.isOpen) {
+                ImGui::CloseCurrentPopup();
+                ImGui::EndPopup();
+                return result;
+            }
+
             ImGui::TextWrapped("%s", data.title);
             ImGui::Spacing();
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor("#66666B"));
@@ -240,10 +250,11 @@ namespace CoreDeck {
                 if (PrimaryButton(data.cancelButtonTitle, true, ImVec2(halfWidth, 0))) {
                     result = DialogResult::Cancelled;
                     data.isOpen = false;
+                    ImGui::CloseCurrentPopup();
                 }
             }
+            ImGui::EndPopup();
         }
-        ImGui::End();
         return result;
     }
 }
