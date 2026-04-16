@@ -11,7 +11,9 @@
 
 namespace CoreDeck {
     void BuildAboutWindow(Context &context) {
-        if (!context.ShowAboutDialog) return;
+        if (context.ShowAboutDialog && !ImGui::IsPopupOpen("About CoreDeck")) {
+            ImGui::OpenPopup("About CoreDeck");
+        }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -20,9 +22,10 @@ namespace CoreDeck {
         constexpr ImGuiWindowFlags flags =
                 ImGuiWindowFlags_NoCollapse |
                 ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::Begin("About CoreDeck", &context.ShowAboutDialog, flags)) {
+        if (ImGui::BeginPopupModal("About CoreDeck", &context.ShowAboutDialog, flags)) {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             const float titleWidth = ImGui::CalcTextSize("CoreDeck").x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5f);
@@ -63,7 +66,7 @@ namespace CoreDeck {
             ImGui::TextColored(HexColor("#66666B"), "%s", copyright.c_str());
 
             ImGui::Spacing();
+            ImGui::EndPopup();
         }
-        ImGui::End();
     }
 }
