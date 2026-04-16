@@ -78,13 +78,14 @@ set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/reflect-cpp)
 
 set(TINYFD_DIR ${CMAKE_SOURCE_DIR}/extern/tinyfiledialogs)
+add_library(tinyfiledialogs STATIC ${TINYFD_DIR}/tinyfiledialogs.c)
+target_include_directories(tinyfiledialogs PUBLIC ${TINYFD_DIR})
 
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
 add_executable(${PROJECT_NAME}
         ${IMGUI_SOURCES}
-        ${TINYFD_DIR}/tinyfiledialogs.c
         src/main.cpp
         # Core
         src/core/avd.cpp
@@ -114,13 +115,13 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
-        ${TINYFD_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         glfw
         OpenGL::GL
         reflectcpp
+        tinyfiledialogs
 )
 
 if (APPLE)
@@ -149,7 +150,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 if (WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/resources.rc.in ${CMAKE_BINARY_DIR}/resources.rc @ONLY)
     target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-    set_source_files_properties(${TINYFD_DIR}/tinyfiledialogs.c PROPERTIES COMPILE_FLAGS "/UWIN32_LEAN_AND_MEAN")
     target_link_libraries(${PROJECT_NAME} PRIVATE shell32 comdlg32 ole32)
     target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
     target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/resources.rc)
