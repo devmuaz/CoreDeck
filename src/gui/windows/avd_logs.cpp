@@ -2,6 +2,7 @@
 // Created by AbdulMuaz Aqeel on 15/04/2026.
 //
 
+#include <algorithm>
 #include "imgui.h"
 
 #include "avd_logs.h"
@@ -31,7 +32,7 @@ namespace CoreDeck {
         constexpr float rightPadding = 8.0f;
         ImGui::SetCursorPosX(windowWidth - searchWidth - rightPadding);
         ImGui::SetNextItemWidth(searchWidth);
-        constexpr std::string searchHint = std::string{Icons::Search} + " Search logs...";
+        const std::string searchHint = std::string{Icons::Search} + " Search logs...";
 
         std::string currentSearch;
         if (context.SelectedAvd >= 0) {

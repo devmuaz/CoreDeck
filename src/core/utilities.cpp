@@ -15,6 +15,6 @@ namespace CoreDeck {
 #else
         const std::string cmd = std::string("xdg-open ") + url;
 #endif
-        std::system(cmd.c_str());
+        (void)std::system(cmd.c_str());
     }
 }
