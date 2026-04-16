@@ -15,14 +15,17 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: coredeck-linux
-            asset_name: coredeck-linux.tar.gz
+            artifact_name: coredeck-linux-x86-64
+            asset_name: coredeck-linux-x86-64.tar.gz
+          - os: ubuntu-24.04-arm
+            artifact_name: coredeck-linux-arm64
+            asset_name: coredeck-linux-arm64.tar.gz
           - os: windows-latest
-            artifact_name: coredeck-windows
-            asset_name: coredeck-windows
+            artifact_name: coredeck-windows-x86-64
+            asset_name: coredeck-windows-x86-64
           - os: macos-latest
-            artifact_name: coredeck-macos
-            asset_name: coredeck-macos.tar.gz
+            artifact_name: coredeck-darwin-arm64
+            asset_name: coredeck-darwin-arm64.tar.gz
 
     steps:
       - name: Checkout code
@@ -38,7 +41,7 @@ jobs:
           cmake-version: '3.23.0'
 
       - name: Install dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
@@ -50,7 +53,7 @@ jobs:
         run: cmake --build build --config Release --parallel
 
       - name: Package artifacts (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           mkdir -p release/${{ matrix.artifact_name }}
           cp build/CoreDeck release/${{ matrix.artifact_name }}/
@@ -103,8 +106,8 @@ jobs:
           cpack -G ZIP
           cpack -G WIX
           mkdir ..\release
-          for %%i in (*.msi) do copy "%%i" "..\release\coredeck-windows.msi"
-          for %%i in (*.zip) do copy "%%i" "..\release\coredeck-windows.zip"
+          for %%i in (*.msi) do copy "%%i" "..\release\coredeck-windows-x86-64.msi"
+          for %%i in (*.zip) do copy "%%i" "..\release\coredeck-windows-x86-64.zip"
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'
@@ -112,8 +115,8 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            release/coredeck-windows.msi
-            release/coredeck-windows.zip
+            release/coredeck-windows-x86-64.msi
+            release/coredeck-windows-x86-64.zip
 
       - name: Upload artifacts (Linux and macOS)
         if: matrix.os != 'windows-latest'
@@ -150,13 +153,15 @@ jobs:
 
             Download the appropriate version for your platform:
 
-            **Windows:**
-            - `coredeck-windows.msi` - Professional installer (recommended)
-            - `coredeck-windows.zip` - Portable version
+            **Windows (x86-64):**
+            - `coredeck-windows-x86-64.msi` - Professional installer (recommended)
+            - `coredeck-windows-x86-64.zip` - Portable version
 
-            **macOS:** `coredeck-macos.tar.gz`
+            **macOS (Apple Silicon):** `coredeck-darwin-arm64.tar.gz`
 
-            **Linux:** `coredeck-linux.tar.gz`
+            **Linux (x86-64):** `coredeck-linux-x86-64.tar.gz`
+
+            **Linux (ARM64):** `coredeck-linux-arm64.tar.gz`
 
             ### Installation
             **Windows:** Double-click the MSI to install, or extract the ZIP and run CoreDeck.exe directly.
@@ -169,10 +174,11 @@ jobs:
             xattr -cr CoreDeck.app
             ```
           files: |
-            artifacts/coredeck-windows/coredeck-windows.msi
-            artifacts/coredeck-windows/coredeck-windows.zip
-            artifacts/coredeck-macos/coredeck-macos.tar.gz
-            artifacts/coredeck-linux/coredeck-linux.tar.gz
+            artifacts/coredeck-windows-x86-64/coredeck-windows-x86-64.msi
+            artifacts/coredeck-windows-x86-64/coredeck-windows-x86-64.zip
+            artifacts/coredeck-darwin-arm64/coredeck-darwin-arm64.tar.gz
+            artifacts/coredeck-linux-x86-64/coredeck-linux-x86-64.tar.gz
+            artifacts/coredeck-linux-arm64/coredeck-linux-arm64.tar.gz
           draft: false
           prerelease: false
         env:
