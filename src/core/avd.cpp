@@ -2,6 +2,7 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
+#include <algorithm>
 #include <fstream>
 #include <unordered_map>
 #include <filesystem>
