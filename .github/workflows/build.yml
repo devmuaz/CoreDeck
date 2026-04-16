@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ windows-latest ] # ubuntu-latest, macos-latest disabled to save Actions minutes
+        os: [ windows-latest, macos-latest, ubuntu-latest ]
         build_type: [ Release ]
 
     steps:
