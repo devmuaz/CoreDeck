@@ -49,8 +49,13 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            PropertyText("Author", COREDECK_VENDOR);
+            if (PropertyText("Author", COREDECK_VENDOR, true)) {
+                OpenUrl(COREDECK_AUTHOR_WEBSITE);
+            }
             PropertyText("License", "MIT");
+            if (PropertyText("Website", "coredeck.dev", true)) {
+                OpenUrl(COREDECK_WEBSITE);
+            }
             if (PropertyText("GitHub", "github.com/devmuaz/CoreDeck", true)) {
                 OpenUrl(COREDECK_GITHUB);
             }

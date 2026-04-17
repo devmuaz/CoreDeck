@@ -38,8 +38,8 @@ project(CoreDeck VERSION ${PROJECT_VERSION})
 string(TIMESTAMP CURRENT_YEAR "%Y")
 
 set(APP_VENDOR "AbdulMuaz Aqeel")
-set(APP_DESCRIPTION "Professional Android emulator and AVD management tool with an intuitive GUI interface.")
-set(APP_DESCRIPTION_SHORT "Android Emulator and AVD Manager")
+set(APP_DESCRIPTION "A fast, modern desktop app for managing and launching Android emulators — no Android Studio required.")
+set(APP_DESCRIPTION_SHORT "Your Android emulator command center.")
 set(APP_BUNDLE_ID "com.devmuaz.coredeck")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -144,6 +144,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         COREDECK_VENDOR="${APP_VENDOR}"
         COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
         COREDECK_YEAR="${CURRENT_YEAR}"
+        COREDECK_WEBSITE="https://coredeck.dev"
+        COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
         COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
 )
 
