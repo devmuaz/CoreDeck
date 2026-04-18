@@ -16,6 +16,7 @@
 #include "../core/emulator.h"
 #include "../core/options.h"
 #include "../core/sdk.h"
+#include "../core/system_image.h"
 
 struct GLFWwindow;
 
