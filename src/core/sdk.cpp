@@ -35,6 +35,7 @@ namespace CoreDeck {
         const std::string cmdlineLatest = Paths::JoinPaths({
             sdk.SdkPath, "cmdline-tools", "latest", "bin", "avdmanager" + Paths::GetExecutableExtension()
         });
+
         if (std::filesystem::exists(cmdlineLatest)) {
             sdk.AvdManagerPath = cmdlineLatest;
         } else {

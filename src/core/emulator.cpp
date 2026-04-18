@@ -26,20 +26,16 @@ namespace CoreDeck {
     EmulatorManager::~EmulatorManager() {
         std::lock_guard lock(m_Mutex);
 
-        // Stop all running instances and clean up threads
         for (auto &instance: m_Instances | std::views::values) {
             if (instance.IsRunning) {
-                // Signal thread to stop
                 if (instance.StopRequested) {
                     instance.StopRequested->store(true);
                 }
 
-                // Kill the process
                 KillProcess(instance.Pid);
                 instance.IsRunning = false;
             }
 
-            // Clean up thread
             if (instance.ReaderThread.joinable()) {
                 instance.ReaderThread.join();
             }
@@ -132,7 +128,6 @@ namespace CoreDeck {
         if (killed) {
             it->second.IsRunning = false;
 
-            // Wait for the thread to finish
             if (it->second.ReaderThread.joinable()) {
                 it->second.ReaderThread.join();
             }

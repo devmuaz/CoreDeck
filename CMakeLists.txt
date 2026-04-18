@@ -98,6 +98,7 @@ add_executable(${PROJECT_NAME}
         src/core/process.cpp
         src/core/sdk.cpp
         src/core/utilities.cpp
+        src/core/version_check.cpp
         # Gui
         src/gui/windows/about.cpp
         src/gui/windows/avd_info.cpp
@@ -110,6 +111,7 @@ add_executable(${PROJECT_NAME}
         src/gui/windows/onboarding.cpp
         src/gui/windows/preferences.cpp
         src/gui/windows/sdk_banner.cpp
+        src/gui/windows/update.cpp
         src/gui/application.cpp
         src/gui/theme.cpp
         src/gui/widgets.cpp
@@ -150,6 +152,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         COREDECK_WEBSITE="https://coredeck.dev"
         COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
         COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
+        COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
 )
 
 if (WIN32)

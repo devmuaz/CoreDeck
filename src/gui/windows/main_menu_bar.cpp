@@ -44,6 +44,9 @@ namespace CoreDeck {
                 if (ImGui::MenuItem(IconWithLabel(Icons::Info, "About CoreDeck").c_str())) {
                     context.UI.ShowAboutDialog = true;
                 }
+                if (ImGui::MenuItem("Check for Updates...", nullptr, false, !context.Updates.UpdateCheckInFlight)) {
+                    context.Updates.RequestManualUpdateCheck = true;
+                }
                 ImGui::EndMenu();
             }
 
