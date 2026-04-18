@@ -7,6 +7,7 @@
 
 #include <atomic>
 #include <future>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -22,6 +23,12 @@ namespace CoreDeck {
     enum class Screen {
         Onboarding,
         Main,
+    };
+
+    enum class AvdSortMode {
+        Name,
+        ApiLevel,
+        Device,
     };
 
     struct Context {
@@ -43,6 +50,11 @@ namespace CoreDeck {
             int SelectedAvd = -1;
             int PreviousSelectedAvd = -1;
             std::unordered_map<std::string, std::vector<EmulatorOption> > PerAvdOptions;
+
+            char SearchFilter[128] = {};
+            AvdSortMode SortMode = AvdSortMode::Name;
+            bool SortAscending = true;
+            std::vector<int> FilteredIndices;
         } Catalog;
 
         struct Logs {
@@ -58,6 +70,8 @@ namespace CoreDeck {
             bool ShowAboutDialog = false;
             bool ShowDeleteAvdDialog = false;
             bool ShowCreateAvdDialog = false;
+            bool ShowInstallImageDialog = false;
+            bool ReopenCreateAvdOnInstallClose = false;
             bool ShowPreferences = false;
             bool ShowAvdListPanel = true;
             bool ShowOptionsPanel = true;
@@ -67,10 +81,10 @@ namespace CoreDeck {
             bool HideInvalidSdkPathBanner = false;
         } UI;
 
-        struct CreateAvdWork {
+        struct AvdCreationWork {
             std::vector<SystemImage> SystemImages;
             std::vector<DeviceProfile> DeviceProfiles;
-            CreateAvdParams CreateParams;
+            AvdCreationData CreationData;
             int SelectedSystemImage = 0;
             int SelectedDevice = 0;
             int SelectedGpuMode = 0;
@@ -80,7 +94,27 @@ namespace CoreDeck {
                 std::atomic<bool> Ready{false};
                 std::future<void> Future;
             } Prefetch;
-        } CreateAvdWork;
+
+            struct {
+                std::atomic<bool> Busy{false};
+                std::future<bool> Future;
+            } SystemImageRemoval;
+        } AvdCreationWork;
+
+        struct ImageInstallationWork {
+            std::vector<RemoteSystemImage> RemoteImages;
+            int SelectedImage = 0;
+
+            struct {
+                std::atomic<bool> Loading{false};
+                std::atomic<bool> Ready{false};
+                std::future<void> Future;
+            } Prefetch;
+
+            std::atomic<bool> Installing{false};
+            std::shared_ptr<InstallProgressData> Progress;
+            std::future<bool> InstallFuture;
+        } ImageInstallationWork;
 
         struct Jobs {
             struct {

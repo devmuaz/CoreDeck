@@ -14,6 +14,8 @@ namespace CoreDeck {
         bool ShowOptionsPanel = true;
         bool ShowDetailsPanel = true;
         bool ShowLogPanel = true;
+        int AvdSortMode = 0;
+        bool AvdSortAscending = true;
     };
 }
 

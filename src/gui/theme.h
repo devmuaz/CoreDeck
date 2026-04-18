@@ -43,6 +43,10 @@ namespace CoreDeck {
         constexpr const char *Info = "\xef\x81\x9a";
         constexpr const char *Search = "\xef\x80\x82";
         constexpr const char *Plus = "\xef\x81\xa7";
+        constexpr const char *SortUp = "\xef\x83\x9e";     // fa-sort-up (f0de)
+        constexpr const char *SortDown = "\xef\x83\x9d";   // fa-sort-down (f0dd)
+        constexpr const char *Sort = "\xef\x83\x9c";       // fa-sort (f0dc)
+        constexpr const char *Times = "\xef\x80\x8d";      // fa-xmark (f00d)
     }
 
     namespace Colors {
