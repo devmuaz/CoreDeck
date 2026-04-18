@@ -3,6 +3,7 @@
 //
 
 #include "imgui.h"
+#include <GLFW/glfw3.h>
 
 #include "main_menu_bar.h"
 #include "../widgets.h"
@@ -12,12 +13,40 @@
 namespace CoreDeck {
     void BuildMainMenuBar(Context &context) {
         if (ImGui::BeginMainMenuBar()) {
-            if (ImGui::BeginMenu("Help")) {
-                if (ImGui::MenuItem(IconWithLabel(Icons::Info, "About CoreDeck").c_str())) {
-                    context.ShowAboutDialog = true;
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Preferences...", nullptr)) {
+                    context.UI.ShowPreferences = true;
+                }
+                ImGui::Separator();
+                if (ImGui::MenuItem("Quit", nullptr, false, context.UI.MainWindow != nullptr)) {
+                    glfwSetWindowShouldClose(context.UI.MainWindow, GLFW_TRUE);
                 }
                 ImGui::EndMenu();
             }
+
+            if (ImGui::BeginMenu("View")) {
+                if (ImGui::MenuItem("AVD List", nullptr, &context.UI.ShowAvdListPanel)) {
+                    PersistAppSettings(context);
+                }
+                if (ImGui::MenuItem("Options", nullptr, &context.UI.ShowOptionsPanel)) {
+                    PersistAppSettings(context);
+                }
+                if (ImGui::MenuItem("Details", nullptr, &context.UI.ShowDetailsPanel)) {
+                    PersistAppSettings(context);
+                }
+                if (ImGui::MenuItem("Output Log", nullptr, &context.UI.ShowLogPanel)) {
+                    PersistAppSettings(context);
+                }
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Help")) {
+                if (ImGui::MenuItem(IconWithLabel(Icons::Info, "About CoreDeck").c_str())) {
+                    context.UI.ShowAboutDialog = true;
+                }
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMainMenuBar();
         }
     }

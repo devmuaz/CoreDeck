@@ -40,6 +40,8 @@ namespace CoreDeck {
 
         void Update();
 
+        void SetSdk(SdkInfo sdk);
+
     private:
         SdkInfo m_Sdk;
         std::mutex m_Mutex;

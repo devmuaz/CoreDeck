@@ -7,25 +7,37 @@
 #include "delete_avd.h"
 #include "../application.h"
 #include "../widgets.h"
+#include "../../core/avd.h"
 
 namespace CoreDeck {
-    void BuildDeleteAvdWindow(Context &context) {
-        if (context.SelectedAvd < 0 || context.SelectedAvd >= static_cast<int>(context.Avds.size())) return;
+    void StartDeleteAvdAsync(Context &context, const std::string &avdName) {
+        if (context.Jobs.AvdDeletion.Busy.load()) return;
 
-        if (context.ShowDeleteDialog && !context.AsyncBusy && context.AsyncFuture.valid()) {
-            context.AsyncFuture.get();
-            context.ShowDeleteDialog = false;
+        context.Jobs.AvdDeletion.Busy = true;
+        context.Jobs.AvdDeletion.Future = std::async(std::launch::async, [&context, avdName]() {
+            DeleteAvd(context.Host.Sdk, avdName);
+            context.Jobs.AvdDeletion.Busy = false;
+        });
+    }
+
+    void BuildDeleteAvdWindow(Context &context) {
+        if (!context.Jobs.AvdDeletion.Busy.load() && context.Jobs.AvdDeletion.Future.valid()) {
+            context.Jobs.AvdDeletion.Future.get();
             RefreshAvds(context);
+            context.UI.ShowDeleteAvdDialog = false;
             return;
         }
 
-        const auto &avdName = context.Avds[context.SelectedAvd].Name;
+        if (context.Catalog.SelectedAvd < 0 || context.Catalog.SelectedAvd >= static_cast<int>(context.Catalog.Avds.size())) return;
+        if (!context.UI.ShowDeleteAvdDialog) return;
+
+        const auto &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
         const std::string title = "Delete \"" + avdName + "\"?";
-        const bool isDeleting = context.AsyncBusy.load();
+        const bool isDeleting = context.Jobs.AvdDeletion.Busy.load();
         const DialogResult result = SimpleDialog(
             {
                 .Id = "Delete###DeleteAvdDialog",
-                .isOpen = context.ShowDeleteDialog,
+                .isOpen = context.UI.ShowDeleteAvdDialog,
                 .title = title.c_str(),
                 .message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
                 .confirmButtonTitle = "Delete",
@@ -37,12 +49,7 @@ namespace CoreDeck {
         );
 
         if (result == DialogResult::Confirmed) {
-            context.AsyncBusy = true;
-            const std::string deletableAvdName = avdName;
-            context.AsyncFuture = std::async(std::launch::async, [&context, deletableAvdName]() {
-                DeleteAvd(context.Sdk, deletableAvdName);
-                context.AsyncBusy = false;
-            });
+            StartDeleteAvdAsync(context, avdName);
         }
     }
 }

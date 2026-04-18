@@ -104,6 +104,7 @@ int main() {
     ImGui::StyleColorsDark();
     CoreDeck::ApplyCustomImGuiTheme();
     CoreDeck::Application app;
+    app.SetMainWindow(window);
 
     const auto glsl_version = "#version 330";
     ImGui_ImplGlfw_InitForOpenGL(window, true);

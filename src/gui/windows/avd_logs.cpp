@@ -6,17 +6,19 @@
 #include "imgui.h"
 
 #include "avd_logs.h"
-#include "../application.h"
+#include "../context.h"
 #include "../theme.h"
 #include "../widgets.h"
 
 namespace CoreDeck {
     void BuildAvdLogsWindow(Context &context) {
+        if (!context.UI.ShowLogPanel) return;
+
         ImGui::Begin("Output Log");
 
         std::shared_ptr<LogBuffer> log = nullptr;
-        if (context.SelectedAvd >= 0) {
-            log = context.Manager.GetLog(context.Avds[context.SelectedAvd].Name);
+        if (context.Catalog.SelectedAvd >= 0) {
+            log = context.Host.Manager.GetLog(context.Catalog.Avds[context.Catalog.SelectedAvd].Name);
         }
 
         if (!log) ImGui::BeginDisabled();
@@ -24,9 +26,6 @@ namespace CoreDeck {
         ImGui::SameLine();
         if (!log) ImGui::EndDisabled();
 
-        ImGui::Checkbox("Auto-Scroll", &context.AutoScroll);
-
-        ImGui::SameLine();
         constexpr float searchWidth = 300.0f;
         const float windowWidth = ImGui::GetWindowWidth();
         constexpr float rightPadding = 8.0f;
@@ -35,9 +34,9 @@ namespace CoreDeck {
         const std::string searchHint = std::string{Icons::Search} + " Search logs...";
 
         std::string currentSearch;
-        if (context.SelectedAvd >= 0) {
-            const std::string &avdName = context.Avds[context.SelectedAvd].Name;
-            currentSearch = context.PerAvdLogSearch[avdName];
+        if (context.Catalog.SelectedAvd >= 0) {
+            const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
+            currentSearch = context.Logs.PerAvdLogSearch[avdName];
         }
 
         char searchBuffer[256];
@@ -45,16 +44,16 @@ namespace CoreDeck {
         searchBuffer[sizeof(searchBuffer) - 1] = '\0';
 
         if (ImGui::InputTextWithHint("##search", searchHint.c_str(), searchBuffer, sizeof(searchBuffer))) {
-            if (context.SelectedAvd >= 0) {
-                const std::string &avdName = context.Avds[context.SelectedAvd].Name;
-                context.PerAvdLogSearch[avdName] = searchBuffer;
+            if (context.Catalog.SelectedAvd >= 0) {
+                const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
+                context.Logs.PerAvdLogSearch[avdName] = searchBuffer;
             }
         }
 
         ImGui::Separator();
         ImGui::BeginChild("LogContent", ImVec2(0, 0), ImGuiChildFlags_None);
 
-        if (context.SelectedAvd < 0) {
+        if (context.Catalog.SelectedAvd < 0) {
             ImGui::TextDisabled("Select an AVD to view logs");
             ImGui::EndChild();
             ImGui::End();
@@ -72,8 +71,8 @@ namespace CoreDeck {
             }
 
             std::string searchQuery;
-            const std::string &avdName = context.Avds[context.SelectedAvd].Name;
-            searchQuery = context.PerAvdLogSearch[avdName];
+            const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
+            searchQuery = context.Logs.PerAvdLogSearch[avdName];
             const bool hasSearch = !searchQuery.empty();
 
             bool hasVisibleLines = false;
@@ -98,12 +97,12 @@ namespace CoreDeck {
                 ImGui::TextDisabled("No matching log entries found");
             }
 
-            if (context.AutoScroll && log->HasNewContent() && !hasSearch) {
+            if (context.Logs.AutoScroll && log->HasNewContent() && !hasSearch) {
                 ImGui::SetScrollHereY(1.0f);
                 log->ResetNewContentFlag();
             }
         } else {
-            const std::string &avdName = context.Avds[context.SelectedAvd].Name;
+            const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
             ImGui::TextDisabled("Run the \"%s\" AVD to view logs", avdName.c_str());
         }
 

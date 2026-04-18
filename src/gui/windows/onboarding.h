@@ -5,7 +5,7 @@
 #ifndef COREDECK_ONBOARDING_WINDOW_H
 #define COREDECK_ONBOARDING_WINDOW_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildOnboardingWindow(Context &context);

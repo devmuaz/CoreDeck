@@ -164,4 +164,9 @@ namespace CoreDeck {
             }
         }
     }
+
+    void EmulatorManager::SetSdk(SdkInfo sdk) {
+        std::lock_guard lock(m_Mutex);
+        m_Sdk = std::move(sdk);
+    }
 }

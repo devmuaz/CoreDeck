@@ -5,7 +5,7 @@
 #ifndef COREDECK_ABOUT_H
 #define COREDECK_ABOUT_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildAboutWindow(Context &context);

@@ -5,7 +5,7 @@
 #ifndef COREDECK_AVD_OPTIONS_H
 #define COREDECK_AVD_OPTIONS_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context);

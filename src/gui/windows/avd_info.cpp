@@ -9,9 +9,11 @@
 
 namespace CoreDeck {
     void BuildAvdInfoWindow(Context &context) {
+        if (!context.UI.ShowDetailsPanel) return;
+
         constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
-        if (context.SelectedAvd < 0) {
+        if (context.Catalog.SelectedAvd < 0) {
             ImGui::Begin("Details###Details", nullptr, panelFlags);
             ImGui::TextDisabled("Select an AVD to view details");
             ImGui::End();
@@ -30,10 +32,10 @@ namespace CoreDeck {
             GpuMode,
             Arch,
             Path
-        ] = context.Avds[context.SelectedAvd];
+        ] = context.Catalog.Avds[context.Catalog.SelectedAvd];
         const auto args = BuildArgs(Name, GetDefaultAvdOptions(context));
 
-        std::string preview = context.Sdk.EmulatorPath;
+        std::string preview = context.Host.Sdk.EmulatorPath;
         for (const auto &arg: args) preview += " " + arg;
 
         ImGui::Begin(
