@@ -12,6 +12,7 @@ A fast, modern desktop app for managing and launching Android emulators — buil
 ## Features
 
 - **AVD Management** — Create, delete, and browse your Android Virtual Devices
+- **System Image Management** — List, install, and uninstall android system images with ease
 - **Emulator Control** — Launch, stop, or wipe & run AVDs with one click
 - **Per-AVD Options** — Configure GPU, RAM, CPU cores, camera, network, boot mode, and more
 - **Live Log Viewer** — Stream emulator output in real time with search and auto-scroll
@@ -23,15 +24,15 @@ A fast, modern desktop app for managing and launching Android emulators — buil
 
 <div>
 
-|                                    AVD List & Options                                     |                                   Running Emulator & Logs                                    |
-|:-----------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------:|
-| <img src="previews/list-avds.png" alt="AVD List & Options" width="400"/>                  | <img src="previews/run-selected-avd.png" alt="Running Emulator & Logs" width="400"/>         |
-|              *Browse AVDs with per-device options and details*                             |                  *Live emulator output with search and auto-scroll*                          |
+|                            AVD List & Options                            |                               Running Emulator & Logs                                |
+|:------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
+| <img src="previews/list-avds.png" alt="AVD List & Options" width="400"/> | <img src="previews/run-selected-avd.png" alt="Running Emulator & Logs" width="400"/> |
+|            *Browse AVDs with per-device options and details*             |                  *Live emulator output with search and auto-scroll*                  |
 
-|                                      Create New AVD                                       |                                        Delete AVD                                            |
-|:-----------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------:|
-| <img src="previews/create-avd.png" alt="Create New AVD" width="400"/>                     | <img src="previews/delete-avd.png" alt="Delete AVD" width="400"/>                            |
-|              *Configure system image, device, RAM, and GPU mode*                           |                  *Confirmation dialog before permanent deletion*                             |
+|                            Create New AVD                             |                            Delete AVD                             |
+|:---------------------------------------------------------------------:|:-----------------------------------------------------------------:|
+| <img src="previews/create-avd.png" alt="Create New AVD" width="400"/> | <img src="previews/delete-avd.png" alt="Delete AVD" width="400"/> |
+|          *Configure system image, device, RAM, and GPU mode*          |          *Confirmation dialog before permanent deletion*          |
 
 </div>
 
