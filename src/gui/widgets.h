@@ -79,7 +79,7 @@ namespace CoreDeck {
         const ImVec4 &rightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
     );
 
-    bool PropertyText(const char *label, const char *value, bool isClickable = false);
+    bool PropertyText(const char *label, const char *value, bool isClickable = false, bool hasSpaceBetween = false);
 
     void PropertyTextWrapped(const char *label, const char *value);
 

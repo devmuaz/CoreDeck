@@ -123,9 +123,17 @@ namespace CoreDeck {
         return clicked;
     }
 
-    bool PropertyText(const char *label, const char *value, const bool isClickable) {
+    bool PropertyText(const char *label, const char *value, const bool isClickable, const bool hasSpaceBetween) {
         ImGui::TextDisabled("%s", label);
-        ImGui::SameLine();
+
+        if (hasSpaceBetween) {
+            const float valueWidth = ImGui::CalcTextSize(value).x;
+            ImGui::SameLine(
+                ImGui::GetContentRegionAvail().x - valueWidth + ImGui::GetCursorPosX() - ImGui::GetCursorStartPos().x
+            );
+        } else {
+            ImGui::SameLine();
+        }
 
         if (!isClickable) {
             ImGui::Text("%s", value);
