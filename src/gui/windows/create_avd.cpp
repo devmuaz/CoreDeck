@@ -6,6 +6,7 @@
 #include "imgui.h"
 
 #include "create_avd.h"
+#include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
 
@@ -32,7 +33,7 @@ namespace CoreDeck {
     }
 
     void BuildCreateAvdWindow(Context &context) {
-        if (context.ShowCreateDialog && !ImGui::IsPopupOpen("Create New AVD###CreateAvdDialog")) {
+        if (context.UI.ShowCreateAvdDialog && !ImGui::IsPopupOpen("Create New AVD###CreateAvdDialog")) {
             ImGui::OpenPopup("Create New AVD###CreateAvdDialog");
         }
 
@@ -46,9 +47,9 @@ namespace CoreDeck {
                 ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::BeginPopupModal("Create New AVD###CreateAvdDialog", &context.ShowCreateDialog, flags)) {
-            const bool isLoading = context.CreateDataLoading.load();
-            const bool isCreating = context.AsyncBusy.load();
+        if (ImGui::BeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, flags)) {
+            const bool isLoading = context.CreateAvdWork.Prefetch.Loading.load();
+            const bool isCreating = context.Jobs.AvdCreation.Busy.load();
             const bool formDisabled = isLoading || isCreating;
 
             if (formDisabled) ImGui::BeginDisabled();
@@ -63,30 +64,30 @@ namespace CoreDeck {
             ImGui::Text("Display Name");
 
             char nameBuffer[128];
-            strncpy(nameBuffer, context.CreateParams.Name.c_str(), sizeof(nameBuffer) - 1);
+            strncpy(nameBuffer, context.CreateAvdWork.CreateParams.Name.c_str(), sizeof(nameBuffer) - 1);
             nameBuffer[sizeof(nameBuffer) - 1] = '\0';
             ImGui::SetNextItemWidth(nameColWidth);
             if (ImGui::InputTextWithHint("##AvdName", "e.g. MyPixel7", nameBuffer, sizeof(nameBuffer),
                                          ImGuiInputTextFlags_CallbackCharFilter, AvdNameFilter)) {
-                context.CreateParams.Name = nameBuffer;
+                context.CreateAvdWork.CreateParams.Name = nameBuffer;
             }
 
             ImGui::SameLine();
             ImGui::SetCursorPosX(nameCol2X);
 
             char displayBuffer[128];
-            strncpy(displayBuffer, context.CreateParams.DisplayName.c_str(), sizeof(displayBuffer) - 1);
+            strncpy(displayBuffer, context.CreateAvdWork.CreateParams.DisplayName.c_str(), sizeof(displayBuffer) - 1);
             displayBuffer[sizeof(displayBuffer) - 1] = '\0';
             ImGui::SetNextItemWidth(nameColWidth);
             if (ImGui::InputTextWithHint("##DisplayName", "e.g. My Pixel 7", displayBuffer, sizeof(displayBuffer))) {
-                context.CreateParams.DisplayName = displayBuffer;
+                context.CreateAvdWork.CreateParams.DisplayName = displayBuffer;
             }
 
-            if (AvdNameExists(context.AvdNames, context.CreateParams.Name)) {
+            if (AvdNameExists(context.Catalog.AvdNames, context.CreateAvdWork.CreateParams.Name)) {
                 ImGui::TextColored(
                     HexColor("#E64D40"),
                     "An AVD named \"%s\" already exists.",
-                    context.CreateParams.Name.c_str()
+                    context.CreateAvdWork.CreateParams.Name.c_str()
                 );
             }
 
@@ -95,23 +96,19 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             ImGui::Text("System Image");
-            if (context.CreateDataReady && context.SystemImages
-
-                .
-                empty()
-            ) {
+            if (context.CreateAvdWork.Prefetch.Ready && context.CreateAvdWork.SystemImages.empty()) {
                 ImGui::TextColored(
                     HexColor("#E64D40"),
                     "No system images found. Install one via Android Studio SDK Manager."
                 );
-            } else if (!context.SystemImages.empty()) {
+            } else if (!context.CreateAvdWork.SystemImages.empty()) {
                 ImGui::SetNextItemWidth(-1.0f);
                 if (ImGui::BeginCombo("##SystemImage",
-                                      context.SystemImages[context.SelectedSystemImage].DisplayName.c_str())) {
-                    for (int i = 0; i < static_cast<int>(context.SystemImages.size()); i++) {
-                        const bool isSelected = context.SelectedSystemImage == i;
-                        if (ImGui::Selectable(context.SystemImages[i].DisplayName.c_str(), isSelected)) {
-                            context.SelectedSystemImage = i;
+                                      context.CreateAvdWork.SystemImages[context.CreateAvdWork.SelectedSystemImage].DisplayName.c_str())) {
+                    for (int i = 0; i < static_cast<int>(context.CreateAvdWork.SystemImages.size()); i++) {
+                        const bool isSelected = context.CreateAvdWork.SelectedSystemImage == i;
+                        if (ImGui::Selectable(context.CreateAvdWork.SystemImages[i].DisplayName.c_str(), isSelected)) {
+                            context.CreateAvdWork.SelectedSystemImage = i;
                         }
                         if (isSelected) ImGui::SetItemDefaultFocus();
                     }
@@ -125,18 +122,15 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             ImGui::Text("Device");
-            if (context.CreateDataReady && context.DeviceProfiles
-                .
-                empty()
-            ) {
+            if (context.CreateAvdWork.Prefetch.Ready && context.CreateAvdWork.DeviceProfiles.empty()) {
                 ImGui::TextColored(HexColor("#E64D40"), "No device profiles found.");
-            } else if (!context.DeviceProfiles.empty()) {
+            } else if (!context.CreateAvdWork.DeviceProfiles.empty()) {
                 ImGui::SetNextItemWidth(-1.0f);
-                if (ImGui::BeginCombo("##device", context.DeviceProfiles[context.SelectedDevice].Name.c_str())) {
-                    for (int i = 0; i < static_cast<int>(context.DeviceProfiles.size()); i++) {
-                        const bool isSelected = context.SelectedDevice == i;
-                        if (ImGui::Selectable(context.DeviceProfiles[i].Name.c_str(), isSelected)) {
-                            context.SelectedDevice = i;
+                if (ImGui::BeginCombo("##device", context.CreateAvdWork.DeviceProfiles[context.CreateAvdWork.SelectedDevice].Name.c_str())) {
+                    for (int i = 0; i < static_cast<int>(context.CreateAvdWork.DeviceProfiles.size()); i++) {
+                        const bool isSelected = context.CreateAvdWork.SelectedDevice == i;
+                        if (ImGui::Selectable(context.CreateAvdWork.DeviceProfiles[i].Name.c_str(), isSelected)) {
+                            context.CreateAvdWork.SelectedDevice = i;
                         }
                         if (isSelected) ImGui::SetItemDefaultFocus();
                     }
@@ -161,24 +155,24 @@ namespace CoreDeck {
             ImGui::Text("SD Card Size");
 
             char ramBuffer[32];
-            strncpy(ramBuffer, context.CreateParams.RamSize.c_str(), sizeof(ramBuffer) - 1);
+            strncpy(ramBuffer, context.CreateAvdWork.CreateParams.RamSize.c_str(), sizeof(ramBuffer) - 1);
             ramBuffer[sizeof(ramBuffer) - 1] = '\0';
             ImGui::SetNextItemWidth(colWidth);
             if (ImGui::InputTextWithHint("##ram", "e.g. 2048 (MB)", ramBuffer, sizeof(ramBuffer),
                                          ImGuiInputTextFlags_CallbackCharFilter, DigitsOnlyFilter)) {
-                context.CreateParams.RamSize = ramBuffer;
+                context.CreateAvdWork.CreateParams.RamSize = ramBuffer;
             }
 
             ImGui::SameLine();
             ImGui::SetCursorPosX(col2X);
 
             char sdBuffer[32];
-            strncpy(sdBuffer, context.CreateParams.SdCardSize.c_str(), sizeof(sdBuffer) - 1);
+            strncpy(sdBuffer, context.CreateAvdWork.CreateParams.SdCardSize.c_str(), sizeof(sdBuffer) - 1);
             sdBuffer[sizeof(sdBuffer) - 1] = '\0';
             ImGui::SetNextItemWidth(colWidth);
             if (ImGui::InputTextWithHint("##sdcard", "e.g. 512 (MB)", sdBuffer, sizeof(sdBuffer),
                                          ImGuiInputTextFlags_CallbackCharFilter, DigitsOnlyFilter)) {
-                context.CreateParams.SdCardSize = sdBuffer;
+                context.CreateAvdWork.CreateParams.SdCardSize = sdBuffer;
             }
 
             ImGui::Spacing();
@@ -186,11 +180,11 @@ namespace CoreDeck {
             ImGui::Text("GPU Mode");
             static const char *gpuModes[] = {"auto", "host", "swiftshader_indirect", "guest"};
             ImGui::SetNextItemWidth(-1.0f);
-            if (ImGui::BeginCombo("##gpu", gpuModes[context.SelectedGpuMode])) {
+            if (ImGui::BeginCombo("##gpu", gpuModes[context.CreateAvdWork.SelectedGpuMode])) {
                 for (int i = 0; i < 4; i++) {
-                    const bool isSelected = context.SelectedGpuMode == i;
+                    const bool isSelected = context.CreateAvdWork.SelectedGpuMode == i;
                     if (ImGui::Selectable(gpuModes[i], isSelected)) {
-                        context.SelectedGpuMode = i;
+                        context.CreateAvdWork.SelectedGpuMode = i;
                     }
                     if (isSelected) ImGui::SetItemDefaultFocus();
                 }
@@ -205,8 +199,8 @@ namespace CoreDeck {
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
-            const bool canCreate = !context.CreateParams.Name.empty() && !context.SystemImages.empty()
-                                   && !context.DeviceProfiles.empty() && !formDisabled;
+            const bool canCreate = !context.CreateAvdWork.CreateParams.Name.empty() && !context.CreateAvdWork.SystemImages.empty()
+                                   && !context.CreateAvdWork.DeviceProfiles.empty() && !formDisabled;
 
             if (isCreating) {
                 ImGui::BeginDisabled();
@@ -214,31 +208,31 @@ namespace CoreDeck {
                 ImGui::EndDisabled();
             } else {
                 if (PositiveButton("Create", canCreate, ImVec2(halfWidth, 0))) {
-                    context.CreateParams.SystemImagePackagePath = context.SystemImages[context.SelectedSystemImage].
+                    context.CreateAvdWork.CreateParams.SystemImagePackagePath = context.CreateAvdWork.SystemImages[context.CreateAvdWork.SelectedSystemImage].
                             PackagePath;
-                    context.CreateParams.DeviceId = context.DeviceProfiles[context.SelectedDevice].Id;
-                    context.CreateParams.GpuMode = gpuModes[context.SelectedGpuMode];
-                    if (!context.CreateParams.SdCardSize.empty()) {
-                        context.CreateParams.SdCardSize += "M";
+                    context.CreateAvdWork.CreateParams.DeviceId = context.CreateAvdWork.DeviceProfiles[context.CreateAvdWork.SelectedDevice].Id;
+                    context.CreateAvdWork.CreateParams.GpuMode = gpuModes[context.CreateAvdWork.SelectedGpuMode];
+                    if (!context.CreateAvdWork.CreateParams.SdCardSize.empty()) {
+                        context.CreateAvdWork.CreateParams.SdCardSize += "M";
                     }
 
-                    context.AsyncBusy = true;
-                    context.AsyncFuture = std::async(std::launch::async, [&context] {
-                        CreateAvd(context.Sdk, context.CreateParams);
-                        context.AsyncBusy = false;
+                    context.Jobs.AvdCreation.Busy = true;
+                    context.Jobs.AvdCreation.Future = std::async(std::launch::async, [&context] {
+                        CreateAvd(context.Host.Sdk, context.CreateAvdWork.CreateParams);
+                        context.Jobs.AvdCreation.Busy = false;
                     });
                 }
             }
             ImGui::SameLine();
             if (PrimaryButton("Cancel", !isCreating, ImVec2(halfWidth, 0))) {
-                context.ShowCreateDialog = false;
+                context.UI.ShowCreateAvdDialog = false;
                 ImGui::CloseCurrentPopup();
             }
 
             // Check if async create finished
-            if (!context.AsyncBusy && context.AsyncFuture.valid()) {
-                context.AsyncFuture.get();
-                context.ShowCreateDialog = false;
+            if (!context.Jobs.AvdCreation.Busy && context.Jobs.AvdCreation.Future.valid()) {
+                context.Jobs.AvdCreation.Future.get();
+                context.UI.ShowCreateAvdDialog = false;
                 ImGui::CloseCurrentPopup();
                 RefreshAvds(context);
             }

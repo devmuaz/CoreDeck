@@ -88,6 +88,7 @@ add_executable(${PROJECT_NAME}
         ${IMGUI_SOURCES}
         src/main.cpp
         # Core
+        src/core/app_settings.cpp
         src/core/avd.cpp
         src/core/emulator.cpp
         src/core/file_dialog.cpp
@@ -107,6 +108,8 @@ add_executable(${PROJECT_NAME}
         src/gui/windows/create_avd.cpp
         src/gui/windows/main_menu_bar.cpp
         src/gui/windows/onboarding.cpp
+        src/gui/windows/preferences.cpp
+        src/gui/windows/sdk_banner.cpp
         src/gui/application.cpp
         src/gui/theme.cpp
         src/gui/widgets.cpp

@@ -5,7 +5,7 @@
 #ifndef COREDECK_AVD_LOGS_H
 #define COREDECK_AVD_LOGS_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildAvdLogsWindow(Context &context);

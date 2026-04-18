@@ -5,7 +5,7 @@
 #ifndef COREDECK_AVD_LIST_H
 #define COREDECK_AVD_LIST_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildAvdListWindow(Context &context);

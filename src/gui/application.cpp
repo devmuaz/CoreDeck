@@ -15,6 +15,7 @@
 #include "imgui_internal.h"
 
 #include "application.h"
+#include "../core/app_settings.h"
 #include "../core/paths.h"
 #include "windows/about.h"
 #include "windows/avd_info.h"
@@ -25,33 +26,48 @@
 #include "windows/delete_avd.h"
 #include "windows/main_menu_bar.h"
 #include "windows/onboarding.h"
+#include "windows/preferences.h"
+#include "windows/sdk_banner.h"
 
 namespace CoreDeck {
     Application::Application() : m_Context(DetectAndroidSdk()) {
         EnsureOptionsConfigDirectoryExists();
+        ApplyAppSettingsToContext(m_Context, LoadAppSettings());
 
-        if (!Paths::Onboarding::IsFirstRunComplete() || !m_Context.Sdk.IsFound) {
-            m_Context.CurrentScreen = Screen::Onboarding;
+        if (!Paths::Onboarding::IsFirstRunComplete() || !m_Context.Host.Sdk.IsFound) {
+            m_Context.Flow.CurrentScreen = Screen::Onboarding;
         } else {
-            m_Context.CurrentScreen = Screen::Main;
+            m_Context.Flow.CurrentScreen = Screen::Main;
             RefreshAvds(m_Context);
         }
     }
 
     void Application::Build() {
-        if (m_Context.CurrentScreen == Screen::Onboarding) {
+        if (m_Context.Flow.CurrentScreen == Screen::Onboarding) {
             BuildOnboardingWindow(m_Context);
             return;
         }
 
-        if (m_Context.SelectedAvd != m_Context.PreviousSelectedAvd) {
-            if (m_Context.SelectedAvd >= 0 && m_Context.SelectedAvd < m_Context.Avds.size()) {
-                const std::string &avdName = m_Context.Avds[m_Context.SelectedAvd].Name;
-                if (!m_Context.PerAvdOptions.contains(avdName)) {
+#ifdef __APPLE__
+        constexpr ImGuiKeyChord kPrimaryMod = ImGuiMod_Super;
+#else
+        constexpr ImGuiKeyChord kPrimaryMod = ImGuiMod_Ctrl;
+#endif
+        if (ImGui::Shortcut(kPrimaryMod | ImGuiKey_R) || ImGui::Shortcut(ImGuiKey_F5)) {
+            RefreshAvds(m_Context);
+        }
+        if (ImGui::Shortcut(kPrimaryMod | ImGuiKey_Comma)) {
+            m_Context.UI.ShowPreferences = true;
+        }
+
+        if (m_Context.Catalog.SelectedAvd != m_Context.Catalog.PreviousSelectedAvd) {
+            if (m_Context.Catalog.SelectedAvd >= 0 && m_Context.Catalog.SelectedAvd < m_Context.Catalog.Avds.size()) {
+                const std::string &avdName = m_Context.Catalog.Avds[m_Context.Catalog.SelectedAvd].Name;
+                if (!m_Context.Catalog.PerAvdOptions.contains(avdName)) {
                     LoadAvdOptions(m_Context, avdName);
                 }
             }
-            m_Context.PreviousSelectedAvd = m_Context.SelectedAvd;
+            m_Context.Catalog.PreviousSelectedAvd = m_Context.Catalog.SelectedAvd;
         }
 
         const ImGuiID dockSpaceId = ImGui::DockSpaceOverViewport(
@@ -100,46 +116,77 @@ namespace CoreDeck {
         }
 
         BuildMainMenuBar(m_Context);
+        BuildSdkMissingBanner(m_Context);
+        BuildDeleteAvdWindow(m_Context);
         BuildAvdOptionsWindow(m_Context);
         BuildAvdListWindow(m_Context);
         BuildAvdInfoWindow(m_Context);
         BuildAvdLogsWindow(m_Context);
         BuildAboutWindow(m_Context);
-        BuildDeleteAvdWindow(m_Context);
+        BuildPreferencesWindow(m_Context);
         BuildCreateAvdWindow(m_Context);
 
-        m_Context.Manager.Update();
+        m_Context.Host.Manager.Update();
+    }
+
+    void Application::SetMainWindow(GLFWwindow *const window) {
+        m_Context.UI.MainWindow = window;
+    }
+
+    AppSettings CaptureAppSettingsFromContext(const Context &context) {
+        AppSettings s;
+        s.SchemaVersion = 1;
+        s.AutoScroll = context.Logs.AutoScroll;
+        s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
+        s.ShowAvdListPanel = context.UI.ShowAvdListPanel;
+        s.ShowOptionsPanel = context.UI.ShowOptionsPanel;
+        s.ShowDetailsPanel = context.UI.ShowDetailsPanel;
+        s.ShowLogPanel = context.UI.ShowLogPanel;
+        return s;
+    }
+
+    void ApplyAppSettingsToContext(Context &context, const AppSettings &settings) {
+        context.Logs.AutoScroll = settings.AutoScroll;
+        context.Prefs.ConfirmBeforeDeleteAvd = settings.ConfirmBeforeDeleteAvd;
+        context.UI.ShowAvdListPanel = settings.ShowAvdListPanel;
+        context.UI.ShowOptionsPanel = settings.ShowOptionsPanel;
+        context.UI.ShowDetailsPanel = settings.ShowDetailsPanel;
+        context.UI.ShowLogPanel = settings.ShowLogPanel;
+    }
+
+    void PersistAppSettings(const Context &context) {
+        SaveAppSettings(CaptureAppSettingsFromContext(context));
     }
 
     void RefreshAvds(Context &context) {
-        context.AvdNames = ListAvdNames(context.Sdk);
-        context.Avds = LoadAvds(context.AvdNames);
+        context.Catalog.AvdNames = ListAvdNames(context.Host.Sdk);
+        context.Catalog.Avds = LoadAvds(context.Catalog.AvdNames);
 
-        for (const auto &avdName: context.AvdNames) LoadAvdOptions(context, avdName);
+        for (const auto &avdName: context.Catalog.AvdNames) LoadAvdOptions(context, avdName);
 
-        if (!context.Avds.empty()) context.SelectedAvd = 0;
-        else context.SelectedAvd = -1;
-        context.PreviousSelectedAvd = -1;
+        if (!context.Catalog.Avds.empty()) context.Catalog.SelectedAvd = 0;
+        else context.Catalog.SelectedAvd = -1;
+        context.Catalog.PreviousSelectedAvd = -1;
     }
 
     void LoadAvdOptions(Context &context, const std::string &avdName) {
         const std::string configPath = GetOptionsConfigPath(avdName);
-        context.PerAvdOptions[avdName] = LoadOptionsFromFile(configPath);
+        context.Catalog.PerAvdOptions[avdName] = LoadOptionsFromFile(configPath);
     }
 
     void SaveAvdOptions(Context &context, const std::string &avdName) {
-        if (!context.PerAvdOptions.contains(avdName)) return;
+        if (!context.Catalog.PerAvdOptions.contains(avdName)) return;
 
         const std::string configPath = GetOptionsConfigPath(avdName);
-        SaveOptionsToFile(configPath, context.PerAvdOptions[avdName]);
+        SaveOptionsToFile(configPath, context.Catalog.PerAvdOptions[avdName]);
     }
 
     std::vector<EmulatorOption> &GetDefaultAvdOptions(Context &context) {
-        if (context.SelectedAvd >= 0 && context.SelectedAvd < context.Avds.size()) {
-            const std::string &avdName = context.Avds[context.SelectedAvd].Name;
+        if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
+            const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
 
-            if (!context.PerAvdOptions.contains(avdName)) LoadAvdOptions(context, avdName);
-            return context.PerAvdOptions[avdName];
+            if (!context.Catalog.PerAvdOptions.contains(avdName)) LoadAvdOptions(context, avdName);
+            return context.Catalog.PerAvdOptions[avdName];
         }
 
         // Fallback

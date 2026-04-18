@@ -5,7 +5,7 @@
 #ifndef COREDECK_MAIN_MENU_BAR_H
 #define COREDECK_MAIN_MENU_BAR_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildMainMenuBar(Context &context);

@@ -5,6 +5,7 @@
 #include "imgui.h"
 
 #include "onboarding.h"
+#include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/file_dialog.h"
@@ -130,9 +131,9 @@ namespace CoreDeck {
             Paths::Onboarding::SaveSdkPathOverride(currentPath);
             Paths::Onboarding::MarkFirstRunComplete();
 
-            context.Sdk = DetectAndroidSdk();
+            context.Host.Sdk = DetectAndroidSdk();
             RefreshAvds(context);
-            context.CurrentScreen = Screen::Main;
+            context.Flow.CurrentScreen = Screen::Main;
         }
 
         ImGui::EndGroup();
@@ -144,8 +145,8 @@ namespace CoreDeck {
         static bool initialized = false;
 
         if (!initialized) {
-            if (!context.Sdk.SdkPath.empty()) {
-                strncpy(pathBuffer, context.Sdk.SdkPath.c_str(), sizeof(pathBuffer) - 1);
+            if (!context.Host.Sdk.SdkPath.empty()) {
+                strncpy(pathBuffer, context.Host.Sdk.SdkPath.c_str(), sizeof(pathBuffer) - 1);
                 pathBuffer[sizeof(pathBuffer) - 1] = '\0';
             }
             initialized = true;

@@ -5,9 +5,11 @@
 #ifndef COREDECK_DELETE_AVD_H
 #define COREDECK_DELETE_AVD_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
+    void StartDeleteAvdAsync(Context &context, const std::string &avdName);
+
     void BuildDeleteAvdWindow(Context &context);
 }
 

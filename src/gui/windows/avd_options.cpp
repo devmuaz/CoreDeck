@@ -11,11 +11,13 @@
 
 namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context) {
+        if (!context.UI.ShowOptionsPanel) return;
+
         constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
         std::string panelTitle = "Options";
-        if (context.SelectedAvd >= 0 && context.SelectedAvd < context.Avds.size()) {
-            panelTitle = "Options - " + context.Avds[context.SelectedAvd].DisplayName;
+        if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
+            panelTitle = "Options - " + context.Catalog.Avds[context.Catalog.SelectedAvd].DisplayName;
         }
 
         ImGui::Begin(
@@ -24,7 +26,7 @@ namespace CoreDeck {
             panelFlags
         );
 
-        if (context.SelectedAvd < 0) {
+        if (context.Catalog.SelectedAvd < 0) {
             ImGui::TextDisabled("Select an AVD to configure options");
             ImGui::End();
             return;
@@ -101,7 +103,7 @@ namespace CoreDeck {
             }
         }
 
-        if (optionsChanged) SaveAvdOptions(context, context.Avds[context.SelectedAvd].Name);
+        if (optionsChanged) SaveAvdOptions(context, context.Catalog.Avds[context.Catalog.SelectedAvd].Name);
         ImGui::End();
     }
 }

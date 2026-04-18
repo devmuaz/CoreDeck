@@ -5,7 +5,7 @@
 #ifndef COREDECK_CREATE_AVD_H
 #define COREDECK_CREATE_AVD_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildCreateAvdWindow(Context &context);

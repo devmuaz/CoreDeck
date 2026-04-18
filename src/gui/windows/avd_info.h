@@ -5,7 +5,7 @@
 #ifndef COREDECK_AVD_DETAILS_H
 #define COREDECK_AVD_DETAILS_H
 
-#include "../application.h"
+#include "../context.h"
 
 namespace CoreDeck {
     void BuildAvdInfoWindow(Context &context);

@@ -5,13 +5,13 @@
 #include "imgui.h"
 
 #include "../widgets.h"
-#include "../application.h"
+#include "../context.h"
 #include "../theme.h"
 #include "about.h"
 
 namespace CoreDeck {
     void BuildAboutWindow(Context &context) {
-        if (context.ShowAboutDialog && !ImGui::IsPopupOpen("About CoreDeck")) {
+        if (context.UI.ShowAboutDialog && !ImGui::IsPopupOpen("About CoreDeck")) {
             ImGui::OpenPopup("About CoreDeck");
         }
 
@@ -25,7 +25,7 @@ namespace CoreDeck {
                 ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::BeginPopupModal("About CoreDeck", &context.ShowAboutDialog, flags)) {
+        if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, flags)) {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             const float titleWidth = ImGui::CalcTextSize("CoreDeck").x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5f);
