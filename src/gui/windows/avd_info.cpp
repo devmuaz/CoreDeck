@@ -52,14 +52,14 @@ namespace CoreDeck {
         ImGui::Separator();
         ImGui::Spacing();
 
-        if (!Device.empty()) PropertyText("Device", Device.c_str());
-        if (!ApiLevel.empty()) PropertyText("API Level", ApiLevel.c_str());
-        if (!Abi.empty()) PropertyText("ABI", Abi.c_str());
-        if (!Arch.empty()) PropertyText("Arch", Arch.c_str());
-        if (!RamSize.empty()) PropertyText("RAM", (RamSize + " MB").c_str());
-        if (!ScreenResolution.empty()) PropertyText("Resolution", ScreenResolution.c_str());
-        if (!SdCard.empty()) PropertyText("Storage", SdCard.c_str());
-        if (!GpuMode.empty()) PropertyText("GPU Mode", GpuMode.c_str());
+        if (!Device.empty()) PropertyText("Device", Device.c_str(), false, true);
+        if (!ApiLevel.empty()) PropertyText("API Level", ApiLevel.c_str(), false, true);
+        if (!Abi.empty()) PropertyText("ABI", Abi.c_str(), false, true);
+        if (!Arch.empty()) PropertyText("Arch", Arch.c_str(), false, true);
+        if (!RamSize.empty()) PropertyText("RAM", (RamSize + " MB").c_str(), false, true);
+        if (!ScreenResolution.empty()) PropertyText("Resolution", ScreenResolution.c_str(), false, true);
+        if (!SdCard.empty()) PropertyText("Storage", SdCard.c_str(), false, true);
+        if (!GpuMode.empty()) PropertyText("GPU Mode", GpuMode.c_str(), false, true);
 
         ImGui::End();
     }
