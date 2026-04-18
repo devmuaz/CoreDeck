@@ -12,6 +12,7 @@ namespace CoreDeck {
         std::string SdkPath;
         std::string EmulatorPath;
         std::string AvdManagerPath;
+        std::string SdkManagerPath;
         bool IsFound = false;
     };
 

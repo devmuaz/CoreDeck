@@ -26,6 +26,7 @@
 #include "windows/avd_options.h"
 #include "windows/create_avd.h"
 #include "windows/delete_avd.h"
+#include "windows/install_image.h"
 #include "windows/main_menu_bar.h"
 #include "windows/onboarding.h"
 #include "windows/preferences.h"
@@ -133,6 +134,7 @@ namespace CoreDeck {
         BuildPreferencesWindow(m_Context);
         BuildUpdateNoticeWindow(m_Context);
         BuildCreateAvdWindow(m_Context);
+        BuildInstallImageWindow(m_Context);
 
         m_Context.Host.Manager.Update();
     }
@@ -192,6 +194,8 @@ namespace CoreDeck {
         s.ShowOptionsPanel = context.UI.ShowOptionsPanel;
         s.ShowDetailsPanel = context.UI.ShowDetailsPanel;
         s.ShowLogPanel = context.UI.ShowLogPanel;
+        s.AvdSortMode = static_cast<int>(context.Catalog.SortMode);
+        s.AvdSortAscending = context.Catalog.SortAscending;
         return s;
     }
 
@@ -202,6 +206,11 @@ namespace CoreDeck {
         context.UI.ShowOptionsPanel = settings.ShowOptionsPanel;
         context.UI.ShowDetailsPanel = settings.ShowDetailsPanel;
         context.UI.ShowLogPanel = settings.ShowLogPanel;
+
+        if (const int sortMode = settings.AvdSortMode; sortMode >= 0 && sortMode <= 2) {
+            context.Catalog.SortMode = static_cast<AvdSortMode>(sortMode);
+        }
+        context.Catalog.SortAscending = settings.AvdSortAscending;
     }
 
     void PersistAppSettings(const Context &context) {

@@ -54,6 +54,16 @@ namespace CoreDeck {
             }
         }
 
+        if (!sdk.AvdManagerPath.empty()) {
+            std::filesystem::path avdMgrPath(sdk.AvdManagerPath);
+            const std::string sdkMgrCandidate = Paths::JoinPaths({
+                avdMgrPath.parent_path().string(), "sdkmanager" + Paths::GetExecutableExtension()
+            });
+            if (std::filesystem::exists(sdkMgrCandidate)) {
+                sdk.SdkManagerPath = sdkMgrCandidate;
+            }
+        }
+
         if (std::filesystem::exists(sdk.EmulatorPath)) sdk.IsFound = true;
         return sdk;
     }

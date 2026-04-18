@@ -79,8 +79,13 @@ namespace CoreDeck {
 
             ImGui::Spacing();
 
-            const bool canApply = pathOk && !pathStr.empty();
-            if (PrimaryButton("Apply SDK path", canApply, ImVec2(160, 0))) {
+            constexpr float applyW = 160.0f;
+            constexpr float defaultW = 180.0f;
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float totalW = applyW + spacing + defaultW;
+            ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - totalW + ImGui::GetCursorPosX());
+
+            if (PrimaryButton("Apply SDK path", pathOk, ImVec2(applyW, 0))) {
                 Paths::Onboarding::SaveSdkPathOverride(pathStr);
                 context.Host.Sdk = DetectAndroidSdk();
                 context.Host.Manager.SetSdk(context.Host.Sdk);
@@ -88,12 +93,12 @@ namespace CoreDeck {
                 context.UI.HideInvalidSdkPathBanner = false;
                 PersistAppSettings(context);
             }
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !canApply && !pathStr.empty()) {
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !pathOk) {
                 ImGui::SetTooltip("Fix the path or validation errors before applying.");
             }
 
             ImGui::SameLine();
-            if (PrimaryButton("Use default discovery", true, ImVec2(180, 0))) {
+            if (PrimaryButton("Use default discovery", true, ImVec2(defaultW, 0))) {
                 Paths::Onboarding::ClearSdkPathOverride();
                 context.Host.Sdk = DetectAndroidSdk();
                 context.Host.Manager.SetSdk(context.Host.Sdk);
@@ -110,11 +115,13 @@ namespace CoreDeck {
 
             ImGui::Spacing();
             ImGui::Separator();
-            ImGui::Spacing();
-
-            if (PrimaryButton("Close", true, ImVec2(120, 0))) {
-                context.UI.ShowPreferences = false;
-                ImGui::CloseCurrentPopup();
+            ImGui::Spacing(); {
+                constexpr float closeW = 120.0f;
+                ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - closeW + ImGui::GetCursorPosX());
+                if (PrimaryButton("Close", true, ImVec2(closeW, 0))) {
+                    context.UI.ShowPreferences = false;
+                    ImGui::CloseCurrentPopup();
+                }
             }
 
             ImGui::EndPopup();

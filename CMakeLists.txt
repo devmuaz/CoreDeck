@@ -107,6 +107,7 @@ add_executable(${PROJECT_NAME}
         src/gui/windows/avd_options.cpp
         src/gui/windows/delete_avd.cpp
         src/gui/windows/create_avd.cpp
+        src/gui/windows/install_image.cpp
         src/gui/windows/main_menu_bar.cpp
         src/gui/windows/onboarding.cpp
         src/gui/windows/preferences.cpp
