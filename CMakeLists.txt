@@ -97,6 +97,7 @@ add_executable(${PROJECT_NAME}
         src/core/paths.cpp
         src/core/process.cpp
         src/core/sdk.cpp
+        src/core/system_image.cpp
         src/core/utilities.cpp
         src/core/version_check.cpp
         # Gui
