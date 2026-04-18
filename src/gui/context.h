@@ -89,6 +89,14 @@ namespace CoreDeck {
             } AvdCreation, AvdDeletion;
         } Jobs;
 
+        struct Updates {
+            bool ShowNewVersionModal = false;
+            std::string LatestVersion;
+            bool ShowUpToDateModal = false;
+            bool RequestManualUpdateCheck = false;
+            bool UpdateCheckInFlight = false;
+        } Updates;
+
         explicit Context(SdkInfo sdk) : Host(std::move(sdk)) {
         }
     };

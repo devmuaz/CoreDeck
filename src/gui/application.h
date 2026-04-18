@@ -8,6 +8,10 @@
 #include "context.h"
 #include "../core/app_settings_types.h"
 
+#include <future>
+#include <optional>
+#include <string>
+
 struct GLFWwindow;
 
 namespace CoreDeck {
@@ -20,7 +24,12 @@ namespace CoreDeck {
         void SetMainWindow(GLFWwindow *window);
 
     private:
+        void PollUpdateCheckIfNeeded();
+
         Context m_Context;
+        std::future<std::optional<std::string>> m_UpdateCheckFuture;
+        bool m_AutoUpdateCheckStarted = false;
+        bool m_UpdateCheckWasManual = false;
     };
 
     void RefreshAvds(Context &context);

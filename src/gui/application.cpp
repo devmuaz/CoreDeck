@@ -11,6 +11,8 @@
 #endif
 #endif
 
+#include <chrono>
+
 #include "imgui.h"
 #include "imgui_internal.h"
 
@@ -28,6 +30,9 @@
 #include "windows/onboarding.h"
 #include "windows/preferences.h"
 #include "windows/sdk_banner.h"
+#include "windows/update.h"
+
+#include "../core/version_check.h"
 
 namespace CoreDeck {
     Application::Application() : m_Context(DetectAndroidSdk()) {
@@ -59,6 +64,8 @@ namespace CoreDeck {
         if (ImGui::Shortcut(kPrimaryMod | ImGuiKey_Comma)) {
             m_Context.UI.ShowPreferences = true;
         }
+
+        PollUpdateCheckIfNeeded();
 
         if (m_Context.Catalog.SelectedAvd != m_Context.Catalog.PreviousSelectedAvd) {
             if (m_Context.Catalog.SelectedAvd >= 0 && m_Context.Catalog.SelectedAvd < m_Context.Catalog.Avds.size()) {
@@ -124,9 +131,52 @@ namespace CoreDeck {
         BuildAvdLogsWindow(m_Context);
         BuildAboutWindow(m_Context);
         BuildPreferencesWindow(m_Context);
+        BuildUpdateNoticeWindow(m_Context);
         BuildCreateAvdWindow(m_Context);
 
         m_Context.Host.Manager.Update();
+    }
+
+    void Application::PollUpdateCheckIfNeeded() {
+        if (m_UpdateCheckFuture.valid()) {
+            if (m_UpdateCheckFuture.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+                return;
+            }
+
+            std::optional<std::string> newer = m_UpdateCheckFuture.get();
+            m_Context.Updates.UpdateCheckInFlight = false;
+
+            if (newer) {
+                m_Context.Updates.LatestVersion = std::move(*newer);
+                m_Context.Updates.ShowNewVersionModal = true;
+            } else if (m_UpdateCheckWasManual) {
+                m_Context.Updates.ShowUpToDateModal = true;
+            }
+            m_UpdateCheckWasManual = false;
+            return;
+        }
+
+        bool start = false;
+        if (!m_AutoUpdateCheckStarted) {
+            m_AutoUpdateCheckStarted = true;
+            m_UpdateCheckWasManual = false;
+            start = true;
+        } else if (m_Context.Updates.RequestManualUpdateCheck) {
+            m_Context.Updates.RequestManualUpdateCheck = false;
+            m_UpdateCheckWasManual = true;
+            start = true;
+        }
+
+        if (start) {
+            m_Context.Updates.UpdateCheckInFlight = true;
+            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<std::string> {
+                try {
+                    return QueryRemoteNewerVersion();
+                } catch (...) {
+                    return std::nullopt;
+                }
+            });
+        }
     }
 
     void Application::SetMainWindow(GLFWwindow *const window) {
