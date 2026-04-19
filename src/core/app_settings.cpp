@@ -4,11 +4,11 @@
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <rfl/json.hpp>
 
 #include "app_settings.h"
 #include "paths.h"
+#include "log.h"
 
 namespace CoreDeck {
     static std::string GetAppSettingsFilePath() {
@@ -29,7 +29,7 @@ namespace CoreDeck {
 
             return rfl::json::read<AppSettings>(json).value();
         } catch (const std::exception &e) {
-            std::cerr << "Failed to load app settings: " << e.what() << std::endl;
+            Log::Error("Failed to load app settings: ", e.what());
             return AppSettings{};
         }
     }
@@ -43,19 +43,19 @@ namespace CoreDeck {
             std::error_code ec;
             std::filesystem::create_directories(fsPath.parent_path(), ec);
             if (ec) {
-                std::cerr << "Failed to create app config directory: " << ec.message() << std::endl;
+                Log::Error("Failed to create app config directory: ", ec.message());
                 return;
             }
 
             const auto json = rfl::json::write(settings);
             std::ofstream file(path);
             if (!file.is_open()) {
-                std::cerr << "Failed to save app settings to: " << path << std::endl;
+                Log::Error("Failed to save app settings to: ", path);
                 return;
             }
             file << json;
         } catch (const std::exception &e) {
-            std::cerr << "Failed to save app settings: " << e.what() << std::endl;
+            Log::Error("Failed to save app settings: ", e.what());
         }
     }
 }

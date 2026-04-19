@@ -82,7 +82,6 @@ namespace CoreDeck {
         return 0;
     }
 
-
     std::optional<std::string> QueryRemoteNewerVersion() {
 #if defined(_WIN32)
         const std::string cmd = StrConcat(
@@ -107,7 +106,7 @@ namespace CoreDeck {
             return std::nullopt;
         }
 
-        const auto remote = ParseLatestReleaseTag(body);
+        auto remote = ParseLatestReleaseTag(body);
         if (!remote) {
             return std::nullopt;
         }

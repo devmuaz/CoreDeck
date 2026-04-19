@@ -120,6 +120,8 @@ add_executable(${PROJECT_NAME}
         src/gui/widgets.cpp
 )
 
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.h)
+
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends

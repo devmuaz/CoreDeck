@@ -3,10 +3,10 @@
 //
 
 #include <fstream>
-#include <iostream>
 #include <rfl/json.hpp>
 
 #include "options.h"
+#include "log.h"
 #include "paths.h"
 
 namespace CoreDeck {
@@ -243,13 +243,13 @@ namespace CoreDeck {
             const auto json = rfl::json::write(options);
             std::ofstream file(filePath);
             if (!file.is_open()) {
-                std::cerr << "Failed to save options to: " << filePath << std::endl;
+                Log::Error("Failed to save options to: ", filePath);
                 return;
             }
             file << json;
             file.close();
         } catch (const std::exception &e) {
-            std::cerr << "Failed to serialize options: " << e.what() << std::endl;
+            Log::Error("Failed to serialize options: ", e.what());
         }
     }
 
@@ -266,7 +266,7 @@ namespace CoreDeck {
             auto options = rfl::json::read<std::vector<EmulatorOption> >(json);
             return options.value();
         } catch (const std::exception &e) {
-            std::cerr << "Failed to load options from " << filePath << ": " << e.what() << std::endl;
+            Log::Error("Failed to load options from ", filePath, ": ", e.what());
             return GetEmulatorOptions();
         }
     }
