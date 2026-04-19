@@ -38,8 +38,8 @@ project(CoreDeck VERSION ${PROJECT_VERSION})
 string(TIMESTAMP CURRENT_YEAR "%Y")
 
 set(APP_VENDOR "AbdulMuaz Aqeel")
-set(APP_DESCRIPTION "A fast, modern desktop app for managing and launching Android emulators — no Android Studio required.")
-set(APP_DESCRIPTION_SHORT "Your Android emulator command center.")
+set(APP_DESCRIPTION "A native desktop application around your Android SDK’s official emulator, avdmanager, and sdkmanager binaries. Use it for everyday work without opening Android Studio. Built with C++20 and Dear ImGui.")
+set(APP_DESCRIPTION_SHORT "Official tools, polished workflow — in a friendly GUI.")
 set(APP_BUNDLE_ID "com.devmuaz.coredeck")
 
 set(CMAKE_CXX_STANDARD 20)
