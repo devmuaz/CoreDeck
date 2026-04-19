@@ -5,12 +5,13 @@
 #include "paths.h"
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
 #include <shlobj.h>
 #endif
+
+#include "log.h"
 
 namespace CoreDeck::Paths {
     Platform GetCurrentPlatform() {
@@ -60,7 +61,7 @@ namespace CoreDeck::Paths {
                 break;
         }
 
-        std::cerr << "Warning: Could not determine home directory" << std::endl;
+        Log::Error("Could not determine home directory");
         return "";
     }
 
@@ -185,7 +186,7 @@ namespace CoreDeck::Paths {
             std::filesystem::create_directories(configPath);
             return configPath;
         } catch (const std::exception &e) {
-            std::cerr << "Failed to create config directory: " << e.what() << std::endl;
+            Log::Error("Failed to create config directory: ", e.what());
             return "";
         }
     }

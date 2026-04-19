@@ -33,7 +33,6 @@
 #include "windows/sdk_banner.h"
 #include "windows/storage.h"
 #include "windows/update.h"
-
 #include "../core/version_check.h"
 
 namespace CoreDeck {
