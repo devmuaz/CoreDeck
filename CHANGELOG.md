@@ -1,3 +1,13 @@
+## [v0.0.8](https://github.com/devmuaz/CoreDeck/releases/tag/v0.0.8) — 2026-04-19
+
+- Add system image install and uninstall via sdkmanager
+- Add storage overview with per-AVD disk usage and async wipe user data
+- Add auto and manual update check via GitHub API
+- Add app settings persistence and preferences UI
+- Add CONTRIBUTING.md with branching model and PR guidelines
+- Refactor system image handling into its own core module
+- Update README with features, preview screenshots, build dependencies, and contributing section
+
 ## [v0.0.7](https://github.com/devmuaz/CoreDeck/releases/tag/v0.0.7) — 2026-04-16
 
 - Add Linux ARM64 build support
