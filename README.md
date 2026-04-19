@@ -54,6 +54,14 @@ Grab the latest release for your platform from the [Releases](https://github.com
 
 ## Build from source
 
+**Linux dependencies (Ubuntu/Debian):**
+
+```bash
+sudo apt-get install build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+```
+
+**Build:**
+
 ```bash
 git clone --recursive https://github.com/devmuaz/CoreDeck.git
 cd CoreDeck
