@@ -113,6 +113,7 @@ add_executable(${PROJECT_NAME}
         src/gui/windows/onboarding.cpp
         src/gui/windows/preferences.cpp
         src/gui/windows/sdk_banner.cpp
+        src/gui/windows/storage.cpp
         src/gui/windows/update.cpp
         src/gui/application.cpp
         src/gui/theme.cpp

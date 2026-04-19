@@ -37,6 +37,10 @@ namespace CoreDeck {
                 if (ImGui::MenuItem("Output Log", nullptr, &context.UI.ShowLogPanel)) {
                     PersistAppSettings(context);
                 }
+                ImGui::Separator();
+                if (ImGui::MenuItem("Storage Overview...")) {
+                    context.UI.ShowStorageDialog = true;
+                }
                 ImGui::EndMenu();
             }
 

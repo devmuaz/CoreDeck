@@ -40,11 +40,12 @@ namespace CoreDeck {
 
                 if (!isInstalling && work.InstallFuture.valid()) {
                     if (work.InstallFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-                        const bool ok = work.InstallFuture.get();
-                        if (ok) {
+                        if (work.InstallFuture.get()) {
                             context.AvdCreationWork.SystemImages = ListSystemImages(context.Host.Sdk);
-                            work.RemoteImages = ListRemoteSystemImages(context.Host.Sdk,
-                                                                       context.AvdCreationWork.SystemImages);
+                            work.RemoteImages = ListRemoteSystemImages(
+                                context.Host.Sdk,
+                                context.AvdCreationWork.SystemImages
+                            );
                         }
                     }
                 }
@@ -113,7 +114,9 @@ namespace CoreDeck {
                     ImGui::Text("%s", statusText.c_str());
                     ImGui::Spacing();
 
+                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor("#33CC47"));
                     ImGui::ProgressBar(fraction, ImVec2(-1.0f, 0.0f));
+                    ImGui::PopStyleColor();
                 }
 
                 if (!isInstalling && work.Progress) {
@@ -128,9 +131,9 @@ namespace CoreDeck {
 
                     if (finished) {
                         ImGui::Spacing();
-                        ImGui::Separator();
-                        ImGui::Spacing();
-
+                        const float textWidth = ImGui::CalcTextSize(statusText.c_str()).x;
+                        ImGui::SetCursorPosX(
+                            (ImGui::GetContentRegionAvail().x - textWidth) * 0.5f + ImGui::GetCursorStartPos().x);
                         if (succeeded) ImGui::TextColored(HexColor("#33CC47"), "%s", statusText.c_str());
                         else ImGui::TextColored(HexColor("#E64D40"), "%s", statusText.c_str());
                     }
@@ -146,18 +149,15 @@ namespace CoreDeck {
                         work.SelectedImage < static_cast<int>(work.RemoteImages.size()) &&
                         !work.RemoteImages[work.SelectedImage].IsInstalled;
 
-                constexpr float installW = 160.0f;
-                constexpr float closeW = 100.0f;
                 const float spacing = ImGui::GetStyle().ItemSpacing.x;
-                const float totalW = installW + spacing + closeW;
-                ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - totalW + ImGui::GetCursorPosX());
+                const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
                 if (isInstalling) {
                     ImGui::BeginDisabled();
-                    PositiveButton("Installing...", false, ImVec2(installW, 0));
+                    PositiveButton("Installing...", false, ImVec2(halfWidth, 0));
                     ImGui::EndDisabled();
                 } else {
-                    if (PositiveButton("Install", canInstall, ImVec2(installW, 0))) {
+                    if (PositiveButton("Install", canInstall, ImVec2(halfWidth, 0))) {
                         const auto &img = work.RemoteImages[work.SelectedImage];
                         work.Progress = std::make_shared<InstallProgressData>();
                         work.Installing = true;
@@ -166,8 +166,7 @@ namespace CoreDeck {
                         work.InstallFuture = std::async(
                             std::launch::async,
                             [&context, pkgPath, progress] {
-                                const bool ok = InstallSystemImage(
-                                    context.Host.Sdk, pkgPath, progress);
+                                const bool ok = InstallSystemImage(context.Host.Sdk, pkgPath, progress);
                                 context.ImageInstallationWork.Installing = false;
                                 return ok;
                             }
@@ -176,7 +175,7 @@ namespace CoreDeck {
                 }
 
                 ImGui::SameLine();
-                if (PrimaryButton("Close", !isInstalling, ImVec2(closeW, 0))) {
+                if (PrimaryButton("Close", !isInstalling, ImVec2(halfWidth, 0))) {
                     work.Progress.reset();
                     context.UI.ShowInstallImageDialog = false;
                     if (context.UI.ReopenCreateAvdOnInstallClose) {

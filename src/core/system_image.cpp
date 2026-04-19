@@ -276,7 +276,7 @@ namespace CoreDeck {
             progress->Finished = true;
             progress->Succeeded = ok;
             progress->Percent = ok ? 1.0f : progress->Percent;
-            progress->StatusText = ok ? "Installation complete" : "Installation failed";
+            progress->StatusText = ok ? "Installation Completed!" : "Installation Failed!";
         }
 
         return ok;

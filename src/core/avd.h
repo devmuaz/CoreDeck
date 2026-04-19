@@ -25,7 +25,6 @@ namespace CoreDeck {
         std::string Path;
     };
 
-
     struct AvdCreationData {
         std::string Name;
         std::string DisplayName;
