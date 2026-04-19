@@ -31,6 +31,7 @@
 #include "windows/onboarding.h"
 #include "windows/preferences.h"
 #include "windows/sdk_banner.h"
+#include "windows/storage.h"
 #include "windows/update.h"
 
 #include "../core/version_check.h"
@@ -135,6 +136,7 @@ namespace CoreDeck {
         BuildUpdateNoticeWindow(m_Context);
         BuildCreateAvdWindow(m_Context);
         BuildInstallImageWindow(m_Context);
+        BuildStorageWindow(m_Context);
 
         m_Context.Host.Manager.Update();
     }
@@ -222,6 +224,10 @@ namespace CoreDeck {
         context.Catalog.Avds = LoadAvds(context.Catalog.AvdNames);
 
         for (const auto &avdName: context.Catalog.AvdNames) LoadAvdOptions(context, avdName);
+
+        context.DiskUsage.PerAvdCache.clear();
+        context.DiskUsage.SystemImagesSizeCached = false;
+        context.DiskUsage.SystemImageEntriesCached = false;
 
         if (!context.Catalog.Avds.empty()) context.Catalog.SelectedAvd = 0;
         else context.Catalog.SelectedAvd = -1;

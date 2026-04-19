@@ -4,11 +4,17 @@
 
 #ifndef EMU_LAUNCHER_UTILITIES_H
 #define EMU_LAUNCHER_UTILITIES_H
-#include <format>
+#include <cstdint>
 #include <string>
 
 namespace CoreDeck {
     void OpenUrl(const char *url);
+
+    std::uintmax_t GetDirectorySize(const std::string &path);
+
+    std::string FormatFileSize(std::uintmax_t bytes);
+
+    bool WipeAvdUserData(const std::string &avdPath);
 
     template<typename... Args>
     std::string StrConcat(Args &&... args) {

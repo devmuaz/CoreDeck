@@ -6,6 +6,7 @@
 #define COREDECK_CONTEXT_H
 
 #include <atomic>
+#include <cstdint>
 #include <future>
 #include <memory>
 #include <string>
@@ -74,6 +75,8 @@ namespace CoreDeck {
             bool ShowInstallImageDialog = false;
             bool ReopenCreateAvdOnInstallClose = false;
             bool ShowPreferences = false;
+            bool ShowStorageDialog = false;
+            bool ShowWipeDataDialog = false;
             bool ShowAvdListPanel = true;
             bool ShowOptionsPanel = true;
             bool ShowDetailsPanel = true;
@@ -121,8 +124,21 @@ namespace CoreDeck {
             struct {
                 std::atomic<bool> Busy{false};
                 std::future<void> Future;
-            } AvdCreation, AvdDeletion;
+            } AvdCreation, AvdDeletion, AvdWipe;
         } Jobs;
+
+        struct DiskUsage {
+            std::unordered_map<std::string, std::uintmax_t> PerAvdCache;
+            std::uintmax_t SystemImagesSize = 0;
+            bool SystemImagesSizeCached = false;
+
+            struct SystemImageEntry {
+                std::string Name;
+                std::uintmax_t Size;
+            };
+            std::vector<SystemImageEntry> SystemImageEntries;
+            bool SystemImageEntriesCached = false;
+        } DiskUsage;
 
         struct Updates {
             bool ShowNewVersionModal = false;
