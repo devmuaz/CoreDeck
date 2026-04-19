@@ -187,9 +187,10 @@ namespace CoreDeck {
 
     DialogResult SimpleDialog(const DialogData &data) {
         auto result = DialogResult::None;
+        const std::string title = StrConcat(data.title, "###", data.Id);
 
-        if (data.isOpen && !ImGui::IsPopupOpen(data.Id)) {
-            ImGui::OpenPopup(data.Id);
+        if (data.isOpen && !ImGui::IsPopupOpen(title.c_str())) {
+            ImGui::OpenPopup(title.c_str());
         }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -202,15 +203,13 @@ namespace CoreDeck {
                 ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::BeginPopupModal(data.Id, data.isBusy ? nullptr : &data.isOpen, flags)) {
+        if (ImGui::BeginPopupModal(title.c_str(), data.isBusy ? nullptr : &data.isOpen, flags)) {
             if (!data.isOpen) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
                 return result;
             }
 
-            ImGui::TextWrapped("%s", data.title);
-            ImGui::Spacing();
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor("#66666B"));
             ImGui::TextWrapped("%s", data.message);
             ImGui::PopStyleColor();

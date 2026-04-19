@@ -5,7 +5,13 @@
 [![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/releases)
 
-A fast, modern desktop app for managing and launching Android emulators — built with C++20 and Dear ImGui.
+A native desktop application around your Android SDK’s official emulator, avdmanager, and sdkmanager binaries — CoreDeck
+runs them for you in one place, through a friendly GUI, so you get the same results without hand-writing commands. Use
+it for everyday work without opening Android Studio. Built with C++20 and Dear ImGui.
+
+> [!IMPORTANT]
+> You still need the Android SDK and its tooling on your machine. Installing Android Studio is the usual way to get
+> them.
 
 **Website:** [coredeck.dev](https://coredeck.dev)
 
@@ -29,10 +35,10 @@ A fast, modern desktop app for managing and launching Android emulators — buil
 | <img src="previews/list-avds.png" alt="AVD List & Options" width="400"/> | <img src="previews/run-selected-avd.png" alt="Running Emulator & Logs" width="400"/> |
 |            *Browse AVDs with per-device options and details*             |                  *Live emulator output with search and auto-scroll*                  |
 
-|                            Create New AVD                             |                            Delete AVD                             |
-|:---------------------------------------------------------------------:|:-----------------------------------------------------------------:|
-| <img src="previews/create-avd.png" alt="Create New AVD" width="400"/> | <img src="previews/delete-avd.png" alt="Delete AVD" width="400"/> |
-|          *Configure system image, device, RAM, and GPU mode*          |          *Confirmation dialog before permanent deletion*          |
+|         Create New AVD & List, Install, Remove System Images          |                              Wipe User Data                              |
+|:---------------------------------------------------------------------:|:------------------------------------------------------------------------:|
+| <img src="previews/create-avd.png" alt="Create New AVD" width="400"/> | <img src="previews/wipe-avd-data.png" alt="Wipe User Data" width="400"/> |
+|          *Configure system image, device, RAM, and GPU mode*          |                    *Clear heavy and unused AVD data*                     |
 
 </div>
 
@@ -60,6 +66,10 @@ If you already cloned without `--recursive`:
 ```bash
 git submodule update --init --recursive
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the branching model, PR guidelines, and how to get started.
 
 ## License
 
