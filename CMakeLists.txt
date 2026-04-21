@@ -41,6 +41,7 @@ set(APP_VENDOR "AbdulMuaz Aqeel")
 set(APP_DESCRIPTION "A native desktop application around your Android SDK’s official emulator, avdmanager, and sdkmanager binaries. Use it for everyday work without opening Android Studio. Built with C++20 and Dear ImGui.")
 set(APP_DESCRIPTION_SHORT "Official tools, polished workflow — in a friendly GUI.")
 set(APP_BUNDLE_ID "com.devmuaz.coredeck")
+set(APP_COPYRIGHT "Copyright © ${CURRENT_YEAR} ${PROJECT_NAME}")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -137,14 +138,22 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if (APPLE)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets
-            $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets
+            ${CMAKE_SOURCE_DIR}/assets/fonts
+            $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/fonts
     )
 else ()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+            ${CMAKE_SOURCE_DIR}/assets/fonts
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/fonts
+    )
+endif ()
+
+if (UNIX AND NOT APPLE)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/assets/icons/icon.png
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/icons/icon.png
     )
 endif ()
 
@@ -158,6 +167,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
         COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
         COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
+        COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
 )
 
 if (WIN32)
@@ -177,7 +187,7 @@ elseif (APPLE)
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION}"
             MACOSX_BUNDLE_EXECUTABLE_NAME "${PROJECT_NAME}"
             MACOSX_BUNDLE_INFO_STRING "${APP_DESCRIPTION_SHORT}"
-            MACOSX_BUNDLE_COPYRIGHT "Copyright © ${CURRENT_YEAR} ${PROJECT_NAME}"
+            MACOSX_BUNDLE_COPYRIGHT "${APP_COPYRIGHT}"
     )
     if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
         set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE icon.icns)
@@ -209,14 +219,12 @@ install(TARGETS ${PROJECT_NAME}
         BUNDLE DESTINATION .
         RUNTIME DESTINATION .
 )
-if (WIN32)
-    # App icon embedded in the .exe file, assets/acons is redundant here!
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION . PATTERN "icons" EXCLUDE)
-elseif (APPLE)
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION . PATTERN "icons" EXCLUDE)
-    install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.icns DESTINATION assets/icons)
-else ()
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION . PATTERN "icons" EXCLUDE)
+
+if (NOT APPLE)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/fonts DESTINATION assets)
+endif ()
+
+if (UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.png DESTINATION assets/icons)
 endif ()
 

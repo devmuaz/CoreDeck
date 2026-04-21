@@ -5,7 +5,6 @@
 #ifndef EMU_LAUNCHER_SDK_H
 #define EMU_LAUNCHER_SDK_H
 #include <string>
-#include <vector>
 
 namespace CoreDeck {
     struct SdkInfo {

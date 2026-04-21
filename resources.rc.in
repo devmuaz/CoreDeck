@@ -10,7 +10,7 @@ FILEFLAGS       0x0L
 FILEOS          VOS_NT_WINDOWS32
 FILETYPE        VFT_APP
 FILESUBTYPE     VFT2_UNKNOWN
-BEGIN
+BEGIN/mo
     BLOCK "StringFileInfo"
     BEGIN
         BLOCK "040904B0"
@@ -20,7 +20,7 @@ BEGIN
             VALUE "FileVersion",      "@PROJECT_VERSION@.@PROJECT_BUILD_NUMBER@"
             VALUE "ProductName",      "@PROJECT_NAME@"
             VALUE "ProductVersion",   "@PROJECT_VERSION@"
-            VALUE "LegalCopyright",   "Copyright © @CURRENT_YEAR@ @APP_VENDOR@"
+            VALUE "LegalCopyright",   "@APP_COPYRIGHT@"
             VALUE "OriginalFilename", "@PROJECT_NAME@.exe"
         END
     END

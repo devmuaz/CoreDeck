@@ -65,10 +65,9 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            const std::string copyright = "Copyright " "\xC2\xA9" " " COREDECK_YEAR " " COREDECK_VENDOR;
-            const float copyrightWidth = ImGui::CalcTextSize(copyright.c_str()).x;
+            const float copyrightWidth = ImGui::CalcTextSize(COREDECK_COPYRIGHT).x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - copyrightWidth) * 0.5f);
-            ImGui::TextColored(HexColor("#66666B"), "%s", copyright.c_str());
+            ImGui::TextColored(HexColor("#66666B"), "%s", COREDECK_COPYRIGHT);
 
             ImGui::Spacing();
             ImGui::EndPopup();
