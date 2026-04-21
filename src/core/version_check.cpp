@@ -23,63 +23,68 @@ namespace CoreDeck {
         }
     }
 
-    static std::optional<std::string> ParseLatestReleaseTag(const std::string &body) {
-        try {
-            const auto parsed = rfl::json::read<GitHubLatestRelease>(body);
-            if (!parsed) {
+    namespace detail {
+        std::optional<std::string> ParseLatestReleaseTag(const std::string &body) {
+            try {
+                const auto parsed = rfl::json::read<GitHubLatestRelease>(body);
+                if (!parsed) {
+                    return std::nullopt;
+                }
+                const std::string &tag = parsed.value().tag_name;
+                if (tag.empty()) {
+                    return std::nullopt;
+                }
+                return tag;
+            } catch (...) {
                 return std::nullopt;
             }
-            const std::string &tag = parsed.value().tag_name;
-            if (tag.empty()) {
-                return std::nullopt;
-            }
-            return tag;
-        } catch (...) {
-            return std::nullopt;
         }
-    }
 
-    static int CompareSemanticVersion(const std::string &newVersion, const std::string &currentVersion) {
-        auto parse = [](const std::string &raw) {
-            std::string s = raw;
-            if (!s.empty() && (s[0] == 'v' || s[0] == 'V')) {
-                s.erase(s.begin());
-            }
-            std::vector<int> parts;
-            size_t pos = 0;
-            while (pos < s.size()) {
-                const size_t dot = s.find('.', pos);
-                const std::string seg = dot == std::string::npos ? s.substr(pos) : s.substr(pos, dot - pos);
-                int n = 0;
-                for (const char c: seg) {
-                    if (c < '0' || c > '9') {
+        int CompareSemanticVersion(const std::string &newVersion, const std::string &currentVersion) {
+            auto parse = [](const std::string &raw) -> std::pair<std::vector<int>, bool> {
+                std::string s = raw;
+                if (!s.empty() && (s[0] == 'v' || s[0] == 'V')) {
+                    s.erase(s.begin());
+                }
+                const bool hasPreRelease = s.find('-') != std::string::npos;
+                std::vector<int> parts;
+                size_t pos = 0;
+                while (pos < s.size()) {
+                    const size_t dot = s.find('.', pos);
+                    const std::string seg = dot == std::string::npos ? s.substr(pos) : s.substr(pos, dot - pos);
+                    int n = 0;
+                    for (const char c: seg) {
+                        if (c < '0' || c > '9') {
+                            break;
+                        }
+                        n = n * 10 + (c - '0');
+                    }
+                    parts.push_back(n);
+                    if (dot == std::string::npos) {
                         break;
                     }
-                    n = n * 10 + (c - '0');
+                    pos = dot + 1;
                 }
-                parts.push_back(n);
-                if (dot == std::string::npos) {
-                    break;
+                while (parts.size() < 3) {
+                    parts.push_back(0);
                 }
-                pos = dot + 1;
-            }
-            while (parts.size() < 3) {
-                parts.push_back(0);
-            }
-            return parts;
-        };
+                return {parts, hasPreRelease};
+            };
 
-        const std::vector<int> va = parse(newVersion);
-        const std::vector<int> vb = parse(currentVersion);
-        const size_t n = std::max(va.size(), vb.size());
-        for (size_t i = 0; i < n; ++i) {
-            const int a = i < va.size() ? va[i] : 0;
-            const int b = i < vb.size() ? vb[i] : 0;
-            if (a != b) {
-                return a < b ? -1 : 1;
+            const auto [va, preA] = parse(newVersion);
+            const auto [vb, preB] = parse(currentVersion);
+            const size_t n = std::max(va.size(), vb.size());
+            for (size_t i = 0; i < n; ++i) {
+                const int a = i < va.size() ? va[i] : 0;
+                const int b = i < vb.size() ? vb[i] : 0;
+                if (a != b) {
+                    return a < b ? -1 : 1;
+                }
             }
+            if (preA && !preB) return -1;
+            if (!preA && preB) return 1;
+            return 0;
         }
-        return 0;
     }
 
     std::optional<std::string> QueryRemoteNewerVersion() {
@@ -106,12 +111,12 @@ namespace CoreDeck {
             return std::nullopt;
         }
 
-        auto remote = ParseLatestReleaseTag(body);
+        auto remote = detail::ParseLatestReleaseTag(body);
         if (!remote) {
             return std::nullopt;
         }
 
-        if (CompareSemanticVersion(remote.value(), COREDECK_VERSION) <= 0) {
+        if (detail::CompareSemanticVersion(remote.value(), COREDECK_VERSION) <= 0) {
             return std::nullopt;
         }
         return remote;
