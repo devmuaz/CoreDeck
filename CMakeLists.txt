@@ -18,9 +18,12 @@ if (GIT_FOUND)
     )
 
     if (GIT_TAG_VERSION)
-        string(REGEX REPLACE "^v" "" PROJECT_VERSION ${GIT_TAG_VERSION})
+        string(REGEX REPLACE "^v" "" GIT_TAG_STRIPPED ${GIT_TAG_VERSION})
+        string(REGEX REPLACE "-.*$" "" PROJECT_VERSION ${GIT_TAG_STRIPPED})
+        set(PROJECT_VERSION_FULL ${GIT_TAG_STRIPPED})
     else ()
         set(PROJECT_VERSION "0.0.1")
+        set(PROJECT_VERSION_FULL "0.0.1")
     endif ()
 
     if (GIT_COMMIT_COUNT)
@@ -30,6 +33,7 @@ if (GIT_FOUND)
     endif ()
 else ()
     set(PROJECT_VERSION "0.0.1")
+    set(PROJECT_VERSION_FULL "0.0.1")
     set(PROJECT_BUILD_NUMBER "1")
 endif ()
 
@@ -85,10 +89,7 @@ target_include_directories(tinyfiledialogs PUBLIC ${TINYFD_DIR})
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
-add_executable(${PROJECT_NAME}
-        ${IMGUI_SOURCES}
-        src/main.cpp
-        # Core
+add_library(coredeck_core STATIC
         src/core/app_settings.cpp
         src/core/avd.cpp
         src/core/emulator.cpp
@@ -101,7 +102,35 @@ add_executable(${PROJECT_NAME}
         src/core/system_image.cpp
         src/core/utilities.cpp
         src/core/version_check.cpp
-        # Gui
+)
+
+target_include_directories(coredeck_core PUBLIC src)
+target_precompile_headers(coredeck_core PRIVATE src/pch.h)
+target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs)
+
+target_compile_definitions(coredeck_core PUBLIC
+        COREDECK_VERSION="${PROJECT_VERSION_FULL}"
+        COREDECK_BUILD_NUMBER="${PROJECT_BUILD_NUMBER}"
+        COREDECK_VENDOR="${APP_VENDOR}"
+        COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
+        COREDECK_YEAR="${CURRENT_YEAR}"
+        COREDECK_WEBSITE="https://coredeck.dev"
+        COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
+        COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
+        COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
+        COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
+)
+
+if (WIN32)
+    target_compile_definitions(coredeck_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32)
+elseif (UNIX AND NOT APPLE)
+    target_link_libraries(coredeck_core PUBLIC ${CMAKE_DL_LIBS} Threads::Threads)
+endif ()
+
+add_executable(${PROJECT_NAME}
+        ${IMGUI_SOURCES}
+        src/main.cpp
         src/gui/windows/about.cpp
         src/gui/windows/avd_info.cpp
         src/gui/windows/avd_list.cpp
@@ -129,10 +158,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+        coredeck_core
         glfw
         OpenGL::GL
-        reflectcpp
-        tinyfiledialogs
 )
 
 if (APPLE)
@@ -157,23 +185,8 @@ if (UNIX AND NOT APPLE)
     )
 endif ()
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-        COREDECK_VERSION="${CMAKE_PROJECT_VERSION}"
-        COREDECK_BUILD_NUMBER="${PROJECT_BUILD_NUMBER}"
-        COREDECK_VENDOR="${APP_VENDOR}"
-        COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
-        COREDECK_YEAR="${CURRENT_YEAR}"
-        COREDECK_WEBSITE="https://coredeck.dev"
-        COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
-        COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
-        COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
-        COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
-)
-
 if (WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/resources.rc.in ${CMAKE_BINARY_DIR}/resources.rc @ONLY)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-    target_link_libraries(${PROJECT_NAME} PRIVATE shell32 comdlg32 ole32)
     target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
     target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/resources.rc)
 elseif (APPLE)
@@ -197,8 +210,6 @@ elseif (APPLE)
                 "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/icon.icns"
         )
     endif ()
-else ()
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_DL_LIBS} Threads::Threads)
 endif ()
 
 if (WIN32)
@@ -242,3 +253,9 @@ if (WIN32)
 endif ()
 
 include(CPack)
+
+option(COREDECK_BUILD_TESTS "Build CoreDeck unit tests" OFF)
+if (COREDECK_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
