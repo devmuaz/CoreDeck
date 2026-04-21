@@ -10,6 +10,12 @@
 
 namespace CoreDeck {
     std::optional<std::string> QueryRemoteNewerVersion();
+
+    namespace detail {
+        int CompareSemanticVersion(const std::string &newVersion, const std::string &currentVersion);
+
+        std::optional<std::string> ParseLatestReleaseTag(const std::string &body);
+    }
 }
 
 #endif // COREDECK_VERSION_CHECK_H

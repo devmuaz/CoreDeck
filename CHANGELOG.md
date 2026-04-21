@@ -1,3 +1,11 @@
+## [v0.1.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.1.0-beta.1) — 2026-04-21
+
+- Add Catch2 unit test suite with 35 tests covering utilities, paths, log buffer, and version check
+- Add CI test step that runs the suite on Windows, macOS, Linux x86-64, and Linux ARM64 on every PR
+- Fix log buffer FIFO eviction that was dropping newest entries instead of oldest
+- Fix update check to correctly notify pre-release users when the matching stable release ships
+- Auto-detect pre-release tags in the release workflow so betas are not marked as the latest stable
+
 ## [v0.0.8](https://github.com/devmuaz/CoreDeck/releases/tag/v0.0.8) — 2026-04-19
 
 - Add system image install and uninstall via sdkmanager

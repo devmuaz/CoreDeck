@@ -180,6 +180,6 @@ jobs:
             artifacts/coredeck-linux-x86-64/coredeck-linux-x86-64.tar.gz
             artifacts/coredeck-linux-arm64/coredeck-linux-arm64.tar.gz
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
