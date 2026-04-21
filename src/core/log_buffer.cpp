@@ -12,7 +12,7 @@ namespace CoreDeck {
         std::lock_guard lock(m_Mutex);
         m_Lines.push_back(line);
         if (m_Lines.size() > m_MaxLines) {
-            m_Lines.pop_back();
+            m_Lines.pop_front();
         }
         m_HasNew = true;
     }

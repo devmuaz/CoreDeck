@@ -11,3 +11,6 @@
 [submodule "extern/tinyfiledialogs"]
 	path = extern/tinyfiledialogs
 	url = https://github.com/native-toolkit/libtinyfiledialogs.git
+[submodule "extern/catch2"]
+	path = extern/catch2
+	url = https://github.com/catchorg/Catch2.git
