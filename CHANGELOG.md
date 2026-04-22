@@ -1,3 +1,7 @@
+## [v0.1.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.1.0) — 2026-04-22
+
+- Fix crash when launching an AVD after a previous run of the same AVD
+
 ## [v0.1.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.1.0-beta.1) — 2026-04-21
 
 - Add Catch2 unit test suite with 35 tests covering utilities, paths, log buffer, and version check
