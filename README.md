@@ -3,7 +3,7 @@
 [![Build](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml)
 [![Release](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml)
 [![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/releases)
+[![Latest release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?include_prereleases)](https://github.com/devmuaz/CoreDeck/releases)
 
 A native desktop application around your Android SDK’s official emulator, avdmanager, and sdkmanager binaries — CoreDeck
 runs them for you in one place, through a friendly GUI, so you get the same results without hand-writing commands. Use
