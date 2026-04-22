@@ -17,13 +17,11 @@
 #include <GLFW/glfw3native.h>
 #endif
 #include <cstdio>
-#include <ostream>
 #include <filesystem>
 
 #include "gui/application.h"
 #include "gui/theme.h"
 #include "core/paths.h"
-#include "core/utilities.h"
 
 int main() {
 #ifdef _WIN32

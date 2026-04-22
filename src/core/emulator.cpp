@@ -99,6 +99,17 @@ namespace CoreDeck {
             });
 
             std::lock_guard lock(m_Mutex);
+
+            if (const auto existing = m_Instances.find(avdName); existing != m_Instances.end()) {
+                if (existing->second.StopRequested) {
+                    existing->second.StopRequested->store(true);
+                }
+                if (existing->second.ReaderThread.joinable()) {
+                    existing->second.ReaderThread.join();
+                }
+                m_Instances.erase(existing);
+            }
+
             EmulatorInstance instance;
             instance.AvdName = avdName;
             instance.Pid = pid;
