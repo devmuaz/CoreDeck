@@ -91,6 +91,8 @@ namespace CoreDeck {
             context.AvdCreationWork.SelectedSystemImage = 0;
             context.AvdCreationWork.SelectedDevice = 0;
             context.AvdCreationWork.SelectedGpuMode = 0;
+            context.AvdCreationWork.NameAutoFilled = true;
+            context.AvdCreationWork.DisplayNameAutoFilled = true;
             context.AvdCreationWork.Prefetch.Ready = false;
             context.AvdCreationWork.Prefetch.Loading = true;
             context.UI.ShowCreateAvdDialog = true;

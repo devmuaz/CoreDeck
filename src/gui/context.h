@@ -92,6 +92,8 @@ namespace CoreDeck {
             int SelectedSystemImage = 0;
             int SelectedDevice = 0;
             int SelectedGpuMode = 0;
+            bool NameAutoFilled = true;
+            bool DisplayNameAutoFilled = true;
 
             struct {
                 std::atomic<bool> Loading{false};
