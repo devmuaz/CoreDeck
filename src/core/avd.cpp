@@ -49,6 +49,7 @@ namespace CoreDeck {
         const std::string path = Paths::JoinPaths({avdRoot, avdName + ".avd"});
 
         avd.Name = avdName;
+        avd.DisplayName = avdName;
         avd.Path = path;
 
         std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
@@ -61,7 +62,7 @@ namespace CoreDeck {
             avd.Device = it->second;
         }
 
-        if (auto it = config.find("avd.ini.displayname"); it != config.end()) {
+        if (auto it = config.find("avd.ini.displayname"); it != config.end() && !it->second.empty()) {
             avd.DisplayName = it->second;
         }
 

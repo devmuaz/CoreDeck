@@ -73,33 +73,53 @@ namespace CoreDeck {
 
             if (formDisabled) ImGui::BeginDisabled();
 
-            const float nameRowSpacing = ImGui::GetStyle().ItemSpacing.x;
-            const float nameColWidth = (ImGui::GetContentRegionAvail().x - nameRowSpacing) * 0.5f;
-            const float nameCol2X = ImGui::GetCursorPosX() + nameColWidth + nameRowSpacing;
+            auto &work = context.AvdCreationWork;
+            const bool hasDevice = !work.DeviceProfiles.empty()
+                                   && work.SelectedDevice >= 0
+                                   && work.SelectedDevice < static_cast<int>(work.DeviceProfiles.size());
+            const bool hasImage = !work.SystemImages.empty()
+                                  && work.SelectedSystemImage >= 0
+                                  && work.SelectedSystemImage < static_cast<int>(work.SystemImages.size());
+            if (hasDevice && hasImage) {
+                const auto &[Id, Name] = work.DeviceProfiles[work.SelectedDevice];
+                const auto &img = work.SystemImages[work.SelectedSystemImage];
+                if (work.NameAutoFilled) {
+                    std::string base = Id + "_API_" + img.ApiLevel;
+                    std::string sanitized;
+                    sanitized.reserve(base.size());
+                    for (const char c: base) {
+                        const bool keep = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+                                          || (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-';
+                        sanitized.push_back(keep ? c : '_');
+                    }
+                    work.CreationData.Name = std::move(sanitized);
+                }
+                if (work.DisplayNameAutoFilled) {
+                    work.CreationData.DisplayName = Name + " API " + img.ApiLevel;
+                }
+            }
 
             ImGui::Text("AVD Name");
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(nameCol2X);
-            ImGui::Text("Display Name");
-
             char nameBuffer[128];
             strncpy(nameBuffer, context.AvdCreationWork.CreationData.Name.c_str(), sizeof(nameBuffer) - 1);
             nameBuffer[sizeof(nameBuffer) - 1] = '\0';
-            ImGui::SetNextItemWidth(nameColWidth);
+            ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputTextWithHint("##AvdName", "e.g. MyPixel7", nameBuffer, sizeof(nameBuffer),
                                          ImGuiInputTextFlags_CallbackCharFilter, AvdNameFilter)) {
                 context.AvdCreationWork.CreationData.Name = nameBuffer;
+                context.AvdCreationWork.NameAutoFilled = (nameBuffer[0] == '\0');
             }
 
-            ImGui::SameLine();
-            ImGui::SetCursorPosX(nameCol2X);
+            ImGui::Spacing();
 
+            ImGui::Text("Display Name");
             char displayBuffer[128];
             strncpy(displayBuffer, context.AvdCreationWork.CreationData.DisplayName.c_str(), sizeof(displayBuffer) - 1);
             displayBuffer[sizeof(displayBuffer) - 1] = '\0';
-            ImGui::SetNextItemWidth(nameColWidth);
+            ImGui::SetNextItemWidth(-1.0f);
             if (ImGui::InputTextWithHint("##DisplayName", "e.g. My Pixel 7", displayBuffer, sizeof(displayBuffer))) {
                 context.AvdCreationWork.CreationData.DisplayName = displayBuffer;
+                context.AvdCreationWork.DisplayNameAutoFilled = (displayBuffer[0] == '\0');
             }
 
             if (AvdNameExists(context.Catalog.AvdNames, context.AvdCreationWork.CreationData.Name)) {
@@ -168,7 +188,8 @@ namespace CoreDeck {
                         context.AvdCreationWork.Prefetch.Ready &&
                         !context.AvdCreationWork.SystemImages.empty() &&
                         context.AvdCreationWork.SelectedSystemImage >= 0 &&
-                        context.AvdCreationWork.SelectedSystemImage < static_cast<int>(context.AvdCreationWork.SystemImages.size());
+                        context.AvdCreationWork.SelectedSystemImage < static_cast<int>(context.AvdCreationWork.
+                            SystemImages.size());
                 if (systemImageRemovalBusy) {
                     ImGui::BeginDisabled();
                     NegativeButton("Removing...", false, ImVec2(0, 0));
@@ -176,7 +197,8 @@ namespace CoreDeck {
                 } else {
                     if (NegativeButton("Remove Image...", canRemove)) {
                         const std::string pkg =
-                                context.AvdCreationWork.SystemImages[context.AvdCreationWork.SelectedSystemImage].PackagePath;
+                                context.AvdCreationWork.SystemImages[context.AvdCreationWork.SelectedSystemImage].
+                                PackagePath;
                         removal.Busy = true;
                         removal.Future = std::async(std::launch::async, [&context, pkg]() {
                             try {
