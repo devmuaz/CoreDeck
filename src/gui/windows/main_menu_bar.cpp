@@ -7,7 +7,7 @@
 
 #include "main_menu_bar.h"
 #include "../widgets.h"
-#include "../theme.h"
+#include "../icons.h"
 #include "../application.h"
 
 namespace CoreDeck {

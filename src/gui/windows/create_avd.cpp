@@ -12,10 +12,12 @@
 #include "../theme.h"
 
 namespace CoreDeck {
+    // ReSharper disable once CppParameterMayBeConstPtrOrRef
     static int DigitsOnlyFilter(ImGuiInputTextCallbackData *data) {
-        return (data->EventChar >= '0' && data->EventChar <= '9') ? 0 : 1;
+        return data->EventChar >= '0' && data->EventChar <= '9' ? 0 : 1;
     }
 
+    // ReSharper disable once CppParameterMayBeConstPtrOrRef
     static int AvdNameFilter(ImGuiInputTextCallbackData *data) {
         const ImWchar c = data->EventChar;
         const bool ok = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
@@ -50,11 +52,10 @@ namespace CoreDeck {
                 ImGuiWindowFlags_NoDocking;
 
         if (ImGui::BeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, flags)) {
-            auto &removal = context.AvdCreationWork.SystemImageRemoval;
-            if (removal.Future.valid()) {
-                if (removal.Future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-                    const bool ok = removal.Future.get();
-                    if (ok) {
+            auto &[Busy, Future] = context.AvdCreationWork.SystemImageRemoval;
+            if (Future.valid()) {
+                if (Future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+                    if (Future.get()) {
                         context.AvdCreationWork.SystemImages = ListSystemImages(context.Host.Sdk);
                         if (context.AvdCreationWork.SystemImages.empty()) {
                             context.AvdCreationWork.SelectedSystemImage = 0;
@@ -69,7 +70,7 @@ namespace CoreDeck {
             const bool isLoading = context.AvdCreationWork.Prefetch.Loading.load();
             const bool isCreating = context.Jobs.AvdCreation.Busy.load();
             const bool formDisabled = isLoading || isCreating;
-            const bool systemImageRemovalBusy = removal.Busy.load() || removal.Future.valid();
+            const bool systemImageRemovalBusy = Busy.load() || Future.valid();
 
             if (formDisabled) ImGui::BeginDisabled();
 
@@ -110,6 +111,19 @@ namespace CoreDeck {
                 context.AvdCreationWork.NameAutoFilled = (nameBuffer[0] == '\0');
             }
 
+            const bool nameConflict = AvdNameExists(
+                context.Catalog.AvdNames,
+                context.AvdCreationWork.CreationData.Name
+            );
+
+            if (nameConflict) {
+                ImGui::TextColored(
+                    HexColor("#E64D40"),
+                    " An AVD named \"%s\" already exists.",
+                    context.AvdCreationWork.CreationData.Name.c_str()
+                );
+            }
+
             ImGui::Spacing();
 
             ImGui::Text("Display Name");
@@ -120,14 +134,6 @@ namespace CoreDeck {
             if (ImGui::InputTextWithHint("##DisplayName", "e.g. My Pixel 7", displayBuffer, sizeof(displayBuffer))) {
                 context.AvdCreationWork.CreationData.DisplayName = displayBuffer;
                 context.AvdCreationWork.DisplayNameAutoFilled = (displayBuffer[0] == '\0');
-            }
-
-            if (AvdNameExists(context.Catalog.AvdNames, context.AvdCreationWork.CreationData.Name)) {
-                ImGui::TextColored(
-                    HexColor("#E64D40"),
-                    "An AVD named \"%s\" already exists.",
-                    context.AvdCreationWork.CreationData.Name.c_str()
-                );
             }
 
             ImGui::Spacing();
@@ -142,9 +148,9 @@ namespace CoreDeck {
                 );
             } else if (!context.AvdCreationWork.SystemImages.empty()) {
                 ImGui::SetNextItemWidth(-1.0f);
-                if (ImGui::BeginCombo("##SystemImage",
-                                      context.AvdCreationWork.SystemImages[context.AvdCreationWork.SelectedSystemImage].
-                                      DisplayName.c_str())) {
+                const auto &systemImages = context.AvdCreationWork.SystemImages;
+                const auto &selectedSystemImage = context.AvdCreationWork.SelectedSystemImage;
+                if (ImGui::BeginCombo("##SystemImage", systemImages[selectedSystemImage].DisplayName.c_str())) {
                     for (int i = 0; i < static_cast<int>(context.AvdCreationWork.SystemImages.size()); i++) {
                         const bool isSelected = context.AvdCreationWork.SelectedSystemImage == i;
                         if (ImGui::Selectable(context.AvdCreationWork.SystemImages[i].DisplayName.c_str(),
@@ -169,7 +175,7 @@ namespace CoreDeck {
                     context.UI.ShowInstallImageDialog = true;
 
                     context.ImageInstallationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
-                        auto localImages = ListSystemImages(context.Host.Sdk);
+                        const auto localImages = ListSystemImages(context.Host.Sdk);
                         auto remoteImages = ListRemoteSystemImages(context.Host.Sdk, localImages);
                         context.ImageInstallationWork.RemoteImages = std::move(remoteImages);
                         context.ImageInstallationWork.Prefetch.Loading = false;
@@ -199,8 +205,8 @@ namespace CoreDeck {
                         const std::string pkg =
                                 context.AvdCreationWork.SystemImages[context.AvdCreationWork.SelectedSystemImage].
                                 PackagePath;
-                        removal.Busy = true;
-                        removal.Future = std::async(std::launch::async, [&context, pkg]() {
+                        Busy = true;
+                        Future = std::async(std::launch::async, [&context, pkg]() {
                             try {
                                 const bool ok = UninstallSystemImage(context.Host.Sdk, pkg);
                                 context.AvdCreationWork.SystemImageRemoval.Busy = false;
@@ -302,6 +308,7 @@ namespace CoreDeck {
             const bool canCreate = !context.AvdCreationWork.CreationData.Name.empty()
                                    && !context.AvdCreationWork.SystemImages.empty()
                                    && !context.AvdCreationWork.DeviceProfiles.empty()
+                                   && !nameConflict
                                    && !formDisabled;
 
             if (isCreating) {

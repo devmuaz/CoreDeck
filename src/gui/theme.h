@@ -30,27 +30,6 @@ namespace CoreDeck {
             alpha
         };
     }
-
-    namespace Icons {
-        constexpr const char *Play = "\xef\x81\x8b";
-        constexpr const char *Stop = "\xef\x81\x8d";
-        constexpr const char *Refresh = "\xef\x80\xa1";
-        constexpr const char *Trash = "\xef\x87\xb8";
-        constexpr const char *Circle = "\xef\x84\x91";
-        constexpr const char *Desktop = "\xef\x84\x88";
-        constexpr const char *Gear = "\xef\x80\x93";
-        constexpr const char *Terminal = "\xef\x84\xa0";
-        constexpr const char *Info = "\xef\x81\x9a";
-        constexpr const char *Search = "\xef\x80\x82";
-        constexpr const char *Plus = "\xef\x81\xa7";
-        constexpr const char *SortUp = "\xef\x83\x9e";     // fa-sort-up (f0de)
-        constexpr const char *SortDown = "\xef\x83\x9d";   // fa-sort-down (f0dd)
-        constexpr const char *Sort = "\xef\x83\x9c";       // fa-sort (f0dc)
-        constexpr const char *Times = "\xef\x80\x8d";      // fa-xmark (f00d)
-    }
-
-    namespace Colors {
-    }
 }
 
 #endif //COREDECK_THEME_H
