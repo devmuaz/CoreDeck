@@ -26,15 +26,6 @@
 #include "core/utilities.h"
 
 int main() {
-#ifdef _WIN32
-    // Ensure working directory is always the folder containing the executable.
-    // Without this, relative paths like "assets/..." fail when launched from
-    // a Desktop or Start Menu shortcut.
-    char exePath[MAX_PATH];
-    GetModuleFileNameA(nullptr, exePath, MAX_PATH);
-    std::filesystem::current_path(std::filesystem::path(exePath).parent_path());
-#endif
-
     if (!glfwInit()) {
 #ifdef _WIN32
         MessageBoxA(nullptr, "Failed to initialize GLFW.", "CoreDeck", MB_OK | MB_ICONERROR);
@@ -82,11 +73,19 @@ int main() {
     static std::string imguiIniPath = CoreDeck::Paths::GetAppConfigPath("imgui.ini");
     io.IniFilename = imguiIniPath.c_str();
 
-    if (std::filesystem::exists("assets/fonts/JetBrainsMono-Regular.ttf")) {
-        io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrainsMono-Regular.ttf", 16.0f);
+    const std::string resourcesDir = CoreDeck::Paths::GetResourcesDirectory();
+    const std::string textFontPath = CoreDeck::Paths::JoinPaths(
+        {resourcesDir, "assets", "fonts", "JetBrainsMono-Regular.ttf"}
+    );
+    const std::string iconFontPath = CoreDeck::Paths::JoinPaths(
+        {resourcesDir, "assets", "fonts", "FontAwesome7Free-Solid-900.otf"}
+    );
+
+    if (std::filesystem::exists(textFontPath)) {
+        io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), 16.0f);
     }
 
-    if (std::filesystem::exists("assets/fonts/FontAwesome7Free-Solid-900.otf")) {
+    if (std::filesystem::exists(iconFontPath)) {
         ImFontConfig iconConfig;
         iconConfig.MergeMode = true;
         iconConfig.PixelSnapH = true;
@@ -94,7 +93,7 @@ int main() {
 
         static constexpr ImWchar iconRanges[] = {0xf000, 0xf8ff, 0};
         io.Fonts->AddFontFromFileTTF(
-            "assets/fonts/FontAwesome7Free-Solid-900.otf",
+            iconFontPath.c_str(),
             12.0f,
             &iconConfig,
             iconRanges
