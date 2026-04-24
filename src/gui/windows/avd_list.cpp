@@ -86,11 +86,32 @@ namespace CoreDeck {
         constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
         ImGui::Begin("Available AVDs (Android Virtual Device)###AVDs", nullptr, panelFlags);
 
+        auto openCreateAvdDialog = [&context] {
+            context.AvdCreationWork.CreationData = {};
+            context.AvdCreationWork.SelectedSystemImage = 0;
+            context.AvdCreationWork.SelectedDevice = 0;
+            context.AvdCreationWork.SelectedGpuMode = 0;
+            context.AvdCreationWork.Prefetch.Ready = false;
+            context.AvdCreationWork.Prefetch.Loading = true;
+            context.UI.ShowCreateAvdDialog = true;
+
+            context.AvdCreationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
+                auto images = ListSystemImages(context.Host.Sdk);
+                auto devices = ListDeviceProfiles(context.Host.Sdk);
+                context.AvdCreationWork.SystemImages = std::move(images);
+                context.AvdCreationWork.DeviceProfiles = std::move(devices);
+                context.AvdCreationWork.Prefetch.Loading = false;
+                context.AvdCreationWork.Prefetch.Ready = true;
+            });
+        };
+
         if (PrimaryButton(Icons::Refresh)) RefreshAvds(context);
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("Refresh the AVD list");
 
         ImGui::SameLine();
 
+        if (PrimaryButton(Icons::Plus)) openCreateAvdDialog();
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Create new AVD");
 
         if (context.Catalog.SelectedAvd >= 0) {
             const auto &avd = context.Catalog.Avds[context.Catalog.SelectedAvd];
@@ -131,26 +152,6 @@ namespace CoreDeck {
                 ImGui::Text("-");
             }
 
-            ImGui::SameLine();
-            if (PrimaryButton(Icons::Plus)) {
-                context.AvdCreationWork.CreationData = {};
-                context.AvdCreationWork.SelectedSystemImage = 0;
-                context.AvdCreationWork.SelectedDevice = 0;
-                context.AvdCreationWork.SelectedGpuMode = 0;
-                context.AvdCreationWork.Prefetch.Ready = false;
-                context.AvdCreationWork.Prefetch.Loading = true;
-                context.UI.ShowCreateAvdDialog = true;
-
-                context.AvdCreationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
-                    auto images = ListSystemImages(context.Host.Sdk);
-                    auto devices = ListDeviceProfiles(context.Host.Sdk);
-                    context.AvdCreationWork.SystemImages = std::move(images);
-                    context.AvdCreationWork.DeviceProfiles = std::move(devices);
-                    context.AvdCreationWork.Prefetch.Loading = false;
-                    context.AvdCreationWork.Prefetch.Ready = true;
-                });
-            }
-            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Create new AVD");
         }
 
         ImGui::Separator();
