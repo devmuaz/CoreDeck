@@ -138,7 +138,10 @@ int main() {
     });
 
     while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+        const bool focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
+        const bool hovered = glfwGetWindowAttrib(window, GLFW_HOVERED);
+        const double timeout = focused && hovered ? 1.0 / 60.0 : 0.25;
+        glfwWaitEventsTimeout(timeout);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
