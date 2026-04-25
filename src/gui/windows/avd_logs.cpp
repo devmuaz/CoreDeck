@@ -7,7 +7,7 @@
 
 #include "avd_logs.h"
 #include "../context.h"
-#include "../theme.h"
+#include "../icons.h"
 #include "../widgets.h"
 
 namespace CoreDeck {

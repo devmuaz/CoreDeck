@@ -18,8 +18,9 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Text, HexColor("#F2F2F2"));
         sc.push(ImGuiCol_Border, HexColor("#4D4D52"));
 
+        const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label, size);
+        return clicked;
     }
 
     bool NegativeButton(const char *label, const bool isEnabled, const ImVec2 size) {
@@ -32,8 +33,9 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Text, HexColor("#E64D40"));
         sc.push(ImGuiCol_Border, HexColor("#E64D40"));
 
+        const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label, size);
+        return clicked;
     }
 
     bool WarningButton(const char *label, const bool isEnabled, const ImVec2 size) {
@@ -46,8 +48,9 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Text, HexColor("#E6BF26"));
         sc.push(ImGuiCol_Border, HexColor("#E6BF26"));
 
+        const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label, size);
+        return clicked;
     }
 
     bool PositiveButton(const char *label, const bool isEnabled, const ImVec2 size) {
@@ -60,8 +63,9 @@ namespace CoreDeck {
         sc.push(ImGuiCol_Text, HexColor("#33CC47"));
         sc.push(ImGuiCol_Border, HexColor("#33CC47"));
 
+        const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
-        return ImGui::Button(label, size);
+        return clicked;
     }
 
     void StatusBadge(const char *label, const bool isActive) {
@@ -85,7 +89,14 @@ namespace CoreDeck {
         ImGui::Button(label);
     }
 
-    bool SelectableItem(const char *label, const bool isSelected, const char *rightText, const ImVec4 &rightColor) {
+    bool SelectableItem(
+        const char *label,
+        const bool isSelected,
+        const char *rightText,
+        const ImVec4 &rightColor,
+        const char *leftIcon,
+        const ImVec4 &leftIconColor
+    ) {
         StyleColor sc;
         StyleVar sv;
 
@@ -100,7 +111,34 @@ namespace CoreDeck {
         sv.push(ImGuiStyleVar_FrameBorderSize, 0.0f);
         sv.push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
 
-        const bool clicked = ImGui::Button(label, ImVec2(-1.0f, 0.0f));
+        std::string buttonLabel;
+        if (leftIcon && leftIcon[0] != '\0') {
+            buttonLabel = leftIcon;
+            buttonLabel += "  ";
+            buttonLabel += label;
+        } else {
+            buttonLabel = label;
+        }
+
+        const bool clicked = ImGui::Button(buttonLabel.c_str(), ImVec2(-1.0f, 0.0f));
+
+        if (leftIcon && leftIcon[0] != '\0') {
+            const ImVec2 itemMin = ImGui::GetItemRectMin();
+            const ImVec2 itemMax = ImGui::GetItemRectMax();
+            const ImVec2 padding = ImGui::GetStyle().FramePadding;
+            const ImVec2 iconSize = ImGui::CalcTextSize(leftIcon);
+
+            const auto iconPos = ImVec2(
+                itemMin.x + padding.x,
+                itemMin.y + (itemMax.y - itemMin.y - iconSize.y) * 0.5f
+            );
+
+            ImGui::GetWindowDrawList()->AddText(
+                iconPos,
+                ImGui::ColorConvertFloat4ToU32(leftIconColor),
+                leftIcon
+            );
+        }
 
         if (rightText && rightText[0] != '\0') {
             const ImVec2 textSize = ImGui::CalcTextSize(rightText);

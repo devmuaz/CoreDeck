@@ -8,6 +8,7 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
+#include "../icons.h"
 
 namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context) {

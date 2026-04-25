@@ -34,6 +34,10 @@ namespace CoreDeck::Paths {
 
     std::string GetExecutableExtension();
 
+    std::string GetExecutableDirectory();
+
+    std::string GetResourcesDirectory();
+
     std::string JoinPaths(const std::vector<std::string> &components);
 
     std::string NormalizePath(const std::string &path);

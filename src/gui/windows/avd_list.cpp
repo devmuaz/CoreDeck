@@ -2,7 +2,6 @@
 // Created by AbdulMuaz Aqeel on 15/04/2026.
 //
 #include <algorithm>
-#include <cstdlib>
 #include "imgui.h"
 
 #include "avd_list.h"
@@ -10,8 +9,27 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
+#include "../icons.h"
 
 namespace CoreDeck {
+    struct DeviceIconStyle {
+        const char *Icon;
+        const char *HexColor;
+    };
+
+    static DeviceIconStyle DeviceIconStyleFor(const std::string &device) {
+        std::string d;
+        d.reserve(device.size());
+        for (const char c: device) d.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+
+        if (d.find("wear") != std::string::npos) return {Icons::Watch, "#F5A623"};
+        if (d.find("auto") != std::string::npos) return {Icons::Car, "#E64D40"};
+        if (d.find("tv") != std::string::npos) return {Icons::Tv, "#7E57C2"};
+        if (d.find("tablet") != std::string::npos || d.find("pixel_c") != std::string::npos)
+            return {Icons::Tablet, "#33CC47"};
+        return {Icons::Mobile, "#4FC3F7"};
+    }
+
     static bool ContainsCaseInsensitive(const std::string &haystack, const char *needle) {
         if (needle[0] == '\0') return true;
 
@@ -86,11 +104,34 @@ namespace CoreDeck {
         constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
         ImGui::Begin("Available AVDs (Android Virtual Device)###AVDs", nullptr, panelFlags);
 
+        auto openCreateAvdDialog = [&context] {
+            context.AvdCreationWork.CreationData = {};
+            context.AvdCreationWork.SelectedSystemImage = 0;
+            context.AvdCreationWork.SelectedDevice = 0;
+            context.AvdCreationWork.SelectedGpuMode = 0;
+            context.AvdCreationWork.NameAutoFilled = true;
+            context.AvdCreationWork.DisplayNameAutoFilled = true;
+            context.AvdCreationWork.Prefetch.Ready = false;
+            context.AvdCreationWork.Prefetch.Loading = true;
+            context.UI.ShowCreateAvdDialog = true;
+
+            context.AvdCreationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
+                auto images = ListSystemImages(context.Host.Sdk);
+                auto devices = ListDeviceProfiles(context.Host.Sdk);
+                context.AvdCreationWork.SystemImages = std::move(images);
+                context.AvdCreationWork.DeviceProfiles = std::move(devices);
+                context.AvdCreationWork.Prefetch.Loading = false;
+                context.AvdCreationWork.Prefetch.Ready = true;
+            });
+        };
+
         if (PrimaryButton(Icons::Refresh)) RefreshAvds(context);
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("Refresh the AVD list");
 
         ImGui::SameLine();
 
+        if (PrimaryButton(Icons::Plus)) openCreateAvdDialog();
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Create new AVD");
 
         if (context.Catalog.SelectedAvd >= 0) {
             const auto &avd = context.Catalog.Avds[context.Catalog.SelectedAvd];
@@ -130,27 +171,6 @@ namespace CoreDeck {
                 ImGui::SameLine(0, 15.0f);
                 ImGui::Text("-");
             }
-
-            ImGui::SameLine();
-            if (PrimaryButton(Icons::Plus)) {
-                context.AvdCreationWork.CreationData = {};
-                context.AvdCreationWork.SelectedSystemImage = 0;
-                context.AvdCreationWork.SelectedDevice = 0;
-                context.AvdCreationWork.SelectedGpuMode = 0;
-                context.AvdCreationWork.Prefetch.Ready = false;
-                context.AvdCreationWork.Prefetch.Loading = true;
-                context.UI.ShowCreateAvdDialog = true;
-
-                context.AvdCreationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
-                    auto images = ListSystemImages(context.Host.Sdk);
-                    auto devices = ListDeviceProfiles(context.Host.Sdk);
-                    context.AvdCreationWork.SystemImages = std::move(images);
-                    context.AvdCreationWork.DeviceProfiles = std::move(devices);
-                    context.AvdCreationWork.Prefetch.Loading = false;
-                    context.AvdCreationWork.Prefetch.Ready = true;
-                });
-            }
-            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Create new AVD");
         }
 
         ImGui::Separator();
@@ -230,7 +250,9 @@ namespace CoreDeck {
             ImGui::PushID(i);
             const char *avdStatusText = isRunning ? "Running..." : "Ready";
             const ImVec4 avdStatusColor = isRunning ? HexColor("#33CC47") : HexColor("#66666B");
-            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdStatusText, avdStatusColor)) {
+            const DeviceIconStyle iconStyle = DeviceIconStyleFor(avd.Device);
+            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdStatusText, avdStatusColor,
+                               iconStyle.Icon, HexColor(iconStyle.HexColor))) {
                 context.Catalog.SelectedAvd = i;
             }
             ImGui::PopID();
