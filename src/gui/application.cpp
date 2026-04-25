@@ -54,19 +54,9 @@ namespace CoreDeck {
             return;
         }
 
-#ifdef __APPLE__
-        constexpr ImGuiKeyChord kPrimaryMod = ImGuiMod_Super;
-#else
-        constexpr ImGuiKeyChord kPrimaryMod = ImGuiMod_Ctrl;
-#endif
-        if (ImGui::Shortcut(kPrimaryMod | ImGuiKey_R) || ImGui::Shortcut(ImGuiKey_F5)) {
-            RefreshAvds(m_Context);
-        }
-        if (ImGui::Shortcut(kPrimaryMod | ImGuiKey_Comma)) {
-            m_Context.UI.ShowPreferences = true;
-        }
-
+#ifdef NDEBUG
         PollUpdateCheckIfNeeded();
+#endif
 
         if (m_Context.Catalog.SelectedAvd != m_Context.Catalog.PreviousSelectedAvd) {
             if (m_Context.Catalog.SelectedAvd >= 0 && m_Context.Catalog.SelectedAvd < m_Context.Catalog.Avds.size()) {

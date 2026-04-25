@@ -60,6 +60,16 @@ namespace CoreDeck {
     );
 
     bool UninstallSystemImage(const SdkInfo &sdk, const std::string &packagePath);
+
+    enum class LicenseStatus {
+        AllAccepted,
+        SomeUnaccepted,
+        CheckFailed,
+    };
+
+    LicenseStatus CheckSdkLicenses(const SdkInfo &sdk);
+
+    bool AcceptSdkLicenses(const SdkInfo &sdk);
 }
 
 #endif //COREDECK_SYSTEM_IMAGE_H
