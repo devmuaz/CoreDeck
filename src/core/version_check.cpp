@@ -6,8 +6,15 @@
 #include <rfl/json.hpp>
 
 #include "version_check.h"
-#include "process.h"
 #include "utilities.h"
+
+#if defined(_WIN32)
+#include <windows.h>
+#include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
+#else
+#include <curl/curl.h>
+#endif
 
 namespace CoreDeck {
     struct GitHubLatestRelease {
@@ -87,25 +94,115 @@ namespace CoreDeck {
         }
     }
 
+    namespace {
+#if defined(_WIN32)
+        std::optional<std::string> HttpGet(const wchar_t *host, const wchar_t *path, const std::wstring &userAgent) {
+            HINTERNET session = WinHttpOpen(
+                userAgent.c_str(),
+                WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+                WINHTTP_NO_PROXY_NAME,
+                WINHTTP_NO_PROXY_BYPASS,
+                0
+            );
+            if (!session) return std::nullopt;
+
+            WinHttpSetTimeouts(session, 15000, 15000, 15000, 15000);
+
+            HINTERNET connect = WinHttpConnect(session, host, INTERNET_DEFAULT_HTTPS_PORT, 0);
+            if (!connect) {
+                WinHttpCloseHandle(session);
+                return std::nullopt;
+            }
+
+            HINTERNET request = WinHttpOpenRequest(
+                connect, L"GET", path, nullptr,
+                WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
+                WINHTTP_FLAG_SECURE
+            );
+            if (!request) {
+                WinHttpCloseHandle(connect);
+                WinHttpCloseHandle(session);
+                return std::nullopt;
+            }
+
+            const wchar_t *headers = L"Accept: application/vnd.github+json\r\n";
+            BOOL sent = WinHttpSendRequest(request, headers, static_cast<DWORD>(-1L), WINHTTP_NO_REQUEST_DATA, 0, 0, 0)
+                        && WinHttpReceiveResponse(request, nullptr);
+
+            std::optional<std::string> result;
+            if (sent) {
+                DWORD status = 0;
+                DWORD statusSize = sizeof(status);
+                WinHttpQueryHeaders(request,
+                                    WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+                                    WINHTTP_HEADER_NAME_BY_INDEX, &status, &statusSize,
+                                    WINHTTP_NO_HEADER_INDEX);
+                if (status >= 200 && status < 300) {
+                    std::string body;
+                    DWORD available = 0;
+                    while (WinHttpQueryDataAvailable(request, &available) && available > 0) {
+                        std::string chunk(available, '\0');
+                        DWORD read = 0;
+                        if (!WinHttpReadData(request, chunk.data(), available, &read)) break;
+                        chunk.resize(read);
+                        body.append(chunk);
+                    }
+                    result = std::move(body);
+                }
+            }
+
+            WinHttpCloseHandle(request);
+            WinHttpCloseHandle(connect);
+            WinHttpCloseHandle(session);
+            return result;
+        }
+#else
+        size_t CurlWriteCallback(const char *ptr, const size_t size, size_t nmemb, void *userdata) {
+            auto *buf = static_cast<std::string *>(userdata);
+            buf->append(ptr, size * nmemb);
+            return size * nmemb;
+        }
+
+        std::optional<std::string> HttpGet(const std::string &url, const std::string &userAgent) {
+            CURL *curl = curl_easy_init();
+            if (!curl) return std::nullopt;
+
+            std::string body;
+            curl_slist *headers = curl_slist_append(nullptr, "Accept: application/vnd.github+json");
+
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);
+            curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
+            curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
+
+            const CURLcode rc = curl_easy_perform(curl);
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);
+
+            if (rc != CURLE_OK) return std::nullopt;
+            return body;
+        }
+#endif
+    }
+
     std::optional<std::string> QueryRemoteNewerVersion() {
 #if defined(_WIN32)
-        const std::string cmd = StrConcat(
-            "curl -sfL --max-time 15 -H \"Accept: application/vnd.github+json\" -A \"CoreDeck/",
-            COREDECK_VERSION,
-            "\" \"",
-            COREDECK_GITHUB_API,
-            "\""
-        );
+        const std::string ua = StrConcat("CoreDeck/", COREDECK_VERSION);
+        std::wstring userAgent(ua.begin(), ua.end());
+        auto fetched = HttpGet(L"api.github.com", L"/repos/devmuaz/CoreDeck/releases/latest", userAgent);
 #else
-        const std::string cmd = StrConcat(
-            "curl -sfL --max-time 15 -H 'Accept: application/vnd.github+json' -A 'CoreDeck/",
-            COREDECK_VERSION,
-            "' '",
-            COREDECK_GITHUB_API,
-            "'"
-        );
+        const std::string userAgent = StrConcat("CoreDeck/", COREDECK_VERSION);
+        auto fetched = HttpGet(COREDECK_GITHUB_API, userAgent);
 #endif
-        std::string body = RunCommand(cmd);
+        if (!fetched) {
+            return std::nullopt;
+        }
+        std::string body = std::move(fetched.value());
         TrimInPlace(body);
         if (body.empty()) {
             return std::nullopt;

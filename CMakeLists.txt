@@ -89,6 +89,10 @@ target_include_directories(tinyfiledialogs PUBLIC ${TINYFD_DIR})
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
+if (NOT WIN32)
+    find_package(CURL REQUIRED)
+endif ()
+
 add_library(coredeck_core STATIC
         src/core/app_settings.cpp
         src/core/avd.cpp
@@ -123,9 +127,11 @@ target_compile_definitions(coredeck_core PUBLIC
 
 if (WIN32)
     target_compile_definitions(coredeck_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
-    target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32)
+    target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32 winhttp)
 elseif (UNIX AND NOT APPLE)
-    target_link_libraries(coredeck_core PUBLIC ${CMAKE_DL_LIBS} Threads::Threads)
+    target_link_libraries(coredeck_core PUBLIC ${CMAKE_DL_LIBS} Threads::Threads CURL::libcurl)
+else ()
+    target_link_libraries(coredeck_core PUBLIC CURL::libcurl)
 endif ()
 
 add_executable(${PROJECT_NAME}

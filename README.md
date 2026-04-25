@@ -56,8 +56,10 @@ Grab the latest release for your platform from the [Releases](https://github.com
 
 **Linux dependencies (Ubuntu/Debian):**
 
+`build-essential` does not include CMake, so it's listed separately:
+
 ```bash
-sudo apt-get install build-essential libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+sudo apt-get install build-essential cmake libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
 ```
 
 **Build:**

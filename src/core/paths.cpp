@@ -9,6 +9,12 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <shlobj.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#include <climits>
+#elif defined(__linux__)
+#include <unistd.h>
+#include <climits>
 #endif
 
 #include "log.h"
@@ -149,6 +155,40 @@ namespace CoreDeck::Paths {
             default:
                 return "";
         }
+    }
+
+    std::string GetExecutableDirectory() {
+#ifdef _WIN32
+        char buffer[MAX_PATH];
+        const DWORD len = GetModuleFileNameA(nullptr, buffer, MAX_PATH);
+        if (len == 0) return {};
+        return std::filesystem::path(std::string(buffer, len)).parent_path().string();
+#elif defined(__APPLE__)
+        char buffer[PATH_MAX];
+        uint32_t size = sizeof(buffer);
+        if (_NSGetExecutablePath(buffer, &size) != 0) return {};
+        return std::filesystem::canonical(buffer).parent_path().string();
+#elif defined(__linux__)
+        char buffer[PATH_MAX];
+        const ssize_t len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+        if (len <= 0) return {};
+        buffer[len] = '\0';
+        return std::filesystem::path(buffer).parent_path().string();
+#else
+        return {};
+#endif
+    }
+
+    std::string GetResourcesDirectory() {
+        std::string exeDir = GetExecutableDirectory();
+        if (exeDir.empty()) return {};
+#ifdef __APPLE__
+        const std::filesystem::path p(exeDir);
+        if (p.filename() == "MacOS" && p.parent_path().filename() == "Contents") {
+            return (p.parent_path() / "Resources").string();
+        }
+#endif
+        return std::move(exeDir);
     }
 
     std::string JoinPaths(const std::vector<std::string> &components) {
