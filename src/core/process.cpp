@@ -3,7 +3,7 @@
 //
 
 #include "process.h"
-#include "paths.h"
+#include <algorithm>
 #include <array>
 #include <string>
 
@@ -20,97 +20,191 @@
 #endif
 
 namespace CoreDeck {
-    std::string RunCommand(const std::string &cmd) {
 #ifdef _WIN32
-        FILE *pipe = _popen(cmd.c_str(), "r");
-        if (!pipe) return "";
-
-        std::string result;
-        std::array<char, 256> buffer{};
-
-        while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-            result += buffer.data();
+    static std::string QuoteArg(const std::string &arg) {
+        if (!arg.empty() && arg.find_first_of(" \t\"") == std::string::npos) return arg;
+        std::string out = "\"";
+        for (size_t i = 0; i < arg.size(); ++i) {
+            size_t backslashes = 0;
+            while (i < arg.size() && arg[i] == '\\') {
+                ++backslashes;
+                ++i;
+            }
+            if (i == arg.size()) {
+                out.append(backslashes * 2, '\\');
+                break;
+            }
+            if (arg[i] == '"') {
+                out.append(backslashes * 2 + 1, '\\');
+                out.push_back('"');
+            } else {
+                out.append(backslashes, '\\');
+                out.push_back(arg[i]);
+            }
         }
-
-        _pclose(pipe);
-        return result;
-#else
-        FILE *pipe = popen(cmd.c_str(), "r");
-        if (!pipe) return "";
-
-        std::string result;
-        std::array<char, 256> buffer{};
-
-        while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-            result += buffer.data();
-        }
-
-        pclose(pipe);
-        return result;
-#endif
+        out.push_back('"');
+        return out;
     }
 
-    ProcessId SpawnProcess(const std::string &path, const std::vector<std::string> &args) {
-#ifdef _WIN32
-        std::string cmdLine = "\"" + path + "\"";
+    static bool IsBatchFile(const std::string &path) {
+        if (path.size() < 4) return false;
+        std::string ext = path.substr(path.size() - 4);
+        std::ranges::transform(ext, ext.begin(), ::tolower);
+        return ext == ".bat" || ext == ".cmd";
+    }
+
+    static std::string BuildCommandLine(const std::string &path, const std::vector<std::string> &args) {
+        std::string cmd = QuoteArg(path);
         for (const auto &arg: args) {
-            cmdLine += " \"" + arg + "\"";
+            cmd.push_back(' ');
+            cmd += QuoteArg(arg);
         }
+        if (IsBatchFile(path)) return "cmd.exe /S /C \"" + cmd + "\"";
+        return cmd;
+    }
+#endif
+
+    void StreamCommandArgs(
+        const std::string &path,
+        const std::vector<std::string> &args,
+        const std::string &stdinData,
+        const std::function<void(const std::string &)> &onLine
+    ) {
+#ifdef _WIN32
+        SECURITY_ATTRIBUTES sa = {};
+        sa.nLength = sizeof(sa);
+        sa.bInheritHandle = TRUE;
+
+        HANDLE hOutR = nullptr, hOutW = nullptr;
+        HANDLE hInR = nullptr, hInW = nullptr;
+        if (!CreatePipe(&hOutR, &hOutW, &sa, 0)) return;
+        SetHandleInformation(hOutR, HANDLE_FLAG_INHERIT, 0);
+        if (!CreatePipe(&hInR, &hInW, &sa, 0)) {
+            CloseHandle(hOutR);
+            CloseHandle(hOutW);
+            return;
+        }
+        SetHandleInformation(hInW, HANDLE_FLAG_INHERIT, 0);
+
+        std::string cmdLine = BuildCommandLine(path, args);
 
         STARTUPINFOA si = {};
         si.cb = sizeof(si);
         si.dwFlags = STARTF_USESTDHANDLES;
-
-        const std::string nullDevice = Paths::GetNullDevice();
-        HANDLE hNull = CreateFileA(nullDevice.c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                   nullptr, OPEN_EXISTING, 0, nullptr);
-        if (hNull != INVALID_HANDLE_VALUE) {
-            si.hStdOutput = hNull;
-            si.hStdError = hNull;
-        }
+        si.hStdInput = hInR;
+        si.hStdOutput = hOutW;
+        si.hStdError = hOutW;
 
         PROCESS_INFORMATION pi = {};
-
         if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr,
-                            TRUE, 0, nullptr, nullptr, &si, &pi)) {
-            if (hNull != INVALID_HANDLE_VALUE) CloseHandle(hNull);
-            return 0;
+                            TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
+            CloseHandle(hOutR);
+            CloseHandle(hOutW);
+            CloseHandle(hInR);
+            CloseHandle(hInW);
+            return;
         }
 
+        CloseHandle(hOutW);
+        CloseHandle(hInR);
+
+        if (!stdinData.empty()) {
+            DWORD written = 0;
+            WriteFile(hInW, stdinData.data(), static_cast<DWORD>(stdinData.size()), &written, nullptr);
+        }
+        CloseHandle(hInW);
+
+        std::string partial;
+        std::array<char, 512> buf{};
+        DWORD read = 0;
+        while (ReadFile(hOutR, buf.data(), static_cast<DWORD>(buf.size()), &read, nullptr) && read > 0) {
+            partial.append(buf.data(), read);
+            std::size_t pos;
+            while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
+                if (auto line = partial.substr(0, pos); !line.empty() && onLine) onLine(line);
+                auto next = partial.find_first_not_of("\n\r", pos);
+                partial = (next == std::string::npos) ? std::string() : partial.substr(next);
+            }
+        }
+        if (!partial.empty() && onLine) onLine(partial);
+
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
-        if (hNull != INVALID_HANDLE_VALUE) CloseHandle(hNull);
-
-        return pi.dwProcessId;
+        CloseHandle(hOutR);
 #else
-        const pid_t pid = fork();
+        int outPipe[2];
+        int inPipe[2];
+        if (pipe(outPipe) == -1) return;
+        if (pipe(inPipe) == -1) {
+            close(outPipe[0]);
+            close(outPipe[1]);
+            return;
+        }
 
+        const pid_t pid = fork();
         if (pid < 0) {
-            return -1;
+            close(outPipe[0]);
+            close(outPipe[1]);
+            close(inPipe[0]);
+            close(inPipe[1]);
+            return;
         }
 
         if (pid == 0) {
+            close(outPipe[0]);
+            close(inPipe[1]);
+            dup2(outPipe[1], STDOUT_FILENO);
+            dup2(outPipe[1], STDERR_FILENO);
+            dup2(inPipe[0], STDIN_FILENO);
+            close(outPipe[1]);
+            close(inPipe[0]);
+
             std::vector<const char *> argv;
             argv.push_back(path.c_str());
-
-            for (const auto &arg: args) {
-                argv.push_back(arg.c_str());
-            }
+            for (const auto &a: args) argv.push_back(a.c_str());
             argv.push_back(nullptr);
-
-            const std::string nullDevice = Paths::GetNullDevice();
-            if (const int devnull = open(nullDevice.c_str(), O_WRONLY); devnull != -1) {
-                dup2(devnull, STDOUT_FILENO);
-                dup2(devnull, STDERR_FILENO);
-                close(devnull);
-            }
-
-            execvp(path.c_str(), const_cast<char *const*>(argv.data()));
-
-            _exit(1);
+            execvp(path.c_str(), const_cast<char *const *>(argv.data()));
+            _exit(127);
         }
 
-        return pid;
+        close(outPipe[1]);
+        close(inPipe[0]);
+
+        if (!stdinData.empty()) {
+            [[maybe_unused]] ssize_t w = write(inPipe[1], stdinData.data(), stdinData.size());
+        }
+        close(inPipe[1]);
+
+        std::string partial;
+        std::array<char, 512> buf{};
+        ssize_t r;
+        while ((r = read(outPipe[0], buf.data(), buf.size())) > 0) {
+            partial.append(buf.data(), r);
+            std::size_t pos;
+            while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
+                if (auto line = partial.substr(0, pos); !line.empty() && onLine) onLine(line);
+                auto next = partial.find_first_not_of("\n\r", pos);
+                partial = (next == std::string::npos) ? std::string() : partial.substr(next);
+            }
+        }
+        if (!partial.empty() && onLine) onLine(partial);
+
+        close(outPipe[0]);
+        int status;
+        waitpid(pid, &status, 0);
 #endif
+    }
+
+    std::string RunCommandArgs(const std::string &path,
+                               const std::vector<std::string> &args,
+                               const std::string &stdinData) {
+        std::string out;
+        StreamCommandArgs(path, args, stdinData, [&out](const std::string &line) {
+            out += line;
+            out.push_back('\n');
+        });
+        return out;
     }
 
     ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {
@@ -130,10 +224,7 @@ namespace CoreDeck {
             return 0;
         }
 
-        std::string cmdLine = "\"" + path + "\"";
-        for (const auto &arg: args) {
-            cmdLine += " \"" + arg + "\"";
-        }
+        std::string cmdLine = BuildCommandLine(path, args);
 
         STARTUPINFOA si = {};
         si.cb = sizeof(si);
@@ -144,7 +235,7 @@ namespace CoreDeck {
         PROCESS_INFORMATION pi = {};
 
         if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr,
-                            TRUE, 0, nullptr, nullptr, &si, &pi)) {
+                            TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
             CloseHandle(hReadPipe);
             CloseHandle(hWritePipe);
             return 0;

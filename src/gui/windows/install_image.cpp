@@ -9,8 +9,24 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
+#include "../../core/utilities.h"
 
 namespace CoreDeck {
+    static void StartInstall(Context &context, const std::string &pkgPath) {
+        auto &work = context.ImageInstallationWork;
+        work.Progress = std::make_shared<InstallProgressData>();
+        work.Installing = true;
+        auto progress = work.Progress;
+        work.InstallFuture = std::async(
+            std::launch::async,
+            [&context, pkgPath, progress] {
+                const bool ok = InstallSystemImage(context.Host.Sdk, pkgPath, progress);
+                context.ImageInstallationWork.Installing = false;
+                return ok;
+            }
+        );
+    }
+
     void BuildInstallImageWindow(Context &context) {
         if (context.UI.ShowInstallImageDialog) {
             constexpr auto title = "Install System Image###InstallImageDialog";
@@ -36,6 +52,79 @@ namespace CoreDeck {
                 auto &work = context.ImageInstallationWork;
                 const bool isLoading = work.Prefetch.Loading.load();
                 const bool isInstalling = installing;
+
+                if (work.LicenseCheckFuture.valid() &&
+                    work.LicenseCheckFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+                    const LicenseStatus status = work.LicenseCheckFuture.get();
+                    work.LicenseBusy = false;
+                    if (status == LicenseStatus::AllAccepted) {
+                        StartInstall(context, work.PendingPackagePath);
+                        work.PendingPackagePath.clear();
+                    } else if (status == LicenseStatus::SomeUnaccepted) {
+                        work.AwaitingLicenseConsent = true;
+                    } else {
+                        work.LicenseError = "Could not query license state. Check that the SDK Manager is working.";
+                        work.PendingPackagePath.clear();
+                    }
+                }
+
+                if (work.LicenseAcceptFuture.valid() &&
+                    work.LicenseAcceptFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+                    const bool ok = work.LicenseAcceptFuture.get();
+                    work.LicenseBusy = false;
+                    work.AwaitingLicenseConsent = false;
+                    if (ok && !work.PendingPackagePath.empty()) {
+                        StartInstall(context, work.PendingPackagePath);
+                        work.PendingPackagePath.clear();
+                    } else {
+                        work.LicenseError = "License acceptance failed. Try again or accept via Android Studio.";
+                        work.PendingPackagePath.clear();
+                    }
+                }
+
+                if (work.AwaitingLicenseConsent) {
+                    const bool licenseBusy = work.LicenseBusy.load();
+
+                    ImGui::Text("Accept Android SDK License Terms");
+                    ImGui::Spacing();
+                    ImGui::TextWrapped(
+                        "Some Android SDK package licenses have not been accepted yet. "
+                        "To install this system image, you must agree to Google's Android "
+                        "SDK license terms. By clicking Agree, you confirm that you have "
+                        "read and accept the current terms."
+                    );
+                    ImGui::Spacing();
+                    if (PrimaryButton("Open license terms in browser")) {
+                        OpenUrl("https://developer.android.com/studio/terms");
+                    }
+
+                    if (licenseBusy) {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("Recording acceptance with the SDK Manager...");
+                    }
+
+                    ImGui::Spacing();
+                    ImGui::Separator();
+                    ImGui::Spacing();
+
+                    const float spacing2 = ImGui::GetStyle().ItemSpacing.x;
+                    const float halfWidth2 = (ImGui::GetContentRegionAvail().x - spacing2) * 0.5f;
+
+                    if (PositiveButton("Agree & Install", !licenseBusy, ImVec2(halfWidth2, 0))) {
+                        work.LicenseBusy = true;
+                        work.LicenseAcceptFuture = std::async(std::launch::async, [&context] {
+                            return AcceptSdkLicenses(context.Host.Sdk);
+                        });
+                    }
+                    ImGui::SameLine();
+                    if (NegativeButton("Cancel", !licenseBusy, ImVec2(halfWidth2, 0))) {
+                        work.AwaitingLicenseConsent = false;
+                        work.PendingPackagePath.clear();
+                    }
+
+                    ImGui::EndPopup();
+                    return;
+                }
 
 
                 if (!isInstalling && work.InstallFuture.valid()) {
@@ -152,25 +241,30 @@ namespace CoreDeck {
                 const float spacing = ImGui::GetStyle().ItemSpacing.x;
                 const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
+                const bool licenseBusy = work.LicenseBusy.load();
+
+                if (!work.LicenseError.empty()) {
+                    ImGui::TextColored(HexColor("#E64D40"), "%s", work.LicenseError.c_str());
+                    ImGui::Spacing();
+                }
+
                 if (isInstalling) {
                     ImGui::BeginDisabled();
                     PositiveButton("Installing...", false, ImVec2(halfWidth, 0));
                     ImGui::EndDisabled();
+                } else if (licenseBusy) {
+                    ImGui::BeginDisabled();
+                    PositiveButton("Checking licenses...", false, ImVec2(halfWidth, 0));
+                    ImGui::EndDisabled();
                 } else {
                     if (PositiveButton("Install", canInstall, ImVec2(halfWidth, 0))) {
                         const auto &img = work.RemoteImages[work.SelectedImage];
-                        work.Progress = std::make_shared<InstallProgressData>();
-                        work.Installing = true;
-                        const std::string pkgPath = img.PackagePath;
-                        auto progress = work.Progress;
-                        work.InstallFuture = std::async(
-                            std::launch::async,
-                            [&context, pkgPath, progress] {
-                                const bool ok = InstallSystemImage(context.Host.Sdk, pkgPath, progress);
-                                context.ImageInstallationWork.Installing = false;
-                                return ok;
-                            }
-                        );
+                        work.PendingPackagePath = img.PackagePath;
+                        work.LicenseError.clear();
+                        work.LicenseBusy = true;
+                        work.LicenseCheckFuture = std::async(std::launch::async, [&context] {
+                            return CheckSdkLicenses(context.Host.Sdk);
+                        });
                     }
                 }
 
