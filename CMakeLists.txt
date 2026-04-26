@@ -97,6 +97,7 @@ add_library(coredeck_core STATIC
         src/core/app_settings.cpp
         src/core/avd.cpp
         src/core/emulator.cpp
+        src/core/emulator_console.cpp
         src/core/file_dialog.cpp
         src/core/log_buffer.cpp
         src/core/options.cpp
@@ -127,7 +128,7 @@ target_compile_definitions(coredeck_core PUBLIC
 
 if (WIN32)
     target_compile_definitions(coredeck_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
-    target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32 winhttp)
+    target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32 winhttp ws2_32)
 elseif (UNIX AND NOT APPLE)
     target_link_libraries(coredeck_core PUBLIC ${CMAKE_DL_LIBS} Threads::Threads CURL::libcurl)
 else ()

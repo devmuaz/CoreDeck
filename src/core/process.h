@@ -35,6 +35,10 @@ namespace CoreDeck {
 
     bool KillProcess(ProcessId pid);
 
+    bool TerminateProcessTree(ProcessId pid);
+
+    bool WaitForProcessExit(ProcessId pid, int timeoutMs);
+
     bool IsProcessRunning(ProcessId pid);
 }
 
