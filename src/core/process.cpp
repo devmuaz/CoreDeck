@@ -9,6 +9,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <tlhelp32.h>
 #include <io.h>
 #include <fcntl.h>
 #include <process.h>
@@ -17,6 +18,8 @@
 #include <unistd.h>
 #include <sys/fcntl.h>
 #include <sys/wait.h>
+#include <chrono>
+#include <thread>
 #endif
 
 namespace CoreDeck {
@@ -244,6 +247,9 @@ namespace CoreDeck {
         CloseHandle(pi.hThread);
         CloseHandle(hWritePipe);
 
+        DWORD pipeMode = PIPE_NOWAIT;
+        SetNamedPipeHandleState(hReadPipe, &pipeMode, nullptr, nullptr);
+
         outputFd = _open_osfhandle(reinterpret_cast<intptr_t>(hReadPipe), _O_RDONLY);
         if (outputFd == -1) {
             CloseHandle(hReadPipe);
@@ -266,6 +272,7 @@ namespace CoreDeck {
         }
 
         if (pid == 0) {
+            setpgid(0, 0);
             close(pipeFd[0]);
 
             dup2(pipeFd[1], STDOUT_FILENO);
@@ -330,6 +337,63 @@ namespace CoreDeck {
             return true;
         }
         return false;
+#endif
+    }
+
+    bool WaitForProcessExit(const ProcessId pid, const int timeoutMs) {
+#ifdef _WIN32
+        if (pid == 0) return false;
+        HANDLE hProcess = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
+        if (hProcess == nullptr) return true;
+        const DWORD r = WaitForSingleObject(hProcess, timeoutMs < 0 ? INFINITE : static_cast<DWORD>(timeoutMs));
+        CloseHandle(hProcess);
+        return r == WAIT_OBJECT_0;
+#else
+        if (pid <= 0) return false;
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+        while (true) {
+            int status;
+            const pid_t r = waitpid(pid, &status, WNOHANG);
+            if (r == pid || r == -1) return true;
+            if (std::chrono::steady_clock::now() >= deadline) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+#endif
+    }
+
+    bool TerminateProcessTree(const ProcessId pid) {
+#ifdef _WIN32
+        if (pid == 0) return false;
+
+        HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (snap != INVALID_HANDLE_VALUE) {
+            std::vector<DWORD> children;
+            PROCESSENTRY32 pe = {};
+            pe.dwSize = sizeof(pe);
+            if (Process32First(snap, &pe)) {
+                do {
+                    if (pe.th32ParentProcessID == pid) children.push_back(pe.th32ProcessID);
+                } while (Process32Next(snap, &pe));
+            }
+            CloseHandle(snap);
+            for (const DWORD child: children) TerminateProcessTree(child);
+        }
+
+        HANDLE hProcess = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, FALSE, pid);
+        if (hProcess == nullptr) return true;
+        const bool ok = TerminateProcess(hProcess, 1) != 0;
+        if (ok) WaitForSingleObject(hProcess, 2000);
+        CloseHandle(hProcess);
+        return ok;
+#else
+        if (pid <= 0) return false;
+        if (kill(-pid, SIGKILL) == 0) {
+            WaitForProcessExit(pid, 2000);
+            return true;
+        }
+        const bool ok = kill(pid, SIGKILL) == 0;
+        if (ok) WaitForProcessExit(pid, 2000);
+        return ok;
 #endif
     }
 
