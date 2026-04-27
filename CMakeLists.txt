@@ -86,6 +86,18 @@ set(TINYFD_DIR ${CMAKE_SOURCE_DIR}/extern/tinyfiledialogs)
 add_library(tinyfiledialogs STATIC ${TINYFD_DIR}/tinyfiledialogs.c)
 target_include_directories(tinyfiledialogs PUBLIC ${TINYFD_DIR})
 
+set(COREDECK_SENTRY_DSN "" CACHE STRING "Sentry DSN for crash reporting")
+if (COREDECK_SENTRY_DSN)
+    set(SENTRY_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(SENTRY_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(SENTRY_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(SENTRY_BACKEND "crashpad" CACHE STRING "" FORCE)
+    add_subdirectory(extern/sentry-native)
+    message(STATUS "Sentry: Enabled")
+else ()
+    message(STATUS "Sentry: Disabled")
+endif ()
+
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
@@ -96,6 +108,7 @@ endif ()
 add_library(coredeck_core STATIC
         src/core/app_settings.cpp
         src/core/avd.cpp
+        src/core/crash_reporter.cpp
         src/core/emulator.cpp
         src/core/emulator_console.cpp
         src/core/file_dialog.cpp
@@ -125,6 +138,11 @@ target_compile_definitions(coredeck_core PUBLIC
         COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
         COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
 )
+
+if (COREDECK_SENTRY_DSN)
+    target_compile_definitions(coredeck_core PUBLIC COREDECK_SENTRY_DSN="${COREDECK_SENTRY_DSN}")
+    target_link_libraries(coredeck_core PUBLIC sentry)
+endif ()
 
 if (WIN32)
     target_compile_definitions(coredeck_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
@@ -192,6 +210,23 @@ if (UNIX AND NOT APPLE)
     )
 endif ()
 
+if (COREDECK_SENTRY_DSN)
+    if (APPLE)
+        target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-no_warn_duplicate_libraries")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_FILE:crashpad_handler>
+                $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/MacOS/crashpad_handler
+        )
+    else ()
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_FILE:crashpad_handler>
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>/$<TARGET_FILE_NAME:crashpad_handler>
+        )
+    endif ()
+endif ()
+
 if (WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/resources.rc.in ${CMAKE_BINARY_DIR}/resources.rc @ONLY)
     target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
@@ -237,6 +272,10 @@ install(TARGETS ${PROJECT_NAME}
         BUNDLE DESTINATION .
         RUNTIME DESTINATION .
 )
+
+if (COREDECK_SENTRY_DSN AND NOT APPLE)
+    install(PROGRAMS $<TARGET_FILE:crashpad_handler> DESTINATION .)
+endif ()
 
 if (NOT APPLE)
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/fonts DESTINATION assets)
