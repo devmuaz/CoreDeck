@@ -34,7 +34,7 @@ namespace CoreDeck {
         VerticalCenter(260.0f);
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
-        CenteredText("CoreDeck", HexColor("#F2F2F2"));
+        CenteredText(COREDECK_TITLE, HexColor("#F2F2F2"));
         ImGui::PopFont();
 
         ImGui::Spacing();
