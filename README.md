@@ -2,8 +2,13 @@
 
 [![Build](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml)
 [![Release](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml)
-[![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?include_prereleases)](https://github.com/devmuaz/CoreDeck/releases)
+[![Downloads](https://img.shields.io/github/downloads/devmuaz/CoreDeck/total)](https://github.com/devmuaz/CoreDeck/releases)
+[![Stars](https://img.shields.io/github/stars/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/stargazers)
+[![Issues](https://img.shields.io/github/issues/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/issues)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
+[![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 
 A native desktop application around your Android SDK’s official emulator, avdmanager, and sdkmanager binaries — CoreDeck
 runs them for you in one place, through a friendly GUI, so you get the same results without hand-writing commands. Use
