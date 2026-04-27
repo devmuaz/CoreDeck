@@ -27,9 +27,9 @@ namespace CoreDeck {
 
         if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, flags)) {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
-            const float titleWidth = ImGui::CalcTextSize("CoreDeck").x;
+            const float titleWidth = ImGui::CalcTextSize(COREDECK_TITLE).x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5f);
-            ImGui::TextColored(HexColor("#F2F2F2"), "CoreDeck");
+            ImGui::TextColored(HexColor("#F2F2F2"), COREDECK_TITLE);
             ImGui::PopFont();
 
             const std::string versionText = "Version " COREDECK_VERSION " (Build " COREDECK_BUILD_NUMBER ")";

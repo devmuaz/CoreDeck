@@ -127,6 +127,7 @@ target_precompile_headers(coredeck_core PRIVATE src/pch.h)
 target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs)
 
 target_compile_definitions(coredeck_core PUBLIC
+        COREDECK_TITLE="CoreDeck"
         COREDECK_VERSION="${PROJECT_VERSION_FULL}"
         COREDECK_BUILD_NUMBER="${PROJECT_BUILD_NUMBER}"
         COREDECK_VENDOR="${APP_VENDOR}"
