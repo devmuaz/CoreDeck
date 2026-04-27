@@ -13,17 +13,21 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
+#include <cstdio>
+#include <filesystem>
+
 #ifdef _WIN32
 #include <GLFW/glfw3native.h>
 #endif
-#include <cstdio>
-#include <filesystem>
 
 #include "gui/application.h"
 #include "gui/theme.h"
 #include "core/paths.h"
+#include "core/crash_reporter.h"
 
 int main() {
+    CoreDeck::CrashReporter::Init();
+
     if (!glfwInit()) {
 #ifdef _WIN32
         MessageBoxA(nullptr, "Failed to initialize GLFW.", "CoreDeck", MB_OK | MB_ICONERROR);
@@ -162,6 +166,8 @@ int main() {
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    CoreDeck::CrashReporter::Shutdown();
 
     return 0;
 }
