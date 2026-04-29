@@ -3,10 +3,6 @@
 //
 
 #include <algorithm>
-#include <array>
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <unordered_map>
 #include <filesystem>
 #include <sstream>
@@ -59,8 +55,7 @@ namespace CoreDeck {
 
         if (sdk.AvdManagerPath.empty()) return devices;
 
-        const std::string cmd = StrConcat("\"", sdk.AvdManagerPath, "\" list device -c");
-        const std::string output = RunCommand(cmd);
+        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"});
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
@@ -140,8 +135,7 @@ namespace CoreDeck {
         std::vector<RemoteSystemImage> results;
         if (sdk.SdkManagerPath.empty()) return results;
 
-        const std::string cmd = StrConcat("\"", sdk.SdkManagerPath, "\" --list 2>&1");
-        const std::string output = RunCommand(cmd);
+        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--list"});
 
         std::unordered_map<std::string, bool> installedSet;
         for (const auto &img: installedImages) {
@@ -213,57 +207,19 @@ namespace CoreDeck {
     ) {
         if (sdk.SdkManagerPath.empty() || packagePath.empty()) return false;
 
-        const std::string acceptCmd = StrConcat(
-#ifdef _WIN32
-            "echo y| \"", sdk.SdkManagerPath, "\" --licenses 2>&1"
-#else
-            "yes | \"", sdk.SdkManagerPath, "\" --licenses 2>&1"
-#endif
-        );
-        RunCommand(acceptCmd);
-
         if (progress) {
             std::lock_guard lock(progress->Mutex);
             progress->StatusText = "Starting download...";
             progress->Percent = 0.0f;
         }
 
-        const std::string cmd = StrConcat("\"", sdk.SdkManagerPath, "\" --install \"", packagePath, "\" 2>&1");
-#ifdef _WIN32
-        FILE *pipe = _popen(cmd.c_str(), "r");
-#else
-        FILE *pipe = popen(cmd.c_str(), "r");
-#endif
-        if (!pipe) return false;
-
-        std::array<char, 512> buf{};
-        std::string partial;
-
-        while (fgets(buf.data(), buf.size(), pipe) != nullptr) {
-            partial += buf.data();
-
-            std::size_t pos;
-            while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
-                if (auto line = partial.substr(0, pos); !line.empty()) {
-                    ParseProgressLine(line, progress);
-                }
-                if (auto next = partial.find_first_not_of("\n\r", pos); next == std::string::npos) {
-                    partial.clear();
-                } else {
-                    partial = partial.substr(next);
-                }
+        StreamCommandArgs(
+            sdk.SdkManagerPath,
+            {"--install", packagePath}, "",
+            [&progress](const std::string &line) {
+                ParseProgressLine(line, progress);
             }
-        }
-
-        if (!partial.empty()) {
-            ParseProgressLine(partial, progress);
-        }
-
-#ifdef _WIN32
-        _pclose(pipe);
-#else
-        pclose(pipe);
-#endif
+        );
 
         // Verify
         std::string fsPath = packagePath;
@@ -285,17 +241,36 @@ namespace CoreDeck {
     bool UninstallSystemImage(const SdkInfo &sdk, const std::string &packagePath) {
         if (sdk.SdkManagerPath.empty() || packagePath.empty()) return false;
 
-#ifdef _WIN32
-        const std::string cmd = StrConcat("echo y| \"", sdk.SdkManagerPath, "\" --uninstall \"", packagePath,
-                                          "\" 2>&1");
-#else
-        const std::string cmd = StrConcat("yes | \"", sdk.SdkManagerPath, "\" --uninstall \"", packagePath, "\" 2>&1");
-#endif
-        RunCommand(cmd);
+        RunCommandArgs(sdk.SdkManagerPath, {"--uninstall", packagePath}, "y\n");
 
         std::string fsPath = packagePath;
         std::ranges::replace(fsPath, ';', '/');
         const std::string sysImg = Paths::JoinPaths({sdk.SdkPath, fsPath, "system.img"});
         return !std::filesystem::exists(sysImg);
+    }
+
+    LicenseStatus CheckSdkLicenses(const SdkInfo &sdk) {
+        if (sdk.SdkManagerPath.empty()) return LicenseStatus::CheckFailed;
+
+        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, "N\n");
+
+        if (output.find("All SDK package licenses accepted") != std::string::npos) {
+            return LicenseStatus::AllAccepted;
+        }
+        if (output.find("licenses not accepted") != std::string::npos) {
+            return LicenseStatus::SomeUnaccepted;
+        }
+        return LicenseStatus::CheckFailed;
+    }
+
+    bool AcceptSdkLicenses(const SdkInfo &sdk) {
+        if (sdk.SdkManagerPath.empty()) return false;
+
+        std::string yes;
+        yes.reserve(64 * 2);
+        for (int i = 0; i < 64; ++i) yes += "y\n";
+
+        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, yes);
+        return output.find("All SDK package licenses accepted") != std::string::npos;
     }
 }

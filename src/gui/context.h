@@ -120,6 +120,12 @@ namespace CoreDeck {
             std::atomic<bool> Installing{false};
             std::shared_ptr<InstallProgressData> Progress;
             std::future<bool> InstallFuture;
+            bool AwaitingLicenseConsent = false;
+            std::atomic<bool> LicenseBusy{false};
+            std::future<LicenseStatus> LicenseCheckFuture;
+            std::future<bool> LicenseAcceptFuture;
+            std::string PendingPackagePath;
+            std::string LicenseError;
         } ImageInstallationWork;
 
         struct Jobs {

@@ -140,7 +140,9 @@ namespace CoreDeck {
 
             ImGui::SameLine();
             if (isRunning) {
-                if (NegativeButton(IconWithLabel(Icons::Stop, "Stop").c_str())) {
+                const bool isStopping = context.Host.Manager.IsStopping(avd.Name);
+                const std::string label = IconWithLabel(Icons::Stop, isStopping ? "Stopping..." : "Stop");
+                if (NegativeButton(label.c_str(), !isStopping) && !isStopping) {
                     context.Host.Manager.Stop(avd.Name);
                 }
             } else {

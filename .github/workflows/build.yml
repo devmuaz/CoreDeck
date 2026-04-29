@@ -35,7 +35,10 @@ jobs:
           sudo apt-get install -y --no-install-recommends build-essential libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCOREDECK_BUILD_TESTS=ON
+        env:
+          COREDECK_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCOREDECK_BUILD_TESTS=ON -DCOREDECK_SENTRY_DSN=$COREDECK_SENTRY_DSN
+        shell: bash
 
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }} --parallel

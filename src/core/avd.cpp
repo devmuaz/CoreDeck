@@ -10,7 +10,6 @@
 #include "avd.h"
 #include "paths.h"
 #include "process.h"
-#include "utilities.h"
 
 namespace CoreDeck {
     static std::unordered_map<std::string, std::string> ParseConfigFile(const std::string &path) {
@@ -129,8 +128,7 @@ namespace CoreDeck {
         std::vector<std::string> avds;
         if (!sdk.IsFound) return avds;
 
-        const std::string cmd = StrConcat("\"", sdk.EmulatorPath, "\" -list-avds");
-        const std::string output = RunCommand(cmd);
+        const std::string output = RunCommandArgs(sdk.EmulatorPath, {"-list-avds"});
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
@@ -144,13 +142,14 @@ namespace CoreDeck {
         if (sdk.AvdManagerPath.empty()) return false;
         if (data.Name.empty() || data.SystemImagePackagePath.empty()) return false;
 
-        std::string cmd = StrConcat(
-            "echo no | \"", sdk.AvdManagerPath, "\" create avd -n \"", data.Name, "\" -k \"",
-            data.SystemImagePackagePath, "\""
-        );
-
-        if (!data.DeviceId.empty()) cmd = StrConcat(cmd, " -d \"", data.DeviceId, "\"");
-        RunCommand(cmd);
+        std::vector<std::string> args = {
+            "create", "avd", "-n", data.Name, "-k", data.SystemImagePackagePath
+        };
+        if (!data.DeviceId.empty()) {
+            args.emplace_back("-d");
+            args.push_back(data.DeviceId);
+        }
+        RunCommandArgs(sdk.AvdManagerPath, args, "no\n");
 
         const std::string avdDir = Paths::GetAvdDirectory();
         const std::string configPath = Paths::JoinPaths({avdDir, data.Name + ".avd", "config.ini"});
@@ -179,23 +178,9 @@ namespace CoreDeck {
     }
 
     bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName) {
-        if (!sdk.AvdManagerPath.empty()) {
-            const std::string cmd = StrConcat("\"", sdk.AvdManagerPath, "\" delete avd -n ", avdName);
-            RunCommand(cmd);
-        } else {
-            // Fallback: manually delete the AVD files
-            const std::string avdDir = Paths::GetAvdDirectory();
-            if (avdDir.empty()) return false;
+        if (sdk.AvdManagerPath.empty()) return false;
 
-            const std::string avdFolder = Paths::JoinPaths({avdDir, avdName + ".avd"});
-            const std::string avdIni = Paths::JoinPaths({avdDir, avdName + ".ini"});
-
-            std::error_code ec;
-            std::filesystem::remove_all(avdFolder, ec);
-            if (ec) return false;
-
-            std::filesystem::remove(avdIni, ec);
-        }
+        RunCommandArgs(sdk.AvdManagerPath, {"delete", "avd", "-n", avdName});
 
         const std::string avdDir = Paths::GetAvdDirectory();
         const std::string avdFolder = Paths::JoinPaths({avdDir, avdName + ".avd"});
