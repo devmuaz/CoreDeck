@@ -7,18 +7,23 @@
 #include <filesystem>
 #include <string>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
+#include "process.h"
 #include "utilities.h"
 
 namespace CoreDeck {
     void OpenUrl(const char *url) {
 #if defined(_WIN32)
-        const std::string cmd = std::string("start ") + url;
+        ShellExecuteA(nullptr, "open", url, nullptr, nullptr, SW_SHOWNORMAL);
 #elif defined(__APPLE__)
-        const std::string cmd = std::string("open ") + url;
+        RunCommandArgs("/usr/bin/open", {url});
 #else
-        const std::string cmd = std::string("xdg-open ") + url;
+        RunCommandArgs("xdg-open", {url});
 #endif
-        [[maybe_unused]] int ret = std::system(cmd.c_str());
     }
 
     std::uintmax_t GetDirectorySize(const std::string &path) {

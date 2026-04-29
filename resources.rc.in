@@ -1,6 +1,7 @@
+#pragma code_page(65001)
 #include <windows.h>
 
-IDI_ICON1 ICON "@CMAKE_SOURCE_DIR@/assets/icons/icon.ico"
+1 ICON "@CMAKE_SOURCE_DIR@/assets/icons/icon.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,@PROJECT_BUILD_NUMBER@
@@ -16,12 +17,13 @@ BEGIN
         BLOCK "040904B0"
         BEGIN
             VALUE "CompanyName",      "@APP_VENDOR@"
-            VALUE "FileDescription",  "@APP_DESCRIPTION_SHORT@"
+            VALUE "FileDescription",  "@PROJECT_NAME@"
             VALUE "FileVersion",      "@PROJECT_VERSION@.@PROJECT_BUILD_NUMBER@"
             VALUE "ProductName",      "@PROJECT_NAME@"
             VALUE "ProductVersion",   "@PROJECT_VERSION@"
             VALUE "LegalCopyright",   "@APP_COPYRIGHT@"
             VALUE "OriginalFilename", "@PROJECT_NAME@.exe"
+            VALUE "Comments",         "@APP_DESCRIPTION_SHORT@"
         END
     END
     BLOCK "VarFileInfo"

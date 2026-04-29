@@ -19,20 +19,26 @@ namespace CoreDeck {
     struct EmulatorInstance {
         std::string AvdName;
         ProcessId Pid;
+        int ConsolePort = 0;
         bool IsRunning = false;
+        bool Stopping = false;
         std::shared_ptr<LogBuffer> Log;
         std::thread ReaderThread;
+        std::thread StopThread;
         std::shared_ptr<std::atomic<bool> > StopRequested;
     };
 
     class EmulatorManager {
     public:
         explicit EmulatorManager(SdkInfo sdk);
+
         ~EmulatorManager();
 
         bool Launch(const std::string &avdName, const std::vector<std::string> &args);
 
         bool Stop(const std::string &avdName);
+
+        bool IsStopping(const std::string &avdName);
 
         bool IsRunning(const std::string &avdName);
 
