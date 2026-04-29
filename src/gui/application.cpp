@@ -235,7 +235,8 @@ namespace CoreDeck {
         );
 
         if (std::filesystem::exists(textFontPath)) {
-            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), 16.0f);
+            static constexpr ImWchar textRanges[] = {0x0020, 0x00FF, 0x2000, 0x206F, 0,};
+            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), 16.0f, nullptr, textRanges);
         }
 
         if (std::filesystem::exists(iconFontPath)) {
