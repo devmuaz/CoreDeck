@@ -1,13 +1,9 @@
 ## [v0.3.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.3.0) — 2026-04-29
 
-- Add opt-in Sentry crash reporting via `sentry-native` with a `CrashReporter` facade so the SDK is fully isolated from
-  the rest of the codebase
-- Refactor `main.cpp` to delegate the full GLFW/ImGui lifecycle to `Application`, with RAII teardown and platform error
-  handling
-- Fix Windows title bar icon, Task Manager description, and em dash rendering in version info and the About dialog (
-  thanks [@maramadany](https://github.com/maramadany))
-- Fix Windows `.bat` handling, console flashes, and SDK license acceptance (
-  thanks [@maramadany](https://github.com/maramadany))
+- Add opt-in Sentry crash reporting via `sentry-native` with a `CrashReporter` facade so the SDK is fully isolated from the rest of the codebase
+- Refactor `main.cpp` to delegate the full GLFW/ImGui lifecycle to `Application`, with RAII teardown and platform error handling
+- Fix Windows title bar icon, Task Manager description, and em dash rendering in version info and the About dialog (thanks [@maramadany](https://github.com/maramadany))
+- Fix Windows `.bat` handling, console flashes, and SDK license acceptance (thanks [@maramadany](https://github.com/maramadany))
 - Fix emulator stop hang and orphaned `qemu` processes on shutdown (thanks [@maramadany](https://github.com/maramadany))
 - Add `tools/audit_pch.sh` script to audit `pch.h` against actual header usage across the codebase
 
@@ -15,16 +11,12 @@
 
 - Add device-type icons to the AVD list
 - Auto-fill Name and Display Name in the Create AVD dialog from the selected device profile and system image
-- Replace the runtime `curl` binary dependency with libcurl on macOS/Linux and WinHTTP on Windows (
-  thanks [@maramadany](https://github.com/maramadany))
-- Reduce idle CPU usage by replacing `glfwPollEvents` with focus-aware `glfwWaitEventsTimeout` (
-  thanks [@maramadany](https://github.com/maramadany))
+- Replace the runtime `curl` binary dependency with libcurl on macOS/Linux and WinHTTP on Windows (thanks [@maramadany](https://github.com/maramadany))
+- Reduce idle CPU usage by replacing `glfwPollEvents` with focus-aware `glfwWaitEventsTimeout` (thanks [@maramadany](https://github.com/maramadany)) 
 - Fix Create AVD button when no AVDs exist (thanks [@maramadany](https://github.com/maramadany))
-- Fix blank AVD names by falling back to the internal AVD name when `avd.ini.displayname` is missing (
-  thanks [@maramadany](https://github.com/maramadany))
+- Fix blank AVD names by falling back to the internal AVD name when `avd.ini.displayname` is missing (thanks [@maramadany](https://github.com/maramadany))
 - Fix Create AVD dialog layout and disabled-button states
-- Fix font path resolution to be relative to the executable rather than the working directory (
-  thanks [@maramadany](https://github.com/maramadany))
+- Fix font path resolution to be relative to the executable rather than the working directory (thanks [@maramadany](https://github.com/maramadany))
 - Update README
 
 ## [v0.1.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.1.0) — 2026-04-22
