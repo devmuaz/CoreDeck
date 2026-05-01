@@ -236,10 +236,10 @@ namespace CoreDeck {
         ImGui::SetNextWindowSize(ImVec2(380, 0), ImGuiCond_Appearing);
 
         constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoDocking;
 
         if (ImGui::BeginPopupModal(title.c_str(), data.isBusy ? nullptr : &data.isOpen, flags)) {
             if (!data.isOpen) {

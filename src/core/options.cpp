@@ -263,7 +263,7 @@ namespace CoreDeck {
 
             if (json.empty()) return GetEmulatorOptions();
 
-            auto options = rfl::json::read<std::vector<EmulatorOption> >(json);
+            auto options = rfl::json::read<std::vector<EmulatorOption>>(json);
             return options.value();
         } catch (const std::exception &e) {
             Log::Error("Failed to load options from ", filePath, ": ", e.what());

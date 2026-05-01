@@ -56,4 +56,4 @@ namespace CoreDeck {
     void EnsureOptionsConfigDirectoryExists();
 }
 
-#endif //EMU_LAUNCHER_OPTIONS_H
+#endif // EMU_LAUNCHER_OPTIONS_H

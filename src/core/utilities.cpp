@@ -30,7 +30,10 @@ namespace CoreDeck {
         std::uintmax_t total = 0;
         std::error_code ec;
         for (const auto &entry: std::filesystem::recursive_directory_iterator(
-                 path, std::filesystem::directory_options::skip_permission_denied, ec)) {
+                 path,
+                 std::filesystem::directory_options::skip_permission_denied,
+                 ec
+             )) {
             if (entry.is_regular_file(ec)) {
                 total += entry.file_size(ec);
             }

@@ -215,7 +215,8 @@ namespace CoreDeck {
 
         StreamCommandArgs(
             sdk.SdkManagerPath,
-            {"--install", packagePath}, "",
+            {"--install", packagePath},
+            "",
             [&progress](const std::string &line) {
                 ParseProgressLine(line, progress);
             }

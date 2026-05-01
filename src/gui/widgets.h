@@ -42,9 +42,13 @@ namespace CoreDeck {
         }
     };
 
-    enum class DialogResult { None, Confirmed, Cancelled };
+    enum class DialogResult { None,
+                              Confirmed,
+                              Cancelled };
 
-    enum class DialogType { Default, Positive, Negative };
+    enum class DialogType { Default,
+                            Positive,
+                            Negative };
 
     struct DialogData {
         const char *Id{};
@@ -94,4 +98,4 @@ namespace CoreDeck {
     DialogResult SimpleDialog(const DialogData &data);
 }
 
-#endif //EMU_LAUNCHER_COMPONENTS_H
+#endif // EMU_LAUNCHER_COMPONENTS_H

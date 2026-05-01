@@ -29,37 +29,58 @@ namespace CoreDeck::EmulatorConsole {
             WSAStartup(MAKEWORD(2, 2), &d);
         }
 
-        ~WsaInit() { WSACleanup(); }
+        ~WsaInit() {
+            WSACleanup();
+        }
     };
-    void EnsureWsa() { static WsaInit init; }
-    void CloseSock(const socket_t s) { closesocket(s); }
+
+    void EnsureWsa() {
+        static WsaInit init;
+    }
+
+    void CloseSock(const socket_t s) {
+        closesocket(s);
+    }
+
     void SetNonBlocking(const socket_t s) {
         u_long m = 1;
         ioctlsocket(s, FIONBIO, &m);
     }
-    int LastErr() { return WSAGetLastError(); }
-    bool ErrIsWouldBlock(const int e) { return e == WSAEWOULDBLOCK || e == WSAEINPROGRESS; }
+
+    int LastErr() {
+        return WSAGetLastError();
+    }
+
+    bool ErrIsWouldBlock(const int e) {
+        return e == WSAEWOULDBLOCK || e == WSAEINPROGRESS;
+    }
 #else
     void EnsureWsa() {
     }
 
-    void CloseSock(const socket_t s) { close(s); }
+    void CloseSock(const socket_t s) {
+        close(s);
+    }
 
     void SetNonBlocking(const socket_t s) {
         const int f = fcntl(s, F_GETFL, 0);
         fcntl(s, F_SETFL, f | O_NONBLOCK);
     }
 
-    int LastErr() { return errno; }
-    bool ErrIsWouldBlock(const int e) { return e == EWOULDBLOCK || e == EAGAIN || e == EINPROGRESS; }
+    int LastErr() {
+        return errno;
+    }
+    bool ErrIsWouldBlock(const int e) {
+        return e == EWOULDBLOCK || e == EAGAIN || e == EINPROGRESS;
+    }
 #endif
 
     std::string ReadAuthToken() {
         const char *home =
 #ifdef _WIN32
-                std::getenv("USERPROFILE");
+            std::getenv("USERPROFILE");
 #else
-                std::getenv("HOME");
+            std::getenv("HOME");
 #endif
         if (!home) return "";
         const std::filesystem::path p = std::filesystem::path(home) / ".emulator_console_auth_token";
@@ -68,8 +89,7 @@ namespace CoreDeck::EmulatorConsole {
         std::stringstream ss;
         ss << f.rdbuf();
         std::string token = ss.str();
-        while (!token.empty() && (token.back() == '\n' || token.back() == '\r' || token.back() == ' ' || token.back() ==
-                                  '\t')) {
+        while (!token.empty() && (token.back() == '\n' || token.back() == '\r' || token.back() == ' ' || token.back() == '\t')) {
             token.pop_back();
         }
         return token;

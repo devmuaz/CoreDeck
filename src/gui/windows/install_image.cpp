@@ -39,11 +39,11 @@ namespace CoreDeck {
             ImGui::SetNextWindowSize(ImVec2(560, 0), ImGuiCond_Appearing);
 
             constexpr ImGuiWindowFlags flags =
-                    ImGuiWindowFlags_NoCollapse |
-                    ImGuiWindowFlags_NoResize |
-                    ImGuiWindowFlags_NoMove |
-                    ImGuiWindowFlags_AlwaysAutoResize |
-                    ImGuiWindowFlags_NoDocking;
+                ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove |
+                ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoDocking;
 
             const bool installing = context.ImageInstallationWork.Installing.load();
             bool *pOpen = installing ? nullptr : &context.UI.ShowInstallImageDialog;
@@ -194,7 +194,8 @@ namespace CoreDeck {
                     ImGui::Spacing();
 
                     float fraction;
-                    std::string statusText; {
+                    std::string statusText;
+                    {
                         std::lock_guard lock(work.Progress->Mutex);
                         fraction = work.Progress->Percent;
                         statusText = work.Progress->StatusText;
@@ -211,7 +212,8 @@ namespace CoreDeck {
                 if (!isInstalling && work.Progress) {
                     bool finished;
                     bool succeeded;
-                    std::string statusText; {
+                    std::string statusText;
+                    {
                         std::lock_guard lock(work.Progress->Mutex);
                         finished = work.Progress->Finished;
                         succeeded = work.Progress->Succeeded;
@@ -222,7 +224,8 @@ namespace CoreDeck {
                         ImGui::Spacing();
                         const float textWidth = ImGui::CalcTextSize(statusText.c_str()).x;
                         ImGui::SetCursorPosX(
-                            (ImGui::GetContentRegionAvail().x - textWidth) * 0.5f + ImGui::GetCursorStartPos().x);
+                            (ImGui::GetContentRegionAvail().x - textWidth) * 0.5f + ImGui::GetCursorStartPos().x
+                        );
                         if (succeeded) ImGui::TextColored(HexColor("#33CC47"), "%s", statusText.c_str());
                         else ImGui::TextColored(HexColor("#E64D40"), "%s", statusText.c_str());
                     }
@@ -233,10 +236,10 @@ namespace CoreDeck {
                 ImGui::Spacing();
 
                 const bool canInstall =
-                        !isLoading && !isInstalling &&
-                        work.SelectedImage >= 0 &&
-                        work.SelectedImage < static_cast<int>(work.RemoteImages.size()) &&
-                        !work.RemoteImages[work.SelectedImage].IsInstalled;
+                    !isLoading && !isInstalling &&
+                    work.SelectedImage >= 0 &&
+                    work.SelectedImage < static_cast<int>(work.RemoteImages.size()) &&
+                    !work.RemoteImages[work.SelectedImage].IsInstalled;
 
                 const float spacing = ImGui::GetStyle().ItemSpacing.x;
                 const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;

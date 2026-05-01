@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildSdkMissingBanner(Context &context);
 }
 
-#endif //COREDECK_SDK_BANNER_H
+#endif // COREDECK_SDK_BANNER_H

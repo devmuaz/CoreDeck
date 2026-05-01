@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context);
 }
 
-#endif //COREDECK_AVD_OPTIONS_H
+#endif // COREDECK_AVD_OPTIONS_H

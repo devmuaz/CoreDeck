@@ -42,4 +42,4 @@ namespace CoreDeck {
     bool IsProcessRunning(ProcessId pid);
 }
 
-#endif //EMU_LAUNCHER_PROCESS_H
+#endif // EMU_LAUNCHER_PROCESS_H

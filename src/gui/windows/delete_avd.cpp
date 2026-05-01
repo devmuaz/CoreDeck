@@ -35,17 +35,15 @@ namespace CoreDeck {
         const std::string title = "Delete \"" + avdName + "\"?";
         const bool isDeleting = context.Jobs.AvdDeletion.Busy.load();
         const DialogResult result = SimpleDialog(
-            {
-                .Id = "Delete###DeleteAvdDialog",
-                .isOpen = context.UI.ShowDeleteAvdDialog,
-                .title = title.c_str(),
-                .message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
-                .confirmButtonTitle = "Delete",
-                .cancelButtonTitle = "Cancel",
-                .busyButtonTitle = "Deleting...",
-                .type = DialogType::Negative,
-                .isBusy = isDeleting
-            }
+            {.Id = "Delete###DeleteAvdDialog",
+             .isOpen = context.UI.ShowDeleteAvdDialog,
+             .title = title.c_str(),
+             .message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
+             .confirmButtonTitle = "Delete",
+             .cancelButtonTitle = "Cancel",
+             .busyButtonTitle = "Deleting...",
+             .type = DialogType::Negative,
+             .isBusy = isDeleting}
         );
 
         if (result == DialogResult::Confirmed) {

@@ -23,10 +23,10 @@ namespace CoreDeck {
         ImGui::SetNextWindowSize(ImVec2(520, 0), ImGuiCond_Appearing);
 
         constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoDocking;
 
         static char sdkPathBuffer[2048];
 
@@ -115,7 +115,8 @@ namespace CoreDeck {
 
             ImGui::Spacing();
             ImGui::Separator();
-            ImGui::Spacing(); {
+            ImGui::Spacing();
+            {
                 constexpr float closeW = 120.0f;
                 ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - closeW + ImGui::GetCursorPosX());
                 if (PrimaryButton("Close", true, ImVec2(closeW, 0))) {

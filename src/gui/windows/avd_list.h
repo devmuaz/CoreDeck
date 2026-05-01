@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildAvdListWindow(Context &context);
 }
 
-#endif //COREDECK_AVD_LIST_H
+#endif // COREDECK_AVD_LIST_H

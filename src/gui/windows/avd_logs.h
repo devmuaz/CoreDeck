@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildAvdLogsWindow(Context &context);
 }
 
-#endif //COREDECK_AVD_LOGS_H
+#endif // COREDECK_AVD_LOGS_H

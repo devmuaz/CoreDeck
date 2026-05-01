@@ -29,4 +29,4 @@ namespace CoreDeck::CrashReporter {
     void AddBreadcrumb(std::string_view category, std::string_view message);
 }
 
-#endif //COREDECK_CRASH_REPORTER_H
+#endif // COREDECK_CRASH_REPORTER_H

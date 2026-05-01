@@ -37,8 +37,10 @@ namespace CoreDeck {
         if (len > haystack.size()) return false;
 
         return std::search(
-                   haystack.begin(), haystack.end(),
-                   needle, needle + len,
+                   haystack.begin(),
+                   haystack.end(),
+                   needle,
+                   needle + len,
                    [](const char a, const char b) {
                        return std::tolower(static_cast<unsigned char>(a)) ==
                               std::tolower(static_cast<unsigned char>(b));
@@ -183,7 +185,8 @@ namespace CoreDeck {
             return;
         }
 
-        ImGui::Spacing(); {
+        ImGui::Spacing();
+        {
             const char *sortDirIcon = context.Catalog.SortAscending ? Icons::SortUp : Icons::SortDown;
             const char *sortDirTooltip = context.Catalog.SortAscending ? "Ascending" : "Descending";
             if (PrimaryButton(sortDirIcon)) {
@@ -253,8 +256,7 @@ namespace CoreDeck {
             const char *avdStatusText = isRunning ? "Running..." : "Ready";
             const ImVec4 avdStatusColor = isRunning ? HexColor("#33CC47") : HexColor("#66666B");
             const DeviceIconStyle iconStyle = DeviceIconStyleFor(avd.Device);
-            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdStatusText, avdStatusColor,
-                               iconStyle.Icon, HexColor(iconStyle.HexColor))) {
+            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdStatusText, avdStatusColor, iconStyle.Icon, HexColor(iconStyle.HexColor))) {
                 context.Catalog.SelectedAvd = i;
             }
             ImGui::PopID();

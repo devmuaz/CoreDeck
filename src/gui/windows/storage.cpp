@@ -10,7 +10,6 @@
 #include "storage.h"
 #include "../application.h"
 #include "../widgets.h"
-#include "../theme.h"
 #include "../../core/utilities.h"
 #include "../../core/paths.h"
 
@@ -25,18 +24,17 @@ namespace CoreDeck {
         ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiCond_Appearing);
 
         constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_AlwaysAutoResize |
-                ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_AlwaysAutoResize |
+            ImGuiWindowFlags_NoDocking;
 
         if (ImGui::BeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, flags)) {
             auto &cache = context.DiskUsage.PerAvdCache;
 
-            // --- Summary ---
             std::uintmax_t totalAvdSize = 0;
-            for (const auto &avd : context.Catalog.Avds) {
+            for (const auto &avd: context.Catalog.Avds) {
                 if (avd.Path.empty() || !std::filesystem::exists(avd.Path)) continue;
                 auto it = cache.find(avd.Name);
                 if (it == cache.end()) {
@@ -47,7 +45,6 @@ namespace CoreDeck {
                 totalAvdSize += it->second;
             }
 
-            // System images directory size (cached)
             if (!context.DiskUsage.SystemImagesSizeCached && !context.Host.Sdk.SdkPath.empty()) {
                 const auto sysImgDir = std::filesystem::path(context.Host.Sdk.SdkPath) / "system-images";
                 if (std::filesystem::exists(sysImgDir)) {
@@ -84,12 +81,10 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            // --- Per-AVD breakdown ---
             if (CollapsingHeader("AVDs")) {
                 if (context.Catalog.Avds.empty()) {
                     ImGui::TextDisabled("No AVDs found.");
                 } else {
-                    // Sort AVDs by size descending for the overview
                     struct AvdSizeEntry {
                         std::string Name;
                         std::string DisplayName;
@@ -97,7 +92,7 @@ namespace CoreDeck {
                     };
                     std::vector<AvdSizeEntry> entries;
                     entries.reserve(context.Catalog.Avds.size());
-                    for (const auto &avd : context.Catalog.Avds) {
+                    for (const auto &avd: context.Catalog.Avds) {
                         std::uintmax_t size = 0;
                         if (auto it = cache.find(avd.Name); it != cache.end()) {
                             size = it->second;
@@ -108,7 +103,7 @@ namespace CoreDeck {
                         return a.Size > b.Size;
                     });
 
-                    for (const auto &[name, displayName, size] : entries) {
+                    for (const auto &[name, displayName, size]: entries) {
                         const std::string sizeStr = FormatFileSize(size);
                         const std::string label = displayName.empty() ? name : displayName;
                         ImGui::Text("%s", label.c_str());
@@ -120,21 +115,19 @@ namespace CoreDeck {
 
             ImGui::Spacing();
 
-            // --- Per-system-image breakdown ---
             if (CollapsingHeader("Installed System Images")) {
                 if (!context.Host.Sdk.SdkPath.empty()) {
-                    // Build the cache on first access
                     if (!context.DiskUsage.SystemImageEntriesCached) {
                         context.DiskUsage.SystemImageEntries.clear();
                         const auto sysImgRoot = std::filesystem::path(context.Host.Sdk.SdkPath) / "system-images";
                         if (std::filesystem::exists(sysImgRoot)) {
                             std::error_code ec;
                             // system-images/<api>/<variant>/<abi>
-                            for (const auto &apiDir : std::filesystem::directory_iterator(sysImgRoot, ec)) {
+                            for (const auto &apiDir: std::filesystem::directory_iterator(sysImgRoot, ec)) {
                                 if (!apiDir.is_directory()) continue;
-                                for (const auto &variantDir : std::filesystem::directory_iterator(apiDir.path(), ec)) {
+                                for (const auto &variantDir: std::filesystem::directory_iterator(apiDir.path(), ec)) {
                                     if (!variantDir.is_directory()) continue;
-                                    for (const auto &abiDir : std::filesystem::directory_iterator(variantDir.path(), ec)) {
+                                    for (const auto &abiDir: std::filesystem::directory_iterator(variantDir.path(), ec)) {
                                         if (!abiDir.is_directory()) continue;
                                         const std::string label =
                                             apiDir.path().filename().string() + " / " +
@@ -155,7 +148,7 @@ namespace CoreDeck {
                     if (context.DiskUsage.SystemImageEntries.empty()) {
                         ImGui::TextDisabled("No system images found.");
                     } else {
-                        for (const auto &[name, size] : context.DiskUsage.SystemImageEntries) {
+                        for (const auto &[name, size]: context.DiskUsage.SystemImageEntries) {
                             const std::string sizeStr = FormatFileSize(size);
                             ImGui::Text("%s", name.c_str());
                             ImGui::SameLine(contentMax - ImGui::CalcTextSize(sizeStr.c_str()).x);
@@ -171,7 +164,6 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            // --- Close button ---
             constexpr float closeW = 100.0f;
             ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - closeW + ImGui::GetCursorPosX());
             if (PrimaryButton("Close", true, ImVec2(closeW, 0))) {
