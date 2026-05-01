@@ -13,4 +13,4 @@ namespace CoreDeck {
     void SaveAppSettings(const AppSettings &settings);
 }
 
-#endif //COREDECK_APP_SETTINGS_H
+#endif // COREDECK_APP_SETTINGS_H

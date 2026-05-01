@@ -27,7 +27,8 @@ namespace CoreDeck {
     }
 
     EmulatorManager::~EmulatorManager() {
-        std::vector<std::thread> pendingStops; {
+        std::vector<std::thread> pendingStops;
+        {
             std::lock_guard lock(m_Mutex);
             for (auto &instance: m_Instances | std::views::values) {
                 if (instance.StopThread.joinable()) {
@@ -59,7 +60,8 @@ namespace CoreDeck {
         }
     }
 
-    bool EmulatorManager::Launch(const std::string &avdName, const std::vector<std::string> &args) { {
+    bool EmulatorManager::Launch(const std::string &avdName, const std::vector<std::string> &args) {
+        {
             std::lock_guard lock(m_Mutex);
             if (const auto it = m_Instances.find(avdName); it != m_Instances.end() && it->second.IsRunning) {
                 return false;
@@ -84,7 +86,7 @@ namespace CoreDeck {
 
         {
             auto log = std::make_shared<LogBuffer>();
-            auto stopFlag = std::make_shared<std::atomic<bool> >(false);
+            auto stopFlag = std::make_shared<std::atomic<bool>>(false);
             std::thread reader([outputFd, log, stopFlag] {
                 std::array<char, 1024> buf{};
                 std::string partial;
@@ -144,7 +146,8 @@ namespace CoreDeck {
             });
 
             std::thread oldStopThread;
-            std::thread oldReaderThread; {
+            std::thread oldReaderThread;
+            {
                 std::lock_guard lock(m_Mutex);
                 if (const auto existing = m_Instances.find(avdName); existing != m_Instances.end()) {
                     if (existing->second.StopRequested) {
@@ -177,9 +180,10 @@ namespace CoreDeck {
     bool EmulatorManager::Stop(const std::string &avdName) {
         ProcessId pid;
         int consolePort;
-        std::shared_ptr<std::atomic<bool> > stopFlag;
+        std::shared_ptr<std::atomic<bool>> stopFlag;
         std::thread readerThread;
-        std::thread oldStopThread; {
+        std::thread oldStopThread;
+        {
             std::lock_guard lock(m_Mutex);
             const auto it = m_Instances.find(avdName);
             if (it == m_Instances.end() || !it->second.IsRunning || it->second.Stopping) {
@@ -195,7 +199,7 @@ namespace CoreDeck {
         if (oldStopThread.joinable()) oldStopThread.join();
 
         std::thread worker(
-            [this, avdName, pid, consolePort, stopFlag,reader = std::move(readerThread)]() mutable {
+            [this, avdName, pid, consolePort, stopFlag, reader = std::move(readerThread)]() mutable {
                 bool exited = false;
                 if (consolePort > 0 && EmulatorConsole::SendKill(consolePort)) {
                     exited = WaitForProcessExit(pid, 5000);

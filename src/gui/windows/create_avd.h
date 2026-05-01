@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildCreateAvdWindow(Context &context);
 }
 
-#endif //COREDECK_CREATE_AVD_H
+#endif // COREDECK_CREATE_AVD_H

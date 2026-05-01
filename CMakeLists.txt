@@ -81,6 +81,13 @@ add_subdirectory(extern/glfw)
 set(REFLECTCPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/reflect-cpp)
+if (MINGW)
+    target_compile_options(reflectcpp PRIVATE
+            -Wa,-mbig-obj
+            $<$<CONFIG:Debug>:-O1>
+            $<$<CONFIG:Debug>:-g0>
+    )
+endif ()
 
 set(TINYFD_DIR ${CMAKE_SOURCE_DIR}/extern/tinyfiledialogs)
 add_library(tinyfiledialogs STATIC ${TINYFD_DIR}/tinyfiledialogs.c)
@@ -230,7 +237,11 @@ endif ()
 
 if (WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/resources.rc.in ${CMAKE_BINARY_DIR}/resources.rc @ONLY)
-    target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
+    if (MSVC)
+        target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
+    elseif (MINGW)
+        target_link_options(${PROJECT_NAME} PRIVATE "-mwindows")
+    endif ()
     target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/resources.rc)
 elseif (APPLE)
     target_compile_definitions(${PROJECT_NAME} PRIVATE GL_SILENCE_DEPRECATION)

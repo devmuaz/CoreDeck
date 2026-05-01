@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildInstallImageWindow(Context &context);
 }
 
-#endif //COREDECK_INSTALL_IMAGE_H
+#endif // COREDECK_INSTALL_IMAGE_H

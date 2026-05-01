@@ -24,19 +24,7 @@ namespace CoreDeck {
             return;
         }
 
-        const auto &[
-            Name,
-            DisplayName,
-            Device,
-            ApiLevel,
-            Abi,
-            SdCard,
-            RamSize,
-            ScreenResolution,
-            GpuMode,
-            Arch,
-            Path
-        ] = context.Catalog.Avds[context.Catalog.SelectedAvd];
+        const auto &[Name, DisplayName, Device, ApiLevel, Abi, SdCard, RamSize, ScreenResolution, GpuMode, Arch, Path] = context.Catalog.Avds[context.Catalog.SelectedAvd];
         const auto args = BuildArgs(Name, GetDefaultAvdOptions(context));
 
         std::string preview = context.Host.Sdk.EmulatorPath;
@@ -106,7 +94,7 @@ namespace CoreDeck {
                 .isOpen = context.UI.ShowWipeDataDialog,
                 .title = "Wipe User Data",
                 .message =
-                "This will delete userdata, cache, SD card images, and snapshots for this AVD. This cannot be undone.\n\nContinue?",
+                    "This will delete userdata, cache, SD card images, and snapshots for this AVD. This cannot be undone.\n\nContinue?",
                 .confirmButtonTitle = "Wipe",
                 .cancelButtonTitle = "Cancel",
                 .busyButtonTitle = "Wiping...",

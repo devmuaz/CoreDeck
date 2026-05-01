@@ -17,4 +17,4 @@
 #include <unordered_map>
 #include <vector>
 
-#endif //COREDECK_PCH_H
+#endif // COREDECK_PCH_H

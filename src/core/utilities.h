@@ -17,11 +17,11 @@ namespace CoreDeck {
     bool WipeAvdUserData(const std::string &avdPath);
 
     template<typename... Args>
-    std::string StrConcat(Args &&... args) {
+    std::string StrConcat(Args &&...args) {
         std::string result;
         (result += ... += std::forward<Args>(args));
         return result;
     }
 }
 
-#endif //EMU_LAUNCHER_UTILITIES_H
+#endif // EMU_LAUNCHER_UTILITIES_H

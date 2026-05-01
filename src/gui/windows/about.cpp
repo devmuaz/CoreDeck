@@ -20,10 +20,10 @@ namespace CoreDeck {
         ImGui::SetNextWindowSize(ImVec2(420, 0), ImGuiCond_Appearing);
 
         constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoDocking;
 
         if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, flags)) {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);

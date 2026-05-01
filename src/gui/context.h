@@ -51,7 +51,7 @@ namespace CoreDeck {
             std::vector<AvdInfo> Avds;
             int SelectedAvd = -1;
             int PreviousSelectedAvd = -1;
-            std::unordered_map<std::string, std::vector<EmulatorOption> > PerAvdOptions;
+            std::unordered_map<std::string, std::vector<EmulatorOption>> PerAvdOptions;
 
             char SearchFilter[128] = {};
             AvdSortMode SortMode = AvdSortMode::Name;
@@ -161,4 +161,4 @@ namespace CoreDeck {
     };
 }
 
-#endif //COREDECK_CONTEXT_H
+#endif // COREDECK_CONTEXT_H

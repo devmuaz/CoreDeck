@@ -143,7 +143,12 @@ namespace CoreDeck {
         if (data.Name.empty() || data.SystemImagePackagePath.empty()) return false;
 
         std::vector<std::string> args = {
-            "create", "avd", "-n", data.Name, "-k", data.SystemImagePackagePath
+            "create",
+            "avd",
+            "-n",
+            data.Name,
+            "-k",
+            data.SystemImagePackagePath
         };
         if (!data.DeviceId.empty()) {
             args.emplace_back("-d");

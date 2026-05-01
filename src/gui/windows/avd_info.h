@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildAvdInfoWindow(Context &context);
 }
 
-#endif //COREDECK_AVD_DETAILS_H
+#endif // COREDECK_AVD_DETAILS_H

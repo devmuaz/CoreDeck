@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildAboutWindow(Context &context);
 }
 
-#endif //COREDECK_ABOUT_H
+#endif // COREDECK_ABOUT_H

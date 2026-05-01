@@ -32,4 +32,4 @@ namespace CoreDeck {
     }
 }
 
-#endif //COREDECK_THEME_H
+#endif // COREDECK_THEME_H

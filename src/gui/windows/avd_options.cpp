@@ -47,9 +47,7 @@ namespace CoreDeck {
             if (CollapsingHeader(category.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::Indent(20.0f);
 
-                for (auto &[Flag, DisplayName, Description, Enabled, Type, Category, Hint, TextInput, Items,
-                         SelectedItem]
-                     : options) {
+                for (auto &[Flag, DisplayName, Description, Enabled, Type, Category, Hint, TextInput, Items, SelectedItem]: options) {
                     if (category != Category) continue;
 
                     ImGui::PushID(Flag.c_str());
