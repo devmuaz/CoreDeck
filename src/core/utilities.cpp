@@ -2,7 +2,9 @@
 // Created by AbdulMuaz Aqeel on 06/04/2026.
 //
 
+#include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <cstdio>
 #include <filesystem>
 #include <string>
@@ -62,6 +64,18 @@ namespace CoreDeck {
         }
         std::snprintf(buf, sizeof(buf), "%llu B", static_cast<unsigned long long>(bytes));
         return buf;
+    }
+
+    std::string LowerCopy(std::string value) {
+        std::ranges::transform(value, value.begin(), [](const unsigned char ch) {
+            return static_cast<char>(std::tolower(ch));
+        });
+        return value;
+    }
+
+    bool ContainsIgnoreCase(const std::string &text, const std::string &needle) {
+        if (needle.empty()) return true;
+        return LowerCopy(text).find(LowerCopy(needle)) != std::string::npos;
     }
 
     bool WipeAvdUserData(const std::string &avdPath) {

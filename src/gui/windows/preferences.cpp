@@ -22,15 +22,9 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(ImVec2(520, 0), ImGuiCond_Appearing);
 
-        constexpr ImGuiWindowFlags flags =
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoDocking;
-
         static char sdkPathBuffer[2048];
 
-        if (ImGui::BeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, flags)) {
+        if (ImGui::BeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, WindowNoResizeFlags)) {
             if (ImGui::IsWindowAppearing()) {
                 const std::string &p = context.Host.Sdk.SdkPath;
                 strncpy(sdkPathBuffer, p.c_str(), sizeof(sdkPathBuffer) - 1);

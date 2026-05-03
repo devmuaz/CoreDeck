@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 #include <filesystem>
 #include <sstream>
 
@@ -142,6 +143,7 @@ namespace CoreDeck {
             installedSet[img.PackagePath] = true;
         }
 
+        std::unordered_set<std::string> seenPackages;
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
@@ -163,6 +165,7 @@ namespace CoreDeck {
             while (!packagePath.empty() && (packagePath.back() == ' ' || packagePath.back() == '\t')) {
                 packagePath.pop_back();
             }
+            if (!seenPackages.insert(packagePath).second) continue;
 
             std::vector<std::string> parts;
             std::istringstream partStream(packagePath);

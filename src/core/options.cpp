@@ -10,6 +10,87 @@
 #include "paths.h"
 
 namespace CoreDeck {
+    static const char *FindDisplayLabel(const std::vector<OptionValueLabel> &options, const std::string &value) {
+        for (const auto &[Label, RawValue]: options) {
+            if (value == RawValue) return Label;
+        }
+        return value.c_str();
+    }
+
+    const std::vector<OptionValueLabel> &GpuModeOptions() {
+        static const std::vector<OptionValueLabel> options = {
+            {"Automatic", "auto"},
+            {"Hardware Acceleration", "host"},
+            {"Software Rendering", "swiftshader_indirect"},
+            {"ANGLE Rendering", "angle_indirect"},
+            {"Guest Rendering", "guest"},
+        };
+        return options;
+    }
+
+    const char *GpuModeDisplayLabel(const std::string &value) {
+        return FindDisplayLabel(GpuModeOptions(), value);
+    }
+
+    const char *ScreenModeDisplayLabel(const std::string &value) {
+        static const std::vector<OptionValueLabel> options = {
+            {"Touch Screen", "touch"},
+            {"Multi-Touch Screen", "multi-touch"},
+            {"No Touch Input", "no-touch"},
+        };
+        return FindDisplayLabel(options, value);
+    }
+
+    static const char *NetworkSpeedDisplayLabel(const std::string &value) {
+        static const std::vector<OptionValueLabel> options = {
+            {"Full Speed", "full"},
+            {"LTE", "lte"},
+            {"HSDPA", "hsdpa"},
+            {"UMTS", "umts"},
+            {"EDGE", "edge"},
+            {"GPRS", "gprs"},
+            {"GSM", "gsm"},
+        };
+        return FindDisplayLabel(options, value);
+    }
+
+    static const char *NetworkDelayDisplayLabel(const std::string &value) {
+        static const std::vector<OptionValueLabel> options = {
+            {"No Delay", "none"},
+            {"GPRS Latency", "gprs"},
+            {"EDGE Latency", "edge"},
+            {"UMTS Latency", "umts"},
+        };
+        return FindDisplayLabel(options, value);
+    }
+
+    static const char *AccelerationModeDisplayLabel(const std::string &value) {
+        static const std::vector<OptionValueLabel> options = {
+            {"Automatic", "auto"},
+            {"Disabled", "off"},
+            {"Enabled", "on"},
+        };
+        return FindDisplayLabel(options, value);
+    }
+
+    static const char *SELinuxModeDisplayLabel(const std::string &value) {
+        static const std::vector<OptionValueLabel> options = {
+            {"Permissive", "permissive"},
+            {"Disabled", "disabled"},
+        };
+        return FindDisplayLabel(options, value);
+    }
+
+    const char *EmulatorOptionItemDisplayLabel(const std::string &flag, const std::string &value) {
+        if (flag == "-gpu") return GpuModeDisplayLabel(value);
+        if (flag == "-screen") return ScreenModeDisplayLabel(value);
+        if (flag == "-netspeed") return NetworkSpeedDisplayLabel(value);
+        if (flag == "-netdelay") return NetworkDelayDisplayLabel(value);
+        if (flag == "-accel") return AccelerationModeDisplayLabel(value);
+        if (flag == "-selinux") return SELinuxModeDisplayLabel(value);
+        return value.c_str();
+    }
+
     std::vector<EmulatorOption> GetEmulatorOptions() {
         return {
             // Display
@@ -19,7 +100,7 @@ namespace CoreDeck {
                 .Description = "Set hardware OpenGLES emulation mode",
                 .Type = OptionType::Selection,
                 .Category = OptionCategory::Display,
-                .Items = {"host", "swiftshader_indirect", "angle_indirect", "guest"},
+                .Items = {"auto", "host", "swiftshader_indirect", "angle_indirect", "guest"},
                 .SelectedItem = 0,
             },
             {

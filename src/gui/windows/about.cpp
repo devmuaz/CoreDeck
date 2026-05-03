@@ -19,13 +19,8 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(ImVec2(420, 0), ImGuiCond_Appearing);
 
-        constexpr ImGuiWindowFlags flags =
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, flags)) {
+        if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, WindowNoResizeFlags)) {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             const float titleWidth = ImGui::CalcTextSize(COREDECK_TITLE).x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5f);
