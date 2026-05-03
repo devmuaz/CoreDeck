@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildStorageWindow(Context &context);
 }
 
-#endif //COREDECK_STORAGE_H
+#endif // COREDECK_STORAGE_H

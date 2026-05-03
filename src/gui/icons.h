@@ -28,4 +28,4 @@ namespace CoreDeck::Icons {
     constexpr const char *Car = "\xef\x86\xb9"; // fa-car (f1b9) — used for Automotive
 }
 
-#endif //COREDECK_ICONS_H
+#endif // COREDECK_ICONS_H

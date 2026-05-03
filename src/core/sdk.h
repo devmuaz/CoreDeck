@@ -18,4 +18,4 @@ namespace CoreDeck {
     SdkInfo DetectAndroidSdk();
 }
 
-#endif //EMU_LAUNCHER_SDK_H
+#endif // EMU_LAUNCHER_SDK_H

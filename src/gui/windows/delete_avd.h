@@ -13,4 +13,4 @@ namespace CoreDeck {
     void BuildDeleteAvdWindow(Context &context);
 }
 
-#endif //COREDECK_DELETE_AVD_H
+#endif // COREDECK_DELETE_AVD_H

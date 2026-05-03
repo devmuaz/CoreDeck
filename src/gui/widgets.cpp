@@ -8,6 +8,24 @@
 #include "theme.h"
 
 namespace CoreDeck {
+    PickerTableStyle::PickerTableStyle() {
+        Colors.push(ImGuiCol_ChildBg, HexColor("#141417"));
+        Colors.push(ImGuiCol_Border, HexColor("#2E2E33"));
+        Colors.push(ImGuiCol_TableHeaderBg, HexColor("#1A1A1C"));
+        Colors.push(ImGuiCol_TableRowBg, HexColor("#000000", 0.0f));
+        Colors.push(ImGuiCol_TableRowBgAlt, HexColor("#1A1A1C", 0.28f));
+        Colors.push(ImGuiCol_TableBorderLight, HexColor("#242428"));
+        Colors.push(ImGuiCol_TableBorderStrong, HexColor("#2E2E33"));
+        Colors.push(ImGuiCol_Header, HexColor("#29292B", 0.65f));
+        Colors.push(ImGuiCol_HeaderHovered, HexColor("#333336", 0.85f));
+        Colors.push(ImGuiCol_HeaderActive, HexColor("#3F3F42"));
+
+        Vars.push(ImGuiStyleVar_ChildRounding, 6.0f);
+        Vars.push(ImGuiStyleVar_ChildBorderSize, 1.0f);
+        Vars.push(ImGuiStyleVar_WindowPadding, ImVec2(1.0f, 1.0f));
+        Vars.push(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
+    }
+
     bool PrimaryButton(const char *label, const bool isEnabled, const ImVec2 size) {
         if (!isEnabled) ImGui::BeginDisabled();
 
@@ -66,6 +84,12 @@ namespace CoreDeck {
         const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
         return clicked;
+    }
+
+    bool PickerButton(const char *label, const bool isEnabled, const ImVec2 size) {
+        StyleVar sv;
+        sv.push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+        return PrimaryButton(label, isEnabled, size);
     }
 
     void StatusBadge(const char *label, const bool isActive) {
@@ -204,12 +228,43 @@ namespace CoreDeck {
         return clicked;
     }
 
-    void PropertyTextWrapped(const char *label, const char *value) {
+    void PropertyTextWrapped(const char *label, const char *value, const bool invertColors) {
         StyleColor sc;
+        if (invertColors) sc.push(ImGuiCol_Text, HexColor("#66666B"));
         ImGui::Text("%s", label);
         ImGui::SameLine();
-        sc.push(ImGuiCol_Text, HexColor("#66666B"));
+
+        if (invertColors) {
+            sc.push(ImGuiCol_Text, HexColor("#F2F2F2"));
+        } else {
+            sc.push(ImGuiCol_Text, HexColor("#66666B"));
+        }
         ImGui::TextWrapped("%s", value);
+    }
+
+    bool CategoryChip(const char *label, const bool isSelected) {
+        StyleColor sc;
+        StyleVar sv;
+
+        if (isSelected) {
+            sc.push(ImGuiCol_Button, HexColor("#26B333", 0.16f));
+            sc.push(ImGuiCol_ButtonHovered, HexColor("#26B333", 0.24f));
+            sc.push(ImGuiCol_ButtonActive, HexColor("#26B333", 0.32f));
+            sc.push(ImGuiCol_Text, HexColor("#33CC47"));
+            sc.push(ImGuiCol_Border, HexColor("#33CC47"));
+        } else {
+            sc.push(ImGuiCol_Button, HexColor("#1A1A1C"));
+            sc.push(ImGuiCol_ButtonHovered, HexColor("#242426"));
+            sc.push(ImGuiCol_ButtonActive, HexColor("#2E2E30"));
+            sc.push(ImGuiCol_Text, HexColor("#CFCFD4"));
+            sc.push(ImGuiCol_Border, HexColor("#2E2E33"));
+        }
+
+        sv.push(ImGuiStyleVar_FrameRounding, 999.0f);
+        sv.push(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 5.0f));
+        sv.push(ImGuiStyleVar_FrameBorderSize, 1.0f);
+
+        return ImGui::Button(label);
     }
 
     bool CollapsingHeader(const char *label, const ImGuiTreeNodeFlags flags) {
@@ -236,10 +291,10 @@ namespace CoreDeck {
         ImGui::SetNextWindowSize(ImVec2(380, 0), ImGuiCond_Appearing);
 
         constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoDocking;
 
         if (ImGui::BeginPopupModal(title.c_str(), data.isBusy ? nullptr : &data.isOpen, flags)) {
             if (!data.isOpen) {

@@ -2,7 +2,9 @@
 // Created by AbdulMuaz Aqeel on 06/04/2026.
 //
 
+#include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <cstdio>
 #include <filesystem>
 #include <string>
@@ -30,7 +32,10 @@ namespace CoreDeck {
         std::uintmax_t total = 0;
         std::error_code ec;
         for (const auto &entry: std::filesystem::recursive_directory_iterator(
-                 path, std::filesystem::directory_options::skip_permission_denied, ec)) {
+                 path,
+                 std::filesystem::directory_options::skip_permission_denied,
+                 ec
+             )) {
             if (entry.is_regular_file(ec)) {
                 total += entry.file_size(ec);
             }
@@ -59,6 +64,18 @@ namespace CoreDeck {
         }
         std::snprintf(buf, sizeof(buf), "%llu B", static_cast<unsigned long long>(bytes));
         return buf;
+    }
+
+    std::string LowerCopy(std::string value) {
+        std::ranges::transform(value, value.begin(), [](const unsigned char ch) {
+            return static_cast<char>(std::tolower(ch));
+        });
+        return value;
+    }
+
+    bool ContainsIgnoreCase(const std::string &text, const std::string &needle) {
+        if (needle.empty()) return true;
+        return LowerCopy(text).find(LowerCopy(needle)) != std::string::npos;
     }
 
     bool WipeAvdUserData(const std::string &avdPath) {

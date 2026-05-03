@@ -115,8 +115,12 @@ namespace CoreDeck {
             }
 
             HINTERNET request = WinHttpOpenRequest(
-                connect, L"GET", path, nullptr,
-                WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
+                connect,
+                L"GET",
+                path,
+                nullptr,
+                WINHTTP_NO_REFERER,
+                WINHTTP_DEFAULT_ACCEPT_TYPES,
                 WINHTTP_FLAG_SECURE
             );
             if (!request) {
@@ -126,17 +130,13 @@ namespace CoreDeck {
             }
 
             const wchar_t *headers = L"Accept: application/vnd.github+json\r\n";
-            BOOL sent = WinHttpSendRequest(request, headers, static_cast<DWORD>(-1L), WINHTTP_NO_REQUEST_DATA, 0, 0, 0)
-                        && WinHttpReceiveResponse(request, nullptr);
+            BOOL sent = WinHttpSendRequest(request, headers, static_cast<DWORD>(-1L), WINHTTP_NO_REQUEST_DATA, 0, 0, 0) && WinHttpReceiveResponse(request, nullptr);
 
             std::optional<std::string> result;
             if (sent) {
                 DWORD status = 0;
                 DWORD statusSize = sizeof(status);
-                WinHttpQueryHeaders(request,
-                                    WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
-                                    WINHTTP_HEADER_NAME_BY_INDEX, &status, &statusSize,
-                                    WINHTTP_NO_HEADER_INDEX);
+                WinHttpQueryHeaders(request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, WINHTTP_HEADER_NAME_BY_INDEX, &status, &statusSize, WINHTTP_NO_HEADER_INDEX);
                 if (status >= 200 && status < 300) {
                     std::string body;
                     DWORD available = 0;

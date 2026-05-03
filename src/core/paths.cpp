@@ -34,10 +34,14 @@ namespace CoreDeck::Paths {
 
     const char *GetPlatformName() {
         switch (GetCurrentPlatform()) {
-            case Platform::Windows: return "Windows";
-            case Platform::macOS: return "macOS";
-            case Platform::Linux: return "Linux";
-            default: return "Unknown";
+            case Platform::Windows:
+                return "Windows";
+            case Platform::macOS:
+                return "macOS";
+            case Platform::Linux:
+                return "Linux";
+            default:
+                return "Unknown";
         }
     }
 
@@ -249,9 +253,7 @@ namespace CoreDeck::Paths {
             if (path.empty()) return false;
             if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) return false;
 
-            const std::string emulatorBinary = Paths::JoinPaths({
-                path, "emulator", "emulator" + Paths::GetExecutableExtension()
-            });
+            const std::string emulatorBinary = Paths::JoinPaths({path, "emulator", "emulator" + Paths::GetExecutableExtension()});
             return std::filesystem::exists(emulatorBinary);
         }
 

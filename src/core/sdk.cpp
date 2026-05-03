@@ -52,7 +52,9 @@ namespace CoreDeck {
                 for (const auto &entry: std::filesystem::directory_iterator(cmdlineRoot)) {
                     if (!entry.is_directory()) continue;
                     const std::string candidate = FindCmdlineTool(
-                        Paths::JoinPaths({entry.path().string(), "bin"}), "avdmanager");
+                        Paths::JoinPaths({entry.path().string(), "bin"}),
+                        "avdmanager"
+                    );
                     if (!candidate.empty()) {
                         sdk.AvdManagerPath = candidate;
                         break;
