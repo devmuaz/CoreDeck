@@ -2,6 +2,8 @@
   <img src="media/branding/header-logo.png" alt="CoreDeck" width="220" />
 </div>
 
+<br />
+
 [![Build](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml)
 [![Release](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?include_prereleases)](https://github.com/devmuaz/CoreDeck/releases)
@@ -130,10 +132,6 @@ CoreDeck is built on top of these excellent open source projects:
 - [tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/) — native file dialogs
 - [Catch2](https://github.com/catchorg/Catch2) — testing framework
 - [sentry-native](https://github.com/getsentry/sentry-native) — crash reporting
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=devmuaz/CoreDeck&type=Date)](https://www.star-history.com/#devmuaz/CoreDeck&Date)
 
 ## License
 
