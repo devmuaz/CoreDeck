@@ -2,14 +2,16 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
-#include <fstream>
-#include <unordered_map>
+#include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 #include "avd.h"
 #include "paths.h"
 #include "process.h"
+#include "utilities.h"
 
 namespace CoreDeck {
     static std::unordered_map<std::string, std::string> ParseConfigFile(const std::string &path) {
@@ -39,6 +41,92 @@ namespace CoreDeck {
         return config;
     }
 
+    static std::vector<std::string> SplitConfigList(const std::string &value) {
+        std::vector<std::string> items;
+        std::stringstream stream(value);
+        std::string item;
+        while (std::getline(stream, item, ',')) {
+            while (!item.empty() && (item.back() == ' ' || item.back() == '\t')) item.pop_back();
+            while (!item.empty() && (item.front() == ' ' || item.front() == '\t')) item.erase(item.begin());
+            if (!item.empty()) items.push_back(item);
+        }
+        return items;
+    }
+
+    static bool HasTag(const std::vector<std::string> &tags, const std::string &needle) {
+        return std::ranges::any_of(tags, [&](const std::string &tag) {
+            return LowerCopy(tag) == needle;
+        });
+    }
+
+    static void ExtractSystemImageInfo(AvdInfo &avd, const std::unordered_map<std::string, std::string> &config) {
+        if (const auto it = config.find("image.sysdir.1"); it != config.end()) {
+            avd.SystemImagePath = it->second;
+
+            std::string sysdir = it->second;
+            std::ranges::replace(sysdir, '\\', '/');
+
+            if (auto start = sysdir.find("android-"); start != std::string::npos) {
+                start += 8;
+                if (const auto end = sysdir.find('/', start); end != std::string::npos) {
+                    avd.ApiLevel = sysdir.substr(start, end - start);
+
+                    const auto variantStart = end + 1;
+                    if (const auto variantEnd = sysdir.find('/', variantStart); variantEnd != std::string::npos) {
+                        avd.SystemImageVariant = sysdir.substr(variantStart, variantEnd - variantStart);
+
+                        const auto abiStart = variantEnd + 1;
+                        if (const auto abiEnd = sysdir.find('/', abiStart); abiEnd != std::string::npos && avd.Abi.empty()) {
+                            avd.Abi = sysdir.substr(abiStart, abiEnd - abiStart);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (const auto it = config.find("tag.id"); it != config.end()) {
+            avd.SystemImageTagId = it->second;
+        }
+        if (const auto it = config.find("tag.display"); it != config.end()) {
+            avd.SystemImageTagDisplay = it->second;
+        }
+        if (const auto it = config.find("tag.ids"); it != config.end()) {
+            avd.SystemImageTagIds = SplitConfigList(it->second);
+        } else if (!avd.SystemImageTagId.empty()) {
+            avd.SystemImageTagIds = {avd.SystemImageTagId};
+        }
+        if (const auto it = config.find("tag.displaynames"); it != config.end()) {
+            avd.SystemImageTagDisplayNames = SplitConfigList(it->second);
+        } else if (!avd.SystemImageTagDisplay.empty()) {
+            avd.SystemImageTagDisplayNames = {avd.SystemImageTagDisplay};
+        }
+
+        const std::string variant = LowerCopy(avd.SystemImageVariant);
+        const std::string tagId = LowerCopy(avd.SystemImageTagId);
+        const std::string tagDisplay = LowerCopy(avd.SystemImageTagDisplay);
+        const std::string tagDisplayNames = LowerCopy(StrConcat(
+            avd.SystemImageTagDisplay,
+            " ",
+            config.contains("tag.displaynames") ? config.at("tag.displaynames") : ""
+        ));
+
+        avd.IsGooglePlayImage = variant.find("google_apis_playstore") != std::string::npos ||
+                                tagId == "google_apis_playstore" ||
+                                HasTag(avd.SystemImageTagIds, "google_apis_playstore") ||
+                                tagDisplay.find("play") != std::string::npos;
+
+        avd.IsGoogleApisImage = avd.IsGooglePlayImage ||
+                                variant.find("google_apis") != std::string::npos ||
+                                tagId == "google_apis" ||
+                                HasTag(avd.SystemImageTagIds, "google_apis") ||
+                                tagDisplay.find("google apis") != std::string::npos;
+
+        avd.Supports16KbPageSize = variant.find("ps16k") != std::string::npos ||
+                                   HasTag(avd.SystemImageTagIds, "page_size_16kb") ||
+                                   tagDisplayNames.find("16kb") != std::string::npos ||
+                                   tagDisplayNames.find("16 kb") != std::string::npos;
+    }
+
     static AvdInfo ExtractAvdInfo(const std::string &avdName) {
         AvdInfo avd;
 
@@ -65,19 +153,11 @@ namespace CoreDeck {
             avd.DisplayName = it->second;
         }
 
-        if (auto it = config.find("image.sysdir.1"); it != config.end()) {
-            auto &sysdir = it->second;
-            if (auto start = sysdir.find("android-"); start != std::string::npos) {
-                start += 8;
-                if (const auto end = sysdir.find('/', start); end != std::string::npos) {
-                    avd.ApiLevel = sysdir.substr(start, end - start);
-                }
-            }
-        }
-
         if (auto it = config.find("abi.type"); it != config.end()) {
             avd.Abi = it->second;
         }
+
+        ExtractSystemImageInfo(avd, config);
 
         if (auto it = config.find("sdcard.size"); it != config.end()) {
             avd.SdCard = it->second;

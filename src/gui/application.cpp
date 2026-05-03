@@ -136,7 +136,7 @@ namespace CoreDeck {
                 ImGui::DockBuilderSplitNode(topId, ImGuiDir_Left, 0.25, &leftId, &centerId);
 
                 ImGuiID middleId, rightId;
-                ImGui::DockBuilderSplitNode(centerId, ImGuiDir_Right, 0.40f, &rightId, &middleId);
+                ImGui::DockBuilderSplitNode(centerId, ImGuiDir_Right, 0.35f, &rightId, &middleId);
 
                 ImGui::DockBuilderDockWindow("Options", leftId);
                 ImGui::DockBuilderDockWindow("AVDs", middleId);
@@ -168,7 +168,9 @@ namespace CoreDeck {
         BuildPreferencesWindow(m_Context);
         BuildUpdateNoticeWindow(m_Context);
         BuildCreateAvdWindow(m_Context);
-        BuildInstallImageWindow(m_Context);
+        if (!m_Context.UI.ShowCreateAvdDialog) {
+            BuildInstallImageWindow(m_Context);
+        }
         BuildStorageWindow(m_Context);
 
         m_Context.Host.Manager.Update();
@@ -191,7 +193,7 @@ namespace CoreDeck {
     }
 
     bool Application::CreateMainWindow() {
-        m_Window = glfwCreateWindow(1200, 800, COREDECK_TITLE, nullptr, nullptr);
+        m_Window = glfwCreateWindow(1200, 900, COREDECK_TITLE, nullptr, nullptr);
         if (!m_Window) {
             ShowFatalError(COREDECK_TITLE, "Failed to create window.\nYour system may not support OpenGL 3.3.");
             return false;
@@ -410,8 +412,10 @@ namespace CoreDeck {
         for (const auto &avdName: context.Catalog.AvdNames) LoadAvdOptions(context, avdName);
 
         context.DiskUsage.PerAvdCache.clear();
-        context.DiskUsage.SystemImagesSizeCached = false;
-        context.DiskUsage.SystemImageEntriesCached = false;
+        if (!context.DiskUsage.Loading.load()) {
+            context.DiskUsage.LastScan = {};
+            context.DiskUsage.Ready = false;
+        }
 
         if (!context.Catalog.Avds.empty()) context.Catalog.SelectedAvd = 0;
         else context.Catalog.SelectedAvd = -1;

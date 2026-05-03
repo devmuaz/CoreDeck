@@ -22,6 +22,17 @@
 #endif
 
 namespace CoreDeck {
+    static bool WaitForConsoleUnavailable(const int port, const int timeoutMs) {
+        if (port <= 0) return true;
+
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+        while (std::chrono::steady_clock::now() < deadline) {
+            if (!EmulatorConsole::IsAvailable(port, 200)) return true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        return !EmulatorConsole::IsAvailable(port, 200);
+    }
+
     EmulatorManager::EmulatorManager(SdkInfo sdk)
         : m_Sdk(std::move(sdk)) {
     }
@@ -104,9 +115,9 @@ namespace CoreDeck {
 
                 while (!stopFlag->load()) {
 #ifdef _WIN32
-                    const HANDLE h = reinterpret_cast<HANDLE>(_get_osfhandle(outputFd));
+                    const auto handle = reinterpret_cast<HANDLE>(_get_osfhandle(outputFd));
                     DWORD nRead = 0;
-                    if (ReadFile(h, buf.data(), static_cast<DWORD>(buf.size()), &nRead, nullptr)) {
+                    if (ReadFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &nRead, nullptr)) {
                         if (nRead > 0) {
                             flushLines(buf.data(), nRead);
                         } else {
@@ -202,24 +213,33 @@ namespace CoreDeck {
             [this, avdName, pid, consolePort, stopFlag, reader = std::move(readerThread)]() mutable {
                 bool exited = false;
                 if (consolePort > 0 && EmulatorConsole::SendKill(consolePort)) {
-                    exited = WaitForProcessExit(pid, 5000);
+                    exited = WaitForConsoleUnavailable(consolePort, 10000);
                 }
                 if (!exited) {
                     KillProcess(pid);
-                    exited = WaitForProcessExit(pid, 2000);
+                    exited = consolePort > 0 ? WaitForConsoleUnavailable(consolePort, 3000) : WaitForProcessExit(pid, 2000);
                 }
                 if (!exited) {
                     TerminateProcessTree(pid);
+                    exited = consolePort > 0 ? WaitForConsoleUnavailable(consolePort, 3000) : WaitForProcessExit(pid, 2000);
                 }
 
-                if (stopFlag) stopFlag->store(true);
-                if (reader.joinable()) reader.join();
-
-                std::lock_guard lock(m_Mutex);
-                if (const auto it = m_Instances.find(avdName); it != m_Instances.end()) {
-                    it->second.IsRunning = false;
-                    it->second.Stopping = false;
+                if (exited) {
+                    if (stopFlag) stopFlag->store(true);
+                    if (reader.joinable()) reader.join();
                 }
+
+                {
+                    std::lock_guard lock(m_Mutex);
+                    if (const auto it = m_Instances.find(avdName); it != m_Instances.end()) {
+                        it->second.IsRunning = !exited;
+                        it->second.Stopping = false;
+                        if (!exited && reader.joinable()) {
+                            it->second.ReaderThread = std::move(reader);
+                        }
+                    }
+                }
+                if (!exited && reader.joinable()) reader.detach();
             }
         );
 
@@ -258,7 +278,7 @@ namespace CoreDeck {
         for (auto &instance: m_Instances | std::views::values) {
             if (instance.IsRunning) {
                 if (!IsProcessRunning(instance.Pid)) {
-                    instance.IsRunning = false;
+                    instance.IsRunning = instance.ConsolePort > 0 && EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
                 }
             }
         }

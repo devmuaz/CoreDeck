@@ -33,6 +33,33 @@ namespace CoreDeck {
         Device,
     };
 
+    enum class ImageCategory {
+        All,
+        PhoneTablet,
+        Wear,
+        Tv,
+        Automotive,
+        Desktop,
+        Xr,
+        Other,
+    };
+
+    enum class DeviceCategory {
+        All,
+        Phone,
+        Tablet,
+        Wear,
+        Tv,
+        Automotive,
+        Desktop,
+        Other,
+    };
+
+    struct StorageScanResult {
+        std::uintmax_t TotalAvdSize = 0;
+        std::uintmax_t SystemImagesSize = 0;
+    };
+
     struct Context {
         struct Host {
             SdkInfo Sdk;
@@ -72,6 +99,7 @@ namespace CoreDeck {
             bool ShowAboutDialog = false;
             bool ShowDeleteAvdDialog = false;
             bool ShowCreateAvdDialog = false;
+            bool ShowDeviceProfileDialog = false;
             bool ShowInstallImageDialog = false;
             bool ReopenCreateAvdOnInstallClose = false;
             bool ShowPreferences = false;
@@ -91,6 +119,9 @@ namespace CoreDeck {
             AvdCreationData CreationData;
             int SelectedSystemImage = 0;
             int SelectedDevice = 0;
+            int PendingSelectedDevice = 0;
+            DeviceCategory SelectedDeviceCategory = DeviceCategory::Phone;
+            char DeviceSearchFilter[128] = {};
             int SelectedGpuMode = 0;
             bool NameAutoFilled = true;
             bool DisplayNameAutoFilled = true;
@@ -109,7 +140,9 @@ namespace CoreDeck {
 
         struct ImageInstallationWork {
             std::vector<RemoteSystemImage> RemoteImages;
-            int SelectedImage = 0;
+            int SelectedImage = -1;
+            ImageCategory SelectedCategory = ImageCategory::PhoneTablet;
+            char SearchFilter[128] = {};
 
             struct {
                 std::atomic<bool> Loading{false};
@@ -137,15 +170,10 @@ namespace CoreDeck {
 
         struct DiskUsage {
             std::unordered_map<std::string, std::uintmax_t> PerAvdCache;
-            std::uintmax_t SystemImagesSize = 0;
-            bool SystemImagesSizeCached = false;
-
-            struct SystemImageEntry {
-                std::string Name;
-                std::uintmax_t Size;
-            };
-            std::vector<SystemImageEntry> SystemImageEntries;
-            bool SystemImageEntriesCached = false;
+            StorageScanResult LastScan;
+            std::atomic<bool> Loading{false};
+            bool Ready = false;
+            std::future<StorageScanResult> Future;
         } DiskUsage;
 
         struct Updates {

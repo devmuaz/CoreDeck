@@ -14,18 +14,14 @@ namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context) {
         if (!context.UI.ShowOptionsPanel) return;
 
-        constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+        constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
         std::string panelTitle = "Options";
         if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
             panelTitle = "Options - " + context.Catalog.Avds[context.Catalog.SelectedAvd].DisplayName;
         }
 
-        ImGui::Begin(
-            (panelTitle + "###Options").c_str(),
-            nullptr,
-            panelFlags
-        );
+        ImGui::Begin((panelTitle + "###Options").c_str(),nullptr,flags);
 
         if (context.Catalog.SelectedAvd < 0) {
             ImGui::TextDisabled("Select an AVD to configure options");
@@ -76,10 +72,12 @@ namespace CoreDeck {
 
                             case OptionType::Selection: {
                                 ImGui::SetNextItemWidth(-1.0f);
-                                if (ImGui::BeginCombo("##selection", Items[SelectedItem].c_str())) {
+                                const char *selectedLabel = EmulatorOptionItemDisplayLabel(Flag, Items[SelectedItem]);
+                                if (ImGui::BeginCombo("##selection", selectedLabel)) {
                                     for (int i = 0; i < Items.size(); ++i) {
                                         const bool isSelected = SelectedItem == i;
-                                        if (ImGui::Selectable(Items[i].c_str(), isSelected)) {
+                                        const char *itemLabel = EmulatorOptionItemDisplayLabel(Flag, Items[i]);
+                                        if (ImGui::Selectable(itemLabel, isSelected)) {
                                             SelectedItem = i;
                                             optionsChanged = true;
                                         }

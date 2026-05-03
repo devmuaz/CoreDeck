@@ -70,9 +70,8 @@ namespace CoreDeck {
                 return;
             }
 
-            std::string searchQuery;
             const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
-            searchQuery = context.Logs.PerAvdLogSearch[avdName];
+            const std::string searchQuery = context.Logs.PerAvdLogSearch[avdName];
             const bool hasSearch = !searchQuery.empty();
 
             bool hasVisibleLines = false;

@@ -16,6 +16,10 @@ namespace CoreDeck {
 
     bool WipeAvdUserData(const std::string &avdPath);
 
+    std::string LowerCopy(std::string value);
+
+    bool ContainsIgnoreCase(const std::string &text, const std::string &needle);
+
     template<typename... Args>
     std::string StrConcat(Args &&...args) {
         std::string result;
