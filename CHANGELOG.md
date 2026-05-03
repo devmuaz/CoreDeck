@@ -1,3 +1,12 @@
+## [v0.4.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.4.0) — 2026-05-03
+
+- Redesign AVD creation around dedicated device profile and system image picker dialogs with search, category filters, and table-based selection
+- Redesign storage overview into a statistics-focused view with summary cards, a visual usage breakdown, and async size calculation
+- Show more readable AVD and emulator details, including friendly GPU, screen, network, acceleration, and SELinux option labels
+- Parse and display richer system image metadata for AVDs, including Google APIs, Google Play, 16 KB page size support, variants, and tags
+- Improve system image management by moving image removal into the image picker and refreshing image state after install or uninstall
+- Improve Windows emulator stop detection by tracking the emulator console port instead of relying only on the launcher process
+
 ## [v0.3.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.3.0) — 2026-04-29
 
 - Add opt-in Sentry crash reporting via `sentry-native` with a `CrashReporter` facade so the SDK is fully isolated from the rest of the codebase
