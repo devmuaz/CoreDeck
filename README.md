@@ -1,4 +1,6 @@
-# CoreDeck
+<div align="center">
+  <img src="media/branding/header-logo.png" alt="CoreDeck" width="220" />
+</div>
 
 [![Build](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml)
 [![Release](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml)
@@ -10,52 +12,70 @@
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
 [![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 
-A native desktop application around your Android SDK’s official emulator, avdmanager, and sdkmanager binaries — CoreDeck
-runs them for you in one place, through a friendly GUI, so you get the same results without hand-writing commands. Use
-it for everyday work without opening Android Studio. Built with C++20 and Dear ImGui.
+[CoreDeck](https://coredeck.dev) is an open source native desktop application around your Android SDK’s official
+emulator, avdmanager, and sdkmanager binaries — running them for you in one place, through a friendly GUI, so you get
+the same results without hand-writing commands. Use it for everyday work without opening Android Studio. Built with
+C++20 and Dear ImGui.
 
 > [!IMPORTANT]
 > You still need the Android SDK and its tooling on your machine. Installing Android Studio is the usual way to get
 > them.
 
-**Website:** [coredeck.dev](https://coredeck.dev)
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/cade70a8-c7b4-47ac-98c1-6b8986893dcc" controls width="720"></video>
+</div>
 
 ## Features
 
 - **AVD Management** — Create, delete, and browse your Android Virtual Devices
-- **System Image Management** — List, install, and uninstall android system images with ease
+- **System Image Management** — List, install, and uninstall Android system images with ease
 - **Emulator Control** — Launch, stop, or wipe & run AVDs with one click
 - **Per-AVD Options** — Configure GPU, RAM, CPU cores, camera, network, boot mode, and more
 - **Live Log Viewer** — Stream emulator output in real time with search and auto-scroll
+- **Storage Overview** — Inspect per-AVD disk usage and clear heavy or unused data
 - **SDK Auto-Detection** — Picks up your Android SDK from environment variables or standard paths
 - **Guided Setup** — Onboarding wizard to configure the SDK on first run
 - **Cross-Platform** — Runs natively on Windows, macOS, and Linux
 
 ## Preview
 
-<div>
-
 |                            AVD List & Options                            |                               Running Emulator & Logs                                |
 |:------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
-| <img src="previews/list-avds.png" alt="AVD List & Options" width="400"/> | <img src="previews/run-selected-avd.png" alt="Running Emulator & Logs" width="400"/> |
+| <img src="media/screenshots/list-avds.png" alt="AVD List & Options" width="400"/> | <img src="media/screenshots/run-selected-avd.png" alt="Running Emulator & Logs" width="400"/> |
 |            *Browse AVDs with per-device options and details*             |                  *Live emulator output with search and auto-scroll*                  |
 
-|         Create New AVD & List, Install, Remove System Images          |                              Wipe User Data                              |
-|:---------------------------------------------------------------------:|:------------------------------------------------------------------------:|
-| <img src="previews/create-avd.png" alt="Create New AVD" width="400"/> | <img src="previews/wipe-avd-data.png" alt="Wipe User Data" width="400"/> |
-|          *Configure system image, device, RAM, and GPU mode*          |                    *Clear heavy and unused AVD data*                     |
+|                            Create New AVD                             |                              Device Profile Selection                              |
+|:---------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
+| <img src="media/screenshots/create-avd.png" alt="Create New AVD" width="400"/> | <img src="media/screenshots/select-device.png" alt="Device Profile Selection" width="400"/> |
+|          *Configure system image, device, RAM, and GPU mode*          |             *Pick from a rich catalog of Android device profiles*                   |
 
-</div>
+|                       System Image Browser                           |                              Storage Overview                              |
+|:--------------------------------------------------------------------:|:--------------------------------------------------------------------------:|
+| <img src="media/screenshots/install-select-system-image.png" alt="System Image Browser" width="400"/> | <img src="media/screenshots/storage-overview.png" alt="Storage Overview" width="400"/> |
+|         *List, install, and remove Android system images*           |                *Inspect AVD disk usage and clear heavy data*                |
 
 ## Downloads
 
-Grab the latest release for your platform from the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
+Grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
 
-| Platform | Architecture  | File            |
-|----------|---------------|-----------------|
-| Windows  | x86-64        | `.msi` / `.zip` |
-| macOS    | Apple Silicon | `.tar.gz`       |
-| Linux    | x86-64, ARM64 | `.tar.gz`       |
+| Platform | Architecture          | File            |
+|----------|-----------------------|-----------------|
+| Windows  | x86-64                | `.msi` / `.zip` |
+| macOS    | Apple Silicon only    | `.tar.gz`       |
+| Linux    | x86-64, ARM64         | `.tar.gz`       |
+
+> Intel Macs are not currently supported as a prebuilt target. If you need an Intel build, you can compile from source.
+
+## Requirements
+
+- **Android SDK** with `emulator`, `avdmanager`, and `sdkmanager` available (typically installed via Android Studio).
+- **OS:** Windows 10/11, macOS 12+ (Apple Silicon), or a recent Linux distribution.
+
+To build from source you additionally need:
+
+- **CMake** 3.23 or newer
+- A **C++20** compiler — GCC 11+, Clang 14+, or MSVC 19.30+ (Visual Studio 2022)
+- Linux only: the system packages listed in [Build from source](#build-from-source)
 
 ## Build from source
 
@@ -82,9 +102,38 @@ If you already cloned without `--recursive`:
 git submodule update --init --recursive
 ```
 
+## FAQ
+
+**The app starts but says my Android SDK isn't detected.**
+CoreDeck looks at `ANDROID_HOME` / `ANDROID_SDK_ROOT` and standard install paths. If your SDK lives elsewhere, point it
+at the right location through the onboarding wizard or set the environment variable before launching.
+
+**An emulator won't launch / boots forever.**
+Make sure the matching system image is installed and that hardware acceleration is enabled (HAXM/Hyper-V on Windows,
+Hypervisor.framework on macOS, KVM on Linux). The live log viewer usually shows the underlying error from `emulator`.
+
+**Does CoreDeck replace Android Studio?**
+No — it wraps the same official command-line tools that Android Studio uses, so you still need the Android SDK
+installed. CoreDeck just gives you a focused GUI for AVD and emulator workflows.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the branching model, PR guidelines, and how to get started.
+
+## Acknowledgements
+
+CoreDeck is built on top of these excellent open source projects:
+
+- [Dear ImGui](https://github.com/ocornut/imgui) — immediate-mode GUI
+- [GLFW](https://github.com/glfw/glfw) — windowing and input
+- [reflect-cpp](https://github.com/getml/reflect-cpp) — reflection and serialization
+- [tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/) — native file dialogs
+- [Catch2](https://github.com/catchorg/Catch2) — testing framework
+- [sentry-native](https://github.com/getsentry/sentry-native) — crash reporting
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=devmuaz/CoreDeck&type=Date)](https://www.star-history.com/#devmuaz/CoreDeck&Date)
 
 ## License
 
