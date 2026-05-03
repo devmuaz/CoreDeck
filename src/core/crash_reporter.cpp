@@ -14,11 +14,16 @@
 namespace CoreDeck::CrashReporter {
     static sentry_level_t ToSentryLevel(const Level level) {
         switch (level) {
-            case Level::Debug: return SENTRY_LEVEL_DEBUG;
-            case Level::Info: return SENTRY_LEVEL_INFO;
-            case Level::Warning: return SENTRY_LEVEL_WARNING;
-            case Level::Error: return SENTRY_LEVEL_ERROR;
-            case Level::Fatal: return SENTRY_LEVEL_FATAL;
+            case Level::Debug:
+                return SENTRY_LEVEL_DEBUG;
+            case Level::Info:
+                return SENTRY_LEVEL_INFO;
+            case Level::Warning:
+                return SENTRY_LEVEL_WARNING;
+            case Level::Error:
+                return SENTRY_LEVEL_ERROR;
+            case Level::Fatal:
+                return SENTRY_LEVEL_FATAL;
         }
         return SENTRY_LEVEL_INFO;
     }
@@ -36,9 +41,9 @@ namespace CoreDeck::CrashReporter {
 
         const char *handlerName =
 #ifdef _WIN32
-                "crashpad_handler.exe";
+            "crashpad_handler.exe";
 #else
-                "crashpad_handler";
+            "crashpad_handler";
 #endif
         const std::string handlerPath = Paths::JoinPaths(
             {Paths::GetExecutableDirectory(), handlerName}
@@ -52,15 +57,16 @@ namespace CoreDeck::CrashReporter {
         sentry_close();
     }
 
-    bool IsEnabled() { return true; }
+    bool IsEnabled() {
+        return true;
+    }
 
     void CaptureMessage(const Level level, const std::string_view message) {
         sentry_capture_event(sentry_value_new_message_event(
-                ToSentryLevel(level),
-                nullptr,
-                ToString(message).c_str()
-            )
-        );
+            ToSentryLevel(level),
+            nullptr,
+            ToString(message).c_str()
+        ));
     }
 
     void CaptureException(const std::string_view type, const std::string_view message) {
@@ -87,12 +93,16 @@ namespace CoreDeck::CrashReporter {
 #else
 
 namespace CoreDeck::CrashReporter {
-    bool Init() { return false; }
+    bool Init() {
+        return false;
+    }
 
     void Shutdown() {
     }
 
-    bool IsEnabled() { return false; }
+    bool IsEnabled() {
+        return false;
+    }
 
     void CaptureMessage(Level, std::string_view) {
     }

@@ -19,14 +19,10 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(vp->WorkPos);
         ImGui::SetNextWindowSize(ImVec2(vp->WorkSize.x, 0.0f));
 
-        constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoDocking |
-                ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoSavedSettings |
-                ImGuiWindowFlags_NoNavFocus |
-                ImGuiWindowFlags_AlwaysAutoResize;
+        constexpr ImGuiWindowFlags flags = WindowAutoResizeFlags |
+                                           ImGuiWindowFlags_NoTitleBar |
+                                           ImGuiWindowFlags_NoSavedSettings |
+                                           ImGuiWindowFlags_NoNavFocus;
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.32f, 0.18f, 0.10f, 1.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0f, 8.0f));

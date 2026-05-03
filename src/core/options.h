@@ -43,6 +43,19 @@ namespace CoreDeck {
         int SelectedItem = 0;
     };
 
+    struct OptionValueLabel {
+        const char *Label;
+        const char *Value;
+    };
+
+    const std::vector<OptionValueLabel> &GpuModeOptions();
+
+    const char *GpuModeDisplayLabel(const std::string &value);
+
+    const char *ScreenModeDisplayLabel(const std::string &value);
+
+    const char *EmulatorOptionItemDisplayLabel(const std::string &flag, const std::string &value);
+
     std::vector<EmulatorOption> GetEmulatorOptions();
 
     std::vector<std::string> BuildArgs(const std::string &avdName, const std::vector<EmulatorOption> &options);
@@ -56,4 +69,4 @@ namespace CoreDeck {
     void EnsureOptionsConfigDirectoryExists();
 }
 
-#endif //EMU_LAUNCHER_OPTIONS_H
+#endif // EMU_LAUNCHER_OPTIONS_H

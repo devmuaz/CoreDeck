@@ -1,0 +1,68 @@
+Language: Cpp
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: true
+AlignAfterOpenBracket: BlockIndent
+AlignTrailingComments: false
+AlwaysBreakTemplateDeclarations: Yes
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: BeforeComma
+BreakConstructorInitializersBeforeComma: false
+ColumnLimit: 0
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+PackConstructorInitializers: CurrentLine
+ContinuationIndentWidth: 4
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: None
+AllowAllArgumentsOnNextLine: false
+BinPackArguments: false
+BinPackParameters: false
+PenaltyBreakAssignment: 1000000
+IncludeCategories:
+  - Regex: '^<.*'
+    Priority: 1
+  - Regex: '^".*'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
+IncludeBlocks: Preserve
+IncludeIsMainRegex: '([-_](test|unittest))?$'
+SortIncludes: false
+IndentCaseLabels: true
+IndentPPDirectives: None
+IndentWidth: 4
+InsertNewlineAtEOF: false
+MacroBlockBegin: ''
+MacroBlockEnd: ''
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+FixNamespaceComments: false
+SpaceAfterCStyleCast: true
+SpaceAfterTemplateKeyword: false
+SpaceBeforeRangeBasedForLoopColon: false
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInConditionalStatement: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+TabWidth: 4

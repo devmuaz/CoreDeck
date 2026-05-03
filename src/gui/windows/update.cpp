@@ -23,13 +23,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(ImVec2(250, 0), ImGuiCond_Appearing);
 
-        constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoDocking;
-
-        if (ImGui::BeginPopupModal("Up to date###CoreDeckUpdateOk", &context.Updates.ShowUpToDateModal, flags)) {
+        if (ImGui::BeginPopupModal("Up to date###CoreDeckUpdateOk", &context.Updates.ShowUpToDateModal, WindowNoResizeFlags)) {
             ImGui::TextWrapped("You're running the latest CoreDeck release.");
             ImGui::Spacing();
             ImGui::Text("Current: ");
@@ -61,13 +55,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(ImVec2(440, 0), ImGuiCond_Appearing);
 
-        constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoDocking;
-
-        if (ImGui::BeginPopupModal("Update Available###CoreDeckUpdate", &context.Updates.ShowNewVersionModal, flags)) {
+        if (ImGui::BeginPopupModal("Update Available###CoreDeckUpdate", &context.Updates.ShowNewVersionModal, WindowNoResizeFlags)) {
             ImGui::TextUnformatted("A newer CoreDeck release is available.");
             ImGui::Spacing();
 

@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildMainMenuBar(Context &context);
 }
 
-#endif //COREDECK_MAIN_MENU_BAR_H
+#endif // COREDECK_MAIN_MENU_BAR_H

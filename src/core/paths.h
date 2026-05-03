@@ -61,4 +61,4 @@ namespace CoreDeck::Paths {
     }
 }
 
-#endif //EMU_LAUNCHER_PATHS_H
+#endif // EMU_LAUNCHER_PATHS_H

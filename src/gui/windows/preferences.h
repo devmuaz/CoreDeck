@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildPreferencesWindow(Context &context);
 }
 
-#endif //COREDECK_PREFERENCES_H
+#endif // COREDECK_PREFERENCES_H

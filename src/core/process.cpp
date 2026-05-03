@@ -99,8 +99,7 @@ namespace CoreDeck {
         si.hStdError = hOutW;
 
         PROCESS_INFORMATION pi = {};
-        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr,
-                            TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
+        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
             CloseHandle(hOutR);
             CloseHandle(hOutW);
             CloseHandle(hInR);
@@ -199,9 +198,7 @@ namespace CoreDeck {
 #endif
     }
 
-    std::string RunCommandArgs(const std::string &path,
-                               const std::vector<std::string> &args,
-                               const std::string &stdinData) {
+    std::string RunCommandArgs(const std::string &path, const std::vector<std::string> &args, const std::string &stdinData) {
         std::string out;
         StreamCommandArgs(path, args, stdinData, [&out](const std::string &line) {
             out += line;
@@ -237,8 +234,7 @@ namespace CoreDeck {
 
         PROCESS_INFORMATION pi = {};
 
-        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr,
-                            TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
+        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
             CloseHandle(hReadPipe);
             CloseHandle(hWritePipe);
             return 0;
@@ -286,7 +282,7 @@ namespace CoreDeck {
             }
             argv.push_back(nullptr);
 
-            execvp(path.c_str(), const_cast<char * const*>(argv.data()));
+            execvp(path.c_str(), const_cast<char *const *>(argv.data()));
             _exit(1);
         }
 

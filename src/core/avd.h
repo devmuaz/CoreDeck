@@ -17,6 +17,15 @@ namespace CoreDeck {
         std::string Device;
         std::string ApiLevel;
         std::string Abi;
+        std::string SystemImagePath;
+        std::string SystemImageVariant;
+        std::string SystemImageTagId;
+        std::string SystemImageTagDisplay;
+        std::vector<std::string> SystemImageTagIds;
+        std::vector<std::string> SystemImageTagDisplayNames;
+        bool IsGoogleApisImage = false;
+        bool IsGooglePlayImage = false;
+        bool Supports16KbPageSize = false;
         std::string SdCard;
         std::string RamSize;
         std::string ScreenResolution;
@@ -44,4 +53,4 @@ namespace CoreDeck {
     bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName);
 }
 
-#endif //EMU_LAUNCHER_AVD_INFO_H
+#endif // EMU_LAUNCHER_AVD_INFO_H

@@ -72,4 +72,4 @@ namespace CoreDeck {
     bool AcceptSdkLicenses(const SdkInfo &sdk);
 }
 
-#endif //COREDECK_SYSTEM_IMAGE_H
+#endif // COREDECK_SYSTEM_IMAGE_H

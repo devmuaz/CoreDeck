@@ -29,37 +29,59 @@ namespace CoreDeck::EmulatorConsole {
             WSAStartup(MAKEWORD(2, 2), &d);
         }
 
-        ~WsaInit() { WSACleanup(); }
+        ~WsaInit() {
+            WSACleanup();
+        }
     };
-    void EnsureWsa() { static WsaInit init; }
-    void CloseSock(const socket_t s) { closesocket(s); }
+
+    void EnsureWsa() {
+        static WsaInit init;
+    }
+
+    void CloseSock(const socket_t s) {
+        closesocket(s);
+    }
+
     void SetNonBlocking(const socket_t s) {
         u_long m = 1;
         ioctlsocket(s, FIONBIO, &m);
     }
-    int LastErr() { return WSAGetLastError(); }
-    bool ErrIsWouldBlock(const int e) { return e == WSAEWOULDBLOCK || e == WSAEINPROGRESS; }
+
+    int LastErr() {
+        return WSAGetLastError();
+    }
+
+    bool ErrIsWouldBlock(const int e) {
+        return e == WSAEWOULDBLOCK || e == WSAEINPROGRESS;
+    }
 #else
     void EnsureWsa() {
     }
 
-    void CloseSock(const socket_t s) { close(s); }
+    void CloseSock(const socket_t s) {
+        close(s);
+    }
 
     void SetNonBlocking(const socket_t s) {
         const int f = fcntl(s, F_GETFL, 0);
         fcntl(s, F_SETFL, f | O_NONBLOCK);
     }
 
-    int LastErr() { return errno; }
-    bool ErrIsWouldBlock(const int e) { return e == EWOULDBLOCK || e == EAGAIN || e == EINPROGRESS; }
+    int LastErr() {
+        return errno;
+    }
+
+    bool ErrIsWouldBlock(const int e) {
+        return e == EWOULDBLOCK || e == EAGAIN || e == EINPROGRESS;
+    }
 #endif
 
     std::string ReadAuthToken() {
         const char *home =
 #ifdef _WIN32
-                std::getenv("USERPROFILE");
+            std::getenv("USERPROFILE");
 #else
-                std::getenv("HOME");
+            std::getenv("HOME");
 #endif
         if (!home) return "";
         const std::filesystem::path p = std::filesystem::path(home) / ".emulator_console_auth_token";
@@ -68,8 +90,7 @@ namespace CoreDeck::EmulatorConsole {
         std::stringstream ss;
         ss << f.rdbuf();
         std::string token = ss.str();
-        while (!token.empty() && (token.back() == '\n' || token.back() == '\r' || token.back() == ' ' || token.back() ==
-                                  '\t')) {
+        while (!token.empty() && (token.back() == '\n' || token.back() == '\r' || token.back() == ' ' || token.back() == '\t')) {
             token.pop_back();
         }
         return token;
@@ -83,6 +104,47 @@ namespace CoreDeck::EmulatorConsole {
         return select(static_cast<int>(s) + 1, nullptr, &wf, nullptr, &tv) > 0;
     }
 
+    bool ConnectLocalhost(const socket_t s, const int port, const int timeoutMs) {
+        SetNonBlocking(s);
+
+        sockaddr_in addr = {};
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        addr.sin_port = htons(static_cast<u_short>(port));
+
+        const int rc = connect(s, reinterpret_cast<sockaddr *>(&addr), sizeof(addr));
+        if (rc != 0 && !ErrIsWouldBlock(LastErr())) return false;
+        if (rc != 0 && !WaitWritable(s, timeoutMs)) return false;
+
+        int error = 0;
+#ifdef _WIN32
+        int len = sizeof(error);
+#else
+        socklen_t len = sizeof(error);
+#endif
+        if (getsockopt(s, SOL_SOCKET, SO_ERROR, reinterpret_cast<char *>(&error), &len) != 0) return false;
+        return error == 0;
+    }
+
+    bool SendAll(const socket_t s, const std::string &payload, const int timeoutMs) {
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+        size_t sent = 0;
+        while (sent < payload.size()) {
+#ifdef _WIN32
+            const int n = send(s, payload.data() + sent, static_cast<int>(payload.size() - sent), 0);
+#else
+            const ssize_t n = send(s, payload.data() + sent, payload.size() - sent, 0);
+#endif
+            if (n > 0) {
+                sent += static_cast<size_t>(n);
+                continue;
+            }
+            if (n < 0 && !ErrIsWouldBlock(LastErr())) return false;
+            if (std::chrono::steady_clock::now() >= deadline) return false;
+            WaitWritable(s, 100);
+        }
+        return true;
+    }
 
     int FindFreePort(const int startPort, const int endPort) {
         EnsureWsa();
@@ -100,24 +162,21 @@ namespace CoreDeck::EmulatorConsole {
         return -1;
     }
 
+    bool IsAvailable(const int port, const int timeoutMs) {
+        EnsureWsa();
+        const socket_t s = socket(AF_INET, SOCK_STREAM, 0);
+        if (s == s_InvalidSocket) return false;
+        const bool connected = ConnectLocalhost(s, port, timeoutMs);
+        CloseSock(s);
+        return connected;
+    }
+
     bool SendKill(const int port, const int timeoutMs) {
         EnsureWsa();
         const socket_t s = socket(AF_INET, SOCK_STREAM, 0);
         if (s == s_InvalidSocket) return false;
 
-        SetNonBlocking(s);
-
-        sockaddr_in addr = {};
-        addr.sin_family = AF_INET;
-        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-        addr.sin_port = htons(static_cast<u_short>(port));
-
-        const int rc = connect(s, reinterpret_cast<sockaddr *>(&addr), sizeof(addr));
-        if (rc != 0 && !ErrIsWouldBlock(LastErr())) {
-            CloseSock(s);
-            return false;
-        }
-        if (rc != 0 && !WaitWritable(s, timeoutMs)) {
+        if (!ConnectLocalhost(s, port, timeoutMs)) {
             CloseSock(s);
             return false;
         }
@@ -128,30 +187,13 @@ namespace CoreDeck::EmulatorConsole {
         }
         payload += "kill\r\n";
 
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
-        size_t sent = 0;
-        while (sent < payload.size()) {
+        const bool sent = SendAll(s, payload, timeoutMs);
 #ifdef _WIN32
-            const int n = send(s, payload.data() + sent, static_cast<int>(payload.size() - sent), 0);
+        shutdown(s, SD_SEND);
 #else
-            const ssize_t n = send(s, payload.data() + sent, payload.size() - sent, 0);
+        shutdown(s, SHUT_WR);
 #endif
-            if (n > 0) {
-                sent += static_cast<size_t>(n);
-                continue;
-            }
-            if (n < 0 && !ErrIsWouldBlock(LastErr())) {
-                CloseSock(s);
-                return false;
-            }
-            if (std::chrono::steady_clock::now() >= deadline) {
-                CloseSock(s);
-                return false;
-            }
-            if (!WaitWritable(s, 100)) continue;
-        }
-
         CloseSock(s);
-        return true;
+        return sent;
     }
 }

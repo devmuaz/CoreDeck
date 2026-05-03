@@ -16,12 +16,16 @@ namespace CoreDeck {
 
     bool WipeAvdUserData(const std::string &avdPath);
 
+    std::string LowerCopy(std::string value);
+
+    bool ContainsIgnoreCase(const std::string &text, const std::string &needle);
+
     template<typename... Args>
-    std::string StrConcat(Args &&... args) {
+    std::string StrConcat(Args &&...args) {
         std::string result;
         (result += ... += std::forward<Args>(args));
         return result;
     }
 }
 
-#endif //EMU_LAUNCHER_UTILITIES_H
+#endif // EMU_LAUNCHER_UTILITIES_H

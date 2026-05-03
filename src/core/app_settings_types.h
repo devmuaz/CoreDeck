@@ -19,4 +19,4 @@ namespace CoreDeck {
     };
 }
 
-#endif //COREDECK_APP_SETTINGS_TYPES_H
+#endif // COREDECK_APP_SETTINGS_TYPES_H

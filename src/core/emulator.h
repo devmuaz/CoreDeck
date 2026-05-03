@@ -25,7 +25,7 @@ namespace CoreDeck {
         std::shared_ptr<LogBuffer> Log;
         std::thread ReaderThread;
         std::thread StopThread;
-        std::shared_ptr<std::atomic<bool> > StopRequested;
+        std::shared_ptr<std::atomic<bool>> StopRequested;
     };
 
     class EmulatorManager {
@@ -55,4 +55,4 @@ namespace CoreDeck {
     };
 }
 
-#endif //EMU_LAUNCHER_EMULATOR_H
+#endif // EMU_LAUNCHER_EMULATOR_H

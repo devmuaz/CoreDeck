@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildOnboardingWindow(Context &context);
 }
 
-#endif //COREDECK_ONBOARDING_WINDOW_H
+#endif // COREDECK_ONBOARDING_WINDOW_H

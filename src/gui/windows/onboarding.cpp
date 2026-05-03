@@ -99,17 +99,20 @@ namespace CoreDeck {
             if (isValid) {
                 ImGui::TextColored(
                     HexColor("#33CC47"),
-                    "%s", "Looks good. Found the Android emulator at this location."
+                    "%s",
+                    "Looks good. Found the Android emulator at this location."
                 );
             } else {
                 ImGui::TextColored(
-                    HexColor("#E64D40"), "%s",
+                    HexColor("#E64D40"),
+                    "%s",
                     "Couldn't find the Android emulator here. Make sure this is your SDK root folder."
                 );
             }
         } else {
             ImGui::TextColored(
-                HexColor("#66666B"), "%s",
+                HexColor("#66666B"),
+                "%s",
                 "Choose the folder containing your Android SDK (cmdline-tools, emulator, platform-tools, etc)."
             );
         }
@@ -157,14 +160,14 @@ namespace CoreDeck {
         ImGui::SetNextWindowSize(viewport->WorkSize);
 
         constexpr ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoScrollbar |
-                ImGuiWindowFlags_NoDocking |
-                ImGuiWindowFlags_NoBringToFrontOnFocus |
-                ImGuiWindowFlags_NoNavFocus;
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoDocking |
+            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoNavFocus;
 
         ImGui::Begin("##Onboarding", nullptr, flags);
 

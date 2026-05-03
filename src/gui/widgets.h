@@ -42,9 +42,46 @@ namespace CoreDeck {
         }
     };
 
-    enum class DialogResult { None, Confirmed, Cancelled };
+    struct LabeledIconStyle {
+        const char *Icon;
+        const char *Label;
+        const char *Color;
+    };
 
-    enum class DialogType { Default, Positive, Negative };
+    struct PickerTableStyle {
+        StyleColor Colors;
+        StyleVar Vars;
+
+        PickerTableStyle();
+    };
+
+    constexpr ImGuiTableFlags PickerTableFlags = ImGuiTableFlags_BordersInnerV |
+                                                 ImGuiTableFlags_RowBg |
+                                                 ImGuiTableFlags_ScrollY |
+                                                 ImGuiTableFlags_SizingStretchProp;
+
+    constexpr ImGuiWindowFlags WindowNoResizeFlags = ImGuiWindowFlags_NoCollapse |
+                                                     ImGuiWindowFlags_NoResize |
+                                                     ImGuiWindowFlags_NoMove |
+                                                     ImGuiWindowFlags_NoDocking;
+
+    constexpr ImGuiWindowFlags WindowAutoResizeFlags = ImGuiWindowFlags_NoCollapse |
+                                                       ImGuiWindowFlags_NoResize |
+                                                       ImGuiWindowFlags_NoMove |
+                                                       ImGuiWindowFlags_AlwaysAutoResize |
+                                                       ImGuiWindowFlags_NoDocking;
+
+    enum class DialogResult {
+        None,
+        Confirmed,
+        Cancelled
+    };
+
+    enum class DialogType {
+        Default,
+        Positive,
+        Negative
+    };
 
     struct DialogData {
         const char *Id{};
@@ -70,6 +107,8 @@ namespace CoreDeck {
 
     bool WarningButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
 
+    bool PickerButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
+
     void StatusBadge(const char *label, bool isActive);
 
     bool SelectableItem(
@@ -83,7 +122,9 @@ namespace CoreDeck {
 
     bool PropertyText(const char *label, const char *value, bool isClickable = false, bool hasSpaceBetween = false);
 
-    void PropertyTextWrapped(const char *label, const char *value);
+    void PropertyTextWrapped(const char *label, const char *value, bool invertColors = false);
+
+    bool CategoryChip(const char *label, bool isSelected);
 
     bool CollapsingHeader(const char *label, ImGuiTreeNodeFlags flags = 0);
 
@@ -94,4 +135,4 @@ namespace CoreDeck {
     DialogResult SimpleDialog(const DialogData &data);
 }
 
-#endif //EMU_LAUNCHER_COMPONENTS_H
+#endif // EMU_LAUNCHER_COMPONENTS_H

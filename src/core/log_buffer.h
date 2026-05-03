@@ -33,4 +33,4 @@ namespace CoreDeck {
     };
 }
 
-#endif //EMU_LAUNCHER_LOG_BUFFER_H
+#endif // EMU_LAUNCHER_LOG_BUFFER_H

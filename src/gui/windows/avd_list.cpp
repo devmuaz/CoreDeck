@@ -30,20 +30,22 @@ namespace CoreDeck {
         return {Icons::Mobile, "#4FC3F7"};
     }
 
+    static const char *AvdTypeLabel(const AvdInfo &avd) {
+        if (avd.IsGooglePlayImage) return "Google Play";
+        if (avd.IsGoogleApisImage) return "Google APIs";
+        if (!avd.SystemImageTagDisplay.empty()) return avd.SystemImageTagDisplay.c_str();
+        return "Default";
+    }
+
     static bool ContainsCaseInsensitive(const std::string &haystack, const char *needle) {
         if (needle[0] == '\0') return true;
 
         const auto len = std::strlen(needle);
         if (len > haystack.size()) return false;
 
-        return std::search(
-                   haystack.begin(), haystack.end(),
-                   needle, needle + len,
-                   [](const char a, const char b) {
-                       return std::tolower(static_cast<unsigned char>(a)) ==
-                              std::tolower(static_cast<unsigned char>(b));
-                   }
-               ) != haystack.end();
+        return std::search(haystack.begin(), haystack.end(), needle, needle + len, [](const char a, const char b) {
+                   return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
+               }) != haystack.end();
     }
 
     static void RebuildFilteredIndices(Context &context) {
@@ -57,7 +59,8 @@ namespace CoreDeck {
                 if (!ContainsCaseInsensitive(avd.DisplayName, catalog.SearchFilter) &&
                     !ContainsCaseInsensitive(avd.Name, catalog.SearchFilter) &&
                     !ContainsCaseInsensitive(avd.Device, catalog.SearchFilter) &&
-                    !ContainsCaseInsensitive(avd.ApiLevel, catalog.SearchFilter)) {
+                    !ContainsCaseInsensitive(avd.ApiLevel, catalog.SearchFilter) &&
+                    !ContainsCaseInsensitive(AvdTypeLabel(avd), catalog.SearchFilter)) {
                     continue;
                 }
             }
@@ -101,8 +104,8 @@ namespace CoreDeck {
     void BuildAvdListWindow(Context &context) {
         if (!context.UI.ShowAvdListPanel) return;
 
-        constexpr ImGuiWindowFlags panelFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-        ImGui::Begin("Available AVDs (Android Virtual Device)###AVDs", nullptr, panelFlags);
+        constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+        ImGui::Begin("Available AVDs (Android Virtual Device)###AVDs", nullptr, flags);
 
         auto openCreateAvdDialog = [&context] {
             context.AvdCreationWork.CreationData = {};
@@ -156,10 +159,8 @@ namespace CoreDeck {
                     wipeArgs.emplace_back("-wipe-data");
                     context.Host.Manager.Launch(avd.Name, wipeArgs);
                 }
-                ImGui::SameLine(0, 15.0f);
-                ImGui::Text("-");
-                ImGui::SameLine(0, 15.0f);
-                if (PrimaryButton(Icons::Trash)) {
+                ImGui::SameLine();
+                if (NegativeButton(Icons::Trash)) {
                     if (context.Prefs.ConfirmBeforeDeleteAvd) {
                         context.UI.ShowDeleteAvdDialog = true;
                     } else {
@@ -167,11 +168,6 @@ namespace CoreDeck {
                     }
                 }
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("Delete currently selected AVD");
-            }
-
-            if (isRunning) {
-                ImGui::SameLine(0, 15.0f);
-                ImGui::Text("-");
             }
         }
 
@@ -183,42 +179,41 @@ namespace CoreDeck {
             return;
         }
 
-        ImGui::Spacing(); {
-            const char *sortDirIcon = context.Catalog.SortAscending ? Icons::SortUp : Icons::SortDown;
-            const char *sortDirTooltip = context.Catalog.SortAscending ? "Ascending" : "Descending";
-            if (PrimaryButton(sortDirIcon)) {
-                context.Catalog.SortAscending = !context.Catalog.SortAscending;
-                PersistAppSettings(context);
-            }
-            if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", sortDirTooltip);
-
-            ImGui::SameLine();
-
-            ImGui::SetNextItemWidth(150.0f);
-            const int currentSortIdx = static_cast<int>(context.Catalog.SortMode);
-            if (ImGui::BeginCombo("##AvdSort", SortModeLabels[currentSortIdx])) {
-                for (int i = 0; i < SortModeCount; i++) {
-                    const bool selected = currentSortIdx == i;
-                    if (ImGui::Selectable(SortModeLabels[i], selected)) {
-                        context.Catalog.SortMode = static_cast<AvdSortMode>(i);
-                        PersistAppSettings(context);
-                    }
-                    if (selected) ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::SameLine();
-
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            const auto searchHint = IconWithLabel(Icons::Search, "Search AVDs...");
-            ImGui::InputTextWithHint(
-                "##AvdSearch",
-                searchHint.c_str(),
-                context.Catalog.SearchFilter,
-                IM_ARRAYSIZE(context.Catalog.SearchFilter)
-            );
+        ImGui::Spacing();
+        const char *sortDirIcon = context.Catalog.SortAscending ? Icons::SortUp : Icons::SortDown;
+        const char *sortDirTooltip = context.Catalog.SortAscending ? "Ascending" : "Descending";
+        if (PrimaryButton(sortDirIcon)) {
+            context.Catalog.SortAscending = !context.Catalog.SortAscending;
+            PersistAppSettings(context);
         }
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", sortDirTooltip);
+
+        ImGui::SameLine();
+
+        ImGui::SetNextItemWidth(150.0f);
+        const int currentSortIdx = static_cast<int>(context.Catalog.SortMode);
+        if (ImGui::BeginCombo("##AvdSort", SortModeLabels[currentSortIdx])) {
+            for (int i = 0; i < SortModeCount; i++) {
+                const bool selected = currentSortIdx == i;
+                if (ImGui::Selectable(SortModeLabels[i], selected)) {
+                    context.Catalog.SortMode = static_cast<AvdSortMode>(i);
+                    PersistAppSettings(context);
+                }
+                if (selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::SameLine();
+
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+        const auto searchHint = IconWithLabel(Icons::Search, "Search AVDs...");
+        ImGui::InputTextWithHint(
+            "##AvdSearch",
+            searchHint.c_str(),
+            context.Catalog.SearchFilter,
+            IM_ARRAYSIZE(context.Catalog.SearchFilter)
+        );
         ImGui::Spacing();
 
         RebuildFilteredIndices(context);
@@ -252,9 +247,9 @@ namespace CoreDeck {
             ImGui::PushID(i);
             const char *avdStatusText = isRunning ? "Running..." : "Ready";
             const ImVec4 avdStatusColor = isRunning ? HexColor("#33CC47") : HexColor("#66666B");
-            const DeviceIconStyle iconStyle = DeviceIconStyleFor(avd.Device);
-            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdStatusText, avdStatusColor,
-                               iconStyle.Icon, HexColor(iconStyle.HexColor))) {
+            const std::string avdRightText = StrConcat(AvdTypeLabel(avd), " - ", avdStatusText);
+            const auto [Icon, Color] = DeviceIconStyleFor(avd.Device);
+            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdRightText.c_str(), avdStatusColor, Icon, HexColor(Color))) {
                 context.Catalog.SelectedAvd = i;
             }
             ImGui::PopID();

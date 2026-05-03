@@ -51,7 +51,7 @@ namespace CoreDeck {
         bool m_GlfwInitialized = false;
         bool m_ImGuiContextCreated = false;
         bool m_ImGuiBackendsInitialized = false;
-        std::future<std::optional<std::string> > m_UpdateCheckFuture;
+        std::future<std::optional<std::string>> m_UpdateCheckFuture;
         bool m_AutoUpdateCheckStarted = false;
         bool m_UpdateCheckWasManual = false;
     };
@@ -71,4 +71,4 @@ namespace CoreDeck {
     std::vector<EmulatorOption> &GetDefaultAvdOptions(Context &context);
 }
 
-#endif //EMU_LAUNCHER_RENDERER_H
+#endif // EMU_LAUNCHER_RENDERER_H
