@@ -286,6 +286,21 @@ elseif (APPLE)
     set(CPACK_GENERATOR "DragNDrop")
     set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
     set(CPACK_DMG_FORMAT "UDZO")
+
+    # The DMG should only contain CoreDeck.app + an Applications symlink.
+    # Sentry-native's bundled crashpad has unconditional install rules that
+    # drop crashpad_handler (and headers/libs) at the install root. The
+    # handler is already embedded inside the bundle via the POST_BUILD copy
+    # above; the stray top-level copy is unsigned and breaks notarization.
+    # Strip the unwanted directories from the CPack staging dir.
+    file(WRITE "${CMAKE_BINARY_DIR}/cpack_strip_macos_extras.cmake" [=[
+        foreach(_dir bin include lib lib64 share)
+            if (EXISTS "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
+                file(REMOVE_RECURSE "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
+            endif ()
+        endforeach()
+    ]=])
+    set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_BINARY_DIR}/cpack_strip_macos_extras.cmake")
 else ()
     set(CPACK_GENERATOR "TGZ")
 endif ()
