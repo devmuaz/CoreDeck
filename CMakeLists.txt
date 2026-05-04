@@ -1,14 +1,21 @@
 cmake_minimum_required(VERSION 3.23)
 
+# Explicit version override, set by CI from the release tag. Falls back to `git describe` for local builds.
+set(COREDECK_VERSION_OVERRIDE "" CACHE STRING "Explicit version override (e.g., set by CI from a release tag)")
+
 find_package(Git QUIET)
 if (GIT_FOUND)
-    execute_process(
-            COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            OUTPUT_VARIABLE GIT_TAG_VERSION
-            ERROR_QUIET
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+    if (COREDECK_VERSION_OVERRIDE)
+        set(GIT_TAG_VERSION "${COREDECK_VERSION_OVERRIDE}")
+    else ()
+        execute_process(
+                COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                OUTPUT_VARIABLE GIT_TAG_VERSION
+                ERROR_QUIET
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif ()
     execute_process(
             COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -32,8 +39,14 @@ if (GIT_FOUND)
         set(PROJECT_BUILD_NUMBER "1")
     endif ()
 else ()
-    set(PROJECT_VERSION "0.0.1")
-    set(PROJECT_VERSION_FULL "0.0.1")
+    if (COREDECK_VERSION_OVERRIDE)
+        string(REGEX REPLACE "^v" "" GIT_TAG_STRIPPED "${COREDECK_VERSION_OVERRIDE}")
+        string(REGEX REPLACE "-.*$" "" PROJECT_VERSION "${GIT_TAG_STRIPPED}")
+        set(PROJECT_VERSION_FULL "${GIT_TAG_STRIPPED}")
+    else ()
+        set(PROJECT_VERSION "0.0.1")
+        set(PROJECT_VERSION_FULL "0.0.1")
+    endif ()
     set(PROJECT_BUILD_NUMBER "1")
 endif ()
 
@@ -270,7 +283,9 @@ endif ()
 if (WIN32)
     set(CPACK_GENERATOR "WIX;ZIP")
 elseif (APPLE)
-    set(CPACK_GENERATOR "TGZ")
+    set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
+    set(CPACK_DMG_FORMAT "UDZO")
 else ()
     set(CPACK_GENERATOR "TGZ")
 endif ()

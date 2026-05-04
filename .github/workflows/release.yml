@@ -14,18 +14,23 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            artifact_name: coredeck-linux-x86-64
-            asset_name: coredeck-linux-x86-64.tar.gz
-          - os: ubuntu-24.04-arm
-            artifact_name: coredeck-linux-arm64
-            asset_name: coredeck-linux-arm64.tar.gz
-          - os: windows-latest
-            artifact_name: coredeck-windows-x86-64
-            asset_name: coredeck-windows-x86-64
+          # TEMP: Linux + Windows disabled for the v0.5.0-beta.1 macOS-only smoke test.
+          # Re-enable these entries before the next non-beta release.
+          # - os: ubuntu-latest
+          #   artifact_name: coredeck-linux-x86-64
+          #   asset_name: coredeck-linux-x86-64.tar.gz
+          # - os: ubuntu-24.04-arm
+          #   artifact_name: coredeck-linux-arm64
+          #   asset_name: coredeck-linux-arm64.tar.gz
+          # - os: windows-latest
+          #   artifact_name: coredeck-windows-x86-64
+          #   asset_name: coredeck-windows-x86-64
           - os: macos-latest
             artifact_name: coredeck-darwin-arm64
-            asset_name: coredeck-darwin-arm64.tar.gz
+            asset_name: coredeck-darwin-arm64.dmg
+          - os: macos-13
+            artifact_name: coredeck-darwin-x86-64
+            asset_name: coredeck-darwin-x86-64.dmg
 
     steps:
       - name: Checkout code
@@ -40,6 +45,12 @@ jobs:
         with:
           cmake-version: '3.23.0'
 
+      - name: Setup ccache
+        if: matrix.os != 'windows-latest'
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-${{ matrix.artifact_name }}
+
       - name: Install dependencies (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
@@ -47,9 +58,19 @@ jobs:
           sudo apt-get install -y --no-install-recommends build-essential libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
 
       - name: Configure CMake
+        # NOTE: COREDECK_SENTRY_DSN must be the public client DSN (safe to ship in binaries),
+        # not a server-side auth token.
         env:
           COREDECK_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCOREDECK_SENTRY_DSN=$COREDECK_SENTRY_DSN
+          COREDECK_VERSION_REF: ${{ github.ref_name }}
+        run: |
+          if [[ "$RUNNER_OS" != "Windows" ]]; then
+            export CMAKE_C_COMPILER_LAUNCHER=ccache
+            export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          fi
+          cmake -B build -DCMAKE_BUILD_TYPE=Release \
+            -DCOREDECK_SENTRY_DSN="$COREDECK_SENTRY_DSN" \
+            -DCOREDECK_VERSION_OVERRIDE="$COREDECK_VERSION_REF"
         shell: bash
 
       - name: Build
@@ -61,12 +82,11 @@ jobs:
           mkdir -p release/${{ matrix.artifact_name }}
           cp build/CoreDeck release/${{ matrix.artifact_name }}/
           cp -r build/assets release/${{ matrix.artifact_name }}/
-          cp README.md release/${{ matrix.artifact_name }}/
           cd release
           tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
 
       - name: Setup Apple Developer Signing (macOS)
-        if: matrix.os == 'macos-latest'
+        if: startsWith(matrix.os, 'macos')
         env:
           APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
         run: |
@@ -79,23 +99,45 @@ jobs:
           echo "CERTIFICATE_NAME=$(security find-identity -v -p codesigning build.keychain | grep 'Developer ID Application' | head -1 | sed 's/.*"\(.*\)"/\1/')" >> $GITHUB_ENV
 
       - name: Package and Sign (macOS)
-        if: matrix.os == 'macos-latest'
+        if: startsWith(matrix.os, 'macos')
         run: |
-          mkdir -p release/${{ matrix.artifact_name }}
-          cp -r build/CoreDeck.app release/${{ matrix.artifact_name }}/
-          cp README.md release/${{ matrix.artifact_name }}/
-          codesign --force --options runtime --deep --sign "$CERTIFICATE_NAME" release/${{ matrix.artifact_name }}/CoreDeck.app
-          cd release/${{ matrix.artifact_name }}
-          zip -r ../CoreDeck-notarize.zip CoreDeck.app
-          cd ../..
-          xcrun notarytool submit release/CoreDeck-notarize.zip \
+          APP_PATH="build/CoreDeck.app"
+
+          # Sign nested Mach-O components first (replaces deprecated --deep).
+          # The loops are no-ops if no nested components exist.
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$f"
+          done < <(find "$APP_PATH" -type f \( -name "*.dylib" -o -name "*.so" \))
+
+          if [ -d "$APP_PATH/Contents/Frameworks" ]; then
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$f"
+            done < <(find "$APP_PATH/Contents/Frameworks" -maxdepth 1 -type d -name "*.framework")
+          fi
+
+          # Then sign the outer bundle.
+          codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$APP_PATH"
+
+          # Build the .dmg containing the signed .app via CPack (DragNDrop).
+          mkdir -p release
+          cd build
+          cpack -G DragNDrop
+          cd ..
+          # CPack produces a versioned filename (e.g. CoreDeck-1.2.3-Darwin.dmg);
+          # grab whichever .dmg it created and rename to our stable asset name.
+          DMG_BUILT=$(ls build/*.dmg | head -n 1)
+          mv "$DMG_BUILT" "release/${{ matrix.asset_name }}"
+
+          # Sign the .dmg itself, then notarize and staple it.
+          codesign --force --sign "$CERTIFICATE_NAME" "release/${{ matrix.asset_name }}"
+          xcrun notarytool submit "release/${{ matrix.asset_name }}" \
             --apple-id "${{ secrets.APPLE_ID }}" \
             --password "${{ secrets.APPLE_PASSWORD }}" \
             --team-id "${{ secrets.APPLE_TEAM_ID }}" \
             --wait
-          xcrun stapler staple release/${{ matrix.artifact_name }}/CoreDeck.app
-          cd release
-          tar -czf ${{ matrix.asset_name }} ${{ matrix.artifact_name }}
+          xcrun stapler staple "release/${{ matrix.asset_name }}"
 
       - name: Install WiX Toolset (Windows)
         if: matrix.os == 'windows-latest'
@@ -146,6 +188,14 @@ jobs:
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Generate SHA256 checksums
+        run: |
+          cd artifacts
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            sha256sum "$f" > "${f}.sha256"
+          done < <(find . -type f \( -name '*.tar.gz' -o -name '*.msi' -o -name '*.zip' -o -name '*.dmg' \))
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -154,34 +204,30 @@ jobs:
           body: |
             ## CoreDeck ${{ steps.version.outputs.version }}
 
+            > This is a **macOS-only beta** for verifying the new release pipeline. Windows and Linux builds will return in the next release.
+
             Download the appropriate version for your platform:
 
-            **Windows (x86-64):**
-            - `coredeck-windows-x86-64.msi` - Professional installer (recommended)
-            - `coredeck-windows-x86-64.zip` - Portable version
+            **macOS (Apple Silicon):** `coredeck-darwin-arm64.dmg`
 
-            **macOS (Apple Silicon):** `coredeck-darwin-arm64.tar.gz`
+            **macOS (Intel):** `coredeck-darwin-x86-64.dmg`
 
-            **Linux (x86-64):** `coredeck-linux-x86-64.tar.gz`
-
-            **Linux (ARM64):** `coredeck-linux-arm64.tar.gz`
+            Each artifact has an accompanying `.sha256` file for download verification.
 
             ### Installation
-            **Windows:** Double-click the MSI to install, or extract the ZIP and run CoreDeck.exe directly.
-
-            **macOS/Linux:** Extract the archive and run the `CoreDeck` executable.
+            **macOS:** Open the DMG and drag `CoreDeck.app` into your Applications folder.
 
             ### Troubleshooting (macOS)
-            If the app won't open, remove the quarantine attribute:
+            If the app won't open after copying it out of the DMG, remove the quarantine attribute:
             ```bash
-            xattr -cr CoreDeck.app
+            xattr -cr /Applications/CoreDeck.app
             ```
           files: |
-            artifacts/coredeck-windows-x86-64/coredeck-windows-x86-64.msi
-            artifacts/coredeck-windows-x86-64/coredeck-windows-x86-64.zip
-            artifacts/coredeck-darwin-arm64/coredeck-darwin-arm64.tar.gz
-            artifacts/coredeck-linux-x86-64/coredeck-linux-x86-64.tar.gz
-            artifacts/coredeck-linux-arm64/coredeck-linux-arm64.tar.gz
+            artifacts/**/coredeck-*.msi
+            artifacts/**/coredeck-*.zip
+            artifacts/**/coredeck-*.tar.gz
+            artifacts/**/coredeck-*.dmg
+            artifacts/**/*.sha256
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
         env:
