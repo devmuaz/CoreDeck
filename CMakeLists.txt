@@ -287,7 +287,9 @@ elseif (APPLE)
     set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
     set(CPACK_DMG_FORMAT "UDZO")
     set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/dmg-setup.applescript")
-    set(CPACK_DMG_VOLUME_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
+    # CPACK_DMG_VOLUME_ICON is silently ignored on some CMake/runner combos, so
+    # stage `.VolumeIcon.icns` ourselves via install(FILES) below and set the
+    # kHasCustomIcon Finder flag from the AppleScript.
 
     # DMG background image. Prefer a multi-resolution TIFF (1x + @2x) for Retina sharpness;
     # fall back to a plain PNG if only the 1x file is present.
@@ -351,6 +353,10 @@ endif ()
 
 if (UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.png DESTINATION assets/icons)
+endif ()
+
+if (APPLE AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
+    install(FILES "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns" DESTINATION . RENAME .VolumeIcon.icns)
 endif ()
 
 if (WIN32)
