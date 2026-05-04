@@ -24,11 +24,13 @@ on run argv
             set arrangement of viewOptions to not arranged
             set icon size of viewOptions to 96
             set text size of viewOptions to 13
+            -- CPack renames the background to .background/background.<ext> regardless
+            -- of the source filename, so reference it by that fixed name.
             try
-                set background picture of viewOptions to file ".background:dmg-background.tiff"
+                set background picture of viewOptions to file ".background:background.tiff"
             on error
                 try
-                    set background picture of viewOptions to file ".background:dmg-background.png"
+                    set background picture of viewOptions to file ".background:background.png"
                 end try
             end try
 
