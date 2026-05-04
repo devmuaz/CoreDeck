@@ -314,20 +314,25 @@ elseif (APPLE)
         message(STATUS "DMG background: 1x PNG only (add dmg-background@2x.png for Retina)")
     endif ()
 
-    # The DMG should only contain CoreDeck.app + an Applications symlink.
-    # Sentry-native's bundled crashpad has unconditional install rules that
-    # drop crashpad_handler (and headers/libs) at the install root. The
-    # handler is already embedded inside the bundle via the POST_BUILD copy
-    # above; the stray top-level copy is unsigned and breaks notarization.
-    # Strip the unwanted directories from the CPack staging dir.
-    file(WRITE "${CMAKE_BINARY_DIR}/cpack_strip_macos_extras.cmake" [=[
-        foreach(_dir bin include lib lib64 share)
-            if (EXISTS "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
-                file(REMOVE_RECURSE "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
-            endif ()
-        endforeach()
-    ]=])
-    set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_BINARY_DIR}/cpack_strip_macos_extras.cmake")
+    # Pre-build hook for the DMG staging dir:
+    #   1. Strip the unwanted top-level dirs sentry-native/crashpad install
+    #      unconditionally (handler is already embedded inside the .app).
+    #   2. Drop in `.VolumeIcon.icns` so the volume picks up our custom icon
+    #      (install(FILES ... RENAME .name) is silently dropped on some
+    #      CMake/CPack combos, so we stage the file directly).
+    file(WRITE "${CMAKE_BINARY_DIR}/cpack_dmg_pre_build.cmake"
+            "foreach(_dir bin include lib lib64 share)
+    if (EXISTS \"\${CPACK_TEMPORARY_DIRECTORY}/\${_dir}\")
+        file(REMOVE_RECURSE \"\${CPACK_TEMPORARY_DIRECTORY}/\${_dir}\")
+    endif ()
+endforeach()
+configure_file(
+    \"${CMAKE_SOURCE_DIR}/assets/icons/icon.icns\"
+    \"\${CPACK_TEMPORARY_DIRECTORY}/.VolumeIcon.icns\"
+    COPYONLY
+)
+")
+    set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_BINARY_DIR}/cpack_dmg_pre_build.cmake")
 else ()
     set(CPACK_GENERATOR "TGZ")
 endif ()
@@ -353,10 +358,6 @@ endif ()
 
 if (UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.png DESTINATION assets/icons)
-endif ()
-
-if (APPLE AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
-    install(FILES "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns" DESTINATION . RENAME .VolumeIcon.icns)
 endif ()
 
 if (WIN32)
