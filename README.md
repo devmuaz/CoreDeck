@@ -1,5 +1,7 @@
 <div align="center">
   <img src="media/branding/header-logo.png" alt="CoreDeck" width="220" />
+  <br /><br />
+  <a href="https://www.producthunt.com/products/coredeck?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-coredeck" target="_blank" rel="noopener noreferrer"><img alt="CoreDeck - Manage Android emulators without opening Android Studio | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1138545&amp;theme=light&amp;t=1777884973182" /></a>
 </div>
 
 <br />
