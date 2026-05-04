@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          # TEMP: Linux + Windows disabled for the v0.5.0-beta.1 macOS-only smoke test.
+          # TEMP: Linux + Windows disabled while validating the macOS DMG polish.
           # Re-enable these entries before the next non-beta release.
           # - os: ubuntu-latest
           #   artifact_name: coredeck-linux-x86-64
@@ -28,9 +28,6 @@ jobs:
           - os: macos-latest
             artifact_name: coredeck-darwin-arm64
             asset_name: coredeck-darwin-arm64.dmg
-          - os: macos-13
-            artifact_name: coredeck-darwin-x86-64
-            asset_name: coredeck-darwin-x86-64.dmg
 
     steps:
       - name: Checkout code
@@ -232,13 +229,11 @@ jobs:
           body: |
             ## CoreDeck ${{ steps.version.outputs.version }}
 
-            > This is a **macOS-only beta** for verifying the new release pipeline. Windows and Linux builds will return in the next release.
+            > This is a **macOS-only beta** for verifying the DMG layout polish. Windows and Linux builds will return in the next release.
 
             Download the appropriate version for your platform:
 
             **macOS (Apple Silicon):** `coredeck-darwin-arm64.dmg`
-
-            **macOS (Intel):** `coredeck-darwin-x86-64.dmg`
 
             Each artifact has an accompanying `.sha256` file for download verification.
 

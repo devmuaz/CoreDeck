@@ -286,6 +286,11 @@ elseif (APPLE)
     set(CPACK_GENERATOR "DragNDrop")
     set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
     set(CPACK_DMG_FORMAT "UDZO")
+    set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/dmg-setup.applescript")
+    # Optional polish: provide a 660x400 PNG (with a matching @2x for retina) and
+    # uncomment to set the DMG window background. Also uncomment the background line
+    # in cmake/dmg-setup.applescript so Finder applies it.
+    # set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/media/branding/dmg-background.png")
 
     # The DMG should only contain CoreDeck.app + an Applications symlink.
     # Sentry-native's bundled crashpad has unconditional install rules that

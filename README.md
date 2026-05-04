@@ -60,11 +60,11 @@ C++20 and Dear ImGui.
 
 Grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
 
-| Platform | Architecture           | File            |
-|----------|------------------------|-----------------|
-| Windows  | x86-64                 | `.msi` / `.zip` |
-| macOS    | Apple Silicon, x86-64  | `.dmg`          |
-| Linux    | x86-64, ARM64          | `.tar.gz`       |
+| Platform | Architecture          | File            |
+|----------|-----------------------|-----------------|
+| Windows  | x86-64                | `.msi` / `.zip` |
+| macOS    | arm64 (Apple Silicon) | `.dmg`          |
+| Linux    | x86-64, arm64         | `.tar.gz`       |
 
 Each release artifact ships with a matching `.sha256` checksum for download verification.
 
