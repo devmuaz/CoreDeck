@@ -44,11 +44,4 @@ on run argv
             delay 3
         end tell
     end tell
-
-    -- Tell Finder this volume has a custom icon (kHasCustomIcon flag) so the
-    -- staged .VolumeIcon.icns is used as the disk icon on the desktop, sidebar,
-    -- and About-this-Mac. Without this flag macOS shows the default DMG icon.
-    try
-        do shell script "SetFile -a C " & quoted form of ("/Volumes/" & image_name)
-    end try
 end run
