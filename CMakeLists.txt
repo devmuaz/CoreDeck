@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
 
-# Explicit version override, set by CI from the release tag. Falls back to `git describe` for local builds.
 set(COREDECK_VERSION_OVERRIDE "" CACHE STRING "Explicit version override (e.g., set by CI from a release tag)")
 
 find_package(Git QUIET)
@@ -287,12 +286,8 @@ elseif (APPLE)
     set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
     set(CPACK_DMG_FORMAT "UDZO")
     set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/dmg-setup.applescript")
-    # CPACK_DMG_VOLUME_ICON is silently ignored on some CMake/runner combos, so
-    # stage `.VolumeIcon.icns` ourselves via install(FILES) below and set the
-    # kHasCustomIcon Finder flag from the AppleScript.
 
-    # DMG background image. Prefer a multi-resolution TIFF (1x + @2x) for Retina sharpness;
-    # fall back to a plain PNG if only the 1x file is present.
+    # DMG background image
     set(_dmg_bg_1x "${CMAKE_SOURCE_DIR}/media/branding/dmg-background.png")
     set(_dmg_bg_2x "${CMAKE_SOURCE_DIR}/media/branding/dmg-background@2x.png")
     if (EXISTS "${_dmg_bg_1x}" AND EXISTS "${_dmg_bg_2x}")
@@ -314,25 +309,20 @@ elseif (APPLE)
         message(STATUS "DMG background: 1x PNG only (add dmg-background@2x.png for Retina)")
     endif ()
 
-    # Pre-build hook for the DMG staging dir:
-    #   1. Strip the unwanted top-level dirs sentry-native/crashpad install
-    #      unconditionally (handler is already embedded inside the .app).
-    #   2. Drop in `.VolumeIcon.icns` so the volume picks up our custom icon
-    #      (install(FILES ... RENAME .name) is silently dropped on some
-    #      CMake/CPack combos, so we stage the file directly).
-    file(WRITE "${CMAKE_BINARY_DIR}/cpack_dmg_pre_build.cmake"
-            "foreach(_dir bin include lib lib64 share)
-    if (EXISTS \"\${CPACK_TEMPORARY_DIRECTORY}/\${_dir}\")
-        file(REMOVE_RECURSE \"\${CPACK_TEMPORARY_DIRECTORY}/\${_dir}\")
-    endif ()
-endforeach()
-configure_file(
-    \"${CMAKE_SOURCE_DIR}/assets/icons/icon.icns\"
-    \"\${CPACK_TEMPORARY_DIRECTORY}/.VolumeIcon.icns\"
-    COPYONLY
-)
-")
-    set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_BINARY_DIR}/cpack_dmg_pre_build.cmake")
+    # The DMG should only contain CoreDeck.app + an Applications symlink.
+    # Sentry-native's bundled crashpad has unconditional install rules that
+    # drop crashpad_handler (and headers/libs) at the install root. The
+    # handler is already embedded inside the bundle via the POST_BUILD copy
+    # above; the stray top-level copy is unsigned and breaks notarization.
+    # Strip the unwanted directories from the CPack staging dir.
+    file(WRITE "${CMAKE_BINARY_DIR}/cpack_strip_macos_extras.cmake" [=[
+        foreach(_dir bin include lib lib64 share)
+            if (EXISTS "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
+                file(REMOVE_RECURSE "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
+            endif ()
+        endforeach()
+    ]=])
+    set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_BINARY_DIR}/cpack_strip_macos_extras.cmake")
 else ()
     set(CPACK_GENERATOR "TGZ")
 endif ()

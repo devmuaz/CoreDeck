@@ -14,17 +14,15 @@ jobs:
     strategy:
       matrix:
         include:
-          # TEMP: Linux + Windows disabled while validating the macOS DMG polish.
-          # Re-enable these entries before the next non-beta release.
-          # - os: ubuntu-latest
-          #   artifact_name: coredeck-linux-x86-64
-          #   asset_name: coredeck-linux-x86-64.tar.gz
-          # - os: ubuntu-24.04-arm
-          #   artifact_name: coredeck-linux-arm64
-          #   asset_name: coredeck-linux-arm64.tar.gz
-          # - os: windows-latest
-          #   artifact_name: coredeck-windows-x86-64
-          #   asset_name: coredeck-windows-x86-64
+          - os: ubuntu-latest
+            artifact_name: coredeck-linux-x86-64
+            asset_name: coredeck-linux-x86-64.tar.gz
+          - os: ubuntu-24.04-arm
+            artifact_name: coredeck-linux-arm64
+            asset_name: coredeck-linux-arm64.tar.gz
+          - os: windows-latest
+            artifact_name: coredeck-windows-x86-64
+            asset_name: coredeck-windows-x86-64
           - os: macos-latest
             artifact_name: coredeck-darwin-arm64
             asset_name: coredeck-darwin-arm64.dmg
@@ -55,8 +53,6 @@ jobs:
           sudo apt-get install -y --no-install-recommends build-essential libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
 
       - name: Configure CMake
-        # NOTE: COREDECK_SENTRY_DSN must be the public client DSN (safe to ship in binaries),
-        # not a server-side auth token.
         env:
           COREDECK_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           COREDECK_VERSION_REF: ${{ github.ref_name }}
@@ -229,16 +225,26 @@ jobs:
           body: |
             ## CoreDeck ${{ steps.version.outputs.version }}
 
-            > This is a **macOS-only beta** for verifying the DMG layout polish. Windows and Linux builds will return in the next release.
-
             Download the appropriate version for your platform:
 
+            **Windows (x86-64):**
+            - `coredeck-windows-x86-64.msi` - Professional installer (recommended)
+            - `coredeck-windows-x86-64.zip` - Portable version
+
             **macOS (Apple Silicon):** `coredeck-darwin-arm64.dmg`
+
+            **Linux (x86-64):** `coredeck-linux-x86-64.tar.gz`
+
+            **Linux (ARM64):** `coredeck-linux-arm64.tar.gz`
 
             Each artifact has an accompanying `.sha256` file for download verification.
 
             ### Installation
+            **Windows:** Double-click the MSI to install, or extract the ZIP and run CoreDeck.exe directly.
+
             **macOS:** Open the DMG and drag `CoreDeck.app` into your Applications folder.
+
+            **Linux:** Extract the archive and run the `CoreDeck` executable.
 
             ### Troubleshooting (macOS)
             If the app won't open after copying it out of the DMG, remove the quarantine attribute:

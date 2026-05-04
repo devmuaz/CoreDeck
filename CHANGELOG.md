@@ -1,3 +1,12 @@
+## [v0.5.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.5.0) — 2026-05-04
+
+- Ship macOS as a notarized `.dmg` with a drag-to-Applications window layout and a Retina-ready background image
+- Add SHA256 checksums alongside every release artifact for download verification
+- Sign nested Mach-O components (including `crashpad_handler`) explicitly during macOS packaging, replacing the deprecated `--deep` flag
+- Surface Apple's full notarization log in CI when notarization fails
+- Cache compilation across releases via `ccache` on Linux and macOS to shorten release times
+- Wire release tags through to the embedded version string via a new `COREDECK_VERSION_OVERRIDE` CMake option
+
 ## [v0.4.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.4.0) — 2026-05-03
 
 - Redesign AVD creation around dedicated device profile and system image picker dialogs with search, category filters, and table-based selection
