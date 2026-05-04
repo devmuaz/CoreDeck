@@ -18,16 +18,22 @@ on run argv
             set current view of container window to icon view
             set toolbar visible of container window to false
             set statusbar visible of container window to false
-            set the bounds of container window to {400, 100, 1060, 500}
+            set the bounds of container window to {400, 100, 1000, 500}
 
             set viewOptions to the icon view options of container window
             set arrangement of viewOptions to not arranged
             set icon size of viewOptions to 96
             set text size of viewOptions to 13
-            -- set background picture of viewOptions to file ".background:background.png"
+            try
+                set background picture of viewOptions to file ".background:dmg-background.tiff"
+            on error
+                try
+                    set background picture of viewOptions to file ".background:dmg-background.png"
+                end try
+            end try
 
-            set position of item "CoreDeck.app" of container window to {180, 200}
-            set position of item "Applications" of container window to {480, 200}
+            set position of item "CoreDeck.app" of container window to {150, 185}
+            set position of item "Applications" of container window to {450, 185}
 
             -- Force Finder to write the layout to .DS_Store before CPack snapshots it.
             close

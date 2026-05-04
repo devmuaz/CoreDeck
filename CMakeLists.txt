@@ -287,10 +287,30 @@ elseif (APPLE)
     set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
     set(CPACK_DMG_FORMAT "UDZO")
     set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/dmg-setup.applescript")
-    # Optional polish: provide a 660x400 PNG (with a matching @2x for retina) and
-    # uncomment to set the DMG window background. Also uncomment the background line
-    # in cmake/dmg-setup.applescript so Finder applies it.
-    # set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/media/branding/dmg-background.png")
+    set(CPACK_DMG_VOLUME_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
+
+    # DMG background image. Prefer a multi-resolution TIFF (1x + @2x) for Retina sharpness;
+    # fall back to a plain PNG if only the 1x file is present.
+    set(_dmg_bg_1x "${CMAKE_SOURCE_DIR}/media/branding/dmg-background.png")
+    set(_dmg_bg_2x "${CMAKE_SOURCE_DIR}/media/branding/dmg-background@2x.png")
+    if (EXISTS "${_dmg_bg_1x}" AND EXISTS "${_dmg_bg_2x}")
+        set(_dmg_bg_tiff "${CMAKE_BINARY_DIR}/dmg-background.tiff")
+        execute_process(
+                COMMAND tiffutil -cathidpicheck "${_dmg_bg_1x}" "${_dmg_bg_2x}" -out "${_dmg_bg_tiff}"
+                RESULT_VARIABLE _tiffutil_rc
+                OUTPUT_QUIET ERROR_QUIET
+        )
+        if (_tiffutil_rc EQUAL 0 AND EXISTS "${_dmg_bg_tiff}")
+            set(CPACK_DMG_BACKGROUND_IMAGE "${_dmg_bg_tiff}")
+            message(STATUS "DMG background: multi-resolution TIFF (1x + @2x)")
+        else ()
+            set(CPACK_DMG_BACKGROUND_IMAGE "${_dmg_bg_1x}")
+            message(WARNING "tiffutil failed; falling back to 1x PNG only")
+        endif ()
+    elseif (EXISTS "${_dmg_bg_1x}")
+        set(CPACK_DMG_BACKGROUND_IMAGE "${_dmg_bg_1x}")
+        message(STATUS "DMG background: 1x PNG only (add dmg-background@2x.png for Retina)")
+    endif ()
 
     # The DMG should only contain CoreDeck.app + an Applications symlink.
     # Sentry-native's bundled crashpad has unconditional install rules that
