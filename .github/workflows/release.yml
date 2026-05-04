@@ -103,13 +103,16 @@ jobs:
         run: |
           APP_PATH="build/CoreDeck.app"
 
-          # Sign nested Mach-O components first (replaces deprecated --deep).
-          # The loops are no-ops if no nested components exist.
-          while IFS= read -r f; do
-            [ -z "$f" ] && continue
-            codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$f"
-          done < <(find "$APP_PATH" -type f \( -name "*.dylib" -o -name "*.so" \))
+          # Sign every nested Mach-O file first (replaces deprecated --deep).
+          # Detect Mach-O by content, not extension, so we cover bundled helpers
+          # like sentry-native's crashpad_handler that have no .dylib suffix.
+          while IFS= read -r -d '' f; do
+            if file -b "$f" 2>/dev/null | grep -q "Mach-O"; then
+              codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$f"
+            fi
+          done < <(find "$APP_PATH" -type f -print0)
 
+          # Sign nested .framework bundles, if any.
           if [ -d "$APP_PATH/Contents/Frameworks" ]; then
             while IFS= read -r f; do
               [ -z "$f" ] && continue
@@ -119,6 +122,9 @@ jobs:
 
           # Then sign the outer bundle.
           codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$APP_PATH"
+
+          # Sanity-check the signature before packaging.
+          codesign --verify --strict --verbose=2 "$APP_PATH"
 
           # Build the .dmg containing the signed .app via CPack (DragNDrop).
           mkdir -p release
@@ -132,11 +138,33 @@ jobs:
 
           # Sign the .dmg itself, then notarize and staple it.
           codesign --force --sign "$CERTIFICATE_NAME" "release/${{ matrix.asset_name }}"
-          xcrun notarytool submit "release/${{ matrix.asset_name }}" \
+
+          # Submit and capture the JSON output so we can fetch the log on failure.
+          set +e
+          NOTARY_OUTPUT=$(xcrun notarytool submit "release/${{ matrix.asset_name }}" \
             --apple-id "${{ secrets.APPLE_ID }}" \
             --password "${{ secrets.APPLE_PASSWORD }}" \
             --team-id "${{ secrets.APPLE_TEAM_ID }}" \
-            --wait
+            --wait \
+            --output-format json)
+          NOTARY_EXIT=$?
+          set -e
+          echo "$NOTARY_OUTPUT"
+
+          NOTARY_STATUS=$(echo "$NOTARY_OUTPUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "")
+          NOTARY_ID=$(echo "$NOTARY_OUTPUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('id',''))" 2>/dev/null || echo "")
+
+          if [ "$NOTARY_STATUS" != "Accepted" ]; then
+            echo "::error::Notarization failed (status=$NOTARY_STATUS). Fetching log:"
+            if [ -n "$NOTARY_ID" ]; then
+              xcrun notarytool log "$NOTARY_ID" \
+                --apple-id "${{ secrets.APPLE_ID }}" \
+                --password "${{ secrets.APPLE_PASSWORD }}" \
+                --team-id "${{ secrets.APPLE_TEAM_ID }}" || true
+            fi
+            exit ${NOTARY_EXIT:-1}
+          fi
+
           xcrun stapler staple "release/${{ matrix.asset_name }}"
 
       - name: Install WiX Toolset (Windows)
