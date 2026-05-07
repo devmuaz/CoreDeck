@@ -1,3 +1,12 @@
+## [v0.6.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.6.0) — 2026-05-07
+
+- Add skin management with a dedicated picker window for browsing, previewing, and assigning device skins from the SDK or custom paths
+- Add log filtering to the AVD logs window with case-sensitive and regex search modes plus result navigation
+- Expand preferences with theme controls and broader app settings
+- Add unit tests covering the log filter and skin modules
+- Add `.clang-tidy` with project-wide naming conventions and a curated check set
+- Other minor bug fixes and improvements
+
 ## [v0.5.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.5.0) — 2026-05-04
 
 - Ship macOS as a notarized `.dmg` with a drag-to-Applications window layout and a Retina-ready background image
