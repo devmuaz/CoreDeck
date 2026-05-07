@@ -17,6 +17,7 @@
 #include "../core/emulator.h"
 #include "../core/options.h"
 #include "../core/sdk.h"
+#include "../core/skin.h"
 #include "../core/system_image.h"
 
 struct GLFWwindow;
@@ -86,9 +87,18 @@ namespace CoreDeck {
             std::vector<int> FilteredIndices;
         } Catalog;
 
+        struct LogViewState {
+            std::string Search;
+            int ActiveMatchIndex = 0;
+            bool UseRegex = false;
+        };
+
         struct Logs {
-            std::unordered_map<std::string, std::string> PerAvdLogSearch;
+            std::unordered_map<std::string, LogViewState> PerAvdView;
             bool AutoScroll = true;
+            bool PendingScroll = false;
+            bool PendingFocus = false;
+            int PendingSyncFrames = 0;
         } Logs;
 
         struct Prefs {
@@ -100,6 +110,7 @@ namespace CoreDeck {
             bool ShowDeleteAvdDialog = false;
             bool ShowCreateAvdDialog = false;
             bool ShowDeviceProfileDialog = false;
+            bool ShowSkinDialog = false;
             bool ShowInstallImageDialog = false;
             bool ReopenCreateAvdOnInstallClose = false;
             bool ShowPreferences = false;
@@ -116,15 +127,21 @@ namespace CoreDeck {
         struct AvdCreationWork {
             std::vector<SystemImage> SystemImages;
             std::vector<DeviceProfile> DeviceProfiles;
+            std::vector<Skin> Skins;
             AvdCreationData CreationData;
             int SelectedSystemImage = 0;
             int SelectedDevice = 0;
             int PendingSelectedDevice = 0;
+            int SelectedSkin = 0; // 0 = "No skin"
+            int PendingSelectedSkin = 0;
+            char SkinSearchFilter[128] = {};
             DeviceCategory SelectedDeviceCategory = DeviceCategory::Phone;
             char DeviceSearchFilter[128] = {};
             int SelectedGpuMode = 0;
             bool NameAutoFilled = true;
             bool DisplayNameAutoFilled = true;
+            bool SkinAutoFilled = true;
+            int LastDeviceForSkinAuto = -1;
 
             struct {
                 std::atomic<bool> Loading{false};

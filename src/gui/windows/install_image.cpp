@@ -9,7 +9,6 @@
 
 #include "install_image.h"
 #include "../application.h"
-#include "../icons.h"
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/utilities.h"
@@ -111,12 +110,12 @@ namespace CoreDeck {
     }
 
     LabeledIconStyle SystemImageTypeStyleForVariant(const std::string &variant) {
-        if (variant.starts_with("google_apis_playstore")) return {Icons::Play, "Google Play", "#33CC47"};
-        if (variant.starts_with("google_apis")) return {Icons::Gear, "Google APIs", "#4FC3F7"};
+        if (variant.starts_with("google_apis_playstore")) return {Icons::Play, "Google Play", Colors::Positive};
+        if (variant.starts_with("google_apis")) return {Icons::Gear, "Google APIs", Colors::AccentPhone};
         if (variant.starts_with("aosp_atd") || variant.starts_with("google_atd")) {
-            return {Icons::Mobile, "ATD", "#F5A623"};
+            return {Icons::Mobile, "ATD", Colors::AccentWear};
         }
-        return {Icons::Mobile, "Default", "#A7A7AD"};
+        return {Icons::Mobile, "Default", Colors::TextSubtle};
     }
 
     LabeledIconStyle SystemImageTypeStyleFor(const SystemImage &img) {
@@ -303,7 +302,7 @@ namespace CoreDeck {
                             ImGui::TableNextRow();
                             ImGui::TableNextColumn();
                             ImGui::TextColored(
-                                HexColor("#E64D40"),
+                                HexColor(Colors::Negative),
                                 "No remote system images found. Check your SDK and internet connection."
                             );
                         } else {
@@ -340,7 +339,7 @@ namespace CoreDeck {
 
                                 ImGui::TableNextColumn();
                                 if (img.IsInstalled) {
-                                    ImGui::TextColored(HexColor("#33CC47"), "Installed");
+                                    ImGui::TextColored(HexColor(Colors::Positive), "Installed");
                                 } else {
                                     ImGui::TextDisabled("Available");
                                 }
@@ -376,7 +375,7 @@ namespace CoreDeck {
                     ImGui::Text("%s", statusText.c_str());
                     ImGui::Spacing();
 
-                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor("#33CC47"));
+                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor(Colors::Positive));
                     ImGui::ProgressBar(fraction, ImVec2(-1.0f, 0.0f));
                     ImGui::PopStyleColor();
                 }
@@ -398,8 +397,8 @@ namespace CoreDeck {
                         ImGui::SetCursorPosX(
                             (ImGui::GetContentRegionAvail().x - textWidth) * 0.5f + ImGui::GetCursorStartPos().x
                         );
-                        if (succeeded) ImGui::TextColored(HexColor("#33CC47"), "%s", statusText.c_str());
-                        else ImGui::TextColored(HexColor("#E64D40"), "%s", statusText.c_str());
+                        if (succeeded) ImGui::TextColored(HexColor(Colors::Positive), "%s", statusText.c_str());
+                        else ImGui::TextColored(HexColor(Colors::Negative), "%s", statusText.c_str());
                     }
                 }
 
@@ -424,7 +423,7 @@ namespace CoreDeck {
                 const bool licenseBusy = work.LicenseBusy.load();
 
                 if (!work.LicenseError.empty()) {
-                    ImGui::TextColored(HexColor("#E64D40"), "%s", work.LicenseError.c_str());
+                    ImGui::TextColored(HexColor(Colors::Negative), "%s", work.LicenseError.c_str());
                     ImGui::Spacing();
                 }
 

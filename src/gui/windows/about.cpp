@@ -24,13 +24,13 @@ namespace CoreDeck {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             const float titleWidth = ImGui::CalcTextSize(COREDECK_TITLE).x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5f);
-            ImGui::TextColored(HexColor("#F2F2F2"), COREDECK_TITLE);
+            ImGui::TextColored(HexColor(Colors::TextPrimary), COREDECK_TITLE);
             ImGui::PopFont();
 
-            const std::string versionText = "Version " COREDECK_VERSION " (Build " COREDECK_BUILD_NUMBER ")";
-            const float versionWidth = ImGui::CalcTextSize(versionText.c_str()).x;
+            const std::string version = "Version " COREDECK_VERSION " (Build " COREDECK_BUILD_NUMBER ")";
+            const float versionWidth = ImGui::CalcTextSize(version.c_str()).x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - versionWidth) * 0.5f);
-            ImGui::TextColored(HexColor("#66666B"), "%s", versionText.c_str());
+            ImGui::TextColored(HexColor(Colors::TextMuted), "%s", version.c_str());
 
             ImGui::Spacing();
             ImGui::Separator();
@@ -62,7 +62,7 @@ namespace CoreDeck {
 
             const float copyrightWidth = ImGui::CalcTextSize(COREDECK_COPYRIGHT).x;
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - copyrightWidth) * 0.5f);
-            ImGui::TextColored(HexColor("#66666B"), "%s", COREDECK_COPYRIGHT);
+            ImGui::TextColored(HexColor(Colors::TextMuted), "%s", COREDECK_COPYRIGHT);
 
             ImGui::Spacing();
             ImGui::EndPopup();

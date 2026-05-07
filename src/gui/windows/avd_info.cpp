@@ -52,6 +52,7 @@ namespace CoreDeck {
         const auto &GpuMode = avd.GpuMode;
         const auto &Arch = avd.Arch;
         const auto &Path = avd.Path;
+        const auto &SkinName = avd.SkinName;
         const auto args = BuildArgs(Name, GetDefaultAvdOptions(context));
 
         std::string preview = context.Host.Sdk.EmulatorPath;
@@ -75,6 +76,7 @@ namespace CoreDeck {
         if (!ScreenResolution.empty()) PropertyText("Resolution", ScreenResolution.c_str(), false, true);
         if (!SdCard.empty()) PropertyText("Storage", SdCard.c_str(), false, true);
         if (!GpuMode.empty()) PropertyText("GPU Mode", GpuModeDisplayLabel(GpuMode), false, true);
+        PropertyText("Skin", SkinName.empty() ? "None" : SkinName.c_str(), false, true);
 
         if (!avd.SystemImagePath.empty() ||
             !avd.SystemImageVariant.empty() ||
@@ -88,7 +90,9 @@ namespace CoreDeck {
             PropertyText("16 KB Page Size", avd.Supports16KbPageSize ? "Supported" : "Not supported", false, true);
             if (!avd.SystemImageTagDisplayNames.empty()) {
                 const std::string tags = JoinAvdInfoList(avd.SystemImageTagDisplayNames);
-                PropertyTextWrapped("Tags", tags.c_str(), true);
+                ImGui::Spacing();
+                ImGui::TextDisabled("Tags");
+                ImGui::TextWrapped("%s", tags.c_str());
             }
         }
 

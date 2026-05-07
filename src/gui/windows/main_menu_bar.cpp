@@ -7,7 +7,7 @@
 
 #include "main_menu_bar.h"
 #include "../widgets.h"
-#include "../icons.h"
+#include "../theme.h"
 #include "../application.h"
 
 namespace CoreDeck {
@@ -25,20 +25,20 @@ namespace CoreDeck {
             }
 
             if (ImGui::BeginMenu("View")) {
-                if (ImGui::MenuItem("AVD List", nullptr, &context.UI.ShowAvdListPanel)) {
+                if (ImGui::MenuItem("Show AVD List Window", nullptr, &context.UI.ShowAvdListPanel)) {
                     PersistAppSettings(context);
                 }
-                if (ImGui::MenuItem("Options", nullptr, &context.UI.ShowOptionsPanel)) {
+                if (ImGui::MenuItem("Show Options Window", nullptr, &context.UI.ShowOptionsPanel)) {
                     PersistAppSettings(context);
                 }
-                if (ImGui::MenuItem("Details", nullptr, &context.UI.ShowDetailsPanel)) {
+                if (ImGui::MenuItem("Show Details Window", nullptr, &context.UI.ShowDetailsPanel)) {
                     PersistAppSettings(context);
                 }
-                if (ImGui::MenuItem("Output Log", nullptr, &context.UI.ShowLogPanel)) {
+                if (ImGui::MenuItem("Show Output Log Window", nullptr, &context.UI.ShowLogPanel)) {
                     PersistAppSettings(context);
                 }
                 ImGui::Separator();
-                if (ImGui::MenuItem("Storage Overview...")) {
+                if (ImGui::MenuItem("Storage Overview")) {
                     context.UI.ShowStorageDialog = true;
                 }
                 ImGui::EndMenu();
