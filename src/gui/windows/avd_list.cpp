@@ -9,7 +9,6 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../icons.h"
 
 namespace CoreDeck {
     struct DeviceIconStyle {
@@ -22,12 +21,12 @@ namespace CoreDeck {
         d.reserve(device.size());
         for (const char c: device) d.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
 
-        if (d.find("wear") != std::string::npos) return {Icons::Watch, "#F5A623"};
-        if (d.find("auto") != std::string::npos) return {Icons::Car, "#E64D40"};
-        if (d.find("tv") != std::string::npos) return {Icons::Tv, "#7E57C2"};
+        if (d.find("wear") != std::string::npos) return {Icons::Watch, Colors::AccentWear};
+        if (d.find("auto") != std::string::npos) return {Icons::Car, Colors::Negative};
+        if (d.find("tv") != std::string::npos) return {Icons::Tv, Colors::AccentTv};
         if (d.find("tablet") != std::string::npos || d.find("pixel_c") != std::string::npos)
-            return {Icons::Tablet, "#33CC47"};
-        return {Icons::Mobile, "#4FC3F7"};
+            return {Icons::Tablet, Colors::AccentTablet};
+        return {Icons::Mobile, Colors::AccentPhone};
     }
 
     static const char *AvdTypeLabel(const AvdInfo &avd) {
@@ -114,6 +113,11 @@ namespace CoreDeck {
             context.AvdCreationWork.SelectedGpuMode = 0;
             context.AvdCreationWork.NameAutoFilled = true;
             context.AvdCreationWork.DisplayNameAutoFilled = true;
+            context.AvdCreationWork.SkinAutoFilled = true;
+            context.AvdCreationWork.SelectedSkin = 0;
+            context.AvdCreationWork.PendingSelectedSkin = 0;
+            context.AvdCreationWork.LastDeviceForSkinAuto = -1;
+            context.AvdCreationWork.SkinSearchFilter[0] = '\0';
             context.AvdCreationWork.Prefetch.Ready = false;
             context.AvdCreationWork.Prefetch.Loading = true;
             context.UI.ShowCreateAvdDialog = true;
@@ -121,8 +125,10 @@ namespace CoreDeck {
             context.AvdCreationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
                 auto images = ListSystemImages(context.Host.Sdk);
                 auto devices = ListDeviceProfiles(context.Host.Sdk);
+                auto skins = ListSkins(context.Host.Sdk);
                 context.AvdCreationWork.SystemImages = std::move(images);
                 context.AvdCreationWork.DeviceProfiles = std::move(devices);
+                context.AvdCreationWork.Skins = std::move(skins);
                 context.AvdCreationWork.Prefetch.Loading = false;
                 context.AvdCreationWork.Prefetch.Ready = true;
             });
@@ -246,7 +252,7 @@ namespace CoreDeck {
 
             ImGui::PushID(i);
             const char *avdStatusText = isRunning ? "Running..." : "Ready";
-            const ImVec4 avdStatusColor = isRunning ? HexColor("#33CC47") : HexColor("#66666B");
+            const ImVec4 avdStatusColor = isRunning ? HexColor(Colors::Positive) : HexColor(Colors::TextMuted);
             const std::string avdRightText = StrConcat(AvdTypeLabel(avd), " - ", avdStatusText);
             const auto [Icon, Color] = DeviceIconStyleFor(avd.Device);
             if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdRightText.c_str(), avdStatusColor, Icon, HexColor(Color))) {

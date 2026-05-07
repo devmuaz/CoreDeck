@@ -8,6 +8,7 @@
 #include "create_avd.h"
 #include "device_profile.h"
 #include "install_image.h"
+#include "skin.h"
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
@@ -107,7 +108,7 @@ namespace CoreDeck {
 
             if (nameConflict) {
                 ImGui::TextColored(
-                    HexColor("#E64D40"),
+                    HexColor(Colors::Negative),
                     " An AVD named \"%s\" already exists.",
                     context.AvdCreationWork.CreationData.Name.c_str()
                 );
@@ -135,7 +136,7 @@ namespace CoreDeck {
                 } else {
                     PickerButton("No system images installed", false, ImVec2(-1.0f, 0.0f));
                     ImGui::TextColored(
-                        HexColor("#E64D40"),
+                        HexColor(Colors::Negative),
                         "SDK Manager was not found, so CoreDeck cannot install images automatically."
                     );
                 }
@@ -171,6 +172,38 @@ namespace CoreDeck {
                 }
             } else {
                 PickerButton("Loading device profiles...", false, ImVec2(-1.0f, 0.0f));
+            }
+
+            if (context.AvdCreationWork.Prefetch.Ready && hasDeviceProfile) {
+                auto &skinWork = context.AvdCreationWork;
+                if (skinWork.SkinAutoFilled && skinWork.SelectedDevice != skinWork.LastDeviceForSkinAuto) {
+                    const auto &deviceId = skinWork.DeviceProfiles[skinWork.SelectedDevice].Id;
+                    const auto match = FindSkinForDevice(skinWork.Skins, deviceId);
+                    if (match.has_value()) {
+                        for (int i = 0; i < static_cast<int>(skinWork.Skins.size()); i++) {
+                            if (skinWork.Skins[i].Name == match->Name) {
+                                skinWork.SelectedSkin = i + 1;
+                                break;
+                            }
+                        }
+                    } else {
+                        skinWork.SelectedSkin = 0;
+                    }
+                    skinWork.LastDeviceForSkinAuto = skinWork.SelectedDevice;
+                }
+            }
+
+            ImGui::Spacing();
+            ImGui::Text("Skin");
+            if (context.AvdCreationWork.Prefetch.Ready) {
+                const std::string skinPreview = SkinPreviewLabel(context);
+                if (PickerButton(skinPreview.c_str(), !formDisabled, ImVec2(-1.0f, 0.0f))) {
+                    context.AvdCreationWork.PendingSelectedSkin = context.AvdCreationWork.SelectedSkin;
+                    context.AvdCreationWork.SkinSearchFilter[0] = '\0';
+                    context.UI.ShowSkinDialog = true;
+                }
+            } else {
+                PickerButton("Loading skins...", false, ImVec2(-1.0f, 0.0f));
             }
 
             ImGui::Spacing();
@@ -241,6 +274,15 @@ namespace CoreDeck {
                                                                         ? context.AvdCreationWork.DeviceProfiles[context.AvdCreationWork.SelectedDevice].Id
                                                                         : "";
                     context.AvdCreationWork.CreationData.GpuMode = gpuModes[context.AvdCreationWork.SelectedGpuMode].Value;
+                    if (context.AvdCreationWork.SelectedSkin > 0 &&
+                        context.AvdCreationWork.SelectedSkin - 1 < static_cast<int>(context.AvdCreationWork.Skins.size())) {
+                        const auto &chosenSkin = context.AvdCreationWork.Skins[context.AvdCreationWork.SelectedSkin - 1];
+                        context.AvdCreationWork.CreationData.SkinName = chosenSkin.Name;
+                        context.AvdCreationWork.CreationData.SkinPath = chosenSkin.Path;
+                    } else {
+                        context.AvdCreationWork.CreationData.SkinName.clear();
+                        context.AvdCreationWork.CreationData.SkinPath.clear();
+                    }
                     if (!context.AvdCreationWork.CreationData.SdCardSize.empty()) {
                         context.AvdCreationWork.CreationData.SdCardSize += "M";
                     }
@@ -266,6 +308,7 @@ namespace CoreDeck {
             }
 
             BuildDeviceProfileWindow(context);
+            BuildSkinWindow(context);
             BuildInstallImageWindow(context);
 
             ImGui::EndPopup();
