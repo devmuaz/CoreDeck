@@ -8,7 +8,6 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../icons.h"
 
 namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context) {
@@ -53,7 +52,7 @@ namespace CoreDeck {
                     if (wasEnabled != Enabled) optionsChanged = true;
 
                     ImGui::SameLine();
-                    ImGui::TextColored(HexColor("#66666B"), Icons::Info);
+                    ImGui::TextColored(HexColor(Colors::TextMuted), Icons::Info);
                     if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", Description.c_str());
 
                     if (Enabled) {

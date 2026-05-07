@@ -132,10 +132,12 @@ add_library(coredeck_core STATIC
         src/core/emulator_console.cpp
         src/core/file_dialog.cpp
         src/core/log_buffer.cpp
+        src/core/log_filter.cpp
         src/core/options.cpp
         src/core/paths.cpp
         src/core/process.cpp
         src/core/sdk.cpp
+        src/core/skin.cpp
         src/core/system_image.cpp
         src/core/utilities.cpp
         src/core/version_check.cpp
@@ -189,6 +191,7 @@ add_executable(${PROJECT_NAME}
         src/gui/windows/onboarding.cpp
         src/gui/windows/preferences.cpp
         src/gui/windows/sdk_banner.cpp
+        src/gui/windows/skin.cpp
         src/gui/windows/storage.cpp
         src/gui/windows/update.cpp
         src/gui/application.cpp

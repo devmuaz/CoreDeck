@@ -34,11 +34,11 @@ namespace CoreDeck {
         VerticalCenter(260.0f);
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
-        CenteredText(COREDECK_TITLE, HexColor("#F2F2F2"));
+        CenteredText(COREDECK_TITLE, HexColor(Colors::TextPrimary));
         ImGui::PopFont();
 
         ImGui::Spacing();
-        CenteredText("Your Android emulator command center.", HexColor("#66666B"));
+        CenteredText("Your Android emulator command center.", HexColor(Colors::TextMuted));
 
         ImGui::Spacing();
         ImGui::Spacing();
@@ -46,8 +46,8 @@ namespace CoreDeck {
 
         const auto welcomeLine1 = "Welcome! CoreDeck helps you manage Android emulators";
         const auto welcomeLine2 = "faster and cleaner than the default tooling.";
-        CenteredText(welcomeLine1, HexColor("#A8A8AD"));
-        CenteredText(welcomeLine2, HexColor("#A8A8AD"));
+        CenteredText(welcomeLine1, HexColor(Colors::TextSubtle));
+        CenteredText(welcomeLine2, HexColor(Colors::TextSubtle));
 
         ImGui::Spacing();
         ImGui::Spacing();
@@ -65,12 +65,12 @@ namespace CoreDeck {
         VerticalCenter(320.0f);
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
-        CenteredText("Locate your Android SDK", HexColor("#F2F2F2"));
+        CenteredText("Locate your Android SDK", HexColor(Colors::TextPrimary));
         ImGui::PopFont();
 
         ImGui::Spacing();
-        CenteredText("CoreDeck needs to know where your Android SDK lives.", HexColor("#66666B"));
-        CenteredText("This is where 'emulator', 'avdmanager' and system images are installed.", HexColor("#66666B"));
+        CenteredText("CoreDeck needs to know where your Android SDK lives.", HexColor(Colors::TextMuted));
+        CenteredText("This is where 'emulator', 'avdmanager' and system images are installed.", HexColor(Colors::TextMuted));
 
         ImGui::Spacing();
         ImGui::Spacing();
@@ -98,20 +98,20 @@ namespace CoreDeck {
         if (!currentPath.empty()) {
             if (isValid) {
                 ImGui::TextColored(
-                    HexColor("#33CC47"),
+                    HexColor(Colors::Positive),
                     "%s",
                     "Looks good. Found the Android emulator at this location."
                 );
             } else {
                 ImGui::TextColored(
-                    HexColor("#E64D40"),
+                    HexColor(Colors::Negative),
                     "%s",
                     "Couldn't find the Android emulator here. Make sure this is your SDK root folder."
                 );
             }
         } else {
             ImGui::TextColored(
-                HexColor("#66666B"),
+                HexColor(Colors::TextMuted),
                 "%s",
                 "Choose the folder containing your Android SDK (cmdline-tools, emulator, platform-tools, etc)."
             );

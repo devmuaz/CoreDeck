@@ -4,6 +4,8 @@ add_executable(coredeck_tests
         test_utilities.cpp
         test_paths.cpp
         test_log_buffer.cpp
+        test_log_filter.cpp
+        test_skin.cpp
         test_version_check.cpp
 )
 

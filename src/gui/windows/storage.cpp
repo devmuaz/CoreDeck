@@ -50,8 +50,8 @@ namespace CoreDeck {
     static void DrawStorageSummaryCard(const char *title, const std::string &value, const char *accentColor, const float width) {
         StyleColor sc;
         StyleVar sv;
-        sc.push(ImGuiCol_ChildBg, HexColor("#141417"));
-        sc.push(ImGuiCol_Border, HexColor("#2E2E33"));
+        sc.push(ImGuiCol_ChildBg, HexColor(Colors::Surface1));
+        sc.push(ImGuiCol_Border, HexColor(Colors::Surface4));
         sv.push(ImGuiStyleVar_ChildRounding, 8.0f);
         sv.push(ImGuiStyleVar_ChildBorderSize, 1.0f);
         sv.push(ImGuiStyleVar_WindowPadding, ImVec2(14.0f, 12.0f));
@@ -71,14 +71,14 @@ namespace CoreDeck {
         const ImVec2 end(pos.x + width, pos.y + height);
         auto *drawList = ImGui::GetWindowDrawList();
 
-        drawList->AddRectFilled(pos, end, ImGui::ColorConvertFloat4ToU32(HexColor("#1A1A1C")), 999.0f);
+        drawList->AddRectFilled(pos, end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::Surface2)), 999.0f);
         if (total > 0) {
             const float avdWidth = width * (static_cast<float>(avdSize) / static_cast<float>(total));
             if (avdSize > 0) {
-                drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor("#4D9AFF")), 999.0f);
+                drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor(Colors::AccentInfo)), 999.0f);
             }
             if (systemImageSize > 0) {
-                drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor("#33CC47")), 999.0f);
+                drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::Positive)), 999.0f);
             }
         }
 
@@ -119,21 +119,21 @@ namespace CoreDeck {
 
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float cardWidth = (ImGui::GetContentRegionAvail().x - spacing * 2.0f) / 3.0f;
-            DrawStorageSummaryCard("Total Storage", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(grandTotal), "#F2F2F2", cardWidth);
+            DrawStorageSummaryCard("Total Storage", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(grandTotal), Colors::TextPrimary, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(TotalAvdSize), "#4D9AFF", cardWidth);
+            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(TotalAvdSize), Colors::AccentInfo, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(SystemImagesSize), "#33CC47", cardWidth);
+            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(SystemImagesSize), Colors::Positive, cardWidth);
 
             ImGui::Spacing();
             ImGui::TextDisabled("Breakdown");
             DrawStorageBreakdownBar(TotalAvdSize, SystemImagesSize);
             ImGui::Spacing();
-            ImGui::TextColored(HexColor("#4D9AFF"), "AVDs");
+            ImGui::TextColored(HexColor(Colors::AccentInfo), "AVDs");
             ImGui::SameLine();
             ImGui::TextDisabled("%s", FormatFileSize(TotalAvdSize).c_str());
             ImGui::SameLine();
-            ImGui::TextColored(HexColor("#33CC47"), "System Images");
+            ImGui::TextColored(HexColor(Colors::Positive), "System Images");
             ImGui::SameLine();
             ImGui::TextDisabled("%s", FormatFileSize(SystemImagesSize).c_str());
 

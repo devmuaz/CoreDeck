@@ -32,6 +32,7 @@ namespace CoreDeck {
         std::string GpuMode;
         std::string Arch;
         std::string Path;
+        std::string SkinName;
     };
 
     struct AvdCreationData {
@@ -42,6 +43,8 @@ namespace CoreDeck {
         std::string RamSize;
         std::string SdCardSize;
         std::string GpuMode;
+        std::string SkinName;
+        std::string SkinPath;
     };
 
     std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames);
