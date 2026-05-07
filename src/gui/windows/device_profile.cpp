@@ -7,7 +7,6 @@
 #include "imgui.h"
 
 #include "device_profile.h"
-#include "../icons.h"
 #include "../theme.h"
 #include "../widgets.h"
 #include "../../core/utilities.h"
@@ -45,22 +44,22 @@ namespace CoreDeck {
     static LabeledIconStyle DeviceProfileStyleFor(const DeviceProfile &device) {
         switch (DeviceCategoryForProfile(device)) {
             case DeviceCategory::Phone:
-                return {Icons::Mobile, "Phone", "#4FC3F7"};
+                return {Icons::Mobile, "Phone", Colors::AccentPhone};
             case DeviceCategory::Tablet:
-                return {Icons::Tablet, "Tablet", "#33CC47"};
+                return {Icons::Tablet, "Tablet", Colors::AccentTablet};
             case DeviceCategory::Wear:
-                return {Icons::Watch, "Wear OS", "#F5A623"};
+                return {Icons::Watch, "Wear OS", Colors::AccentWear};
             case DeviceCategory::Tv:
-                return {Icons::Tv, "TV", "#7E57C2"};
+                return {Icons::Tv, "TV", Colors::AccentTv};
             case DeviceCategory::Automotive:
-                return {Icons::Car, "Automotive", "#E64D40"};
+                return {Icons::Car, "Automotive", Colors::Negative};
             case DeviceCategory::Desktop:
-                return {Icons::Desktop, "Desktop", "#A7A7AD"};
+                return {Icons::Desktop, "Desktop", Colors::TextSubtle};
             case DeviceCategory::All:
             case DeviceCategory::Other:
-                return {Icons::Gear, "Other", "#A7A7AD"};
+                return {Icons::Gear, "Other", Colors::TextSubtle};
         }
-        return {Icons::Gear, "Other", "#A7A7AD"};
+        return {Icons::Gear, "Other", Colors::TextSubtle};
     }
 
     std::string DeviceProfilePreviewLabel(const DeviceProfile &device) {

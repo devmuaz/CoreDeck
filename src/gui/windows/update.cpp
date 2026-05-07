@@ -28,7 +28,7 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Text("Current: ");
             ImGui::SameLine(0, 0.0f);
-            ImGui::TextColored(HexColor("#33CC47"), "v%s", COREDECK_VERSION);
+            ImGui::TextColored(HexColor(Colors::Positive), "v%s", COREDECK_VERSION);
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
@@ -61,10 +61,10 @@ namespace CoreDeck {
 
             ImGui::TextUnformatted("Latest: ");
             ImGui::SameLine(0, 0.0f);
-            ImGui::TextColored(HexColor("#33CC47"), "%s", context.Updates.LatestVersion.c_str());
+            ImGui::TextColored(HexColor(Colors::Positive), "%s", context.Updates.LatestVersion.c_str());
             ImGui::TextUnformatted("Current: ");
             ImGui::SameLine(0, 0.0f);
-            ImGui::TextColored(HexColor("#FF9F40"), "v%s", COREDECK_VERSION);
+            ImGui::TextColored(HexColor(Colors::Warning), "v%s", COREDECK_VERSION);
             ImGui::Spacing();
             ImGui::TextWrapped(
                 "You will be taken to the CoreDeck website, where you can download and install the latest version."

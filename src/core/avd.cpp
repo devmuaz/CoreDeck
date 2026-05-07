@@ -190,6 +190,10 @@ namespace CoreDeck {
             avd.GpuMode = it->second;
         }
 
+        if (auto it = config.find("skin.name"); it != config.end()) {
+            avd.SkinName = it->second;
+        }
+
         return avd;
     }
 
@@ -254,6 +258,12 @@ namespace CoreDeck {
                 if (!data.GpuMode.empty()) {
                     file << "hw.gpu.mode=" << data.GpuMode << "\n";
                     file << "hw.gpu.enabled=yes\n";
+                }
+                if (!data.SkinName.empty()) {
+                    file << "skin.name=" << data.SkinName << "\n";
+                    if (!data.SkinPath.empty()) {
+                        file << "skin.path=" << data.SkinPath << "\n";
+                    }
                 }
             }
         }
