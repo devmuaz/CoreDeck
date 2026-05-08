@@ -36,14 +36,14 @@ namespace CoreDeck {
         const bool isDeleting = context.Jobs.AvdDeletion.Busy.load();
         const DialogResult result = SimpleDialog(
             {.Id = "Delete###DeleteAvdDialog",
-             .isOpen = context.UI.ShowDeleteAvdDialog,
-             .title = title.c_str(),
-             .message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
-             .confirmButtonTitle = "Delete",
-             .cancelButtonTitle = "Cancel",
-             .busyButtonTitle = "Deleting...",
-             .type = DialogType::Negative,
-             .isBusy = isDeleting}
+             .IsOpen = context.UI.ShowDeleteAvdDialog,
+             .Title = title.c_str(),
+             .Message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
+             .ConfirmButtonTitle = "Delete",
+             .CancelButtonTitle = "Cancel",
+             .BusyButtonTitle = "Deleting...",
+             .Type = DialogType::Negative,
+             .IsBusy = isDeleting}
         );
 
         if (result == DialogResult::Confirmed) {
