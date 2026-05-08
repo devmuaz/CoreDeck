@@ -11,35 +11,47 @@
 #include "../core/utilities.h"
 
 namespace CoreDeck {
-    struct StyleColor {
-        int count = 0;
+    class StyleColor {
+    public:
+        StyleColor() = default;
+        StyleColor(const StyleColor &) = delete;
+        StyleColor &operator=(const StyleColor &) = delete;
 
-        void push(const ImGuiCol idx, const ImVec4 &color) {
+        void Push(const ImGuiCol idx, const ImVec4 &color) {
             ImGui::PushStyleColor(idx, color);
-            count++;
+            m_Count++;
         }
 
         ~StyleColor() {
-            if (count > 0) ImGui::PopStyleColor(count);
+            if (m_Count > 0) ImGui::PopStyleColor(m_Count);
         }
+
+    private:
+        int m_Count = 0;
     };
 
-    struct StyleVar {
-        int count = 0;
+    class StyleVar {
+    public:
+        StyleVar() = default;
+        StyleVar(const StyleVar &) = delete;
+        StyleVar &operator=(const StyleVar &) = delete;
 
-        void push(const ImGuiStyleVar idx, const float val) {
+        void Push(const ImGuiStyleVar idx, const float val) {
             ImGui::PushStyleVar(idx, val);
-            count++;
+            m_Count++;
         }
 
-        void push(const ImGuiStyleVar idx, const ImVec2 &val) {
+        void Push(const ImGuiStyleVar idx, const ImVec2 &val) {
             ImGui::PushStyleVar(idx, val);
-            count++;
+            m_Count++;
         }
 
         ~StyleVar() {
-            if (count > 0) ImGui::PopStyleVar(count);
+            if (m_Count > 0) ImGui::PopStyleVar(m_Count);
         }
+
+    private:
+        int m_Count = 0;
     };
 
     struct LabeledIconStyle {
@@ -85,14 +97,14 @@ namespace CoreDeck {
 
     struct DialogData {
         const char *Id{};
-        bool &isOpen;
-        const char *title{};
-        const char *message{};
-        const char *confirmButtonTitle{};
-        const char *cancelButtonTitle{};
-        const char *busyButtonTitle{};
-        DialogType type = DialogType::Default;
-        bool isBusy = false;
+        bool &IsOpen;
+        const char *Title{};
+        const char *Message{};
+        const char *ConfirmButtonTitle{};
+        const char *CancelButtonTitle{};
+        const char *BusyButtonTitle{};
+        DialogType Type = DialogType::Default;
+        bool IsBusy = false;
     };
 
     inline std::string IconWithLabel(const char *icon, const char *label) {
