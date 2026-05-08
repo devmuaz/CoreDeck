@@ -9,32 +9,32 @@
 
 namespace CoreDeck {
     PickerTableStyle::PickerTableStyle() {
-        Colors.push(ImGuiCol_ChildBg, HexColor(Colors::Surface1));
-        Colors.push(ImGuiCol_Border, HexColor(Colors::Surface4));
-        Colors.push(ImGuiCol_TableHeaderBg, HexColor(Colors::Surface2));
-        Colors.push(ImGuiCol_TableRowBg, HexColor(Colors::Shadow, 0.0f));
-        Colors.push(ImGuiCol_TableRowBgAlt, HexColor(Colors::Surface2, 0.28f));
-        Colors.push(ImGuiCol_TableBorderLight, HexColor(Colors::Surface3));
-        Colors.push(ImGuiCol_TableBorderStrong, HexColor(Colors::Surface4));
-        Colors.push(ImGuiCol_Header, HexColor(Colors::Surface3, 0.65f));
-        Colors.push(ImGuiCol_HeaderHovered, HexColor(Colors::Surface4, 0.85f));
-        Colors.push(ImGuiCol_HeaderActive, HexColor(Colors::BorderSubtle));
+        Colors.Push(ImGuiCol_ChildBg, HexColor(Colors::Surface1));
+        Colors.Push(ImGuiCol_Border, HexColor(Colors::Surface4));
+        Colors.Push(ImGuiCol_TableHeaderBg, HexColor(Colors::Surface2));
+        Colors.Push(ImGuiCol_TableRowBg, HexColor(Colors::Shadow, 0.0f));
+        Colors.Push(ImGuiCol_TableRowBgAlt, HexColor(Colors::Surface2, 0.28f));
+        Colors.Push(ImGuiCol_TableBorderLight, HexColor(Colors::Surface3));
+        Colors.Push(ImGuiCol_TableBorderStrong, HexColor(Colors::Surface4));
+        Colors.Push(ImGuiCol_Header, HexColor(Colors::Surface3, 0.65f));
+        Colors.Push(ImGuiCol_HeaderHovered, HexColor(Colors::Surface4, 0.85f));
+        Colors.Push(ImGuiCol_HeaderActive, HexColor(Colors::BorderSubtle));
 
-        Vars.push(ImGuiStyleVar_ChildRounding, 6.0f);
-        Vars.push(ImGuiStyleVar_ChildBorderSize, 1.0f);
-        Vars.push(ImGuiStyleVar_WindowPadding, ImVec2(1.0f, 1.0f));
-        Vars.push(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
+        Vars.Push(ImGuiStyleVar_ChildRounding, 6.0f);
+        Vars.Push(ImGuiStyleVar_ChildBorderSize, 1.0f);
+        Vars.Push(ImGuiStyleVar_WindowPadding, ImVec2(1.0f, 1.0f));
+        Vars.Push(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
     }
 
     bool PrimaryButton(const char *label, const bool isEnabled, const ImVec2 size) {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
-        sc.push(ImGuiCol_Button, HexColor(Colors::Surface2));
-        sc.push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface4, 0.6f));
-        sc.push(ImGuiCol_ButtonActive, HexColor(Colors::Surface0));
-        sc.push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
-        sc.push(ImGuiCol_Border, HexColor(Colors::BorderStrong));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::Surface2));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface4, 0.6f));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Surface0));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::BorderStrong));
 
         const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
@@ -45,11 +45,11 @@ namespace CoreDeck {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
-        sc.push(ImGuiCol_Button, HexColor(Colors::NegativeStrong, 0.10f));
-        sc.push(ImGuiCol_ButtonHovered, HexColor(Colors::NegativeStrong, 0.20f));
-        sc.push(ImGuiCol_ButtonActive, HexColor(Colors::NegativeStrong, 0.30f));
-        sc.push(ImGuiCol_Text, HexColor(Colors::Negative));
-        sc.push(ImGuiCol_Border, HexColor(Colors::Negative));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::NegativeStrong, 0.10f));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::NegativeStrong, 0.20f));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::NegativeStrong, 0.30f));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::Negative));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::Negative));
 
         const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
@@ -60,11 +60,11 @@ namespace CoreDeck {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
-        sc.push(ImGuiCol_Button, HexColor(Colors::Warning, 0.10f));
-        sc.push(ImGuiCol_ButtonHovered, HexColor(Colors::Warning, 0.20f));
-        sc.push(ImGuiCol_ButtonActive, HexColor(Colors::Warning, 0.30f));
-        sc.push(ImGuiCol_Text, HexColor(Colors::WarningStrong));
-        sc.push(ImGuiCol_Border, HexColor(Colors::WarningStrong));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::Warning, 0.10f));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Warning, 0.20f));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Warning, 0.30f));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::WarningStrong));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::WarningStrong));
 
         const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
@@ -75,11 +75,11 @@ namespace CoreDeck {
         if (!isEnabled) ImGui::BeginDisabled();
 
         StyleColor sc;
-        sc.push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.10f));
-        sc.push(ImGuiCol_ButtonHovered, HexColor(Colors::PositiveFill, 0.20f));
-        sc.push(ImGuiCol_ButtonActive, HexColor(Colors::PositiveFill, 0.30f));
-        sc.push(ImGuiCol_Text, HexColor(Colors::Positive));
-        sc.push(ImGuiCol_Border, HexColor(Colors::Positive));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.10f));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::PositiveFill, 0.20f));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::PositiveFill, 0.30f));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::Positive));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::Positive));
 
         const bool clicked = ImGui::Button(label, size);
         if (!isEnabled) ImGui::EndDisabled();
@@ -88,16 +88,16 @@ namespace CoreDeck {
 
     bool PickerButton(const char *label, const bool isEnabled, const ImVec2 size) {
         StyleVar sv;
-        sv.push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+        sv.Push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
         return PrimaryButton(label, isEnabled, size);
     }
 
     bool ToggleButton(const char *label, bool &isToggled, const ImVec2 size) {
         StyleColor sc;
         if (isToggled) {
-            sc.push(ImGuiCol_Button, HexColor(Colors::White, 0.10f));
-            sc.push(ImGuiCol_Border, HexColor(Colors::White, 0.75f));
-            sc.push(ImGuiCol_Text, HexColor(Colors::White));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::White, 0.10f));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::White, 0.75f));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::White));
         }
         const bool clicked = ImGui::Button(label, size);
         if (clicked) isToggled = !isToggled;
@@ -109,18 +109,18 @@ namespace CoreDeck {
         StyleVar sv;
 
         if (isActive) {
-            sc.push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.10f));
-            sc.push(ImGuiCol_Text, HexColor(Colors::Positive));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.10f));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::Positive));
         } else {
-            sc.push(ImGuiCol_Button, HexColor(Colors::NegativeStrong, 0.10f));
-            sc.push(ImGuiCol_Text, HexColor(Colors::Negative));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::NegativeStrong, 0.10f));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::Negative));
         }
-        sc.push(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
-        sc.push(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+        sc.Push(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+        sc.Push(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
 
-        sv.push(ImGuiStyleVar_FrameBorderSize, 0.0f);
-        sv.push(ImGuiStyleVar_FrameRounding, 6.0f);
-        sv.push(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 2.0f));
+        sv.Push(ImGuiStyleVar_FrameBorderSize, 0.0f);
+        sv.Push(ImGuiStyleVar_FrameRounding, 6.0f);
+        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 2.0f));
 
         ImGui::Button(label);
     }
@@ -136,16 +136,16 @@ namespace CoreDeck {
         StyleColor sc;
         StyleVar sv;
 
-        if (isSelected) sc.push(ImGuiCol_Button, HexColor(Colors::Surface3, 0.4f));
-        else sc.push(ImGuiCol_Button, HexColor(Colors::Shadow, 0.0f));
+        if (isSelected) sc.Push(ImGuiCol_Button, HexColor(Colors::Surface3, 0.4f));
+        else sc.Push(ImGuiCol_Button, HexColor(Colors::Shadow, 0.0f));
 
-        sc.push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface3, 0.4f));
-        sc.push(ImGuiCol_ButtonActive, HexColor(Colors::Surface3, 0.8f));
-        sc.push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface3, 0.4f));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Surface3, 0.8f));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
 
-        sv.push(ImGuiStyleVar_FrameRounding, 6.0f);
-        sv.push(ImGuiStyleVar_FrameBorderSize, 0.0f);
-        sv.push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+        sv.Push(ImGuiStyleVar_FrameRounding, 6.0f);
+        sv.Push(ImGuiStyleVar_FrameBorderSize, 0.0f);
+        sv.Push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
 
         std::string buttonLabel;
         if (leftIcon && leftIcon[0] != '\0') {
@@ -242,14 +242,14 @@ namespace CoreDeck {
 
     void PropertyTextWrapped(const char *label, const char *value, const bool invertColors) {
         StyleColor sc;
-        if (invertColors) sc.push(ImGuiCol_Text, HexColor(Colors::TextMuted));
+        if (invertColors) sc.Push(ImGuiCol_Text, HexColor(Colors::TextMuted));
         ImGui::Text("%s", label);
         ImGui::SameLine();
 
         if (invertColors) {
-            sc.push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
         } else {
-            sc.push(ImGuiCol_Text, HexColor(Colors::TextMuted));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TextMuted));
         }
         ImGui::TextWrapped("%s", value);
     }
@@ -259,42 +259,42 @@ namespace CoreDeck {
         StyleVar sv;
 
         if (isSelected) {
-            sc.push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.16f));
-            sc.push(ImGuiCol_ButtonHovered, HexColor(Colors::PositiveFill, 0.24f));
-            sc.push(ImGuiCol_ButtonActive, HexColor(Colors::PositiveFill, 0.32f));
-            sc.push(ImGuiCol_Text, HexColor(Colors::Positive));
-            sc.push(ImGuiCol_Border, HexColor(Colors::Positive));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.16f));
+            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::PositiveFill, 0.24f));
+            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::PositiveFill, 0.32f));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::Positive));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::Positive));
         } else {
-            sc.push(ImGuiCol_Button, HexColor(Colors::Surface2));
-            sc.push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface3));
-            sc.push(ImGuiCol_ButtonActive, HexColor(Colors::Surface4));
-            sc.push(ImGuiCol_Text, HexColor(Colors::TextHint));
-            sc.push(ImGuiCol_Border, HexColor(Colors::Surface4));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::Surface2));
+            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface3));
+            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Surface4));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TextHint));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::Surface4));
         }
 
-        sv.push(ImGuiStyleVar_FrameRounding, 999.0f);
-        sv.push(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 5.0f));
-        sv.push(ImGuiStyleVar_FrameBorderSize, 1.0f);
+        sv.Push(ImGuiStyleVar_FrameRounding, 999.0f);
+        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 5.0f));
+        sv.Push(ImGuiStyleVar_FrameBorderSize, 1.0f);
 
         return ImGui::Button(label);
     }
 
     bool CollapsingHeader(const char *label, const ImGuiTreeNodeFlags flags) {
         StyleColor sc;
-        sc.push(ImGuiCol_Header, HexColor(Colors::Shadow, 0.0f));
-        sc.push(ImGuiCol_HeaderHovered, HexColor(Colors::Shadow, 0.0f));
-        sc.push(ImGuiCol_HeaderActive, HexColor(Colors::Shadow, 0.0f));
-        sc.push(ImGuiCol_Border, HexColor(Colors::Shadow, 0.0f));
-        sc.push(ImGuiCol_BorderShadow, HexColor(Colors::Shadow, 0.0f));
-        sc.push(ImGuiCol_Text, HexColor(Colors::TextOnBright));
+        sc.Push(ImGuiCol_Header, HexColor(Colors::Shadow, 0.0f));
+        sc.Push(ImGuiCol_HeaderHovered, HexColor(Colors::Shadow, 0.0f));
+        sc.Push(ImGuiCol_HeaderActive, HexColor(Colors::Shadow, 0.0f));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::Shadow, 0.0f));
+        sc.Push(ImGuiCol_BorderShadow, HexColor(Colors::Shadow, 0.0f));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::TextOnBright));
         return ImGui::CollapsingHeader(label, flags);
     }
 
     DialogResult SimpleDialog(const DialogData &data) {
         auto result = DialogResult::None;
-        const std::string title = StrConcat(data.title, "###", data.Id);
+        const std::string title = StrConcat(data.Title, "###", data.Id);
 
-        if (data.isOpen && !ImGui::IsPopupOpen(title.c_str())) {
+        if (data.IsOpen && !ImGui::IsPopupOpen(title.c_str())) {
             ImGui::OpenPopup(title.c_str());
         }
 
@@ -302,21 +302,21 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(ImVec2(380, 0), ImGuiCond_Appearing);
 
-        constexpr ImGuiWindowFlags flags =
+        constexpr ImGuiWindowFlags Flags =
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::BeginPopupModal(title.c_str(), data.isBusy ? nullptr : &data.isOpen, flags)) {
-            if (!data.isOpen) {
+        if (ImGui::BeginPopupModal(title.c_str(), data.IsBusy ? nullptr : &data.IsOpen, Flags)) {
+            if (!data.IsOpen) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
                 return result;
             }
 
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextMuted));
-            ImGui::TextWrapped("%s", data.message);
+            ImGui::TextWrapped("%s", data.Message);
             ImGui::PopStyleColor();
             ImGui::Spacing();
             ImGui::Spacing();
@@ -324,10 +324,10 @@ namespace CoreDeck {
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
-            if (data.isBusy) {
+            if (data.IsBusy) {
                 ImGui::BeginDisabled();
-                const char *busyLabel = data.busyButtonTitle ? data.busyButtonTitle : data.confirmButtonTitle;
-                switch (data.type) {
+                const char *busyLabel = data.BusyButtonTitle ? data.BusyButtonTitle : data.ConfirmButtonTitle;
+                switch (data.Type) {
                     case DialogType::Negative:
                         NegativeButton(busyLabel, false, ImVec2(halfWidth, 0));
                         break;
@@ -339,19 +339,19 @@ namespace CoreDeck {
                         break;
                 }
                 ImGui::SameLine();
-                PrimaryButton(data.cancelButtonTitle, false, ImVec2(halfWidth, 0));
+                PrimaryButton(data.CancelButtonTitle, false, ImVec2(halfWidth, 0));
                 ImGui::EndDisabled();
             } else {
                 bool confirmed = false;
-                switch (data.type) {
+                switch (data.Type) {
                     case DialogType::Negative:
-                        confirmed = NegativeButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                        confirmed = NegativeButton(data.ConfirmButtonTitle, true, ImVec2(halfWidth, 0));
                         break;
                     case DialogType::Positive:
-                        confirmed = PositiveButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                        confirmed = PositiveButton(data.ConfirmButtonTitle, true, ImVec2(halfWidth, 0));
                         break;
                     default:
-                        confirmed = PrimaryButton(data.confirmButtonTitle, true, ImVec2(halfWidth, 0));
+                        confirmed = PrimaryButton(data.ConfirmButtonTitle, true, ImVec2(halfWidth, 0));
                         break;
                 }
                 if (confirmed) {
@@ -359,9 +359,9 @@ namespace CoreDeck {
                 }
 
                 ImGui::SameLine();
-                if (PrimaryButton(data.cancelButtonTitle, true, ImVec2(halfWidth, 0))) {
+                if (PrimaryButton(data.CancelButtonTitle, true, ImVec2(halfWidth, 0))) {
                     result = DialogResult::Cancelled;
-                    data.isOpen = false;
+                    data.IsOpen = false;
                     ImGui::CloseCurrentPopup();
                 }
             }
