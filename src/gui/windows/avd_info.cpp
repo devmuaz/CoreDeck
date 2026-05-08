@@ -142,14 +142,14 @@ namespace CoreDeck {
             const bool isWiping = context.Jobs.AvdWipe.Busy.load();
             const DialogData wipeDialog{
                 .Id = "WipeUserData",
-                .isOpen = context.UI.ShowWipeDataDialog,
-                .title = "Wipe User Data",
-                .message = "This will delete userdata, cache, SD card images, and snapshots for this AVD. This cannot be undone.\n\nContinue?",
-                .confirmButtonTitle = "Wipe",
-                .cancelButtonTitle = "Cancel",
-                .busyButtonTitle = "Wiping...",
-                .type = DialogType::Negative,
-                .isBusy = isWiping,
+                .IsOpen = context.UI.ShowWipeDataDialog,
+                .Title = "Wipe User Data",
+                .Message = "This will delete userdata, cache, SD card images, and snapshots for this AVD. This cannot be undone.\n\nContinue?",
+                .ConfirmButtonTitle = "Wipe",
+                .CancelButtonTitle = "Cancel",
+                .BusyButtonTitle = "Wiping...",
+                .Type = DialogType::Negative,
+                .IsBusy = isWiping,
             };
             if (const auto result = SimpleDialog(wipeDialog); result == DialogResult::Confirmed) {
                 context.Jobs.AvdWipe.Busy = true;

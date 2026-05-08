@@ -50,11 +50,11 @@ namespace CoreDeck {
     static void DrawStorageSummaryCard(const char *title, const std::string &value, const char *accentColor, const float width) {
         StyleColor sc;
         StyleVar sv;
-        sc.push(ImGuiCol_ChildBg, HexColor(Colors::Surface1));
-        sc.push(ImGuiCol_Border, HexColor(Colors::Surface4));
-        sv.push(ImGuiStyleVar_ChildRounding, 8.0f);
-        sv.push(ImGuiStyleVar_ChildBorderSize, 1.0f);
-        sv.push(ImGuiStyleVar_WindowPadding, ImVec2(14.0f, 12.0f));
+        sc.Push(ImGuiCol_ChildBg, HexColor(Colors::Surface1));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::Surface4));
+        sv.Push(ImGuiStyleVar_ChildRounding, 8.0f);
+        sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0f);
+        sv.Push(ImGuiStyleVar_WindowPadding, ImVec2(14.0f, 12.0f));
 
         ImGui::BeginChild(title, ImVec2(width, 74.0f), true, ImGuiWindowFlags_NoScrollbar);
         ImGui::TextDisabled("%s", title);
