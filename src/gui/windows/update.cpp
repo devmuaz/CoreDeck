@@ -10,6 +10,54 @@
 #include "../widgets.h"
 
 namespace CoreDeck {
+    static void RenderReleaseNotes(const std::string &notes) {
+        if (notes.empty()) return;
+
+        const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetStyle().FrameRounding);
+        ImGui::BeginChild("##ReleaseNotes", ImVec2(0, lineHeight * 8.0f), true, ImGuiWindowFlags_HorizontalScrollbar);
+
+        size_t start = 0;
+        while (start <= notes.size()) {
+            const size_t end = notes.find('\n', start);
+            std::string line = notes.substr(start, end == std::string::npos ? std::string::npos : end - start);
+            if (!line.empty() && line.back() == '\r') {
+                line.pop_back();
+            }
+
+            std::string trimmed = line;
+            size_t leading = 0;
+            while (leading < trimmed.size() && (trimmed[leading] == ' ' || trimmed[leading] == '\t')) {
+                ++leading;
+            }
+            trimmed.erase(0, leading);
+
+            if (trimmed.empty()) {
+                ImGui::Spacing();
+            } else if (trimmed.rfind("### ", 0) == 0) {
+                ImGui::TextColored(HexColor(Colors::Positive), "%s", trimmed.substr(4).c_str());
+            } else if (trimmed.rfind("## ", 0) == 0) {
+                ImGui::TextColored(HexColor(Colors::Positive), "%s", trimmed.substr(3).c_str());
+            } else if (trimmed.rfind("# ", 0) == 0) {
+                ImGui::TextColored(HexColor(Colors::Positive), "%s", trimmed.substr(2).c_str());
+            } else if (trimmed.rfind("- ", 0) == 0 || trimmed.rfind("* ", 0) == 0) {
+                ImGui::Bullet();
+                ImGui::SameLine();
+                ImGui::TextWrapped(" %s", trimmed.substr(2).c_str());
+            } else {
+                ImGui::TextWrapped("%s", trimmed.c_str());
+            }
+
+            if (end == std::string::npos) {
+                break;
+            }
+            start = end + 1;
+        }
+
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
+    }
+
     static void BuildUpToDateModal(Context &context) {
         if (!context.Updates.ShowUpToDateModal) {
             return;
@@ -53,22 +101,17 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-        ImGui::SetNextWindowSize(ImVec2(440, 0), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(600, 0), ImGuiCond_Appearing);
 
         if (ImGui::BeginPopupModal("Update Available###CoreDeckUpdate", &context.Updates.ShowNewVersionModal, WindowNoResizeFlags)) {
-            ImGui::TextUnformatted("A newer CoreDeck release is available.");
             ImGui::Spacing();
-
-            ImGui::TextUnformatted("Latest: ");
-            ImGui::SameLine(0, 0.0f);
-            ImGui::TextColored(HexColor(Colors::Positive), "%s", context.Updates.LatestVersion.c_str());
-            ImGui::TextUnformatted("Current: ");
-            ImGui::SameLine(0, 0.0f);
+            ImGui::TextUnformatted("You're currently running on");
+            ImGui::SameLine();
             ImGui::TextColored(HexColor(Colors::Warning), "v%s", COREDECK_VERSION);
             ImGui::Spacing();
-            ImGui::TextWrapped(
-                "You will be taken to the CoreDeck website, where you can download and install the latest version."
-            );
+
+            RenderReleaseNotes(context.Updates.LatestNotes);
+
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
@@ -76,7 +119,7 @@ namespace CoreDeck {
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float half = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
-            if (PositiveButton("Visit website", true, ImVec2(half, 0))) {
+            if (PositiveButton("Download", true, ImVec2(half, 0))) {
                 OpenUrl(COREDECK_WEBSITE);
                 context.Updates.ShowNewVersionModal = false;
                 ImGui::CloseCurrentPopup();

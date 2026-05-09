@@ -337,11 +337,12 @@ namespace CoreDeck {
                 return;
             }
 
-            std::optional<std::string> newer = m_UpdateCheckFuture.get();
+            std::optional<RemoteRelease> newer = m_UpdateCheckFuture.get();
             m_Context.Updates.UpdateCheckInFlight = false;
 
             if (newer) {
-                m_Context.Updates.LatestVersion = std::move(*newer);
+                m_Context.Updates.LatestVersion = std::move(newer->Version);
+                m_Context.Updates.LatestNotes = std::move(newer->Notes);
                 m_Context.Updates.ShowNewVersionModal = true;
             } else if (m_UpdateCheckWasManual) {
                 m_Context.Updates.ShowUpToDateModal = true;
@@ -363,7 +364,7 @@ namespace CoreDeck {
 
         if (start) {
             m_Context.Updates.UpdateCheckInFlight = true;
-            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<std::string> {
+            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<RemoteRelease> {
                 try {
                     return QueryRemoteNewerVersion();
                 } catch (...) {

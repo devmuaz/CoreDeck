@@ -7,6 +7,7 @@
 
 #include "context.h"
 #include "../core/app_settings_types.h"
+#include "../core/version_check.h"
 
 #include <future>
 #include <optional>
@@ -51,7 +52,7 @@ namespace CoreDeck {
         bool m_GlfwInitialized = false;
         bool m_ImGuiContextCreated = false;
         bool m_ImGuiBackendsInitialized = false;
-        std::future<std::optional<std::string>> m_UpdateCheckFuture;
+        std::future<std::optional<RemoteRelease>> m_UpdateCheckFuture;
         bool m_AutoUpdateCheckStarted = false;
         bool m_UpdateCheckWasManual = false;
     };
