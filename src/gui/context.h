@@ -196,6 +196,7 @@ namespace CoreDeck {
         struct Updates {
             bool ShowNewVersionModal = false;
             std::string LatestVersion;
+            std::string LatestNotes;
             bool ShowUpToDateModal = false;
             bool RequestManualUpdateCheck = false;
             bool UpdateCheckInFlight = false;

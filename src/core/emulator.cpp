@@ -52,10 +52,15 @@ namespace CoreDeck {
         std::lock_guard lock(m_Mutex);
         for (auto &instance: m_Instances | std::views::values) {
             if (instance.IsRunning) {
-                if (instance.ConsolePort > 0) {
-                    EmulatorConsole::SendKill(instance.ConsolePort, 1000);
+                bool exited = false;
+                if (instance.ConsolePort > 0 && EmulatorConsole::SendKill(instance.ConsolePort, 1000)) {
+                    exited = WaitForConsoleUnavailable(instance.ConsolePort, 5000);
                 }
-                if (!WaitForProcessExit(instance.Pid, 2000)) {
+                if (!exited) {
+                    KillProcess(instance.Pid);
+                    exited = instance.ConsolePort > 0 ? WaitForConsoleUnavailable(instance.ConsolePort, 2000) : WaitForProcessExit(instance.Pid, 2000);
+                }
+                if (!exited) {
                     TerminateProcessTree(instance.Pid);
                 }
                 instance.IsRunning = false;

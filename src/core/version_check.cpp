@@ -17,9 +17,12 @@
 #endif
 
 namespace CoreDeck {
-    struct GitHubLatestRelease {
-        std::string tag_name;
-    };
+    namespace {
+        struct GitHubLatestRelease {
+            std::string tag_name;
+            std::optional<std::string> body;
+        };
+    }
 
     static void TrimInPlace(std::string &s) {
         while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) {
@@ -42,6 +45,48 @@ namespace CoreDeck {
                     return std::nullopt;
                 }
                 return tag;
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
+
+        std::string ExtractWhatsNewSection(const std::string &body) {
+            size_t lastSeparatorStart = std::string::npos;
+            size_t scan = 0;
+            while (scan < body.size()) {
+                const size_t lineStart = scan;
+                const size_t newline = body.find('\n', scan);
+                const size_t lineEnd = newline == std::string::npos ? body.size() : newline;
+                std::string line = body.substr(lineStart, lineEnd - lineStart);
+                if (!line.empty() && line.back() == '\r') line.pop_back();
+                if (line == "---") {
+                    lastSeparatorStart = lineStart;
+                }
+                if (newline == std::string::npos) break;
+                scan = newline + 1;
+            }
+
+            if (lastSeparatorStart == std::string::npos) {
+                return body;
+            }
+            return body.substr(0, lastSeparatorStart);
+        }
+
+        std::optional<RemoteRelease> ParseLatestRelease(const std::string &body) {
+            try {
+                const auto parsed = rfl::json::read<GitHubLatestRelease>(body);
+                if (!parsed) {
+                    return std::nullopt;
+                }
+                const auto &value = parsed.value();
+                if (value.tag_name.empty()) {
+                    return std::nullopt;
+                }
+                RemoteRelease release;
+                release.Version = value.tag_name;
+                release.Notes = ExtractWhatsNewSection(value.body.value_or(""));
+                TrimInPlace(release.Notes);
+                return release;
             } catch (...) {
                 return std::nullopt;
             }
@@ -190,7 +235,7 @@ namespace CoreDeck {
 #endif
     }
 
-    std::optional<std::string> QueryRemoteNewerVersion() {
+    std::optional<RemoteRelease> QueryRemoteNewerVersion() {
 #if defined(_WIN32)
         const std::string ua = StrConcat("CoreDeck/", COREDECK_VERSION);
         std::wstring userAgent(ua.begin(), ua.end());
@@ -208,12 +253,12 @@ namespace CoreDeck {
             return std::nullopt;
         }
 
-        auto remote = detail::ParseLatestReleaseTag(body);
+        auto remote = detail::ParseLatestRelease(body);
         if (!remote) {
             return std::nullopt;
         }
 
-        if (detail::CompareSemanticVersion(remote.value(), COREDECK_VERSION) <= 0) {
+        if (detail::CompareSemanticVersion(remote.value().Version, COREDECK_VERSION) <= 0) {
             return std::nullopt;
         }
         return remote;

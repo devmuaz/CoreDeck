@@ -209,6 +209,26 @@ jobs:
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Extract changelog for this tag
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          NOTES=$(awk -v ver="$VERSION" '
+            $0 ~ "^## \\["ver"\\]" { found=1; next }
+            found && /^## \[/      { exit }
+            found                  { print }
+          ' CHANGELOG.md)
+          # Trim leading/trailing blank lines.
+          NOTES=$(printf '%s\n' "$NOTES" | sed -e '/./,$!d' | tac | sed -e '/./,$!d' | tac)
+          if [ -z "$NOTES" ]; then
+            NOTES="_See [CHANGELOG.md](https://github.com/devmuaz/CoreDeck/blob/main/CHANGELOG.md) for details._"
+          fi
+          {
+            echo "notes<<__EOF__"
+            echo "$NOTES"
+            echo "__EOF__"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Generate SHA256 checksums
         run: |
           cd artifacts
@@ -223,7 +243,14 @@ jobs:
           tag_name: ${{ steps.version.outputs.version }}
           name: CoreDeck ${{ steps.version.outputs.version }}
           body: |
-            ## CoreDeck ${{ steps.version.outputs.version }}
+            ### CoreDeck ${{ steps.version.outputs.version }}
+
+            A new CoreDeck release is available. Here's what's changed in this version.
+
+            ### What's New
+            ${{ steps.changelog.outputs.notes }}
+
+            ---
 
             Download the appropriate version for your platform:
 

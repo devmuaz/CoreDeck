@@ -9,12 +9,19 @@
 #include <string>
 
 namespace CoreDeck {
-    std::optional<std::string> QueryRemoteNewerVersion();
+    struct RemoteRelease {
+        std::string Version;
+        std::string Notes;
+    };
+
+    std::optional<RemoteRelease> QueryRemoteNewerVersion();
 
     namespace detail {
         int CompareSemanticVersion(const std::string &newVersion, const std::string &currentVersion);
 
         std::optional<std::string> ParseLatestReleaseTag(const std::string &body);
+
+        std::optional<RemoteRelease> ParseLatestRelease(const std::string &body);
     }
 }
 
