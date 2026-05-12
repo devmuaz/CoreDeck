@@ -1,0 +1,3 @@
+# Must match the directory passed to cmake -B (where compile_commands.json is generated).
+CompileFlags:
+  CompilationDatabase: build-debug

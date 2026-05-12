@@ -1,0 +1,90 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "cmake-build-coredeck-debug",
+      "type": "shell",
+      "command": "cmake -S '${workspaceFolder}' -B '${workspaceFolder}/build-debug' -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON -DCOREDECK_SENTRY_DSN=\"https://bbb4503be53864c512a1bf57e63ffc50@o4511291657486336.ingest.de.sentry.io/4511291660697680\" && cmake --build '${workspaceFolder}/build-debug' --parallel --target CoreDeck",
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-release",
+      "type": "shell",
+      "command": "cmake -S '${workspaceFolder}' -B '${workspaceFolder}/build-release' -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=OFF -DCOREDECK_SENTRY_DSN=\"https://bbb4503be53864c512a1bf57e63ffc50@o4511291657486336.ingest.de.sentry.io/4511291660697680\" && cmake --build '${workspaceFolder}/build-release' --parallel --target CoreDeck",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "open-coredeck-app-debug",
+      "type": "shell",
+      "command": "open '${workspaceFolder}/build-debug/CoreDeck.app'",
+      "problemMatcher": [],
+      "dependsOn": ["cmake-build-coredeck-debug"]
+    },
+    {
+      "label": "open-coredeck-app-release",
+      "type": "shell",
+      "command": "open '${workspaceFolder}/build-release/CoreDeck.app'",
+      "problemMatcher": [],
+      "dependsOn": ["cmake-build-coredeck-release"]
+    },
+    {
+      "label": "cmake-build-coredeck-tests-debug",
+      "type": "shell",
+      "command": "cmake -S '${workspaceFolder}' -B '${workspaceFolder}/build-debug' -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON && cmake --build '${workspaceFolder}/build-debug' --parallel --target coredeck_tests",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-tests-release",
+      "type": "shell",
+      "command": "cmake -S '${workspaceFolder}' -B '${workspaceFolder}/build-release' -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON && cmake --build '${workspaceFolder}/build-release' --parallel --target coredeck_tests",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ctest-debug",
+      "type": "shell",
+      "command": "ctest --test-dir '${workspaceFolder}/build-debug' --output-on-failure",
+      "problemMatcher": [],
+      "dependsOn": ["cmake-build-coredeck-tests-debug"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ctest-release",
+      "type": "shell",
+      "command": "ctest --test-dir '${workspaceFolder}/build-release' --output-on-failure",
+      "problemMatcher": [],
+      "dependsOn": ["cmake-build-coredeck-tests-release"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}

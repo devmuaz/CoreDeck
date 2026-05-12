@@ -1,0 +1,63 @@
+{
+  // CoreDeck is a MACOSX_BUNDLE: use the .app path (not Contents/MacOS/…) so debug starts
+  // as a bundle and the Dock gets the normal masked icon. Raw executable launch looks generic.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CoreDeck (Debug)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/CoreDeck.app",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "targetArchitecture": "arm64",
+      "preLaunchTask": "cmake-build-coredeck-debug"
+    },
+    {
+      "name": "CoreDeck (Release)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/CoreDeck.app",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "targetArchitecture": "arm64",
+      "preLaunchTask": "cmake-build-coredeck-release"
+    },
+    {
+      "name": "CoreDeck Tests (Debug)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "targetArchitecture": "arm64",
+      "preLaunchTask": "cmake-build-coredeck-tests-debug"
+    },
+    {
+      "name": "CoreDeck Tests (Release)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "targetArchitecture": "arm64",
+      "preLaunchTask": "cmake-build-coredeck-tests-release"
+    }
+  ]
+}

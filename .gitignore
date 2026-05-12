@@ -1,5 +1,7 @@
 # Build
 build/
+build-release/
+build-debug/
 cmake-build-*/
 
 # IDE
