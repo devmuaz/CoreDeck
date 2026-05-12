@@ -3,51 +3,51 @@ cmake_minimum_required(VERSION 3.23)
 set(COREDECK_VERSION_OVERRIDE "" CACHE STRING "Explicit version override (e.g., set by CI from a release tag)")
 
 find_package(Git QUIET)
-if (GIT_FOUND)
-    if (COREDECK_VERSION_OVERRIDE)
+if(GIT_FOUND)
+    if(COREDECK_VERSION_OVERRIDE)
         set(GIT_TAG_VERSION "${COREDECK_VERSION_OVERRIDE}")
-    else ()
+    else()
         execute_process(
-                COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-                OUTPUT_VARIABLE GIT_TAG_VERSION
-                ERROR_QUIET
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-    endif ()
-    execute_process(
-            COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+            COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            OUTPUT_VARIABLE GIT_COMMIT_COUNT
+            OUTPUT_VARIABLE GIT_TAG_VERSION
             ERROR_QUIET
             OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif()
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_COUNT
+        ERROR_QUIET
+        OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
-    if (GIT_TAG_VERSION)
+    if(GIT_TAG_VERSION)
         string(REGEX REPLACE "^v" "" GIT_TAG_STRIPPED ${GIT_TAG_VERSION})
         string(REGEX REPLACE "-.*$" "" PROJECT_VERSION ${GIT_TAG_STRIPPED})
         set(PROJECT_VERSION_FULL ${GIT_TAG_STRIPPED})
-    else ()
+    else()
         set(PROJECT_VERSION "0.0.1")
         set(PROJECT_VERSION_FULL "0.0.1")
-    endif ()
+    endif()
 
-    if (GIT_COMMIT_COUNT)
+    if(GIT_COMMIT_COUNT)
         set(PROJECT_BUILD_NUMBER ${GIT_COMMIT_COUNT})
-    else ()
+    else()
         set(PROJECT_BUILD_NUMBER "1")
-    endif ()
-else ()
-    if (COREDECK_VERSION_OVERRIDE)
+    endif()
+else()
+    if(COREDECK_VERSION_OVERRIDE)
         string(REGEX REPLACE "^v" "" GIT_TAG_STRIPPED "${COREDECK_VERSION_OVERRIDE}")
         string(REGEX REPLACE "-.*$" "" PROJECT_VERSION "${GIT_TAG_STRIPPED}")
         set(PROJECT_VERSION_FULL "${GIT_TAG_STRIPPED}")
-    else ()
+    else()
         set(PROJECT_VERSION "0.0.1")
         set(PROJECT_VERSION_FULL "0.0.1")
-    endif ()
+    endif()
     set(PROJECT_BUILD_NUMBER "1")
-endif ()
+endif()
 
 project(CoreDeck VERSION ${PROJECT_VERSION})
 
@@ -63,23 +63,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (APPLE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
-endif ()
+endif()
 
-if (WIN32)
+if(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-endif ()
+endif()
 
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/extern/imgui)
 set(IMGUI_SOURCES
-        ${IMGUI_DIR}/imgui.cpp
-        ${IMGUI_DIR}/imgui_draw.cpp
-        ${IMGUI_DIR}/imgui_tables.cpp
-        ${IMGUI_DIR}/imgui_widgets.cpp
-        ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-        ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -93,54 +95,54 @@ add_subdirectory(extern/glfw)
 set(REFLECTCPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/reflect-cpp)
-if (MINGW)
+if(MINGW)
     target_compile_options(reflectcpp PRIVATE
-            -Wa,-mbig-obj
-            $<$<CONFIG:Debug>:-O1>
-            $<$<CONFIG:Debug>:-g0>
+        -Wa,-mbig-obj
+        $<$<CONFIG:Debug>:-O1>
+        $<$<CONFIG:Debug>:-g0>
     )
-endif ()
+endif()
 
 set(TINYFD_DIR ${CMAKE_SOURCE_DIR}/extern/tinyfiledialogs)
 add_library(tinyfiledialogs STATIC ${TINYFD_DIR}/tinyfiledialogs.c)
 target_include_directories(tinyfiledialogs PUBLIC ${TINYFD_DIR})
 
 set(COREDECK_SENTRY_DSN "" CACHE STRING "Sentry DSN for crash reporting")
-if (COREDECK_SENTRY_DSN)
+if(COREDECK_SENTRY_DSN)
     set(SENTRY_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     set(SENTRY_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(SENTRY_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(SENTRY_BACKEND "crashpad" CACHE STRING "" FORCE)
     add_subdirectory(extern/sentry-native)
     message(STATUS "Sentry: Enabled")
-else ()
+else()
     message(STATUS "Sentry: Disabled")
-endif ()
+endif()
 
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
-if (NOT WIN32)
+if(NOT WIN32)
     find_package(CURL REQUIRED)
-endif ()
+endif()
 
 add_library(coredeck_core STATIC
-        src/core/app_settings.cpp
-        src/core/avd.cpp
-        src/core/crash_reporter.cpp
-        src/core/emulator.cpp
-        src/core/emulator_console.cpp
-        src/core/file_dialog.cpp
-        src/core/log_buffer.cpp
-        src/core/log_filter.cpp
-        src/core/options.cpp
-        src/core/paths.cpp
-        src/core/process.cpp
-        src/core/sdk.cpp
-        src/core/skin.cpp
-        src/core/system_image.cpp
-        src/core/utilities.cpp
-        src/core/version_check.cpp
+    src/core/app_settings.cpp
+    src/core/avd.cpp
+    src/core/crash_reporter.cpp
+    src/core/emulator.cpp
+    src/core/emulator_console.cpp
+    src/core/file_dialog.cpp
+    src/core/log_buffer.cpp
+    src/core/log_filter.cpp
+    src/core/options.cpp
+    src/core/paths.cpp
+    src/core/process.cpp
+    src/core/sdk.cpp
+    src/core/skin.cpp
+    src/core/system_image.cpp
+    src/core/utilities.cpp
+    src/core/version_check.cpp
 )
 
 target_include_directories(coredeck_core PUBLIC src)
@@ -148,143 +150,143 @@ target_precompile_headers(coredeck_core PRIVATE src/pch.h)
 target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs)
 
 target_compile_definitions(coredeck_core PUBLIC
-        COREDECK_TITLE="CoreDeck"
-        COREDECK_VERSION="${PROJECT_VERSION_FULL}"
-        COREDECK_BUILD_NUMBER="${PROJECT_BUILD_NUMBER}"
-        COREDECK_VENDOR="${APP_VENDOR}"
-        COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
-        COREDECK_YEAR="${CURRENT_YEAR}"
-        COREDECK_WEBSITE="https://coredeck.dev"
-        COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
-        COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
-        COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
-        COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
+    COREDECK_TITLE="CoreDeck"
+    COREDECK_VERSION="${PROJECT_VERSION_FULL}"
+    COREDECK_BUILD_NUMBER="${PROJECT_BUILD_NUMBER}"
+    COREDECK_VENDOR="${APP_VENDOR}"
+    COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
+    COREDECK_YEAR="${CURRENT_YEAR}"
+    COREDECK_WEBSITE="https://coredeck.dev"
+    COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
+    COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
+    COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
+    COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
 )
 
-if (COREDECK_SENTRY_DSN)
+if(COREDECK_SENTRY_DSN)
     target_compile_definitions(coredeck_core PUBLIC COREDECK_SENTRY_DSN="${COREDECK_SENTRY_DSN}")
     target_link_libraries(coredeck_core PUBLIC sentry)
-endif ()
+endif()
 
-if (WIN32)
+if(WIN32)
     target_compile_definitions(coredeck_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
     target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32 winhttp ws2_32)
-elseif (UNIX AND NOT APPLE)
+elseif(UNIX AND NOT APPLE)
     target_link_libraries(coredeck_core PUBLIC ${CMAKE_DL_LIBS} Threads::Threads CURL::libcurl)
-else ()
+else()
     target_link_libraries(coredeck_core PUBLIC CURL::libcurl)
-endif ()
+endif()
 
 add_executable(${PROJECT_NAME}
-        ${IMGUI_SOURCES}
-        src/main.cpp
-        src/gui/windows/about.cpp
-        src/gui/windows/avd_info.cpp
-        src/gui/windows/avd_list.cpp
-        src/gui/windows/avd_logs.cpp
-        src/gui/windows/avd_options.cpp
-        src/gui/windows/delete_avd.cpp
-        src/gui/windows/create_avd.cpp
-        src/gui/windows/device_profile.cpp
-        src/gui/windows/install_image.cpp
-        src/gui/windows/main_menu_bar.cpp
-        src/gui/windows/onboarding.cpp
-        src/gui/windows/preferences.cpp
-        src/gui/windows/sdk_banner.cpp
-        src/gui/windows/skin.cpp
-        src/gui/windows/storage.cpp
-        src/gui/windows/update.cpp
-        src/gui/application.cpp
-        src/gui/theme.cpp
-        src/gui/widgets.cpp
+    ${IMGUI_SOURCES}
+    src/main.cpp
+    src/gui/windows/about.cpp
+    src/gui/windows/avd_info.cpp
+    src/gui/windows/avd_list.cpp
+    src/gui/windows/avd_logs.cpp
+    src/gui/windows/avd_options.cpp
+    src/gui/windows/delete_avd.cpp
+    src/gui/windows/create_avd.cpp
+    src/gui/windows/device_profile.cpp
+    src/gui/windows/install_image.cpp
+    src/gui/windows/main_menu_bar.cpp
+    src/gui/windows/onboarding.cpp
+    src/gui/windows/preferences.cpp
+    src/gui/windows/sdk_banner.cpp
+    src/gui/windows/skin.cpp
+    src/gui/windows/storage.cpp
+    src/gui/windows/update.cpp
+    src/gui/application.cpp
+    src/gui/theme.cpp
+    src/gui/widgets.cpp
 )
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.h)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-        ${IMGUI_DIR}
-        ${IMGUI_DIR}/backends
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        coredeck_core
-        glfw
-        OpenGL::GL
+    coredeck_core
+    glfw
+    OpenGL::GL
 )
 
-if (APPLE)
+if(APPLE)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets/fonts
-            $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/fonts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets/fonts
+        $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/fonts
     )
-else ()
+else()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets/fonts
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/fonts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets/fonts
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/fonts
     )
-endif ()
+endif()
 
-if (UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/assets/icons/icon.png
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/icons/icon.png
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/assets/icons/icon.png
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/icons/icon.png
     )
-endif ()
+endif()
 
-if (COREDECK_SENTRY_DSN)
-    if (APPLE)
+if(COREDECK_SENTRY_DSN)
+    if(APPLE)
         target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-no_warn_duplicate_libraries")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                $<TARGET_FILE:crashpad_handler>
-                $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/MacOS/crashpad_handler
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:crashpad_handler>
+            $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/MacOS/crashpad_handler
         )
-    else ()
+    else()
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                $<TARGET_FILE:crashpad_handler>
-                $<TARGET_FILE_DIR:${PROJECT_NAME}>/$<TARGET_FILE_NAME:crashpad_handler>
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:crashpad_handler>
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/$<TARGET_FILE_NAME:crashpad_handler>
         )
-    endif ()
-endif ()
+    endif()
+endif()
 
-if (WIN32)
+if(WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/resources.rc.in ${CMAKE_BINARY_DIR}/resources.rc @ONLY)
-    if (MSVC)
+    if(MSVC)
         target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
-    elseif (MINGW)
+    elseif(MINGW)
         target_link_options(${PROJECT_NAME} PRIVATE "-mwindows")
-    endif ()
+    endif()
     target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/resources.rc)
-elseif (APPLE)
+elseif(APPLE)
     target_compile_definitions(${PROJECT_NAME} PRIVATE GL_SILENCE_DEPRECATION)
     target_link_libraries(${PROJECT_NAME} PRIVATE "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
     set_target_properties(${PROJECT_NAME} PROPERTIES
-            MACOSX_BUNDLE TRUE
-            MACOSX_BUNDLE_GUI_IDENTIFIER "${APP_BUNDLE_ID}"
-            MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
-            MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_BUILD_NUMBER}"
-            MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION}"
-            MACOSX_BUNDLE_EXECUTABLE_NAME "${PROJECT_NAME}"
-            MACOSX_BUNDLE_INFO_STRING "${APP_DESCRIPTION_SHORT}"
-            MACOSX_BUNDLE_COPYRIGHT "${APP_COPYRIGHT}"
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_GUI_IDENTIFIER "${APP_BUNDLE_ID}"
+        MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_BUILD_NUMBER}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION}"
+        MACOSX_BUNDLE_EXECUTABLE_NAME "${PROJECT_NAME}"
+        MACOSX_BUNDLE_INFO_STRING "${APP_DESCRIPTION_SHORT}"
+        MACOSX_BUNDLE_COPYRIGHT "${APP_COPYRIGHT}"
     )
-    if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns")
         set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE icon.icns)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns"
-                "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/icon.icns"
+            COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_SOURCE_DIR}/assets/icons/icon.icns"
+            "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/icon.icns"
         )
-    endif ()
-endif ()
+    endif()
+endif()
 
-if (WIN32)
+if(WIN32)
     set(CPACK_GENERATOR "WIX;ZIP")
-elseif (APPLE)
+elseif(APPLE)
     set(CPACK_GENERATOR "DragNDrop")
     set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
     set(CPACK_DMG_FORMAT "UDZO")
@@ -293,24 +295,24 @@ elseif (APPLE)
     # DMG background image
     set(_dmg_bg_1x "${CMAKE_SOURCE_DIR}/media/branding/dmg-background.png")
     set(_dmg_bg_2x "${CMAKE_SOURCE_DIR}/media/branding/dmg-background@2x.png")
-    if (EXISTS "${_dmg_bg_1x}" AND EXISTS "${_dmg_bg_2x}")
+    if(EXISTS "${_dmg_bg_1x}" AND EXISTS "${_dmg_bg_2x}")
         set(_dmg_bg_tiff "${CMAKE_BINARY_DIR}/dmg-background.tiff")
         execute_process(
-                COMMAND tiffutil -cathidpicheck "${_dmg_bg_1x}" "${_dmg_bg_2x}" -out "${_dmg_bg_tiff}"
-                RESULT_VARIABLE _tiffutil_rc
-                OUTPUT_QUIET ERROR_QUIET
+            COMMAND tiffutil -cathidpicheck "${_dmg_bg_1x}" "${_dmg_bg_2x}" -out "${_dmg_bg_tiff}"
+            RESULT_VARIABLE _tiffutil_rc
+            OUTPUT_QUIET ERROR_QUIET
         )
-        if (_tiffutil_rc EQUAL 0 AND EXISTS "${_dmg_bg_tiff}")
+        if(_tiffutil_rc EQUAL 0 AND EXISTS "${_dmg_bg_tiff}")
             set(CPACK_DMG_BACKGROUND_IMAGE "${_dmg_bg_tiff}")
             message(STATUS "DMG background: multi-resolution TIFF (1x + @2x)")
-        else ()
+        else()
             set(CPACK_DMG_BACKGROUND_IMAGE "${_dmg_bg_1x}")
             message(WARNING "tiffutil failed; falling back to 1x PNG only")
-        endif ()
-    elseif (EXISTS "${_dmg_bg_1x}")
+        endif()
+    elseif(EXISTS "${_dmg_bg_1x}")
         set(CPACK_DMG_BACKGROUND_IMAGE "${_dmg_bg_1x}")
         message(STATUS "DMG background: 1x PNG only (add dmg-background@2x.png for Retina)")
-    endif ()
+    endif()
 
     # The DMG should only contain CoreDeck.app + an Applications symlink.
     # Sentry-native's bundled crashpad has unconditional install rules that
@@ -326,9 +328,9 @@ elseif (APPLE)
         endforeach()
     ]=])
     set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_BINARY_DIR}/cpack_strip_macos_extras.cmake")
-else ()
+else()
     set(CPACK_GENERATOR "TGZ")
-endif ()
+endif()
 
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "${APP_VENDOR}")
@@ -337,23 +339,23 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${APP_DESCRIPTION_SHORT}")
 set(CPACK_PACKAGE_DESCRIPTION "${APP_DESCRIPTION}")
 
 install(TARGETS ${PROJECT_NAME}
-        BUNDLE DESTINATION .
-        RUNTIME DESTINATION .
+    BUNDLE DESTINATION .
+    RUNTIME DESTINATION .
 )
 
-if (COREDECK_SENTRY_DSN AND NOT APPLE)
+if(COREDECK_SENTRY_DSN AND NOT APPLE)
     install(PROGRAMS $<TARGET_FILE:crashpad_handler> DESTINATION .)
-endif ()
+endif()
 
-if (NOT APPLE)
+if(NOT APPLE)
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/fonts DESTINATION assets)
-endif ()
+endif()
 
-if (UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.png DESTINATION assets/icons)
-endif ()
+endif()
 
-if (WIN32)
+if(WIN32)
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
     set(CPACK_PACKAGE_EXECUTABLES "${PROJECT_NAME}" "${PROJECT_NAME}")
     set(CPACK_CREATE_DESKTOP_LINKS "${PROJECT_NAME}")
@@ -361,15 +363,15 @@ if (WIN32)
     set(CPACK_WIX_PROGRAM_MENU_FOLDER "${PROJECT_NAME}")
     set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://github.com/devmuaz")
     set(CPACK_WIX_LICENSE_RTF "${CMAKE_SOURCE_DIR}/LICENSE.rtf")
-    if (EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
         set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/assets/icons/icon.ico")
-    endif ()
-endif ()
+    endif()
+endif()
 
 include(CPack)
 
 option(COREDECK_BUILD_TESTS "Build CoreDeck unit tests" OFF)
-if (COREDECK_BUILD_TESTS)
+if(COREDECK_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
-endif ()
+endif()
