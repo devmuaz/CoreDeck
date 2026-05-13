@@ -14,6 +14,7 @@
 #include "log_buffer.h"
 #include "sdk.h"
 #include "process.h"
+#include "process_stats.h"
 
 namespace CoreDeck {
     struct EmulatorInstance {
@@ -38,11 +39,17 @@ namespace CoreDeck {
 
         bool Stop(const std::string &avdName);
 
-        bool IsStopping(const std::string &avdName);
+        bool IsStopping(const std::string &avdName) const;
 
-        bool IsRunning(const std::string &avdName);
+        bool IsRunning(const std::string &avdName) const;
 
         std::shared_ptr<LogBuffer> GetLog(const std::string &avdName);
+
+        ProcessId GetPid(const std::string &avdName) const;
+
+        const ProcessStatsSampler &Stats() const {
+            return m_Stats;
+        }
 
         void Update();
 
@@ -50,8 +57,9 @@ namespace CoreDeck {
 
     private:
         SdkInfo m_Sdk;
-        std::mutex m_Mutex;
+        mutable std::mutex m_Mutex;
         std::unordered_map<std::string, EmulatorInstance> m_Instances;
+        ProcessStatsSampler m_Stats;
     };
 }
 
