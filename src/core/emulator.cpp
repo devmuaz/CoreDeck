@@ -35,9 +35,11 @@ namespace CoreDeck {
 
     EmulatorManager::EmulatorManager(SdkInfo sdk)
         : m_Sdk(std::move(sdk)) {
+        m_Stats.Start();
     }
 
     EmulatorManager::~EmulatorManager() {
+        m_Stats.Stop();
         std::vector<std::thread> pendingStops;
         {
             std::lock_guard lock(m_Mutex);
@@ -190,6 +192,7 @@ namespace CoreDeck {
             m_Instances[avdName] = std::move(instance);
         }
 
+        m_Stats.Track(pid);
         return true;
     }
 
@@ -232,6 +235,8 @@ namespace CoreDeck {
                 if (exited) {
                     if (stopFlag) stopFlag->store(true);
                     if (reader.joinable()) reader.join();
+                    // Stop sampling resource use; safe to call outside the mutex.
+                    m_Stats.Untrack(pid);
                 }
 
                 {
@@ -257,14 +262,14 @@ namespace CoreDeck {
         return true;
     }
 
-    bool EmulatorManager::IsStopping(const std::string &avdName) {
+    bool EmulatorManager::IsStopping(const std::string &avdName) const {
         std::lock_guard lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) return false;
         return it->second.Stopping;
     }
 
-    bool EmulatorManager::IsRunning(const std::string &avdName) {
+    bool EmulatorManager::IsRunning(const std::string &avdName) const {
         std::lock_guard lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) return false;
@@ -278,14 +283,30 @@ namespace CoreDeck {
         return it->second.Log;
     }
 
-    void EmulatorManager::Update() {
+    ProcessId EmulatorManager::GetPid(const std::string &avdName) const {
         std::lock_guard lock(m_Mutex);
-        for (auto &instance: m_Instances | std::views::values) {
-            if (instance.IsRunning) {
-                if (!IsProcessRunning(instance.Pid)) {
-                    instance.IsRunning = instance.ConsolePort > 0 && EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
+        const auto it = m_Instances.find(avdName);
+        if (it == m_Instances.end() || !it->second.IsRunning) return 0;
+        return it->second.Pid;
+    }
+
+    void EmulatorManager::Update() {
+        std::vector<ProcessId> toUntrack;
+        {
+            std::lock_guard lock(m_Mutex);
+            for (auto &instance: m_Instances | std::views::values) {
+                if (instance.IsRunning) {
+                    if (!IsProcessRunning(instance.Pid)) {
+                        instance.IsRunning = instance.ConsolePort > 0 && EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
+                        if (!instance.IsRunning) {
+                            toUntrack.push_back(instance.Pid);
+                        }
+                    }
                 }
             }
+        }
+        for (const ProcessId pid: toUntrack) {
+            m_Stats.Untrack(pid);
         }
     }
 

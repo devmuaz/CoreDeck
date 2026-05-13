@@ -16,5 +16,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <sstream>
+#include <thread>
+#include <optional>
 
 #endif // COREDECK_PCH_H

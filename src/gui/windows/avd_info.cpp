@@ -3,12 +3,14 @@
 //
 #include <filesystem>
 #include <sstream>
+#include <vector>
 
 #include "imgui.h"
 
 #include "avd_info.h"
-#include "../application.h"
 #include "../widgets.h"
+#include "../theme.h"
+#include "../../core/process_stats.h"
 #include "../../core/utilities.h"
 
 namespace CoreDeck {
@@ -28,6 +30,110 @@ namespace CoreDeck {
         return "Default";
     }
 
+    static std::string FormatBytesPerSec(const std::uint64_t bytesPerSec) {
+        return FormatFileSize(bytesPerSec) + "/s";
+    }
+
+    static std::string FormatUptime(const std::chrono::seconds total) {
+        const auto secs = total.count();
+        const auto h = secs / 3600;
+        const auto m = (secs % 3600) / 60;
+        const auto s = secs % 60;
+
+        char buf[64];
+        if (h > 0) {
+            std::snprintf(buf, sizeof(buf), "%lldh %lldm %llds", static_cast<long long>(h), static_cast<long long>(m), static_cast<long long>(s));
+        } else if (m > 0) {
+            std::snprintf(buf, sizeof(buf), "%lldm %llds", static_cast<long long>(m), static_cast<long long>(s));
+        } else {
+            std::snprintf(buf, sizeof(buf), "%llds", static_cast<long long>(s));
+        }
+        return buf;
+    }
+
+    static void DrawLiveResourceUsage(const Context &context, const std::string &avdName) {
+        const bool isRunning = context.Host.Manager.IsRunning(avdName);
+        const ProcessId pid = isRunning ? context.Host.Manager.GetPid(avdName) : 0;
+
+        const auto &sampler = context.Host.Manager.Stats();
+        ProcessSample latest{};
+        std::chrono::seconds uptime{0};
+        std::vector<float> cpuHist;
+        std::vector<float> rssHist;
+        if (pid != 0) {
+            latest = sampler.Latest(pid);
+            uptime = sampler.Uptime(pid);
+            sampler.CopyCpuHistory(pid, cpuHist);
+            sampler.CopyRssHistoryMb(pid, rssHist);
+        } else {
+            cpuHist.assign(PROCESS_STATS_HISTORY, 0.0f);
+            rssHist.assign(PROCESS_STATS_HISTORY, 0.0f);
+        }
+
+        ImGui::TextColored(HexColor(Colors::TextPrimary), "Live Resource Usage");
+        ImGui::Spacing();
+
+        if (!isRunning) ImGui::BeginDisabled();
+
+        const float chartWidth = ImGui::GetContentRegionAvail().x;
+        const float chartHeight = 70.0f;
+
+        ImGui::TextColored(HexColor(Colors::TextMuted), "CPU Usage");
+        {
+            StyleColor sc;
+            sc.Push(ImGuiCol_PlotLines, HexColor(Colors::Positive));
+            sc.Push(ImGuiCol_FrameBg, HexColor(Colors::Surface1));
+            ImGui::PlotLines("##CPUChart", cpuHist.data(), static_cast<int>(cpuHist.size()), 0, nullptr, 0.0f, 100.0f, ImVec2(chartWidth, chartHeight));
+        }
+
+        char cpuValue[32];
+        if (isRunning && latest.Valid) {
+            std::snprintf(cpuValue, sizeof(cpuValue), "%.1f%%", latest.CpuPercent);
+        } else {
+            std::snprintf(cpuValue, sizeof(cpuValue), "—");
+        }
+        PropertyText("Current CPU", cpuValue, false, true);
+
+        ImGui::Spacing();
+
+        ImGui::TextColored(HexColor(Colors::TextMuted), "Memory");
+        {
+            StyleColor sc;
+            sc.Push(ImGuiCol_PlotLines, HexColor(Colors::AccentInfo));
+            sc.Push(ImGuiCol_FrameBg, HexColor(Colors::Surface1));
+            ImGui::PlotLines("##RAMChart", rssHist.data(), static_cast<int>(rssHist.size()), 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(chartWidth, chartHeight));
+        }
+
+        char ramValue[32];
+        if (isRunning && latest.Valid) {
+            const std::string rss = FormatFileSize(latest.RssBytes);
+            std::snprintf(ramValue, sizeof(ramValue), "%s", rss.c_str());
+        } else {
+            std::snprintf(ramValue, sizeof(ramValue), "—");
+        }
+        PropertyText("Current Memory", ramValue, false, true);
+
+        ImGui::Spacing();
+
+        const std::string readRate =
+            (isRunning && latest.Valid)
+                ? FormatBytesPerSec(latest.DiskReadBytesPerSec)
+                : std::string("—");
+
+        const std::string writeRate =
+            (isRunning && latest.Valid)
+                ? FormatBytesPerSec(latest.DiskWriteBytesPerSec)
+                : std::string("—");
+
+        PropertyText("Disk Read Rate", readRate.c_str(), false, true);
+        PropertyText("Disk Write Rate", writeRate.c_str(), false, true);
+
+        const std::string uptimeStr = isRunning ? FormatUptime(uptime) : std::string("—");
+        PropertyText("Uptime", uptimeStr.c_str(), false, true);
+
+        if (!isRunning) ImGui::EndDisabled();
+    }
+
     void BuildAvdInfoWindow(Context &context) {
         if (!context.UI.ShowDetailsPanel) return;
 
@@ -41,42 +147,35 @@ namespace CoreDeck {
         }
 
         const auto &avd = context.Catalog.Avds[context.Catalog.SelectedAvd];
-        const auto &Name = avd.Name;
-        const auto &DisplayName = avd.DisplayName;
-        const auto &Device = avd.Device;
-        const auto &ApiLevel = avd.ApiLevel;
-        const auto &Abi = avd.Abi;
-        const auto &SdCard = avd.SdCard;
-        const auto &RamSize = avd.RamSize;
-        const auto &ScreenResolution = avd.ScreenResolution;
-        const auto &GpuMode = avd.GpuMode;
-        const auto &Arch = avd.Arch;
-        const auto &Path = avd.Path;
-        const auto &SkinName = avd.SkinName;
-        const auto args = BuildArgs(Name, GetDefaultAvdOptions(context));
+        const auto &path = avd.Path;
+        const auto &name = avd.Name;
+        const auto &displayName = avd.DisplayName;
+        const auto &device = avd.Device;
+        const auto &apiLevel = avd.ApiLevel;
+        const auto &abi = avd.Abi;
+        const auto &arch = avd.Arch;
+        const auto &ramSize = avd.RamSize;
+        const auto &screenResolution = avd.ScreenResolution;
+        const auto &gpuMode = avd.GpuMode;
+        const auto &skinName = avd.SkinName;
+        const auto &sdCard = avd.SdCard;
+        ImGui::Begin(("Details - " + displayName + "###Details").c_str(), nullptr, flags);
 
-        std::string preview = context.Host.Sdk.EmulatorPath;
-        for (const auto &arg: args) preview += " " + arg;
-
-        ImGui::Begin(("Details - " + DisplayName + "###Details").c_str(), nullptr, flags);
-
-        PropertyTextWrapped("AVD Path", Path.c_str());
-        ImGui::Spacing();
-        PropertyTextWrapped("Command", preview.c_str());
+        DrawLiveResourceUsage(context, name);
 
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
 
-        if (!Device.empty()) PropertyText("Device", Device.c_str(), false, true);
-        if (!ApiLevel.empty()) PropertyText("API Level", ApiLevel.c_str(), false, true);
-        if (!Abi.empty()) PropertyText("ABI", Abi.c_str(), false, true);
-        if (!Arch.empty()) PropertyText("Arch", Arch.c_str(), false, true);
-        if (!RamSize.empty()) PropertyText("RAM", (RamSize + " MB").c_str(), false, true);
-        if (!ScreenResolution.empty()) PropertyText("Resolution", ScreenResolution.c_str(), false, true);
-        if (!SdCard.empty()) PropertyText("Storage", SdCard.c_str(), false, true);
-        if (!GpuMode.empty()) PropertyText("GPU Mode", GpuModeDisplayLabel(GpuMode), false, true);
-        PropertyText("Skin", SkinName.empty() ? "None" : SkinName.c_str(), false, true);
+        if (!device.empty()) PropertyText("Device", device.c_str(), false, true);
+        if (!apiLevel.empty()) PropertyText("API Level", apiLevel.c_str(), false, true);
+        if (!abi.empty()) PropertyText("ABI", abi.c_str(), false, true);
+        if (!arch.empty()) PropertyText("Arch", arch.c_str(), false, true);
+        if (!ramSize.empty()) PropertyText("RAM", (ramSize + " MB").c_str(), false, true);
+        if (!screenResolution.empty()) PropertyText("Resolution", screenResolution.c_str(), false, true);
+        if (!sdCard.empty()) PropertyText("Storage", sdCard.c_str(), false, true);
+        if (!gpuMode.empty()) PropertyText("GPU Mode", GpuModeDisplayLabel(gpuMode), false, true);
+        PropertyText("Skin", skinName.empty() ? "None" : skinName.c_str(), false, true);
 
         if (!avd.SystemImagePath.empty() ||
             !avd.SystemImageVariant.empty() ||
@@ -96,17 +195,17 @@ namespace CoreDeck {
             }
         }
 
-        if (!Path.empty() && std::filesystem::exists(Path)) {
+        if (!path.empty() && std::filesystem::exists(path)) {
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
 
             auto &diskCache = context.DiskUsage.PerAvdCache;
-            auto it = diskCache.find(Name);
+            auto it = diskCache.find(name);
             if (it == diskCache.end()) {
-                const std::uintmax_t size = GetDirectorySize(Path);
-                diskCache[Name] = size;
-                it = diskCache.find(Name);
+                const std::uintmax_t size = GetDirectorySize(path);
+                diskCache[name] = size;
+                it = diskCache.find(name);
             }
 
             const std::string sizeStr = FormatFileSize(it->second);
@@ -114,7 +213,7 @@ namespace CoreDeck {
 
             ImGui::Spacing();
 
-            const bool isRunning = context.Host.Manager.IsRunning(Name);
+            const bool isRunning = context.Host.Manager.IsRunning(name);
             const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
             const float halfWidth = (ImGui::GetContentRegionAvail().x - buttonSpacing) * 0.5f;
 
@@ -153,8 +252,8 @@ namespace CoreDeck {
             };
             if (const auto result = SimpleDialog(wipeDialog); result == DialogResult::Confirmed) {
                 context.Jobs.AvdWipe.Busy = true;
-                const std::string wipePath = Path;
-                const std::string wipeName = Name;
+                const std::string wipePath = path;
+                const std::string wipeName = name;
                 context.Jobs.AvdWipe.Future = std::async(std::launch::async, [&context, wipePath, wipeName] {
                     WipeAvdUserData(wipePath);
                     context.DiskUsage.PerAvdCache.erase(wipeName);
