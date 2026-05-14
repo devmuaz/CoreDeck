@@ -12,24 +12,26 @@
 #include "paths.h"
 
 namespace CoreDeck::CrashReporter {
-    static sentry_level_t ToSentryLevel(const Level level) {
-        switch (level) {
-            case Level::Debug:
-                return SENTRY_LEVEL_DEBUG;
-            case Level::Info:
-                return SENTRY_LEVEL_INFO;
-            case Level::Warning:
-                return SENTRY_LEVEL_WARNING;
-            case Level::Error:
-                return SENTRY_LEVEL_ERROR;
-            case Level::Fatal:
-                return SENTRY_LEVEL_FATAL;
+    namespace {
+        sentry_level_t ToSentryLevel(const Level level) {
+            switch (level) {
+                case Level::Debug:
+                    return SENTRY_LEVEL_DEBUG;
+                case Level::Info:
+                    return SENTRY_LEVEL_INFO;
+                case Level::Warning:
+                    return SENTRY_LEVEL_WARNING;
+                case Level::Error:
+                    return SENTRY_LEVEL_ERROR;
+                case Level::Fatal:
+                    return SENTRY_LEVEL_FATAL;
+            }
+            return SENTRY_LEVEL_INFO;
         }
-        return SENTRY_LEVEL_INFO;
-    }
 
-    static std::string ToString(const std::string_view sv) {
-        return std::string(sv);
+        std::string ToString(const std::string_view sv) {
+            return std::string(sv);
+        }
     }
 
     bool Init() {
@@ -40,7 +42,7 @@ namespace CoreDeck::CrashReporter {
         sentry_options_set_database_path(opts, Paths::GetAppConfigPath("sentry-db").c_str());
 
         const char *handlerName =
-#ifdef _WIN32
+#if defined(_WIN32)
             "crashpad_handler.exe";
 #else
             "crashpad_handler";

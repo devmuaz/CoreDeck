@@ -11,20 +11,18 @@
 #include <shlobj.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
-#include <climits>
 #elif defined(__linux__)
 #include <unistd.h>
-#include <climits>
 #endif
 
 #include "log.h"
 
 namespace CoreDeck::Paths {
     Platform GetCurrentPlatform() {
-#ifdef _WIN32
+#if defined(_WIN32)
         return Platform::Windows;
 #elif defined(__APPLE__)
-        return Platform::macOS;
+        return Platform::MacOS;
 #elif defined(__linux__)
         return Platform::Linux;
 #else
@@ -36,7 +34,7 @@ namespace CoreDeck::Paths {
         switch (GetCurrentPlatform()) {
             case Platform::Windows:
                 return "Windows";
-            case Platform::macOS:
+            case Platform::MacOS:
                 return "macOS";
             case Platform::Linux:
                 return "Linux";
@@ -46,25 +44,28 @@ namespace CoreDeck::Paths {
     }
 
     std::string GetHomeDirectory() {
-        // ReSharper disable once CppTooWideScope
         const auto platform = GetCurrentPlatform();
 
         switch (platform) {
             case Platform::Windows: {
-                const char *userProfile = std::getenv("USERPROFILE");
-                if (userProfile) return std::string(userProfile);
+                const char *userProfile = std::getenv("USERPROFILE"); // NOLINT(concurrency-mt-unsafe)
+                if (userProfile) {
+                    return {userProfile};
+                }
 
-                const char *homeDrive = std::getenv("HOMEDRIVE");
-                const char *homePath = std::getenv("HOMEPATH");
+                const char *homeDrive = std::getenv("HOMEDRIVE"); // NOLINT(concurrency-mt-unsafe)
+                const char *homePath = std::getenv("HOMEPATH"); // NOLINT(concurrency-mt-unsafe)
                 if (homeDrive && homePath) {
                     return std::string(homeDrive) + std::string(homePath);
                 }
                 break;
             }
-            case Platform::macOS:
+            case Platform::MacOS:
             case Platform::Linux: {
-                const char *home = std::getenv("HOME");
-                if (home) return {home};
+                const char *home = std::getenv("HOME"); // NOLINT(concurrency-mt-unsafe)
+                if (home) {
+                    return {home};
+                }
                 break;
             }
             default:
@@ -79,19 +80,22 @@ namespace CoreDeck::Paths {
         const auto platform = GetCurrentPlatform();
         const std::string home = GetHomeDirectory();
 
-        if (home.empty()) return "";
+        if (home.empty()) {
+            return "";
+        }
 
         switch (platform) {
             case Platform::Windows: {
-                const char *appData = std::getenv("APPDATA");
-                if (appData) return std::string(appData);
+                const char *appData = std::getenv("APPDATA"); // NOLINT(concurrency-mt-unsafe)
+                if (appData) {
+                    return {appData};
+                }
                 return JoinPaths({home, "AppData", "Roaming"});
             }
-            case Platform::macOS:
+            case Platform::MacOS:
             case Platform::Linux:
-                return JoinPaths({home, ".config"});
             default:
-                return JoinPaths({home, ".config"}); // fallback
+                return JoinPaths({home, ".config"});
         }
     }
 
@@ -99,35 +103,40 @@ namespace CoreDeck::Paths {
         const auto platform = GetCurrentPlatform();
         const std::string home = GetHomeDirectory();
 
-        if (home.empty()) return "";
+        if (home.empty()) {
+            return "";
+        }
 
         switch (platform) {
             case Platform::Windows: {
-                const char *localAppData = std::getenv("LOCALAPPDATA");
+                const char *localAppData = std::getenv("LOCALAPPDATA"); // NOLINT(concurrency-mt-unsafe)
                 if (localAppData) {
                     return JoinPaths({std::string(localAppData), "Android", "Sdk"});
                 }
                 return JoinPaths({home, "AppData", "Local", "Android", "Sdk"});
             }
-            case Platform::macOS:
+            case Platform::MacOS:
                 return JoinPaths({home, "Library", "Android", "sdk"});
             case Platform::Linux:
-                return JoinPaths({home, "Android", "Sdk"});
             default:
-                return JoinPaths({home, "Android", "Sdk"}); // fallback
+                return JoinPaths({home, "Android", "Sdk"});
         }
     }
 
     std::string GetAvdDirectory() {
         const std::string home = GetHomeDirectory();
-        if (home.empty()) return "";
+        if (home.empty()) {
+            return "";
+        }
 
         return JoinPaths({home, ".android", "avd"});
     }
 
     std::string GetAppConfigPath(const std::string &subPath) {
         const std::string configDir = GetConfigDirectory();
-        if (configDir.empty()) return "";
+        if (configDir.empty()) {
+            return "";
+        }
 
         if (subPath.empty()) {
             return JoinPaths({configDir, "coredeck"});
@@ -141,7 +150,7 @@ namespace CoreDeck::Paths {
         switch (platform) {
             case Platform::Windows:
                 return "NUL";
-            case Platform::macOS:
+            case Platform::MacOS:
             case Platform::Linux:
             default:
                 return "/dev/null";
@@ -154,7 +163,7 @@ namespace CoreDeck::Paths {
         switch (platform) {
             case Platform::Windows:
                 return ".exe";
-            case Platform::macOS:
+            case Platform::MacOS:
             case Platform::Linux:
             default:
                 return "";
@@ -162,7 +171,7 @@ namespace CoreDeck::Paths {
     }
 
     std::string GetExecutableDirectory() {
-#ifdef _WIN32
+#if defined(_WIN32)
         char buffer[MAX_PATH];
         const DWORD len = GetModuleFileNameA(nullptr, buffer, MAX_PATH);
         if (len == 0) return {};
@@ -170,7 +179,9 @@ namespace CoreDeck::Paths {
 #elif defined(__APPLE__)
         char buffer[PATH_MAX];
         uint32_t size = sizeof(buffer);
-        if (_NSGetExecutablePath(buffer, &size) != 0) return {};
+        if (_NSGetExecutablePath(buffer, &size) != 0) {
+            return {};
+        }
         return std::filesystem::canonical(buffer).parent_path().string();
 #elif defined(__linux__)
         char buffer[PATH_MAX];
@@ -185,8 +196,10 @@ namespace CoreDeck::Paths {
 
     std::string GetResourcesDirectory() {
         std::string exeDir = GetExecutableDirectory();
-        if (exeDir.empty()) return {};
-#ifdef __APPLE__
+        if (exeDir.empty()) {
+            return {};
+        }
+#if defined(__APPLE__)
         const std::filesystem::path p(exeDir);
         if (p.filename() == "MacOS" && p.parent_path().filename() == "Contents") {
             return (p.parent_path() / "Resources").string();
@@ -196,7 +209,9 @@ namespace CoreDeck::Paths {
     }
 
     std::string JoinPaths(const std::vector<std::string> &components) {
-        if (components.empty()) return "";
+        if (components.empty()) {
+            return "";
+        }
 
         std::filesystem::path result;
         for (const auto &component: components) {
@@ -217,14 +232,18 @@ namespace CoreDeck::Paths {
 
     std::string GetOptionsConfigPath(const std::string &avdName) {
         const std::string configPath = GetAppConfigPath("avd-options");
-        if (configPath.empty()) return "";
+        if (configPath.empty()) {
+            return "";
+        }
 
         return JoinPaths({configPath, avdName + ".json"});
     }
 
     std::string EnsureOptionsConfigDirectoryExists() {
         std::string configPath = GetAppConfigPath("avd-options");
-        if (configPath.empty()) return "";
+        if (configPath.empty()) {
+            return "";
+        }
 
         try {
             std::filesystem::create_directories(configPath);
@@ -250,8 +269,12 @@ namespace CoreDeck::Paths {
         }
 
         bool ValidateSdkPath(const std::string &path) {
-            if (path.empty()) return false;
-            if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) return false;
+            if (path.empty()) {
+                return false;
+            }
+            if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+                return false;
+            }
 
             const std::string emulatorBinary = Paths::JoinPaths({path, "emulator", "emulator" + Paths::GetExecutableExtension()});
             return std::filesystem::exists(emulatorBinary);
@@ -259,7 +282,9 @@ namespace CoreDeck::Paths {
 
         std::string LoadSdkPathOverride() {
             const std::string path = Paths::GetAppConfigPath(SDK_OVERRIDE_PATH);
-            if (!std::filesystem::exists(path)) return {};
+            if (!std::filesystem::exists(path)) {
+                return {};
+            }
 
             std::ifstream in(path);
             std::string value;

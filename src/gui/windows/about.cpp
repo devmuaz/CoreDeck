@@ -16,29 +16,29 @@ namespace CoreDeck {
         }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(ImVec2(420, 0), ImGuiCond_Appearing);
 
 
-        if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, WindowNoResizeFlags)) {
+        if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             const float titleWidth = ImGui::CalcTextSize(COREDECK_TITLE).x;
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5f);
-            ImGui::TextColored(HexColor(Colors::TextPrimary), COREDECK_TITLE);
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - titleWidth) * 0.5F);
+            ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), COREDECK_TITLE);
             ImGui::PopFont();
 
             const std::string version = "Version " COREDECK_VERSION " (Build " COREDECK_BUILD_NUMBER ")";
             const float versionWidth = ImGui::CalcTextSize(version.c_str()).x;
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - versionWidth) * 0.5f);
-            ImGui::TextColored(HexColor(Colors::TextMuted), "%s", version.c_str());
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - versionWidth) * 0.5F);
+            ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", version.c_str());
 
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
 
-            const auto desc = COREDECK_DESCRIPTION;
+            const auto *const desc = COREDECK_DESCRIPTION;
             const float descWidth = ImGui::CalcTextSize(desc).x;
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - descWidth) * 0.5f);
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - descWidth) * 0.5F);
             ImGui::TextUnformatted(desc);
 
             ImGui::Spacing();
@@ -61,8 +61,8 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             const float copyrightWidth = ImGui::CalcTextSize(COREDECK_COPYRIGHT).x;
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - copyrightWidth) * 0.5f);
-            ImGui::TextColored(HexColor(Colors::TextMuted), "%s", COREDECK_COPYRIGHT);
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - copyrightWidth) * 0.5F);
+            ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", COREDECK_COPYRIGHT);
 
             ImGui::Spacing();
             ImGui::EndPopup();

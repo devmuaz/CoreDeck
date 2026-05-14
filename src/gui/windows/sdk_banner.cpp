@@ -13,20 +13,22 @@ namespace CoreDeck {
             context.UI.HideInvalidSdkPathBanner = false;
             return;
         }
-        if (context.UI.HideInvalidSdkPathBanner) return;
+        if (context.UI.HideInvalidSdkPathBanner) {
+            return;
+        }
 
         const ImGuiViewport *vp = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(vp->WorkPos);
-        ImGui::SetNextWindowSize(ImVec2(vp->WorkSize.x, 0.0f));
+        ImGui::SetNextWindowSize(ImVec2(vp->WorkSize.x, 0.0F));
 
-        constexpr ImGuiWindowFlags flags = WindowAutoResizeFlags |
+        constexpr ImGuiWindowFlags FLAGS = WINDOW_AUTO_RESIZE_FLAGS |
                                            ImGuiWindowFlags_NoTitleBar |
                                            ImGuiWindowFlags_NoSavedSettings |
                                            ImGuiWindowFlags_NoNavFocus;
 
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.32f, 0.18f, 0.10f, 1.0f));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0f, 8.0f));
-        ImGui::Begin("##SdkMissingBanner", nullptr, flags);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.32F, 0.18F, 0.10F, 1.0F));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0F, 8.0F));
+        ImGui::Begin("##SdkMissingBanner", nullptr, FLAGS);
 
         ImGui::TextUnformatted(
             "No working Android SDK was detected (the emulator binary is missing or the path is invalid)."

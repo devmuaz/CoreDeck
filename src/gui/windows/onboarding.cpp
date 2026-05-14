@@ -13,133 +13,139 @@
 #include "../../core/sdk.h"
 
 namespace CoreDeck {
-    enum class Step {
-        Welcome,
-        SdkSetup
-    };
+    namespace {
+        enum class Step : uint8_t {
+            Welcome,
+            SdkSetup
+        };
 
-    static void CenteredText(const char *text, const ImVec4 &color) {
-        const float width = ImGui::CalcTextSize(text).x;
-        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - width) * 0.5f);
-        ImGui::TextColored(color, "%s", text);
-    }
-
-    static void VerticalCenter(const float contentHeight) {
-        const float available = ImGui::GetContentRegionAvail().y;
-        const float offset = (available - contentHeight) * 0.5f;
-        if (offset > 0.0f) ImGui::Dummy(ImVec2(0, offset));
-    }
-
-    static void BuildWelcomeStep(Step &step) {
-        VerticalCenter(260.0f);
-
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
-        CenteredText(COREDECK_TITLE, HexColor(Colors::TextPrimary));
-        ImGui::PopFont();
-
-        ImGui::Spacing();
-        CenteredText("Your Android emulator command center.", HexColor(Colors::TextMuted));
-
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-
-        const auto welcomeLine1 = "Welcome! CoreDeck helps you manage Android emulators";
-        const auto welcomeLine2 = "faster and cleaner than the default tooling.";
-        CenteredText(welcomeLine1, HexColor(Colors::TextSubtle));
-        CenteredText(welcomeLine2, HexColor(Colors::TextSubtle));
-
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-
-        constexpr float buttonWidth = 180.0f;
-        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - buttonWidth) * 0.5f);
-        if (PositiveButton("Get Started", true, ImVec2(buttonWidth, 0))) {
-            step = Step::SdkSetup;
+        void CenteredText(const char *text, const ImVec4 &color) {
+            const float width = ImGui::CalcTextSize(text).x;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - width) * 0.5F);
+            ImGui::TextColored(color, "%s", text);
         }
-    }
 
-    static void BuildSdkSetupStep(Context &context, Step &step, char *pathBuffer, size_t pathBufferSize) {
-        VerticalCenter(320.0f);
-
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
-        CenteredText("Locate your Android SDK", HexColor(Colors::TextPrimary));
-        ImGui::PopFont();
-
-        ImGui::Spacing();
-        CenteredText("CoreDeck needs to know where your Android SDK lives.", HexColor(Colors::TextMuted));
-        CenteredText("This is where 'emulator', 'avdmanager' and system images are installed.", HexColor(Colors::TextMuted));
-
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-
-        constexpr float formWidth = 600.0f;
-        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - formWidth) * 0.5f);
-        ImGui::BeginGroup();
-
-        ImGui::Text("SDK path");
-        ImGui::SetNextItemWidth(formWidth - 110.0f);
-        ImGui::InputTextWithHint("##sdk_path", "e.g. /Users/you/Library/Android/sdk", pathBuffer, pathBufferSize);
-        ImGui::SameLine();
-        if (PrimaryButton("Browse...", true, ImVec2(100, 0))) {
-            const auto picked = FileDialog::PickFolder("Select your Android SDK folder", pathBuffer);
-            if (picked.has_value()) {
-                strncpy(pathBuffer, picked->c_str(), pathBufferSize - 1);
-                pathBuffer[pathBufferSize - 1] = '\0';
+        void VerticalCenter(const float contentHeight) {
+            const float available = ImGui::GetContentRegionAvail().y;
+            const float offset = (available - contentHeight) * 0.5F;
+            if (offset > 0.0F) {
+                ImGui::Dummy(ImVec2(0, offset));
             }
         }
 
-        ImGui::Spacing();
-        const std::string currentPath = pathBuffer;
-        const bool isValid = Paths::Onboarding::ValidateSdkPath(currentPath);
-        if (!currentPath.empty()) {
-            if (isValid) {
-                ImGui::TextColored(
-                    HexColor(Colors::Positive),
-                    "%s",
-                    "Looks good. Found the Android emulator at this location."
-                );
+        void BuildWelcomeStep(Step &step) {
+            VerticalCenter(260.0F);
+
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            CenteredText(COREDECK_TITLE, HexColor(Colors::TEXT_PRIMARY));
+            ImGui::PopFont();
+
+            ImGui::Spacing();
+            CenteredText("Your Android emulator command center.", HexColor(Colors::TEXT_MUTED));
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            constexpr const char *WELCOME_LINE1 = "Welcome! CoreDeck helps you manage Android emulators";
+            constexpr const char *WELCOME_LINE2 = "faster and cleaner than the default tooling.";
+            CenteredText(WELCOME_LINE1, HexColor(Colors::TEXT_SUBTLE));
+            CenteredText(WELCOME_LINE2, HexColor(Colors::TEXT_SUBTLE));
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            constexpr float BUTTON_WIDTH = 180.0F;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - BUTTON_WIDTH) * 0.5F);
+            if (PositiveButton("Get Started", true, ImVec2(BUTTON_WIDTH, 0))) {
+                step = Step::SdkSetup;
+            }
+        }
+
+        void BuildSdkSetupStep(Context &context, Step &step, char *pathBuffer, size_t pathBufferSize) {
+            VerticalCenter(320.0F);
+
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            CenteredText("Locate your Android SDK", HexColor(Colors::TEXT_PRIMARY));
+            ImGui::PopFont();
+
+            ImGui::Spacing();
+            CenteredText("CoreDeck needs to know where your Android SDK lives.", HexColor(Colors::TEXT_MUTED));
+            CenteredText("This is where 'emulator', 'avdmanager' and system images are installed.", HexColor(Colors::TEXT_MUTED));
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            constexpr float FORM_WIDTH = 600.0F;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - FORM_WIDTH) * 0.5F);
+            ImGui::BeginGroup();
+
+            ImGui::Text("SDK path");
+            ImGui::SetNextItemWidth(FORM_WIDTH - 110.0F);
+            ImGui::InputTextWithHint("##sdk_path", "e.g. /Users/you/Library/Android/sdk", pathBuffer, pathBufferSize);
+            ImGui::SameLine();
+            if (PrimaryButton("Browse...", true, ImVec2(100, 0))) {
+                const auto picked = FileDialog::PickFolder("Select your Android SDK folder", pathBuffer);
+                if (picked.has_value()) {
+                    strncpy(pathBuffer, picked->c_str(), pathBufferSize - 1);
+                    pathBuffer[pathBufferSize - 1] = '\0';
+                }
+            }
+
+            ImGui::Spacing();
+            const std::string currentPath = pathBuffer;
+            const bool isValid = Paths::Onboarding::ValidateSdkPath(currentPath);
+            if (!currentPath.empty()) {
+                if (isValid) {
+                    ImGui::TextColored(
+                        HexColor(Colors::POSITIVE),
+                        "%s",
+                        "Looks good. Found the Android emulator at this location."
+                    );
+                } else {
+                    ImGui::TextColored(
+                        HexColor(Colors::NEGATIVE),
+                        "%s",
+                        "Couldn't find the Android emulator here. Make sure this is your SDK root folder."
+                    );
+                }
             } else {
                 ImGui::TextColored(
-                    HexColor(Colors::Negative),
+                    HexColor(Colors::TEXT_MUTED),
                     "%s",
-                    "Couldn't find the Android emulator here. Make sure this is your SDK root folder."
+                    "Choose the folder containing your Android SDK (cmdline-tools, emulator, platform-tools, etc)."
                 );
             }
-        } else {
-            ImGui::TextColored(
-                HexColor(Colors::TextMuted),
-                "%s",
-                "Choose the folder containing your Android SDK (cmdline-tools, emulator, platform-tools, etc)."
-            );
+
+            ImGui::EndGroup();
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            constexpr float FOOTER_WIDTH = 280.0F;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - FOOTER_WIDTH) * 0.5F);
+            ImGui::BeginGroup();
+
+            if (PrimaryButton("Back", true, ImVec2(130, 0))) {
+                step = Step::Welcome;
+            }
+
+            ImGui::SameLine();
+            if (PositiveButton("Continue", isValid, ImVec2(130, 0))) {
+                Paths::Onboarding::SaveSdkPathOverride(currentPath);
+                Paths::Onboarding::MarkFirstRunComplete();
+
+                context.Host.Sdk = DetectAndroidSdk();
+                RefreshAvds(context);
+                context.Flow.CurrentScreen = Screen::Main;
+            }
+
+            ImGui::EndGroup();
         }
-
-        ImGui::EndGroup();
-
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-
-        constexpr float footerWidth = 280.0f;
-        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - footerWidth) * 0.5f);
-        ImGui::BeginGroup();
-
-        if (PrimaryButton("Back", true, ImVec2(130, 0))) step = Step::Welcome;
-
-        ImGui::SameLine();
-        if (PositiveButton("Continue", isValid, ImVec2(130, 0))) {
-            Paths::Onboarding::SaveSdkPathOverride(currentPath);
-            Paths::Onboarding::MarkFirstRunComplete();
-
-            context.Host.Sdk = DetectAndroidSdk();
-            RefreshAvds(context);
-            context.Flow.CurrentScreen = Screen::Main;
-        }
-
-        ImGui::EndGroup();
     }
 
     void BuildOnboardingWindow(Context &context) {
@@ -159,7 +165,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(viewport->WorkPos);
         ImGui::SetNextWindowSize(viewport->WorkSize);
 
-        constexpr ImGuiWindowFlags flags =
+        constexpr ImGuiWindowFlags FLAGS =
             ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove |
@@ -169,7 +175,7 @@ namespace CoreDeck {
             ImGuiWindowFlags_NoBringToFrontOnFocus |
             ImGuiWindowFlags_NoNavFocus;
 
-        ImGui::Begin("##Onboarding", nullptr, flags);
+        ImGui::Begin("##Onboarding", nullptr, FLAGS);
 
         switch (step) {
             case Step::Welcome:

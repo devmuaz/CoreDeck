@@ -13,7 +13,14 @@
 namespace CoreDeck {
     class LogBuffer {
     public:
+        LogBuffer(const LogBuffer &) = delete;
+        LogBuffer(LogBuffer &&) = delete;
+        LogBuffer &operator=(const LogBuffer &) = delete;
+        LogBuffer &operator=(LogBuffer &&) = delete;
+
         explicit LogBuffer(std::size_t maxLines = 1000);
+
+        ~LogBuffer() = default;
 
         void Push(const std::string &line);
 

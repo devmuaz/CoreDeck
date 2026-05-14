@@ -19,19 +19,46 @@
 namespace CoreDeck {
     namespace {
         struct GitHubLatestRelease {
-            std::string tag_name;
-            std::optional<std::string> body;
+            std::string tag_name; // NOLINT(readability-identifier-naming)
+            std::optional<std::string> body; // NOLINT(readability-identifier-naming)
         };
+
+        void TrimInPlace(std::string &s) {
+            while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) {
+                s.erase(s.begin());
+            }
+            while (!s.empty() && std::isspace(static_cast<unsigned char>(s.back()))) {
+                s.pop_back();
+            }
+        }
+
+        std::string ExtractWhatsNewSection(const std::string &body) {
+            size_t lastSeparatorStart = std::string::npos;
+            size_t scan = 0;
+            while (scan < body.size()) {
+                const size_t lineStart = scan;
+                const size_t newline = body.find('\n', scan);
+                const size_t lineEnd = newline == std::string::npos ? body.size() : newline;
+                std::string line = body.substr(lineStart, lineEnd - lineStart);
+                if (!line.empty() && line.back() == '\r') {
+                    line.pop_back();
+                }
+                if (line == "---") {
+                    lastSeparatorStart = lineStart;
+                }
+                if (newline == std::string::npos) {
+                    break;
+                }
+                scan = newline + 1;
+            }
+
+            if (lastSeparatorStart == std::string::npos) {
+                return body;
+            }
+            return body.substr(0, lastSeparatorStart);
+        }
     }
 
-    static void TrimInPlace(std::string &s) {
-        while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) {
-            s.erase(s.begin());
-        }
-        while (!s.empty() && std::isspace(static_cast<unsigned char>(s.back()))) {
-            s.pop_back();
-        }
-    }
 
     namespace detail {
         std::optional<std::string> ParseLatestReleaseTag(const std::string &body) {
@@ -50,27 +77,6 @@ namespace CoreDeck {
             }
         }
 
-        std::string ExtractWhatsNewSection(const std::string &body) {
-            size_t lastSeparatorStart = std::string::npos;
-            size_t scan = 0;
-            while (scan < body.size()) {
-                const size_t lineStart = scan;
-                const size_t newline = body.find('\n', scan);
-                const size_t lineEnd = newline == std::string::npos ? body.size() : newline;
-                std::string line = body.substr(lineStart, lineEnd - lineStart);
-                if (!line.empty() && line.back() == '\r') line.pop_back();
-                if (line == "---") {
-                    lastSeparatorStart = lineStart;
-                }
-                if (newline == std::string::npos) break;
-                scan = newline + 1;
-            }
-
-            if (lastSeparatorStart == std::string::npos) {
-                return body;
-            }
-            return body.substr(0, lastSeparatorStart);
-        }
 
         std::optional<RemoteRelease> ParseLatestRelease(const std::string &body) {
             try {
@@ -109,7 +115,7 @@ namespace CoreDeck {
                         if (c < '0' || c > '9') {
                             break;
                         }
-                        n = n * 10 + (c - '0');
+                        n = (n * 10) + (c - '0');
                     }
                     parts.push_back(n);
                     if (dot == std::string::npos) {
@@ -133,8 +139,12 @@ namespace CoreDeck {
                     return a < b ? -1 : 1;
                 }
             }
-            if (preA && !preB) return -1;
-            if (!preA && preB) return 1;
+            if (preA && !preB) {
+                return -1;
+            }
+            if (!preA && preB) {
+                return 1;
+            }
             return 0;
         }
     }
@@ -210,7 +220,9 @@ namespace CoreDeck {
 
         std::optional<std::string> HttpGet(const std::string &url, const std::string &userAgent) {
             CURL *curl = curl_easy_init();
-            if (!curl) return std::nullopt;
+            if (!curl) {
+                return std::nullopt;
+            }
 
             std::string body;
             curl_slist *headers = curl_slist_append(nullptr, "Accept: application/vnd.github+json");
@@ -229,7 +241,9 @@ namespace CoreDeck {
             curl_slist_free_all(headers);
             curl_easy_cleanup(curl);
 
-            if (rc != CURLE_OK) return std::nullopt;
+            if (rc != CURLE_OK) {
+                return std::nullopt;
+            }
             return body;
         }
 #endif

@@ -14,59 +14,66 @@
 #include "../theme.h"
 
 namespace CoreDeck {
-    static void OpenSystemImagePicker(Context &context) {
-        context.ImageInstallationWork.SelectedImage = -1;
-        context.ImageInstallationWork.SelectedCategory = ImageCategory::PhoneTablet;
-        context.ImageInstallationWork.SearchFilter[0] = '\0';
-        context.ImageInstallationWork.Progress.reset();
-        context.ImageInstallationWork.Prefetch.Ready = false;
-        context.ImageInstallationWork.Prefetch.Loading = true;
-        context.UI.ShowInstallImageDialog = true;
+    namespace {
+        void OpenSystemImagePicker(Context &context) {
+            context.ImageInstallationWork.SelectedImage = -1;
+            context.ImageInstallationWork.SelectedCategory = ImageCategory::PhoneTablet;
+            context.ImageInstallationWork.SearchFilter[0] = '\0';
+            context.ImageInstallationWork.Progress.reset();
+            context.ImageInstallationWork.Prefetch.Ready = false;
+            context.ImageInstallationWork.Prefetch.Loading = true;
+            context.UI.ShowInstallImageDialog = true;
 
-        context.ImageInstallationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
-            const auto localImages = ListSystemImages(context.Host.Sdk);
-            auto remoteImages = ListRemoteSystemImages(context.Host.Sdk, localImages);
-            context.AvdCreationWork.SystemImages = localImages;
-            context.ImageInstallationWork.RemoteImages = std::move(remoteImages);
-            context.ImageInstallationWork.Prefetch.Loading = false;
-            context.ImageInstallationWork.Prefetch.Ready = true;
-        });
+            context.ImageInstallationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
+                const auto localImages = ListSystemImages(context.Host.Sdk);
+                auto remoteImages = ListRemoteSystemImages(context.Host.Sdk, localImages);
+                context.AvdCreationWork.SystemImages = localImages;
+                context.ImageInstallationWork.RemoteImages = std::move(remoteImages);
+                context.ImageInstallationWork.Prefetch.Loading = false;
+                context.ImageInstallationWork.Prefetch.Ready = true;
+            });
+        }
+
+
+        int DigitsOnlyFilter(ImGuiInputTextCallbackData *data) {
+            return data->EventChar >= '0' && data->EventChar <= '9' ? 0 : 1;
+        }
+
+
+        int AvdNameFilter(ImGuiInputTextCallbackData *data) {
+            const ImWchar c = data->EventChar;
+            const bool ok = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                            (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-';
+            return ok ? 0 : 1;
+        }
+
+        bool AvdNameExists(const std::vector<std::string> &names, const std::string &candidate) {
+            if (candidate.empty()) {
+                return false;
+            }
+            const std::string needle = LowerCopy(candidate);
+            return std::ranges::any_of(names, [&](const std::string &n) { return LowerCopy(n) == needle; });
+        }
     }
 
-    // ReSharper disable once CppParameterMayBeConstPtrOrRef
-    static int DigitsOnlyFilter(ImGuiInputTextCallbackData *data) {
-        return data->EventChar >= '0' && data->EventChar <= '9' ? 0 : 1;
-    }
-
-    // ReSharper disable once CppParameterMayBeConstPtrOrRef
-    static int AvdNameFilter(ImGuiInputTextCallbackData *data) {
-        const ImWchar c = data->EventChar;
-        const bool ok = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-                        (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-';
-        return ok ? 0 : 1;
-    }
-
-    static bool AvdNameExists(const std::vector<std::string> &names, const std::string &candidate) {
-        if (candidate.empty()) return false;
-        const std::string needle = LowerCopy(candidate);
-        return std::ranges::any_of(names, [&](const std::string &n) { return LowerCopy(n) == needle; });
-    }
-
+    // NOLINTNEXTLINE(readability-function-size)
     void BuildCreateAvdWindow(Context &context) {
         if (context.UI.ShowCreateAvdDialog && !ImGui::IsPopupOpen("Create New AVD###CreateAvdDialog")) {
             ImGui::OpenPopup("Create New AVD###CreateAvdDialog");
         }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Appearing);
 
-        if (ImGui::BeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, WindowAutoResizeFlags)) {
+        if (ImGui::BeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             const bool isLoading = context.AvdCreationWork.Prefetch.Loading.load();
             const bool isCreating = context.Jobs.AvdCreation.Busy.load();
             const bool formDisabled = isLoading || isCreating;
 
-            if (formDisabled) ImGui::BeginDisabled();
+            if (formDisabled) {
+                ImGui::BeginDisabled();
+            }
 
             auto &work = context.AvdCreationWork;
             const bool hasDeviceProfile = !work.DeviceProfiles.empty() && work.SelectedDevice >= 0 && work.SelectedDevice < static_cast<int>(work.DeviceProfiles.size());
@@ -95,7 +102,7 @@ namespace CoreDeck {
             char nameBuffer[128];
             strncpy(nameBuffer, context.AvdCreationWork.CreationData.Name.c_str(), sizeof(nameBuffer) - 1);
             nameBuffer[sizeof(nameBuffer) - 1] = '\0';
-            ImGui::SetNextItemWidth(-1.0f);
+            ImGui::SetNextItemWidth(-1.0F);
             if (ImGui::InputTextWithHint("##AvdName", "e.g. MyPixel7", nameBuffer, sizeof(nameBuffer), ImGuiInputTextFlags_CallbackCharFilter, AvdNameFilter)) {
                 context.AvdCreationWork.CreationData.Name = nameBuffer;
                 context.AvdCreationWork.NameAutoFilled = (nameBuffer[0] == '\0');
@@ -108,7 +115,7 @@ namespace CoreDeck {
 
             if (nameConflict) {
                 ImGui::TextColored(
-                    HexColor(Colors::Negative),
+                    HexColor(Colors::NEGATIVE),
                     " An AVD named \"%s\" already exists.",
                     context.AvdCreationWork.CreationData.Name.c_str()
                 );
@@ -120,7 +127,7 @@ namespace CoreDeck {
             char displayBuffer[128];
             strncpy(displayBuffer, context.AvdCreationWork.CreationData.DisplayName.c_str(), sizeof(displayBuffer) - 1);
             displayBuffer[sizeof(displayBuffer) - 1] = '\0';
-            ImGui::SetNextItemWidth(-1.0f);
+            ImGui::SetNextItemWidth(-1.0F);
             if (ImGui::InputTextWithHint("##DisplayName", "e.g. My Pixel 7", displayBuffer, sizeof(displayBuffer))) {
                 context.AvdCreationWork.CreationData.DisplayName = displayBuffer;
                 context.AvdCreationWork.DisplayNameAutoFilled = (displayBuffer[0] == '\0');
@@ -130,13 +137,13 @@ namespace CoreDeck {
             ImGui::Text("System Image");
             if (context.AvdCreationWork.Prefetch.Ready && context.AvdCreationWork.SystemImages.empty()) {
                 if (!context.Host.Sdk.SdkManagerPath.empty()) {
-                    if (PickerButton("No system images available. Install one...", !formDisabled, ImVec2(-1.0f, 0.0f))) {
+                    if (PickerButton("No system images available. Install one...", !formDisabled, ImVec2(-1.0F, 0.0F))) {
                         OpenSystemImagePicker(context);
                     }
                 } else {
-                    PickerButton("No system images installed", false, ImVec2(-1.0f, 0.0f));
+                    PickerButton("No system images installed", false, ImVec2(-1.0F, 0.0F));
                     ImGui::TextColored(
-                        HexColor(Colors::Negative),
+                        HexColor(Colors::NEGATIVE),
                         "SDK Manager was not found, so CoreDeck cannot install images automatically."
                     );
                 }
@@ -145,13 +152,13 @@ namespace CoreDeck {
                 const auto &selectedSystemImage = context.AvdCreationWork.SelectedSystemImage;
                 const std::string preview = SystemImagePreviewLabel(systemImages[selectedSystemImage]);
 
-                if (PickerButton(preview.c_str(), !formDisabled, ImVec2(-1.0f, 0.0f))) {
+                if (PickerButton(preview.c_str(), !formDisabled, ImVec2(-1.0F, 0.0F))) {
                     if (!context.Host.Sdk.SdkManagerPath.empty()) {
                         OpenSystemImagePicker(context);
                     }
                 }
             } else {
-                PickerButton("Loading system images...", false, ImVec2(-1.0f, 0.0f));
+                PickerButton("Loading system images...", false, ImVec2(-1.0F, 0.0F));
             }
 
             ImGui::Spacing();
@@ -164,14 +171,14 @@ namespace CoreDeck {
                 const auto &selectedDevice = context.AvdCreationWork.DeviceProfiles[context.AvdCreationWork.SelectedDevice];
                 const std::string devicePreview = DeviceProfilePreviewLabel(selectedDevice);
 
-                if (PickerButton(devicePreview.c_str(), !formDisabled, ImVec2(-1.0f, 0.0f))) {
+                if (PickerButton(devicePreview.c_str(), !formDisabled, ImVec2(-1.0F, 0.0F))) {
                     context.AvdCreationWork.PendingSelectedDevice = context.AvdCreationWork.SelectedDevice;
                     context.AvdCreationWork.DeviceSearchFilter[0] = '\0';
                     context.AvdCreationWork.SelectedDeviceCategory = DeviceCategory::Phone;
                     context.UI.ShowDeviceProfileDialog = true;
                 }
             } else {
-                PickerButton("Loading device profiles...", false, ImVec2(-1.0f, 0.0f));
+                PickerButton("Loading device profiles...", false, ImVec2(-1.0F, 0.0F));
             }
 
             if (context.AvdCreationWork.Prefetch.Ready && hasDeviceProfile) {
@@ -197,18 +204,18 @@ namespace CoreDeck {
             ImGui::Text("Skin");
             if (context.AvdCreationWork.Prefetch.Ready) {
                 const std::string skinPreview = SkinPreviewLabel(context);
-                if (PickerButton(skinPreview.c_str(), !formDisabled, ImVec2(-1.0f, 0.0f))) {
+                if (PickerButton(skinPreview.c_str(), !formDisabled, ImVec2(-1.0F, 0.0F))) {
                     context.AvdCreationWork.PendingSelectedSkin = context.AvdCreationWork.SelectedSkin;
                     context.AvdCreationWork.SkinSearchFilter[0] = '\0';
                     context.UI.ShowSkinDialog = true;
                 }
             } else {
-                PickerButton("Loading skins...", false, ImVec2(-1.0f, 0.0f));
+                PickerButton("Loading skins...", false, ImVec2(-1.0F, 0.0F));
             }
 
             ImGui::Spacing();
             const float rowSpacing = ImGui::GetStyle().ItemSpacing.x;
-            const float colWidth = (ImGui::GetContentRegionAvail().x - rowSpacing) * 0.5f;
+            const float colWidth = (ImGui::GetContentRegionAvail().x - rowSpacing) * 0.5F;
             const float col2X = ImGui::GetCursorPosX() + colWidth + rowSpacing;
 
             ImGui::Text("RAM (MB)");
@@ -239,25 +246,29 @@ namespace CoreDeck {
 
             ImGui::Text("GPU Mode");
             const auto &gpuModes = GpuModeOptions();
-            ImGui::SetNextItemWidth(-1.0f);
+            ImGui::SetNextItemWidth(-1.0F);
             if (ImGui::BeginCombo("##gpu", gpuModes[context.AvdCreationWork.SelectedGpuMode].Label)) {
                 for (int i = 0; i < static_cast<int>(gpuModes.size()); i++) {
                     const bool isSelected = context.AvdCreationWork.SelectedGpuMode == i;
                     if (ImGui::Selectable(gpuModes[i].Label, isSelected)) {
                         context.AvdCreationWork.SelectedGpuMode = i;
                     }
-                    if (isSelected) ImGui::SetItemDefaultFocus();
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
                 }
                 ImGui::EndCombo();
             }
 
-            if (formDisabled) ImGui::EndDisabled();
+            if (formDisabled) {
+                ImGui::EndDisabled();
+            }
 
             ImGui::Spacing();
             ImGui::Spacing();
 
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
+            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
 
             const bool canCreate = !context.AvdCreationWork.CreationData.Name.empty() && hasImage && !nameConflict && !formDisabled;
 
@@ -267,12 +278,13 @@ namespace CoreDeck {
                 ImGui::EndDisabled();
             } else {
                 if (PositiveButton("Create", canCreate, ImVec2(halfWidth, 0))) {
-                    const auto &SystemImagePackagePath = context.AvdCreationWork.SystemImages[context.AvdCreationWork.SelectedSystemImage].PackagePath;
+                    const auto &systemImagePackagePath = context.AvdCreationWork.SystemImages[context.AvdCreationWork.SelectedSystemImage].PackagePath;
 
-                    context.AvdCreationWork.CreationData.SystemImagePackagePath = SystemImagePackagePath;
-                    context.AvdCreationWork.CreationData.DeviceId = hasDeviceProfile
-                                                                        ? context.AvdCreationWork.DeviceProfiles[context.AvdCreationWork.SelectedDevice].Id
-                                                                        : "";
+                    context.AvdCreationWork.CreationData.SystemImagePackagePath = systemImagePackagePath;
+                    context.AvdCreationWork.CreationData.DeviceId =
+                        hasDeviceProfile
+                            ? context.AvdCreationWork.DeviceProfiles[context.AvdCreationWork.SelectedDevice].Id
+                            : "";
                     context.AvdCreationWork.CreationData.GpuMode = gpuModes[context.AvdCreationWork.SelectedGpuMode].Value;
                     if (context.AvdCreationWork.SelectedSkin > 0 &&
                         context.AvdCreationWork.SelectedSkin - 1 < static_cast<int>(context.AvdCreationWork.Skins.size())) {

@@ -10,20 +10,20 @@
 #include <rfl.hpp>
 
 namespace CoreDeck {
-    enum class OptionType {
+    enum class OptionType : uint8_t {
         Default = 0,
         TextInput,
         Selection,
     };
 
     namespace OptionCategory {
-        constexpr const char *Display = "Display";
-        constexpr const char *Performance = "Performance";
-        constexpr const char *Boot = "Boot";
-        constexpr const char *Audio = "Audio";
-        constexpr const char *Network = "Network";
-        constexpr const char *Advanced = "Advanced";
-        constexpr const char *Camera = "Camera";
+        constexpr const char *DISPLAY = "Display";
+        constexpr const char *PERFORMANCE = "Performance";
+        constexpr const char *BOOT = "Boot";
+        constexpr const char *AUDIO = "Audio";
+        constexpr const char *NETWORK = "Network";
+        constexpr const char *ADVANCED = "Advanced";
+        constexpr const char *CAMERA = "Camera";
     }
 
     struct EmulatorOption {

@@ -18,7 +18,7 @@
 namespace CoreDeck {
     struct ProcessSample {
         double TimestampSec = 0.0;
-        float CpuPercent = 0.0f;
+        float CpuPercent = 0.0F;
         std::uint64_t RssBytes = 0;
         std::uint64_t DiskReadBytesPerSec = 0;
         std::uint64_t DiskWriteBytesPerSec = 0;
@@ -29,11 +29,14 @@ namespace CoreDeck {
 
     class ProcessStatsSampler {
     public:
-        ProcessStatsSampler() = default;
-        ~ProcessStatsSampler();
-
         ProcessStatsSampler(const ProcessStatsSampler &) = delete;
+        ProcessStatsSampler(ProcessStatsSampler &&) = delete;
         ProcessStatsSampler &operator=(const ProcessStatsSampler &) = delete;
+        ProcessStatsSampler &operator=(ProcessStatsSampler &&) = delete;
+
+        ProcessStatsSampler() = default;
+
+        ~ProcessStatsSampler();
 
         void Start();
 
@@ -58,9 +61,9 @@ namespace CoreDeck {
             std::size_t HistoryWrite = 0;
             std::size_t HistoryFilled = 0;
             ProcessSample Latest;
-            std::chrono::steady_clock::time_point TrackedAt{};
+            std::chrono::steady_clock::time_point TrackedAt;
             std::uint64_t PrevCpuTimeNs = 0;
-            std::chrono::steady_clock::time_point PrevSampleTime{};
+            std::chrono::steady_clock::time_point PrevSampleTime;
             bool HasPrevCpu = false;
             std::uint64_t PrevDiskReadBytes = 0;
             std::uint64_t PrevDiskWriteBytes = 0;
@@ -69,7 +72,7 @@ namespace CoreDeck {
 
         void m_WorkerLoop();
 
-        void m_SampleOne(ProcessId pid, Entry &entry, std::chrono::steady_clock::time_point now);
+        static void m_SampleOne(ProcessId pid, Entry &entry, std::chrono::steady_clock::time_point now);
 
         mutable std::mutex m_Mutex;
         std::unordered_map<ProcessId, Entry> m_Entries;

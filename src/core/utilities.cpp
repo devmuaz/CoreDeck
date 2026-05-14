@@ -3,13 +3,12 @@
 //
 
 #include <algorithm>
-#include <chrono>
 #include <cctype>
 #include <cstdio>
 #include <filesystem>
 #include <string>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <windows.h>
 #include <shellapi.h>
 #endif
@@ -51,18 +50,18 @@ namespace CoreDeck {
         char buf[64];
         const auto b = static_cast<double>(bytes);
         if (b >= GB) {
-            std::snprintf(buf, sizeof(buf), "%.2f GB", b / GB);
+            (void) std::snprintf(buf, sizeof(buf), "%.2f GB", b / GB);
             return buf;
         }
         if (b >= MB) {
-            std::snprintf(buf, sizeof(buf), "%.1f MB", b / MB);
+            (void) std::snprintf(buf, sizeof(buf), "%.1f MB", b / MB);
             return buf;
         }
         if (b >= KB) {
-            std::snprintf(buf, sizeof(buf), "%.1f KB", b / KB);
+            (void) std::snprintf(buf, sizeof(buf), "%.1f KB", b / KB);
             return buf;
         }
-        std::snprintf(buf, sizeof(buf), "%llu B", static_cast<unsigned long long>(bytes));
+        (void) std::snprintf(buf, sizeof(buf), "%llu B", static_cast<unsigned long long>(bytes));
         return buf;
     }
 
@@ -74,14 +73,18 @@ namespace CoreDeck {
     }
 
     bool ContainsIgnoreCase(const std::string &text, const std::string &needle) {
-        if (needle.empty()) return true;
+        if (needle.empty()) {
+            return true;
+        }
         return LowerCopy(text).find(LowerCopy(needle)) != std::string::npos;
     }
 
     bool WipeAvdUserData(const std::string &avdPath) {
-        if (!std::filesystem::exists(avdPath)) return false;
+        if (!std::filesystem::exists(avdPath)) {
+            return false;
+        }
 
-        static constexpr const char *wipeTargets[] = {
+        static constexpr const char *WIPE_TARGETS[] = {
             "userdata-qemu.img",
             "userdata-qemu.img.qcow2",
             "cache.img",
@@ -93,11 +96,13 @@ namespace CoreDeck {
 
         bool wiped = false;
         std::error_code ec;
-        for (const auto *name: wipeTargets) {
+        for (const auto *name: WIPE_TARGETS) {
             const auto target = std::filesystem::path(avdPath) / name;
             if (std::filesystem::exists(target, ec)) {
                 std::filesystem::remove_all(target, ec);
-                if (!ec) wiped = true;
+                if (!ec) {
+                    wiped = true;
+                }
             }
         }
         return wiped;

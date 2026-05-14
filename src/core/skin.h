@@ -12,7 +12,7 @@
 #include "sdk.h"
 
 namespace CoreDeck {
-    enum class SkinSource {
+    enum class SkinSource : uint8_t {
         Sdk,
         SystemImage,
         Platform,

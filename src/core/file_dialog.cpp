@@ -13,7 +13,9 @@ namespace CoreDeck::FileDialog {
             defaultPath.empty() ? nullptr : defaultPath.c_str()
         );
 
-        if (result == nullptr) return std::nullopt;
+        if (result == nullptr) {
+            return std::nullopt;
+        }
         return std::string(result);
     }
 }

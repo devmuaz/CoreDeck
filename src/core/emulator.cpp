@@ -22,15 +22,80 @@
 #endif
 
 namespace CoreDeck {
-    static bool WaitForConsoleUnavailable(const int port, const int timeoutMs) {
-        if (port <= 0) return true;
+    namespace {
+        bool WaitForConsoleUnavailable(const int port, const int timeoutMs) {
+            if (port <= 0) {
+                return true;
+            }
 
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
-        while (std::chrono::steady_clock::now() < deadline) {
-            if (!EmulatorConsole::IsAvailable(port, 200)) return true;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+            while (std::chrono::steady_clock::now() < deadline) {
+                if (!EmulatorConsole::IsAvailable(port, 200)) {
+                    return true;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+            return !EmulatorConsole::IsAvailable(port, 200);
         }
-        return !EmulatorConsole::IsAvailable(port, 200);
+
+
+        void RunOutputReader(const int outputFd, const std::shared_ptr<LogBuffer> &log, const std::shared_ptr<std::atomic<bool>> &stopFlag) {
+            std::array<char, 1024> buf{};
+            std::string partial;
+
+            auto flushLines = [&](const char *data, const std::size_t n) {
+                partial.append(data, n);
+                std::size_t pos = 0;
+                while ((pos = partial.find('\n')) != std::string::npos) {
+                    if (auto line = partial.substr(0, pos); !line.empty()) {
+                        log->Push(line);
+                    }
+                    partial.erase(0, pos + 1);
+                }
+            };
+
+            while (!stopFlag->load()) {
+#if defined(_WIN32)
+                const auto handle = reinterpret_cast<HANDLE>(_get_osfhandle(outputFd));
+                DWORD nRead = 0;
+                if (ReadFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &nRead, nullptr)) {
+                    if (nRead > 0) {
+                        flushLines(buf.data(), nRead);
+                    } else {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                    }
+                } else {
+                    const DWORD err = GetLastError();
+                    if (err == ERROR_BROKEN_PIPE || err == ERROR_HANDLE_EOF) break;
+                    if (err == ERROR_NO_DATA) {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                    } else {
+                        break;
+                    }
+                }
+#else
+                if (const ssize_t n = read(outputFd, buf.data(), buf.size()); n > 0) {
+                    flushLines(buf.data(), static_cast<std::size_t>(n));
+                } else if (n == 0) { // NOLINT(bugprone-branch-clone)
+                    break;
+                } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                } else {
+                    break;
+                }
+#endif
+            }
+
+            if (!partial.empty()) {
+                log->Push(partial);
+            }
+
+#if defined(_WIN32)
+            _close(outputFd);
+#else
+            close(outputFd);
+#endif
+        }
     }
 
     EmulatorManager::EmulatorManager(SdkInfo sdk)
@@ -49,7 +114,9 @@ namespace CoreDeck {
                 }
             }
         }
-        for (auto &t: pendingStops) t.join();
+        for (auto &thread: pendingStops) {
+            thread.join();
+        }
 
         std::lock_guard lock(m_Mutex);
         for (auto &instance: m_Instances | std::views::values) {
@@ -60,7 +127,9 @@ namespace CoreDeck {
                 }
                 if (!exited) {
                     KillProcess(instance.Pid);
-                    exited = instance.ConsolePort > 0 ? WaitForConsoleUnavailable(instance.ConsolePort, 2000) : WaitForProcessExit(instance.Pid, 2000);
+                    exited = instance.ConsolePort > 0
+                                 ? WaitForConsoleUnavailable(instance.ConsolePort, 2000)
+                                 : WaitForProcessExit(instance.Pid, 2000);
                 }
                 if (!exited) {
                     TerminateProcessTree(instance.Pid);
@@ -75,6 +144,28 @@ namespace CoreDeck {
             if (instance.ReaderThread.joinable()) {
                 instance.ReaderThread.join();
             }
+        }
+    }
+
+    void EmulatorManager::m_EvictExistingInstance(const std::string &avdName) {
+        std::thread oldStopThread;
+        std::thread oldReaderThread;
+        {
+            std::lock_guard lock(m_Mutex);
+            if (const auto existing = m_Instances.find(avdName); existing != m_Instances.end()) {
+                if (existing->second.StopRequested) {
+                    existing->second.StopRequested->store(true);
+                }
+                oldStopThread = std::move(existing->second.StopThread);
+                oldReaderThread = std::move(existing->second.ReaderThread);
+                m_Instances.erase(existing);
+            }
+        }
+        if (oldStopThread.joinable()) {
+            oldStopThread.join();
+        }
+        if (oldReaderThread.joinable()) {
+            oldReaderThread.join();
         }
     }
 
@@ -96,89 +187,22 @@ namespace CoreDeck {
         int outputFd = -1;
         const ProcessId pid = SpawnProcessWithPipe(m_Sdk.EmulatorPath, finalArgs, outputFd);
 
-#ifdef _WIN32
-        if (pid == 0) return false;
+#if defined(_WIN32)
+        if (pid == 0) {
+            return false;
+        }
 #else
-        if (pid <= 0) return false;
+        if (pid <= 0) {
+            return false;
+        }
 #endif
 
+        auto log = std::make_shared<LogBuffer>();
+        auto stopFlag = std::make_shared<std::atomic<bool>>(false);
+        std::thread reader(RunOutputReader, outputFd, log, stopFlag);
+
+        m_EvictExistingInstance(avdName);
         {
-            auto log = std::make_shared<LogBuffer>();
-            auto stopFlag = std::make_shared<std::atomic<bool>>(false);
-            std::thread reader([outputFd, log, stopFlag] {
-                std::array<char, 1024> buf{};
-                std::string partial;
-
-                auto flushLines = [&](const char *data, const std::size_t n) {
-                    partial.append(data, n);
-                    std::size_t pos;
-                    while ((pos = partial.find('\n')) != std::string::npos) {
-                        if (auto line = partial.substr(0, pos); !line.empty()) {
-                            log->Push(line);
-                        }
-                        partial.erase(0, pos + 1);
-                    }
-                };
-
-                while (!stopFlag->load()) {
-#ifdef _WIN32
-                    const auto handle = reinterpret_cast<HANDLE>(_get_osfhandle(outputFd));
-                    DWORD nRead = 0;
-                    if (ReadFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &nRead, nullptr)) {
-                        if (nRead > 0) {
-                            flushLines(buf.data(), nRead);
-                        } else {
-                            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                        }
-                    } else {
-                        const DWORD err = GetLastError();
-                        if (err == ERROR_BROKEN_PIPE || err == ERROR_HANDLE_EOF) break;
-                        if (err == ERROR_NO_DATA) {
-                            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                        } else {
-                            break;
-                        }
-                    }
-#else
-                    if (const ssize_t n = read(outputFd, buf.data(), buf.size()); n > 0) {
-                        flushLines(buf.data(), static_cast<std::size_t>(n));
-                    } else if (n == 0) {
-                        break;
-                    } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                    } else {
-                        break;
-                    }
-#endif
-                }
-
-                if (!partial.empty()) {
-                    log->Push(partial);
-                }
-
-#ifdef _WIN32
-                _close(outputFd);
-#else
-                close(outputFd);
-#endif
-            });
-
-            std::thread oldStopThread;
-            std::thread oldReaderThread;
-            {
-                std::lock_guard lock(m_Mutex);
-                if (const auto existing = m_Instances.find(avdName); existing != m_Instances.end()) {
-                    if (existing->second.StopRequested) {
-                        existing->second.StopRequested->store(true);
-                    }
-                    oldStopThread = std::move(existing->second.StopThread);
-                    oldReaderThread = std::move(existing->second.ReaderThread);
-                    m_Instances.erase(existing);
-                }
-            }
-            if (oldStopThread.joinable()) oldStopThread.join();
-            if (oldReaderThread.joinable()) oldReaderThread.join();
-
             std::lock_guard lock(m_Mutex);
 
             EmulatorInstance instance;
@@ -186,9 +210,9 @@ namespace CoreDeck {
             instance.Pid = pid;
             instance.ConsolePort = consolePort;
             instance.IsRunning = true;
-            instance.Log = log;
+            instance.Log = std::move(log);
             instance.ReaderThread = std::move(reader);
-            instance.StopRequested = stopFlag;
+            instance.StopRequested = std::move(stopFlag);
             m_Instances[avdName] = std::move(instance);
         }
 
@@ -197,8 +221,8 @@ namespace CoreDeck {
     }
 
     bool EmulatorManager::Stop(const std::string &avdName) {
-        ProcessId pid;
-        int consolePort;
+        ProcessId pid = 0;
+        int consolePort = 0;
         std::shared_ptr<std::atomic<bool>> stopFlag;
         std::thread readerThread;
         std::thread oldStopThread;
@@ -215,7 +239,9 @@ namespace CoreDeck {
             oldStopThread = std::move(it->second.StopThread);
             it->second.Stopping = true;
         }
-        if (oldStopThread.joinable()) oldStopThread.join();
+        if (oldStopThread.joinable()) {
+            oldStopThread.join();
+        }
 
         std::thread worker(
             [this, avdName, pid, consolePort, stopFlag, reader = std::move(readerThread)]() mutable {
@@ -225,20 +251,26 @@ namespace CoreDeck {
                 }
                 if (!exited) {
                     KillProcess(pid);
-                    exited = consolePort > 0 ? WaitForConsoleUnavailable(consolePort, 3000) : WaitForProcessExit(pid, 2000);
+                    exited = consolePort > 0
+                                 ? WaitForConsoleUnavailable(consolePort, 3000)
+                                 : WaitForProcessExit(pid, 2000);
                 }
                 if (!exited) {
                     TerminateProcessTree(pid);
-                    exited = consolePort > 0 ? WaitForConsoleUnavailable(consolePort, 3000) : WaitForProcessExit(pid, 2000);
+                    exited = consolePort > 0
+                                 ? WaitForConsoleUnavailable(consolePort, 3000)
+                                 : WaitForProcessExit(pid, 2000);
                 }
 
                 if (exited) {
-                    if (stopFlag) stopFlag->store(true);
-                    if (reader.joinable()) reader.join();
-                    // Stop sampling resource use; safe to call outside the mutex.
+                    if (stopFlag) {
+                        stopFlag->store(true);
+                    }
+                    if (reader.joinable()) {
+                        reader.join();
+                    }
                     m_Stats.Untrack(pid);
                 }
-
                 {
                     std::lock_guard lock(m_Mutex);
                     if (const auto it = m_Instances.find(avdName); it != m_Instances.end()) {
@@ -249,7 +281,9 @@ namespace CoreDeck {
                         }
                     }
                 }
-                if (!exited && reader.joinable()) reader.detach();
+                if (!exited && reader.joinable()) {
+                    reader.detach();
+                }
             }
         );
 
@@ -265,28 +299,36 @@ namespace CoreDeck {
     bool EmulatorManager::IsStopping(const std::string &avdName) const {
         std::lock_guard lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
-        if (it == m_Instances.end()) return false;
+        if (it == m_Instances.end()) {
+            return false;
+        }
         return it->second.Stopping;
     }
 
     bool EmulatorManager::IsRunning(const std::string &avdName) const {
         std::lock_guard lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
-        if (it == m_Instances.end()) return false;
+        if (it == m_Instances.end()) {
+            return false;
+        }
         return it->second.IsRunning;
     }
 
     std::shared_ptr<LogBuffer> EmulatorManager::GetLog(const std::string &avdName) {
         std::lock_guard lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
-        if (it == m_Instances.end()) return nullptr;
+        if (it == m_Instances.end()) {
+            return nullptr;
+        }
         return it->second.Log;
     }
 
     ProcessId EmulatorManager::GetPid(const std::string &avdName) const {
         std::lock_guard lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
-        if (it == m_Instances.end() || !it->second.IsRunning) return 0;
+        if (it == m_Instances.end() || !it->second.IsRunning) {
+            return 0;
+        }
         return it->second.Pid;
     }
 
@@ -297,7 +339,8 @@ namespace CoreDeck {
             for (auto &instance: m_Instances | std::views::values) {
                 if (instance.IsRunning) {
                     if (!IsProcessRunning(instance.Pid)) {
-                        instance.IsRunning = instance.ConsolePort > 0 && EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
+                        instance.IsRunning = instance.ConsolePort > 0 &&
+                                             EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
                         if (!instance.IsRunning) {
                             toUntrack.push_back(instance.Pid);
                         }

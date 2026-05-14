@@ -11,16 +11,18 @@
 
 namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context) {
-        if (!context.UI.ShowOptionsPanel) return;
+        if (!context.UI.ShowOptionsPanel) {
+            return;
+        }
 
-        constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+        constexpr ImGuiWindowFlags FLAGS = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
         std::string panelTitle = "Options";
         if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
             panelTitle = "Options - " + context.Catalog.Avds[context.Catalog.SelectedAvd].DisplayName;
         }
 
-        ImGui::Begin((panelTitle + "###Options").c_str(),nullptr,flags);
+        ImGui::Begin((panelTitle + "###Options").c_str(), nullptr, FLAGS);
 
         if (context.Catalog.SelectedAvd < 0) {
             ImGui::TextDisabled("Select an AVD to configure options");
@@ -40,25 +42,31 @@ namespace CoreDeck {
 
         for (const auto &category: categories) {
             if (CollapsingHeader(category.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-                ImGui::Indent(20.0f);
+                ImGui::Indent(20.0F);
 
                 for (auto &[Flag, DisplayName, Description, Enabled, Type, Category, Hint, TextInput, Items, SelectedItem]: options) {
-                    if (category != Category) continue;
+                    if (category != Category) {
+                        continue;
+                    }
 
                     ImGui::PushID(Flag.c_str());
 
                     const bool wasEnabled = Enabled;
                     ImGui::Checkbox(DisplayName.c_str(), &Enabled);
-                    if (wasEnabled != Enabled) optionsChanged = true;
+                    if (wasEnabled != Enabled) {
+                        optionsChanged = true;
+                    }
 
                     ImGui::SameLine();
-                    ImGui::TextColored(HexColor(Colors::TextMuted), Icons::Info);
-                    if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", Description.c_str());
+                    ImGui::TextColored(HexColor(Colors::TEXT_MUTED), Icons::INFO);
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::SetTooltip("%s", Description.c_str());
+                    }
 
                     if (Enabled) {
                         switch (Type) {
                             case OptionType::TextInput: {
-                                ImGui::SetNextItemWidth(-1.0f);
+                                ImGui::SetNextItemWidth(-1.0F);
                                 char buffer[256];
                                 strncpy(buffer, TextInput.c_str(), sizeof(buffer) - 1);
                                 buffer[sizeof(buffer) - 1] = '\0';
@@ -70,7 +78,7 @@ namespace CoreDeck {
                             }
 
                             case OptionType::Selection: {
-                                ImGui::SetNextItemWidth(-1.0f);
+                                ImGui::SetNextItemWidth(-1.0F);
                                 const char *selectedLabel = EmulatorOptionItemDisplayLabel(Flag, Items[SelectedItem]);
                                 if (ImGui::BeginCombo("##selection", selectedLabel)) {
                                     for (int i = 0; i < Items.size(); ++i) {
@@ -80,7 +88,9 @@ namespace CoreDeck {
                                             SelectedItem = i;
                                             optionsChanged = true;
                                         }
-                                        if (isSelected) ImGui::SetItemDefaultFocus();
+                                        if (isSelected) {
+                                            ImGui::SetItemDefaultFocus();
+                                        }
                                     }
                                     ImGui::EndCombo();
                                 }
@@ -95,11 +105,13 @@ namespace CoreDeck {
                     ImGui::PopID();
                 }
 
-                ImGui::Unindent(20.0f);
+                ImGui::Unindent(20.0F);
             }
         }
 
-        if (optionsChanged) SaveAvdOptions(context, context.Catalog.Avds[context.Catalog.SelectedAvd].Name);
+        if (optionsChanged) {
+            SaveAvdOptions(context, context.Catalog.Avds[context.Catalog.SelectedAvd].Name);
+        }
         ImGui::End();
     }
 }
