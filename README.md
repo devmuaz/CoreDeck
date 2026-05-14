@@ -8,7 +8,8 @@
 
 [![Build](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/build.yml)
 [![Release](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml)
-[![Latest release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?include_prereleases)](https://github.com/devmuaz/CoreDeck/releases)
+[![Latest release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?label=release)](https://github.com/devmuaz/CoreDeck/releases)
+[![Latest pre-release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?include_prereleases&label=pre-release)](https://github.com/devmuaz/CoreDeck/releases)
 [![Downloads](https://img.shields.io/github/downloads/devmuaz/CoreDeck/total)](https://github.com/devmuaz/CoreDeck/releases)
 [![Stars](https://img.shields.io/github/stars/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/stargazers)
 [![Issues](https://img.shields.io/github/issues/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/issues)
