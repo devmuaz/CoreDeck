@@ -52,7 +52,7 @@ TEST_CASE("GetCurrentPlatform reports the platform this test runs on", "[paths][
 #ifdef _WIN32
     REQUIRE(GetCurrentPlatform() == Platform::Windows);
 #elif defined(__APPLE__)
-    REQUIRE(GetCurrentPlatform() == Platform::macOS);
+    REQUIRE(GetCurrentPlatform() == Platform::MacOS);
 #elif defined(__linux__)
     REQUIRE(GetCurrentPlatform() == Platform::Linux);
 #endif

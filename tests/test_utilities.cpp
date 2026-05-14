@@ -16,12 +16,12 @@ TEST_CASE("FormatFileSize renders KB/MB/GB with the right precision", "[utilitie
     REQUIRE(FormatFileSize(1024ULL * 1024) == "1.0 MB");
     REQUIRE(FormatFileSize(1024ULL * 1024 * 5) == "5.0 MB");
     REQUIRE(FormatFileSize(1024ULL * 1024 * 1024) == "1.00 GB");
-    REQUIRE(FormatFileSize(1024ULL * 1024 * 1024 * 3 + 1024ULL * 1024 * 512) == "3.50 GB");
+    REQUIRE(FormatFileSize((1024ULL * 1024 * 1024 * 3) + (1024ULL * 1024 * 512)) == "3.50 GB");
 }
 
 TEST_CASE("FormatFileSize picks the largest fitting unit at boundaries", "[utilities][format]") {
-    REQUIRE(FormatFileSize(1024 * 1024 - 1) == "1024.0 KB");
-    REQUIRE(FormatFileSize(1024ULL * 1024 * 1024 - 1) == "1024.0 MB");
+    REQUIRE(FormatFileSize((1024 * 1024) - 1) == "1024.0 KB");
+    REQUIRE(FormatFileSize((1024ULL * 1024 * 1024) - 1) == "1024.0 MB");
 }
 
 TEST_CASE("StrConcat joins heterogeneous string-like inputs", "[utilities][strconcat]") {
