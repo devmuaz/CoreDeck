@@ -38,7 +38,9 @@ namespace CoreDeck {
 
         void m_InitImGui();
 
-        static void m_LoadFonts();
+        void m_LoadFonts() const;
+
+        void m_ApplyDpiScale();
 
         void m_SetupCallbacks();
 
@@ -53,6 +55,8 @@ namespace CoreDeck {
         bool m_GlfwInitialized = false;
         bool m_ImGuiContextCreated = false;
         bool m_ImGuiBackendsInitialized = false;
+        float m_DpiScale = 1.0F;       // Scale applied to ImGui style/sizes (1.0 on macOS, native on Win/Linux).
+        float m_FontPixelScale = 1.0F; // Multiplier used when rasterizing fonts (matches the framebuffer pixel density).
         std::future<std::optional<RemoteRelease>> m_UpdateCheckFuture;
         bool m_AutoUpdateCheckStarted = false;
         bool m_UpdateCheckWasManual = false;
