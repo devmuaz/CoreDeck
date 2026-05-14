@@ -44,27 +44,27 @@ C++20 and Dear ImGui.
 
 ## Preview
 
-|                            AVD List & Options                            |                               Running Emulator & Logs                                |
-|:------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
+|                                AVD List & Options                                 |                                    Running Emulator & Logs                                    |
+| :-------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
 | <img src="media/screenshots/list-avds.png" alt="AVD List & Options" width="400"/> | <img src="media/screenshots/run-selected-avd.png" alt="Running Emulator & Logs" width="400"/> |
-|            *Browse AVDs with per-device options and details*             |                  *Live emulator output with search and auto-scroll*                  |
+|                 _Browse AVDs with per-device options and details_                 |                      _Live emulator output with search and auto-scroll_                       |
 
-|                            Create New AVD                             |                              Device Profile Selection                              |
-|:---------------------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
+|                                 Create New AVD                                 |                                  Device Profile Selection                                   |
+| :----------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: |
 | <img src="media/screenshots/create-avd.png" alt="Create New AVD" width="400"/> | <img src="media/screenshots/select-device.png" alt="Device Profile Selection" width="400"/> |
-|          *Configure system image, device, RAM, and GPU mode*          |             *Pick from a rich catalog of Android device profiles*                   |
+|              _Configure system image, device, RAM, and GPU mode_               |                    _Pick from a rich catalog of Android device profiles_                    |
 
-|                       System Image Browser                           |                              Storage Overview                              |
-|:--------------------------------------------------------------------:|:--------------------------------------------------------------------------:|
+|                                         System Image Browser                                          |                                    Storage Overview                                    |
+| :---------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
 | <img src="media/screenshots/install-select-system-image.png" alt="System Image Browser" width="400"/> | <img src="media/screenshots/storage-overview.png" alt="Storage Overview" width="400"/> |
-|         *List, install, and remove Android system images*           |                *Inspect AVD disk usage and clear heavy data*                |
+|                           _List, install, and remove Android system images_                           |                     _Inspect AVD disk usage and clear heavy data_                      |
 
 ## Downloads
 
 Grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
 
 | Platform | Architecture          | File            |
-|----------|-----------------------|-----------------|
+| -------- | --------------------- | --------------- |
 | Windows  | x86-64                | `.msi` / `.zip` |
 | macOS    | arm64 (Apple Silicon) | `.dmg`          |
 | Linux    | x86-64, arm64         | `.tar.gz`       |
