@@ -39,11 +39,11 @@ namespace CoreDeck::EmulatorConsole {
             static WsaInit init;
         }
 
-        void CloseSock(const socket_t s) {
+        void CloseSock(const CoreDeckSocket s) {
             closesocket(s);
         }
 
-        void SetNonBlocking(const socket_t s) {
+        void SetNonBlocking(const CoreDeckSocket s) {
             u_long m = 1;
             ioctlsocket(s, FIONBIO, &m);
         }

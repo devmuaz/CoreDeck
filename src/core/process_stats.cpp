@@ -7,15 +7,23 @@
 #include <sys/proc_info.h>
 #include <sys/resource.h>
 #include <unistd.h>
-
 #include <algorithm>
+
 #elif defined(__linux__)
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
+
 #elif defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
 #include <psapi.h>
 #endif
 
