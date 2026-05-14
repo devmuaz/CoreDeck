@@ -1,3 +1,13 @@
+## [v0.7.0-beta.3](https://github.com/devmuaz/CoreDeck/releases/tag/v0.7.0-beta.3) — 2026-05-14
+
+- Add HiDPI monitor support so the UI scales correctly on high-DPI Windows displays at 100%, 125%, 150%, and 200% (thanks [@sjoerdev](https://github.com/sjoerdev), [#23](https://github.com/devmuaz/CoreDeck/issues/23))
+- Add live resource usage section in the AVD Details window for running emulators, including CPU, memory, and disk I/O history
+- Show full release notes inside the in-app update modal
+- Fix emulator processes not being killed cleanly on app exit
+- Fix Windows build failure caused by `psapi.h` being included without `windows.h` and an undefined `socket_t` alias in the emulator console
+- Add project-wide `.clang-tidy` configuration and conform existing code to its rules
+- Add initial VSCode and CMake integration configuration files
+
 ## [v0.6.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.6.0) — 2026-05-07
 
 - Add skin management with a dedicated picker window for browsing, previewing, and assigning device skins from the SDK or custom paths
@@ -39,7 +49,7 @@
 - Add device-type icons to the AVD list
 - Auto-fill Name and Display Name in the Create AVD dialog from the selected device profile and system image
 - Replace the runtime `curl` binary dependency with libcurl on macOS/Linux and WinHTTP on Windows (thanks [@maramadany](https://github.com/maramadany))
-- Reduce idle CPU usage by replacing `glfwPollEvents` with focus-aware `glfwWaitEventsTimeout` (thanks [@maramadany](https://github.com/maramadany)) 
+- Reduce idle CPU usage by replacing `glfwPollEvents` with focus-aware `glfwWaitEventsTimeout` (thanks [@maramadany](https://github.com/maramadany))
 - Fix Create AVD button when no AVDs exist (thanks [@maramadany](https://github.com/maramadany))
 - Fix blank AVD names by falling back to the internal AVD name when `avd.ini.displayname` is missing (thanks [@maramadany](https://github.com/maramadany))
 - Fix Create AVD dialog layout and disabled-button states
