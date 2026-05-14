@@ -14,6 +14,7 @@
 #endif
 
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <filesystem>
 #include "imgui.h"
@@ -77,11 +78,16 @@ namespace CoreDeck {
         if (!m_CreateMainWindow()) {
             return 1;
         }
+
         m_InitImGui();
+        m_ApplyDpiScale();
         m_LoadFonts();
 
         ImGui::StyleColorsDark();
         ApplyCustomImGuiTheme();
+        if (std::abs(m_DpiScale - 1.0F) > 0.01F) {
+            ImGui::GetStyle().ScaleAllSizes(m_DpiScale);
+        }
 
         const char *glslVersion = "#version 330";
         ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
@@ -199,6 +205,12 @@ namespace CoreDeck {
 #if defined(__APPLE__)
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+
+        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+#ifdef GLFW_SCALE_FRAMEBUFFER
+        glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
+#endif
+        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
         return true;
     }
 
@@ -230,12 +242,14 @@ namespace CoreDeck {
 
         ImGuiIO &io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigDpiScaleFonts = true;
+        io.ConfigDpiScaleViewports = true;
 
         static std::string imguiIniPath = Paths::GetAppConfigPath("imgui.ini");
         io.IniFilename = imguiIniPath.c_str();
     }
 
-    void Application::m_LoadFonts() {
+    void Application::m_LoadFonts() const {
         const ImGuiIO &io = ImGui::GetIO();
 
         const std::string resourcesDir = Paths::GetResourcesDirectory();
@@ -246,6 +260,11 @@ namespace CoreDeck {
             {resourcesDir, "assets", "fonts", "FontAwesome7Free-Solid-900.otf"}
         );
 
+        const float dpi = (m_FontPixelScale > 0.0F) ? m_FontPixelScale : 1.0F;
+        constexpr float BASE_TEXT_SIZE = 16.0F;
+        constexpr float BASE_ICON_SIZE = 12.0F;
+        constexpr float BASE_GLYPH_MIN_ADVANCE = 16.0F;
+
         if (std::filesystem::exists(textFontPath)) {
             static constexpr ImWchar TEXT_RANGES[] = {
                 0x0020,
@@ -254,18 +273,36 @@ namespace CoreDeck {
                 0x206F,
                 0,
             };
-            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), 16.0F, nullptr, TEXT_RANGES);
+            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), BASE_TEXT_SIZE * dpi, nullptr, TEXT_RANGES);
         }
 
         if (std::filesystem::exists(iconFontPath)) {
             ImFontConfig iconConfig;
             iconConfig.MergeMode = true;
             iconConfig.PixelSnapH = true;
-            iconConfig.GlyphMinAdvanceX = 16.0F;
+            iconConfig.GlyphMinAdvanceX = BASE_GLYPH_MIN_ADVANCE * dpi;
 
             static constexpr ImWchar ICON_RANGES[] = {0xf000, 0xf8ff, 0};
-            io.Fonts->AddFontFromFileTTF(iconFontPath.c_str(), 12.0F, &iconConfig, ICON_RANGES);
+            io.Fonts->AddFontFromFileTTF(iconFontPath.c_str(), BASE_ICON_SIZE * dpi, &iconConfig, ICON_RANGES);
         }
+    }
+
+    void Application::m_ApplyDpiScale() {
+        float xscale = 1.0F;
+        float yscale = 1.0F;
+        if (m_Window) {
+            glfwGetWindowContentScale(m_Window, &xscale, &yscale);
+        }
+        const float reportedScale = (xscale > 0.0F) ? xscale : 1.0F;
+
+#if defined(__APPLE__)
+        m_DpiScale = 1.0F;
+        m_FontPixelScale = 1.0F;
+#else
+        m_DpiScale = reportedScale;
+        m_FontPixelScale = reportedScale;
+#endif
+        ImGui::GetStyle().FontScaleDpi = 1.0F;
     }
 
     void Application::m_SetupCallbacks() {
@@ -275,6 +312,33 @@ namespace CoreDeck {
             ImGuiIO &imGuiIO = ImGui::GetIO();
             imGuiIO.AddMouseWheelEvent(static_cast<float>(x) * 0.3F, static_cast<float>(y) * 0.3F);
         });
+
+#if !defined(__APPLE__)
+        glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow *w, const float xscale, const float /*yscale*/) {
+            auto *self = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (self == nullptr || xscale <= 0.0F) {
+                return;
+            }
+            if (std::abs(xscale - self->m_DpiScale) < 0.01F) {
+                return;
+            }
+
+            self->m_DpiScale = xscale;
+            self->m_FontPixelScale = xscale;
+            ImGui::GetStyle().FontScaleDpi = 1.0F;
+
+            ImGuiIO &io = ImGui::GetIO();
+            io.Fonts->Clear();
+            self->m_LoadFonts();
+            io.Fonts->Build();
+
+            ImGui::StyleColorsDark();
+            ApplyCustomImGuiTheme();
+            if (std::abs(self->m_DpiScale - 1.0F) > 0.01F) {
+                ImGui::GetStyle().ScaleAllSizes(self->m_DpiScale);
+            }
+        });
+#endif
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow *w, const int width, const int height) {
             if (width == 0 || height == 0) {
