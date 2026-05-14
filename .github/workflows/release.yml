@@ -120,9 +120,40 @@ jobs:
           codesign --verify --strict --verbose=2 "$APP_PATH"
 
           # Build the .dmg containing the signed .app via CPack (DragNDrop).
+          # hdiutil detach can fail transiently on GitHub runners when Spotlight,
+          # Finder helpers, or a leftover mount from a previous attempt keep the
+          # volume busy. Force-eject any stale /Volumes/CoreDeck mount first,
+          # then retry the cpack invocation a couple of times if it fails.
           mkdir -p release
           cd build
-          cpack -G DragNDrop
+
+          # Volume name comes from CPACK_DMG_VOLUME_NAME = ${PROJECT_NAME}.
+          detach_stale_volume() {
+            for mount in /Volumes/CoreDeck /Volumes/CoreDeck-*; do
+              if [ -d "$mount" ]; then
+                echo "Detaching stale mount: $mount"
+                hdiutil detach "$mount" -force || true
+              fi
+            done
+          }
+
+          # Clean up before the first attempt, not just on retry, in case a
+          # previous job on this runner left a stale /Volumes mount behind.
+          detach_stale_volume
+
+          attempts=0
+          max_attempts=3
+          until cpack -G DragNDrop; do
+            attempts=$((attempts + 1))
+            if [ "$attempts" -ge "$max_attempts" ]; then
+              echo "::error::cpack -G DragNDrop failed after $attempts attempts"
+              exit 1
+            fi
+            echo "::warning::cpack DragNDrop attempt $attempts failed; cleaning up and retrying in 5s"
+            detach_stale_volume
+            rm -f ./*.dmg
+            sleep 5
+          done
           cd ..
           # CPack produces a versioned filename (e.g. CoreDeck-1.2.3-Darwin.dmg);
           # grab whichever .dmg it created and rename to our stable asset name.
