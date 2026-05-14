@@ -9,98 +9,116 @@
 
 namespace CoreDeck {
     PickerTableStyle::PickerTableStyle() {
-        Colors.Push(ImGuiCol_ChildBg, HexColor(Colors::Surface1));
-        Colors.Push(ImGuiCol_Border, HexColor(Colors::Surface4));
-        Colors.Push(ImGuiCol_TableHeaderBg, HexColor(Colors::Surface2));
-        Colors.Push(ImGuiCol_TableRowBg, HexColor(Colors::Shadow, 0.0f));
-        Colors.Push(ImGuiCol_TableRowBgAlt, HexColor(Colors::Surface2, 0.28f));
-        Colors.Push(ImGuiCol_TableBorderLight, HexColor(Colors::Surface3));
-        Colors.Push(ImGuiCol_TableBorderStrong, HexColor(Colors::Surface4));
-        Colors.Push(ImGuiCol_Header, HexColor(Colors::Surface3, 0.65f));
-        Colors.Push(ImGuiCol_HeaderHovered, HexColor(Colors::Surface4, 0.85f));
-        Colors.Push(ImGuiCol_HeaderActive, HexColor(Colors::BorderSubtle));
+        Colors.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
+        Colors.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
+        Colors.Push(ImGuiCol_TableHeaderBg, HexColor(Colors::SURFACE2));
+        Colors.Push(ImGuiCol_TableRowBg, HexColor(Colors::SHADOW, 0.0F));
+        Colors.Push(ImGuiCol_TableRowBgAlt, HexColor(Colors::SURFACE2, 0.28F));
+        Colors.Push(ImGuiCol_TableBorderLight, HexColor(Colors::SURFACE3));
+        Colors.Push(ImGuiCol_TableBorderStrong, HexColor(Colors::SURFACE4));
+        Colors.Push(ImGuiCol_Header, HexColor(Colors::SURFACE3, 0.65F));
+        Colors.Push(ImGuiCol_HeaderHovered, HexColor(Colors::SURFACE4, 0.85F));
+        Colors.Push(ImGuiCol_HeaderActive, HexColor(Colors::BORDER_SUBTLE));
 
-        Vars.Push(ImGuiStyleVar_ChildRounding, 6.0f);
-        Vars.Push(ImGuiStyleVar_ChildBorderSize, 1.0f);
-        Vars.Push(ImGuiStyleVar_WindowPadding, ImVec2(1.0f, 1.0f));
-        Vars.Push(ImGuiStyleVar_CellPadding, ImVec2(8.0f, 8.0f));
+        Vars.Push(ImGuiStyleVar_ChildRounding, 6.0F);
+        Vars.Push(ImGuiStyleVar_ChildBorderSize, 1.0F);
+        Vars.Push(ImGuiStyleVar_WindowPadding, ImVec2(1.0F, 1.0F));
+        Vars.Push(ImGuiStyleVar_CellPadding, ImVec2(8.0F, 8.0F));
     }
 
     bool PrimaryButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) ImGui::BeginDisabled();
+        if (!isEnabled) {
+            ImGui::BeginDisabled();
+        }
 
         StyleColor sc;
-        sc.Push(ImGuiCol_Button, HexColor(Colors::Surface2));
-        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface4, 0.6f));
-        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Surface0));
-        sc.Push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
-        sc.Push(ImGuiCol_Border, HexColor(Colors::BorderStrong));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::SURFACE2));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE4, 0.6F));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE0));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::BORDER_STRONG));
 
         const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) ImGui::EndDisabled();
+        if (!isEnabled) {
+            ImGui::EndDisabled();
+        }
         return clicked;
     }
 
     bool NegativeButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) ImGui::BeginDisabled();
+        if (!isEnabled) {
+            ImGui::BeginDisabled();
+        }
 
         StyleColor sc;
-        sc.Push(ImGuiCol_Button, HexColor(Colors::NegativeStrong, 0.10f));
-        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::NegativeStrong, 0.20f));
-        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::NegativeStrong, 0.30f));
-        sc.Push(ImGuiCol_Text, HexColor(Colors::Negative));
-        sc.Push(ImGuiCol_Border, HexColor(Colors::Negative));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::NEGATIVE_STRONG, 0.10F));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::NEGATIVE_STRONG, 0.20F));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::NEGATIVE_STRONG, 0.30F));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::NEGATIVE));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::NEGATIVE));
 
         const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) ImGui::EndDisabled();
+        if (!isEnabled) {
+            ImGui::EndDisabled();
+        }
         return clicked;
     }
 
     bool WarningButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) ImGui::BeginDisabled();
+        if (!isEnabled) {
+            ImGui::BeginDisabled();
+        }
 
         StyleColor sc;
-        sc.Push(ImGuiCol_Button, HexColor(Colors::Warning, 0.10f));
-        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Warning, 0.20f));
-        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Warning, 0.30f));
-        sc.Push(ImGuiCol_Text, HexColor(Colors::WarningStrong));
-        sc.Push(ImGuiCol_Border, HexColor(Colors::WarningStrong));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::WARNING, 0.10F));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::WARNING, 0.20F));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::WARNING, 0.30F));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::WARNING_STRONG));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::WARNING_STRONG));
 
         const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) ImGui::EndDisabled();
+        if (!isEnabled) {
+            ImGui::EndDisabled();
+        }
         return clicked;
     }
 
     bool PositiveButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) ImGui::BeginDisabled();
+        if (!isEnabled) {
+            ImGui::BeginDisabled();
+        }
 
         StyleColor sc;
-        sc.Push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.10f));
-        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::PositiveFill, 0.20f));
-        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::PositiveFill, 0.30f));
-        sc.Push(ImGuiCol_Text, HexColor(Colors::Positive));
-        sc.Push(ImGuiCol_Border, HexColor(Colors::Positive));
+        sc.Push(ImGuiCol_Button, HexColor(Colors::POSITIVE_FILL, 0.10F));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::POSITIVE_FILL, 0.20F));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::POSITIVE_FILL, 0.30F));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::POSITIVE));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::POSITIVE));
 
         const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) ImGui::EndDisabled();
+        if (!isEnabled) {
+            ImGui::EndDisabled();
+        }
         return clicked;
     }
 
     bool PickerButton(const char *label, const bool isEnabled, const ImVec2 size) {
         StyleVar sv;
-        sv.Push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+        sv.Push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0F, 0.5F));
         return PrimaryButton(label, isEnabled, size);
     }
 
     bool ToggleButton(const char *label, bool &isToggled, const ImVec2 size) {
         StyleColor sc;
         if (isToggled) {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::White, 0.10f));
-            sc.Push(ImGuiCol_Border, HexColor(Colors::White, 0.75f));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::White));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::WHITE, 0.10F));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::WHITE, 0.75F));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::WHITE));
         }
         const bool clicked = ImGui::Button(label, size);
-        if (clicked) isToggled = !isToggled;
+        if (clicked) {
+            isToggled = !isToggled;
+        }
         return clicked;
     }
 
@@ -109,18 +127,18 @@ namespace CoreDeck {
         StyleVar sv;
 
         if (isActive) {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.10f));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::Positive));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::POSITIVE_FILL, 0.10F));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::POSITIVE));
         } else {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::NegativeStrong, 0.10f));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::Negative));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::NEGATIVE_STRONG, 0.10F));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::NEGATIVE));
         }
         sc.Push(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_Button]);
         sc.Push(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_Button]);
 
-        sv.Push(ImGuiStyleVar_FrameBorderSize, 0.0f);
-        sv.Push(ImGuiStyleVar_FrameRounding, 6.0f);
-        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 2.0f));
+        sv.Push(ImGuiStyleVar_FrameBorderSize, 0.0F);
+        sv.Push(ImGuiStyleVar_FrameRounding, 6.0F);
+        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(6.0F, 2.0F));
 
         ImGui::Button(label);
     }
@@ -136,16 +154,19 @@ namespace CoreDeck {
         StyleColor sc;
         StyleVar sv;
 
-        if (isSelected) sc.Push(ImGuiCol_Button, HexColor(Colors::Surface3, 0.4f));
-        else sc.Push(ImGuiCol_Button, HexColor(Colors::Shadow, 0.0f));
+        if (isSelected) {
+            sc.Push(ImGuiCol_Button, HexColor(Colors::SURFACE3, 0.4F));
+        } else {
+            sc.Push(ImGuiCol_Button, HexColor(Colors::SHADOW, 0.0F));
+        }
 
-        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface3, 0.4f));
-        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Surface3, 0.8f));
-        sc.Push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE3, 0.4F));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE3, 0.8F));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
 
-        sv.Push(ImGuiStyleVar_FrameRounding, 6.0f);
-        sv.Push(ImGuiStyleVar_FrameBorderSize, 0.0f);
-        sv.Push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.5f));
+        sv.Push(ImGuiStyleVar_FrameRounding, 6.0F);
+        sv.Push(ImGuiStyleVar_FrameBorderSize, 0.0F);
+        sv.Push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0F, 0.5F));
 
         std::string buttonLabel;
         if (leftIcon && leftIcon[0] != '\0') {
@@ -156,7 +177,7 @@ namespace CoreDeck {
             buttonLabel = label;
         }
 
-        const bool clicked = ImGui::Button(buttonLabel.c_str(), ImVec2(-1.0f, 0.0f));
+        const bool clicked = ImGui::Button(buttonLabel.c_str(), ImVec2(-1.0F, 0.0F));
 
         if (leftIcon && leftIcon[0] != '\0') {
             const ImVec2 itemMin = ImGui::GetItemRectMin();
@@ -166,7 +187,7 @@ namespace CoreDeck {
 
             const auto iconPos = ImVec2(
                 itemMin.x + padding.x,
-                itemMin.y + (itemMax.y - itemMin.y - iconSize.y) * 0.5f
+                itemMin.y + ((itemMax.y - itemMin.y - iconSize.y) * 0.5F)
             );
 
             ImGui::GetWindowDrawList()->AddText(
@@ -184,7 +205,7 @@ namespace CoreDeck {
 
             const auto textPos = ImVec2(
                 itemMax.x - textSize.x - padding.x,
-                itemMin.y + (itemMax.y - itemMin.y - textSize.y) * 0.5f
+                itemMin.y + ((itemMax.y - itemMin.y - textSize.y) * 0.5F)
             );
 
             ImGui::GetWindowDrawList()->AddText(
@@ -222,8 +243,8 @@ namespace CoreDeck {
         const bool hovered = ImGui::IsItemHovered();
 
         const ImU32 color = hovered
-                                ? ImGui::ColorConvertFloat4ToU32(HexColor(Colors::AccentInfoSoft))
-                                : ImGui::ColorConvertFloat4ToU32(HexColor(Colors::AccentInfo));
+                                ? ImGui::ColorConvertFloat4ToU32(HexColor(Colors::ACCENT_INFO_SOFT))
+                                : ImGui::ColorConvertFloat4ToU32(HexColor(Colors::ACCENT_INFO));
 
         ImGui::GetWindowDrawList()->AddText(textPos, color, value);
 
@@ -242,14 +263,16 @@ namespace CoreDeck {
 
     void PropertyTextWrapped(const char *label, const char *value, const bool invertColors) {
         StyleColor sc;
-        if (invertColors) sc.Push(ImGuiCol_Text, HexColor(Colors::TextMuted));
+        if (invertColors) {
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_MUTED));
+        }
         ImGui::Text("%s", label);
         ImGui::SameLine();
 
         if (invertColors) {
-            sc.Push(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
         } else {
-            sc.Push(ImGuiCol_Text, HexColor(Colors::TextMuted));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_MUTED));
         }
         ImGui::TextWrapped("%s", value);
     }
@@ -259,34 +282,34 @@ namespace CoreDeck {
         StyleVar sv;
 
         if (isSelected) {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::PositiveFill, 0.16f));
-            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::PositiveFill, 0.24f));
-            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::PositiveFill, 0.32f));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::Positive));
-            sc.Push(ImGuiCol_Border, HexColor(Colors::Positive));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::POSITIVE_FILL, 0.16F));
+            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::POSITIVE_FILL, 0.24F));
+            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::POSITIVE_FILL, 0.32F));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::POSITIVE));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::POSITIVE));
         } else {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::Surface2));
-            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::Surface3));
-            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::Surface4));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::TextHint));
-            sc.Push(ImGuiCol_Border, HexColor(Colors::Surface4));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::SURFACE2));
+            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE3));
+            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE4));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_HINT));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
         }
 
-        sv.Push(ImGuiStyleVar_FrameRounding, 999.0f);
-        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 5.0f));
-        sv.Push(ImGuiStyleVar_FrameBorderSize, 1.0f);
+        sv.Push(ImGuiStyleVar_FrameRounding, 999.0F);
+        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(10.0F, 5.0F));
+        sv.Push(ImGuiStyleVar_FrameBorderSize, 1.0F);
 
         return ImGui::Button(label);
     }
 
     bool CollapsingHeader(const char *label, const ImGuiTreeNodeFlags flags) {
         StyleColor sc;
-        sc.Push(ImGuiCol_Header, HexColor(Colors::Shadow, 0.0f));
-        sc.Push(ImGuiCol_HeaderHovered, HexColor(Colors::Shadow, 0.0f));
-        sc.Push(ImGuiCol_HeaderActive, HexColor(Colors::Shadow, 0.0f));
-        sc.Push(ImGuiCol_Border, HexColor(Colors::Shadow, 0.0f));
-        sc.Push(ImGuiCol_BorderShadow, HexColor(Colors::Shadow, 0.0f));
-        sc.Push(ImGuiCol_Text, HexColor(Colors::TextOnBright));
+        sc.Push(ImGuiCol_Header, HexColor(Colors::SHADOW, 0.0F));
+        sc.Push(ImGuiCol_HeaderHovered, HexColor(Colors::SHADOW, 0.0F));
+        sc.Push(ImGuiCol_HeaderActive, HexColor(Colors::SHADOW, 0.0F));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::SHADOW, 0.0F));
+        sc.Push(ImGuiCol_BorderShadow, HexColor(Colors::SHADOW, 0.0F));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_ON_BRIGHT));
         return ImGui::CollapsingHeader(label, flags);
     }
 
@@ -299,30 +322,30 @@ namespace CoreDeck {
         }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(ImVec2(380, 0), ImGuiCond_Appearing);
 
-        constexpr ImGuiWindowFlags Flags =
+        constexpr ImGuiWindowFlags FLAGS =
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::BeginPopupModal(title.c_str(), data.IsBusy ? nullptr : &data.IsOpen, Flags)) {
+        if (ImGui::BeginPopupModal(title.c_str(), data.IsBusy ? nullptr : &data.IsOpen, FLAGS)) {
             if (!data.IsOpen) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
                 return result;
             }
 
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextMuted));
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_MUTED));
             ImGui::TextWrapped("%s", data.Message);
             ImGui::PopStyleColor();
             ImGui::Spacing();
             ImGui::Spacing();
 
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
+            const float halfWidth = ((ImGui::GetContentRegionAvail().x - spacing) * 0.5F);
 
             if (data.IsBusy) {
                 ImGui::BeginDisabled();

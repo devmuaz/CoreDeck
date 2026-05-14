@@ -18,34 +18,35 @@ struct GLFWwindow;
 namespace CoreDeck {
     class Application {
     public:
+        Application(const Application &) = delete;
+        Application &operator=(const Application &) = delete;
+        Application(Application &&) = delete;
+        Application &operator=(Application &&) = delete;
+
         explicit Application();
 
         ~Application();
 
-        Application(const Application &) = delete;
-
-        Application &operator=(const Application &) = delete;
-
         int Run();
 
     private:
-        void Build();
+        void m_Build();
 
-        bool InitPlatform();
+        bool m_InitPlatform();
 
-        bool CreateMainWindow();
+        bool m_CreateMainWindow();
 
-        void InitImGui();
+        void m_InitImGui();
 
-        static void LoadFonts();
+        static void m_LoadFonts();
 
-        void SetupCallbacks();
+        void m_SetupCallbacks();
 
-        void RunLoop();
+        void m_RunLoop();
 
-        void Shutdown();
+        void m_Shutdown();
 
-        void PollUpdateCheckIfNeeded();
+        void m_PollUpdateCheckIfNeeded();
 
         Context m_Context;
         GLFWwindow *m_Window = nullptr;

@@ -23,18 +23,18 @@
 struct GLFWwindow;
 
 namespace CoreDeck {
-    enum class Screen {
+    enum class Screen : uint8_t {
         Onboarding,
         Main,
     };
 
-    enum class AvdSortMode {
+    enum class AvdSortMode : uint8_t {
         Name,
         ApiLevel,
         Device,
     };
 
-    enum class ImageCategory {
+    enum class ImageCategory : uint8_t {
         All,
         PhoneTablet,
         Wear,
@@ -45,7 +45,7 @@ namespace CoreDeck {
         Other,
     };
 
-    enum class DeviceCategory {
+    enum class DeviceCategory : uint8_t {
         All,
         Phone,
         Tablet,

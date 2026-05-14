@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <cstddef>
 #include <unordered_map>
 #include <unordered_set>
 #include <filesystem>
@@ -14,55 +15,73 @@
 #include "utilities.h"
 
 namespace CoreDeck {
-    static void ParseProgressLine(const std::string &line, const std::shared_ptr<InstallProgressData> &progress) {
-        if (!progress) return;
-
-        const auto bracket = line.find('[');
-        const auto closeBracket = line.find(']', bracket);
-        if (bracket == std::string::npos || closeBracket == std::string::npos) {
-            if (!line.empty()) {
-                std::lock_guard lock(progress->Mutex);
-                progress->DetailText = line;
+    namespace {
+        void ParseProgressLine(const std::string &line, const std::shared_ptr<InstallProgressData> &progress) {
+            if (!progress) {
+                return;
             }
-            return;
-        }
 
-        auto afterBracket = line.substr(closeBracket + 1);
-        const auto start = afterBracket.find_first_not_of(" \t");
-        if (start == std::string::npos) return;
-        afterBracket = afterBracket.substr(start);
-
-        const auto pctEnd = afterBracket.find('%');
-        if (pctEnd == std::string::npos) return;
-
-        const int pct = static_cast<int>(std::strtol(afterBracket.substr(0, pctEnd).c_str(), nullptr, 10));
-
-        std::string description;
-        if (pctEnd + 1 < afterBracket.size()) {
-            description = afterBracket.substr(pctEnd + 1);
-            if (const auto ds = description.find_first_not_of(" \t"); ds != std::string::npos) {
-                description = description.substr(ds);
+            const auto bracket = line.find('[');
+            const auto closeBracket = line.find(']', bracket);
+            if (bracket == std::string::npos || closeBracket == std::string::npos) {
+                if (!line.empty()) {
+                    std::lock_guard lock(progress->Mutex);
+                    progress->DetailText = line;
+                }
+                return;
             }
-        }
 
-        std::lock_guard lock(progress->Mutex);
-        progress->Percent = static_cast<float>(pct) / 100.0f;
-        if (!description.empty()) progress->StatusText = description;
-        progress->DetailText = line;
+            auto afterBracket = line.substr(closeBracket + 1);
+            const auto start = afterBracket.find_first_not_of(" \t");
+            if (start == std::string::npos) {
+                return;
+            }
+            afterBracket = afterBracket.substr(start);
+
+            const auto pctEnd = afterBracket.find('%');
+            if (pctEnd == std::string::npos) {
+                return;
+            }
+
+            const int pct = static_cast<int>(std::strtol(afterBracket.substr(0, pctEnd).c_str(), nullptr, 10));
+
+            std::string description;
+            if (pctEnd + 1 < afterBracket.size()) {
+                description = afterBracket.substr(pctEnd + 1);
+                if (const auto ds = description.find_first_not_of(" \t"); ds != std::string::npos) {
+                    description = description.substr(ds);
+                }
+            }
+
+            std::lock_guard lock(progress->Mutex);
+            progress->Percent = static_cast<float>(pct) / 100.0F;
+            if (!description.empty()) {
+                progress->StatusText = description;
+            }
+            progress->DetailText = line;
+        }
     }
 
     std::vector<DeviceProfile> ListDeviceProfiles(const SdkInfo &sdk) {
         std::vector<DeviceProfile> devices;
 
-        if (sdk.AvdManagerPath.empty()) return devices;
+        if (sdk.AvdManagerPath.empty()) {
+            return devices;
+        }
 
         const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"});
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
-            if (line.empty()) continue;
-            while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
-            if (line.empty()) continue;
+            if (line.empty()) {
+                continue;
+            }
+            while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) {
+                line.pop_back();
+            }
+            if (line.empty()) {
+                continue;
+            }
 
             DeviceProfile device;
             device.Id = line;
@@ -79,14 +98,20 @@ namespace CoreDeck {
 
     std::vector<SystemImage> ListSystemImages(const SdkInfo &sdk) {
         std::vector<SystemImage> images;
-        if (sdk.SdkPath.empty()) return images;
+        if (sdk.SdkPath.empty()) {
+            return images;
+        }
 
         const std::string sysImgRoot = Paths::JoinPaths({sdk.SdkPath, "system-images"});
-        if (!std::filesystem::exists(sysImgRoot)) return images;
+        if (!std::filesystem::exists(sysImgRoot)) {
+            return images;
+        }
 
         // Structure: system-images/android-XX/variant/abi/
         for (const auto &apiEntry: std::filesystem::directory_iterator(sysImgRoot)) {
-            if (!apiEntry.is_directory()) continue;
+            if (!apiEntry.is_directory()) {
+                continue;
+            }
             const std::string apiDirName = apiEntry.path().filename().string();
 
             std::string apiLevel;
@@ -97,16 +122,21 @@ namespace CoreDeck {
             }
 
             for (const auto &variantEntry: std::filesystem::directory_iterator(apiEntry.path())) {
-                if (!variantEntry.is_directory()) continue;
+                if (!variantEntry.is_directory()) {
+                    continue;
+                }
                 const std::string variant = variantEntry.path().filename().string();
 
                 for (const auto &abiEntry: std::filesystem::directory_iterator(variantEntry.path())) {
-                    if (!abiEntry.is_directory()) continue;
+                    if (!abiEntry.is_directory()) {
+                        continue;
+                    }
                     const std::string abi = abiEntry.path().filename().string();
 
-                    // Verify it has a system.img or similar marker
                     const std::string sysImg = Paths::JoinPaths({abiEntry.path().string(), "system.img"});
-                    if (!std::filesystem::exists(sysImg)) continue;
+                    if (!std::filesystem::exists(sysImg)) {
+                        continue;
+                    }
 
                     SystemImage img;
                     img.ApiLevel = apiLevel;
@@ -134,7 +164,9 @@ namespace CoreDeck {
         const std::vector<SystemImage> &installedImages
     ) {
         std::vector<RemoteSystemImage> results;
-        if (sdk.SdkManagerPath.empty()) return results;
+        if (sdk.SdkManagerPath.empty()) {
+            return results;
+        }
 
         const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--list"});
 
@@ -147,13 +179,19 @@ namespace CoreDeck {
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
-            if (!line.empty() && line.back() == '\r') line.pop_back();
+            if (!line.empty() && line.back() == '\r') {
+                line.pop_back();
+            }
 
             auto start = line.find_first_not_of(" \t");
-            if (start == std::string::npos) continue;
+            if (start == std::string::npos) {
+                continue;
+            }
             line = line.substr(start);
 
-            if (!line.starts_with("system-images;")) continue;
+            if (!line.starts_with("system-images;")) {
+                continue;
+            }
 
             std::string packagePath;
             if (auto pipe = line.find('|'); pipe != std::string::npos) {
@@ -165,7 +203,9 @@ namespace CoreDeck {
             while (!packagePath.empty() && (packagePath.back() == ' ' || packagePath.back() == '\t')) {
                 packagePath.pop_back();
             }
-            if (!seenPackages.insert(packagePath).second) continue;
+            if (!seenPackages.insert(packagePath).second) {
+                continue;
+            }
 
             std::vector<std::string> parts;
             std::istringstream partStream(packagePath);
@@ -173,7 +213,9 @@ namespace CoreDeck {
             while (std::getline(partStream, part, ';')) {
                 parts.push_back(part);
             }
-            if (parts.size() < 4) continue;
+            if (parts.size() < 4) {
+                continue;
+            }
 
             RemoteSystemImage img;
             img.PackagePath = packagePath;
@@ -195,8 +237,12 @@ namespace CoreDeck {
         std::ranges::sort(results, [](const RemoteSystemImage &a, const RemoteSystemImage &b) {
             const int apiA = static_cast<int>(std::strtol(a.ApiLevel.c_str(), nullptr, 10));
             const int apiB = static_cast<int>(std::strtol(b.ApiLevel.c_str(), nullptr, 10));
-            if (apiA != apiB) return apiA > apiB;
-            if (a.IsInstalled != b.IsInstalled) return a.IsInstalled;
+            if (apiA != apiB) {
+                return apiA > apiB;
+            }
+            if (a.IsInstalled != b.IsInstalled) {
+                return a.IsInstalled;
+            }
             return a.DisplayName < b.DisplayName;
         });
 
@@ -208,12 +254,14 @@ namespace CoreDeck {
         const std::string &packagePath,
         const std::shared_ptr<InstallProgressData> &progress
     ) {
-        if (sdk.SdkManagerPath.empty() || packagePath.empty()) return false;
+        if (sdk.SdkManagerPath.empty() || packagePath.empty()) {
+            return false;
+        }
 
         if (progress) {
             std::lock_guard lock(progress->Mutex);
             progress->StatusText = "Starting download...";
-            progress->Percent = 0.0f;
+            progress->Percent = 0.0F;
         }
 
         StreamCommandArgs(
@@ -235,7 +283,7 @@ namespace CoreDeck {
             std::lock_guard lock(progress->Mutex);
             progress->Finished = true;
             progress->Succeeded = ok;
-            progress->Percent = ok ? 1.0f : progress->Percent;
+            progress->Percent = ok ? 1.0F : progress->Percent;
             progress->StatusText = ok ? "Installation Completed!" : "Installation Failed!";
         }
 
@@ -243,7 +291,9 @@ namespace CoreDeck {
     }
 
     bool UninstallSystemImage(const SdkInfo &sdk, const std::string &packagePath) {
-        if (sdk.SdkManagerPath.empty() || packagePath.empty()) return false;
+        if (sdk.SdkManagerPath.empty() || packagePath.empty()) {
+            return false;
+        }
 
         RunCommandArgs(sdk.SdkManagerPath, {"--uninstall", packagePath}, "y\n");
 
@@ -254,7 +304,9 @@ namespace CoreDeck {
     }
 
     LicenseStatus CheckSdkLicenses(const SdkInfo &sdk) {
-        if (sdk.SdkManagerPath.empty()) return LicenseStatus::CheckFailed;
+        if (sdk.SdkManagerPath.empty()) {
+            return LicenseStatus::CheckFailed;
+        }
 
         const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, "N\n");
 
@@ -268,11 +320,15 @@ namespace CoreDeck {
     }
 
     bool AcceptSdkLicenses(const SdkInfo &sdk) {
-        if (sdk.SdkManagerPath.empty()) return false;
+        if (sdk.SdkManagerPath.empty()) {
+            return false;
+        }
 
         std::string yes;
-        yes.reserve(64 * 2);
-        for (int i = 0; i < 64; ++i) yes += "y\n";
+        yes.reserve(static_cast<size_t>(64 * 2));
+        for (int i = 0; i < 64; ++i) {
+            yes += "y\n";
+        }
 
         const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, yes);
         return output.find("All SDK package licenses accepted") != std::string::npos;

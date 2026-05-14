@@ -6,10 +6,9 @@
 #define COREDECK_LOG_H
 
 #include <iostream>
-#include <string_view>
 
 namespace CoreDeck {
-    enum class LogLevel {
+    enum class LogLevel : uint8_t {
         Debug,
         Info,
         Warning,
@@ -17,7 +16,7 @@ namespace CoreDeck {
     };
 
     namespace Log {
-        inline LogLevel MinLevel =
+        static inline LogLevel minLevel =
 #ifdef NDEBUG
             LogLevel::Warning;
 #else
@@ -40,11 +39,13 @@ namespace CoreDeck {
 
         template<typename... Args>
         void Write(const LogLevel level, Args &&...args) {
-            if (level < MinLevel) return;
+            if (level < minLevel) {
+                return;
+            }
             auto &out = (level >= LogLevel::Error) ? std::cerr : std::cout;
             out << LevelTag(level) << " ";
             (out << ... << std::forward<Args>(args));
-            out << std::endl;
+            out << '\n';
         }
 
         template<typename... Args>

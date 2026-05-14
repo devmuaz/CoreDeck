@@ -8,114 +8,129 @@
 #include "imgui.h"
 
 #include "install_image.h"
-#include "../application.h"
+
+#include <math.h>
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/utilities.h"
 
 namespace CoreDeck {
-    struct ImageCategoryOption {
-        ImageCategory Category;
-        const char *Label;
-    };
+    namespace {
+        struct ImageCategoryOption {
+            ImageCategory Category;
+            const char *Label;
+        };
 
-    static ImageCategory CategoryForImage(const RemoteSystemImage &img) {
-        const std::string searchable = LowerCopy(StrConcat(img.PackagePath, " ", img.Variant, " ", img.DisplayName));
+        ImageCategory CategoryForImage(const RemoteSystemImage &img) {
+            const std::string searchable = LowerCopy(StrConcat(img.PackagePath, " ", img.Variant, " ", img.DisplayName));
 
-        if (searchable.find("wear") != std::string::npos) return ImageCategory::Wear;
-        if (searchable.find("automotive") != std::string::npos || searchable.find("android-auto") != std::string::npos) {
-            return ImageCategory::Automotive;
-        }
-        if (searchable.find("desktop") != std::string::npos) return ImageCategory::Desktop;
-        if (searchable.find("xr") != std::string::npos) return ImageCategory::Xr;
-        if (searchable.find("android-tv") != std::string::npos ||
-            searchable.find("google-tv") != std::string::npos ||
-            searchable.find("_tv") != std::string::npos ||
-            searchable.find(";tv") != std::string::npos) {
-            return ImageCategory::Tv;
-        }
-        if (img.Variant == "default" ||
-            img.Variant.starts_with("google_apis") ||
-            img.Variant.starts_with("aosp_atd") ||
-            img.Variant.starts_with("google_atd")) {
-            return ImageCategory::PhoneTablet;
-        }
-        return ImageCategory::Other;
-    }
-
-    static bool MatchesImageCategory(const RemoteSystemImage &img, const ImageCategory category) {
-        return category == ImageCategory::All || CategoryForImage(img) == category;
-    }
-
-    static bool MatchesImageFilter(const RemoteSystemImage &img, const char *filter) {
-        if (!filter || filter[0] == '\0') return true;
-
-        const auto searchable = StrConcat(img.DisplayName, " ", img.ApiLevel, " ", img.Variant, " ", img.Abi, " ", img.PackagePath);
-        return ContainsIgnoreCase(searchable, filter);
-    }
-
-    static bool MatchesImageFilters(const RemoteSystemImage &img, const char *filter, const ImageCategory category) {
-        return MatchesImageCategory(img, category) && MatchesImageFilter(img, filter);
-    }
-
-    static void StartInstall(Context &context, const std::string &pkgPath) {
-        auto &work = context.ImageInstallationWork;
-        work.Progress = std::make_shared<InstallProgressData>();
-        work.Installing = true;
-        auto progress = work.Progress;
-        work.InstallFuture = std::async(
-            std::launch::async,
-            [&context, pkgPath, progress] {
-                const bool ok = InstallSystemImage(context.Host.Sdk, pkgPath, progress);
-                context.ImageInstallationWork.Installing = false;
-                return ok;
+            if (searchable.find("wear") != std::string::npos) {
+                return ImageCategory::Wear;
             }
-        );
-    }
+            if (searchable.find("automotive") != std::string::npos || searchable.find("android-auto") != std::string::npos) {
+                return ImageCategory::Automotive;
+            }
+            if (searchable.find("desktop") != std::string::npos) {
+                return ImageCategory::Desktop;
+            }
+            if (searchable.find("xr") != std::string::npos) {
+                return ImageCategory::Xr;
+            }
+            if (searchable.find("android-tv") != std::string::npos ||
+                searchable.find("google-tv") != std::string::npos ||
+                searchable.find("_tv") != std::string::npos ||
+                searchable.find(";tv") != std::string::npos) {
+                return ImageCategory::Tv;
+            }
+            if (img.Variant == "default" ||
+                img.Variant.starts_with("google_apis") ||
+                img.Variant.starts_with("aosp_atd") ||
+                img.Variant.starts_with("google_atd")) {
+                return ImageCategory::PhoneTablet;
+            }
+            return ImageCategory::Other;
+        }
 
-    static bool SelectInstalledSystemImage(Context &context, const std::string &packagePath) {
-        auto &images = context.AvdCreationWork.SystemImages;
-        for (int i = 0; i < static_cast<int>(images.size()); i++) {
-            if (images[i].PackagePath == packagePath) {
-                context.AvdCreationWork.SelectedSystemImage = i;
+        bool MatchesImageCategory(const RemoteSystemImage &img, const ImageCategory category) {
+            return category == ImageCategory::All || CategoryForImage(img) == category;
+        }
+
+        bool MatchesImageFilter(const RemoteSystemImage &img, const char *filter) {
+            if (!filter || filter[0] == '\0') {
                 return true;
             }
+
+            const auto searchable = StrConcat(img.DisplayName, " ", img.ApiLevel, " ", img.Variant, " ", img.Abi, " ", img.PackagePath);
+            return ContainsIgnoreCase(searchable, filter);
         }
 
-        images = ListSystemImages(context.Host.Sdk);
-        for (int i = 0; i < static_cast<int>(images.size()); i++) {
-            if (images[i].PackagePath == packagePath) {
-                context.AvdCreationWork.SelectedSystemImage = i;
-                return true;
-            }
+        bool MatchesImageFilters(const RemoteSystemImage &img, const char *filter, const ImageCategory category) {
+            return MatchesImageCategory(img, category) && MatchesImageFilter(img, filter);
         }
 
-        return false;
-    }
-
-    static void RefreshSystemImageLists(Context &context) {
-        auto &images = context.AvdCreationWork.SystemImages;
-        images = ListSystemImages(context.Host.Sdk);
-        if (images.empty()) {
-            context.AvdCreationWork.SelectedSystemImage = 0;
-        } else {
-            context.AvdCreationWork.SelectedSystemImage = std::clamp(
-                context.AvdCreationWork.SelectedSystemImage,
-                0,
-                static_cast<int>(images.size()) - 1
+        void StartInstall(Context &context, const std::string &pkgPath) {
+            auto &work = context.ImageInstallationWork;
+            work.Progress = std::make_shared<InstallProgressData>();
+            work.Installing = true;
+            auto progress = work.Progress;
+            work.InstallFuture = std::async(
+                std::launch::async,
+                [&context, pkgPath, progress] {
+                    const bool ok = InstallSystemImage(context.Host.Sdk, pkgPath, progress);
+                    context.ImageInstallationWork.Installing = false;
+                    return ok;
+                }
             );
         }
 
-        context.ImageInstallationWork.RemoteImages = ListRemoteSystemImages(context.Host.Sdk, images);
+        bool SelectInstalledSystemImage(Context &context, const std::string &packagePath) {
+            auto &images = context.AvdCreationWork.SystemImages;
+            for (int i = 0; i < static_cast<int>(images.size()); i++) {
+                if (images[i].PackagePath == packagePath) {
+                    context.AvdCreationWork.SelectedSystemImage = i;
+                    return true;
+                }
+            }
+
+            images = ListSystemImages(context.Host.Sdk);
+            for (int i = 0; i < static_cast<int>(images.size()); i++) {
+                if (images[i].PackagePath == packagePath) {
+                    context.AvdCreationWork.SelectedSystemImage = i;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void RefreshSystemImageLists(Context &context) {
+            auto &images = context.AvdCreationWork.SystemImages;
+            images = ListSystemImages(context.Host.Sdk);
+            if (images.empty()) {
+                context.AvdCreationWork.SelectedSystemImage = 0;
+            } else {
+                context.AvdCreationWork.SelectedSystemImage = std::clamp(
+                    context.AvdCreationWork.SelectedSystemImage,
+                    0,
+                    static_cast<int>(images.size()) - 1
+                );
+            }
+
+            context.ImageInstallationWork.RemoteImages = ListRemoteSystemImages(context.Host.Sdk, images);
+        }
     }
 
     LabeledIconStyle SystemImageTypeStyleForVariant(const std::string &variant) {
-        if (variant.starts_with("google_apis_playstore")) return {Icons::Play, "Google Play", Colors::Positive};
-        if (variant.starts_with("google_apis")) return {Icons::Gear, "Google APIs", Colors::AccentPhone};
-        if (variant.starts_with("aosp_atd") || variant.starts_with("google_atd")) {
-            return {Icons::Mobile, "ATD", Colors::AccentWear};
+        if (variant.starts_with("google_apis_playstore")) {
+            return {.Icon = Icons::PLAY, .Label = "Google Play", .Color = Colors::POSITIVE};
         }
-        return {Icons::Mobile, "Default", Colors::TextSubtle};
+        if (variant.starts_with("google_apis")) {
+            return {.Icon = Icons::GEAR, .Label = "Google APIs", .Color = Colors::ACCENT_PHONE};
+        }
+        if (variant.starts_with("aosp_atd") || variant.starts_with("google_atd")) {
+            return {.Icon = Icons::MOBILE, .Label = "ATD", .Color = Colors::ACCENT_WEAR};
+        }
+        return {.Icon = Icons::MOBILE, .Label = "Default", .Color = Colors::TEXT_SUBTLE};
     }
 
     LabeledIconStyle SystemImageTypeStyleFor(const SystemImage &img) {
@@ -127,7 +142,9 @@ namespace CoreDeck {
     }
 
     std::string SystemImageDisplayName(const std::string &apiLevel, const std::string &fallback) {
-        if (!apiLevel.empty()) return StrConcat("Android ", apiLevel);
+        if (!apiLevel.empty()) {
+            return StrConcat("Android ", apiLevel);
+        }
         return fallback;
     }
 
@@ -136,22 +153,23 @@ namespace CoreDeck {
         return StrConcat(SystemImageDisplayName(img.ApiLevel, img.DisplayName), " - ", style.Label, " - ", img.Abi);
     }
 
+    // NOLINTNEXTLINE(readability-function-size)
     void BuildInstallImageWindow(Context &context) {
         if (context.UI.ShowInstallImageDialog) {
-            constexpr auto title = "Install System Image###InstallImageDialog";
-            if (!ImGui::IsPopupOpen(title)) {
-                ImGui::OpenPopup(title);
+            constexpr auto TITLE = "Install System Image###InstallImageDialog";
+            if (!ImGui::IsPopupOpen(TITLE)) {
+                ImGui::OpenPopup(TITLE);
             }
 
             const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
             ImGui::SetNextWindowSize(ImVec2(820, 560), ImGuiCond_Appearing);
 
             const bool installing = context.ImageInstallationWork.Installing.load();
             const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
             bool *pOpen = (installing || removalBusy) ? nullptr : &context.UI.ShowInstallImageDialog;
 
-            if (ImGui::BeginPopupModal(title, pOpen, WindowAutoResizeFlags)) {
+            if (ImGui::BeginPopupModal(TITLE, pOpen, WINDOW_AUTO_RESIZE_FLAGS)) {
                 auto &work = context.ImageInstallationWork;
                 auto &removal = context.AvdCreationWork.SystemImageRemoval;
                 const bool isLoading = work.Prefetch.Loading.load();
@@ -212,7 +230,7 @@ namespace CoreDeck {
                     ImGui::Spacing();
 
                     const float spacing2 = ImGui::GetStyle().ItemSpacing.x;
-                    const float halfWidth2 = (ImGui::GetContentRegionAvail().x - spacing2) * 0.5f;
+                    const float halfWidth2 = (ImGui::GetContentRegionAvail().x - spacing2) * 0.5F;
 
                     if (PositiveButton("Agree & Install", !licenseBusy, ImVec2(halfWidth2, 0))) {
                         work.LicenseBusy = true;
@@ -242,33 +260,39 @@ namespace CoreDeck {
                     if (removal.Future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                         const bool removed = removal.Future.get();
                         removal.Busy = false;
-                        if (removed) RefreshSystemImageLists(context);
+                        if (removed) {
+                            RefreshSystemImageLists(context);
+                        }
                     }
                 }
 
-                if (isInstalling || removalBusy) ImGui::BeginDisabled();
+                if (isInstalling || removalBusy) {
+                    ImGui::BeginDisabled();
+                }
 
-                ImGui::SetNextItemWidth(-1.0f);
-                const std::string searchHint = IconWithLabel(Icons::Search, "Search for a system image by name");
+                ImGui::SetNextItemWidth(-1.0F);
+                const std::string searchHint = IconWithLabel(Icons::SEARCH, "Search for a system image by name");
                 ImGui::InputTextWithHint("##RemoteImageSearch", searchHint.c_str(), work.SearchFilter, sizeof(work.SearchFilter));
 
                 ImGui::Spacing();
                 ImGui::TextDisabled("Categories");
 
-                static constexpr ImageCategoryOption categoryOptions[] = {
-                    {ImageCategory::All, "All"},
-                    {ImageCategory::PhoneTablet, "Phone / Tablet"},
-                    {ImageCategory::Wear, "Wear OS"},
-                    {ImageCategory::Tv, "TV"},
-                    {ImageCategory::Automotive, "Automotive"},
-                    {ImageCategory::Desktop, "Desktop"},
-                    {ImageCategory::Xr, "XR"},
-                    {ImageCategory::Other, "Other"},
+                static constexpr ImageCategoryOption CATEGORY_OPTIONS[] = {
+                    {.Category = ImageCategory::All, .Label = "All"},
+                    {.Category = ImageCategory::PhoneTablet, .Label = "Phone / Tablet"},
+                    {.Category = ImageCategory::Wear, .Label = "Wear OS"},
+                    {.Category = ImageCategory::Tv, .Label = "TV"},
+                    {.Category = ImageCategory::Automotive, .Label = "Automotive"},
+                    {.Category = ImageCategory::Desktop, .Label = "Desktop"},
+                    {.Category = ImageCategory::Xr, .Label = "XR"},
+                    {.Category = ImageCategory::Other, .Label = "Other"},
                 };
 
                 bool firstCategory = true;
-                for (const auto &[Category, Label]: categoryOptions) {
-                    if (!firstCategory) ImGui::SameLine();
+                for (const auto &[Category, Label]: CATEGORY_OPTIONS) {
+                    if (!firstCategory) {
+                        ImGui::SameLine();
+                    }
                     firstCategory = false;
                     if (CategoryChip(Label, work.SelectedCategory == Category)) {
                         work.SelectedCategory = Category;
@@ -287,14 +311,14 @@ namespace CoreDeck {
                 {
                     PickerTableStyle tableStyle;
 
-                    ImGui::BeginChild("##RemoteImageTableFrame", ImVec2(-1.0f, 280.0f), true, ImGuiWindowFlags_NoScrollbar);
-                    if (ImGui::BeginTable("##RemoteImageTable", 5, PickerTableFlags, ImVec2(-1.0f, -1.0f))) {
+                    ImGui::BeginChild("##RemoteImageTableFrame", ImVec2(-1.0F, 280.0F), 1, ImGuiWindowFlags_NoScrollbar);
+                    if (ImGui::BeginTable("##RemoteImageTable", 5, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                         ImGui::TableSetupScrollFreeze(0, 1);
-                        ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.7f);
-                        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.1f);
-                        ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthFixed, 56.0f);
-                        ImGui::TableSetupColumn("ABI", ImGuiTableColumnFlags_WidthStretch, 1.2f);
-                        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 92.0f);
+                        ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.7F);
+                        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.1F);
+                        ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthFixed, 56.0F);
+                        ImGui::TableSetupColumn("ABI", ImGuiTableColumnFlags_WidthStretch, 1.2F);
+                        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 92.0F);
                         ImGui::TableHeadersRow();
 
                         int visibleCount = 0;
@@ -302,13 +326,15 @@ namespace CoreDeck {
                             ImGui::TableNextRow();
                             ImGui::TableNextColumn();
                             ImGui::TextColored(
-                                HexColor(Colors::Negative),
+                                HexColor(Colors::NEGATIVE),
                                 "No remote system images found. Check your SDK and internet connection."
                             );
                         } else {
                             for (int i = 0; i < static_cast<int>(work.RemoteImages.size()); i++) {
                                 const auto &img = work.RemoteImages[i];
-                                if (!MatchesImageFilters(img, work.SearchFilter, work.SelectedCategory)) continue;
+                                if (!MatchesImageFilters(img, work.SearchFilter, work.SelectedCategory)) {
+                                    continue;
+                                }
 
                                 visibleCount++;
                                 const bool isSelected = work.SelectedImage == i;
@@ -323,10 +349,12 @@ namespace CoreDeck {
                                     "##RemoteImage",
                                     std::to_string(i)
                                 );
-                                if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0.0f, 0.0f))) {
+                                if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0.0F, 0.0F))) {
                                     work.SelectedImage = i;
                                 }
-                                if (isSelected) ImGui::SetItemDefaultFocus();
+                                if (isSelected) {
+                                    ImGui::SetItemDefaultFocus();
+                                }
 
                                 ImGui::TableNextColumn();
                                 ImGui::TextColored(HexColor(Color), "%s", Label);
@@ -339,7 +367,7 @@ namespace CoreDeck {
 
                                 ImGui::TableNextColumn();
                                 if (img.IsInstalled) {
-                                    ImGui::TextColored(HexColor(Colors::Positive), "Installed");
+                                    ImGui::TextColored(HexColor(Colors::POSITIVE), "Installed");
                                 } else {
                                     ImGui::TextDisabled("Available");
                                 }
@@ -357,14 +385,16 @@ namespace CoreDeck {
                     ImGui::EndChild();
                 }
 
-                if (isInstalling || removalBusy) ImGui::EndDisabled();
+                if (isInstalling || removalBusy) {
+                    ImGui::EndDisabled();
+                }
 
                 if (isInstalling && work.Progress) {
                     ImGui::Spacing();
                     ImGui::Separator();
                     ImGui::Spacing();
 
-                    float fraction;
+                    float fraction = NAN;
                     std::string statusText;
                     {
                         std::lock_guard lock(work.Progress->Mutex);
@@ -375,14 +405,14 @@ namespace CoreDeck {
                     ImGui::Text("%s", statusText.c_str());
                     ImGui::Spacing();
 
-                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor(Colors::Positive));
-                    ImGui::ProgressBar(fraction, ImVec2(-1.0f, 0.0f));
+                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor(Colors::POSITIVE));
+                    ImGui::ProgressBar(fraction, ImVec2(-1.0F, 0.0F));
                     ImGui::PopStyleColor();
                 }
 
                 if (!isInstalling && work.Progress) {
-                    bool finished;
-                    bool succeeded;
+                    bool finished = false;
+                    bool succeeded = false;
                     std::string statusText;
                     {
                         std::lock_guard lock(work.Progress->Mutex);
@@ -395,10 +425,13 @@ namespace CoreDeck {
                         ImGui::Spacing();
                         const float textWidth = ImGui::CalcTextSize(statusText.c_str()).x;
                         ImGui::SetCursorPosX(
-                            (ImGui::GetContentRegionAvail().x - textWidth) * 0.5f + ImGui::GetCursorStartPos().x
+                            ((ImGui::GetContentRegionAvail().x - textWidth) * 0.5F) + ImGui::GetCursorStartPos().x
                         );
-                        if (succeeded) ImGui::TextColored(HexColor(Colors::Positive), "%s", statusText.c_str());
-                        else ImGui::TextColored(HexColor(Colors::Negative), "%s", statusText.c_str());
+                        if (succeeded) {
+                            ImGui::TextColored(HexColor(Colors::POSITIVE), "%s", statusText.c_str());
+                        } else {
+                            ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s", statusText.c_str());
+                        }
                     }
                 }
 
@@ -406,9 +439,10 @@ namespace CoreDeck {
                 ImGui::Separator();
                 ImGui::Spacing();
 
-                const bool hasVisibleSelection = work.SelectedImage >= 0 &&
-                                                 work.SelectedImage < static_cast<int>(work.RemoteImages.size()) &&
-                                                 MatchesImageFilters(work.RemoteImages[work.SelectedImage], work.SearchFilter, work.SelectedCategory);
+                const bool hasVisibleSelection =
+                    work.SelectedImage >= 0 &&
+                    work.SelectedImage < static_cast<int>(work.RemoteImages.size()) &&
+                    MatchesImageFilters(work.RemoteImages[work.SelectedImage], work.SearchFilter, work.SelectedCategory);
 
                 const bool selectedInstalled = hasVisibleSelection && work.RemoteImages[work.SelectedImage].IsInstalled;
                 const bool canUseSelected = !isLoading && !isInstalling && !removalBusy && selectedInstalled;
@@ -417,13 +451,13 @@ namespace CoreDeck {
 
                 const float spacing = ImGui::GetStyle().ItemSpacing.x;
                 const float actionWidth = ImGui::GetContentRegionAvail().x;
-                const float halfWidth = (actionWidth - spacing) * 0.5f;
-                const float thirdWidth = (actionWidth - spacing * 2.0f) / 3.0f;
+                const float halfWidth = (actionWidth - spacing) * 0.5F;
+                const float thirdWidth = (actionWidth - (spacing * 2.0F)) / 3.0F;
 
                 const bool licenseBusy = work.LicenseBusy.load();
 
                 if (!work.LicenseError.empty()) {
-                    ImGui::TextColored(HexColor(Colors::Negative), "%s", work.LicenseError.c_str());
+                    ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s", work.LicenseError.c_str());
                     ImGui::Spacing();
                 }
 

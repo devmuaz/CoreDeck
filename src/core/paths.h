@@ -9,9 +9,9 @@
 #include <vector>
 
 namespace CoreDeck::Paths {
-    enum class Platform {
+    enum class Platform : uint8_t {
         Windows,
-        macOS,
+        MacOS,
         Linux,
         Unknown
     };

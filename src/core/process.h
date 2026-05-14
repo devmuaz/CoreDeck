@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <windows.h>
 using ProcessId = DWORD;
 #else

@@ -15,7 +15,7 @@
 
 namespace CoreDeck {
     namespace {
-        enum class PrefsSection {
+        enum class PrefsSection : uint8_t {
             General,
             AndroidSdk,
         };
@@ -26,15 +26,15 @@ namespace CoreDeck {
             const char *Label;
         };
 
-        constexpr SidebarItem SidebarItems[] = {
-            {PrefsSection::General, Icons::Gear, "General"},
-            {PrefsSection::AndroidSdk, Icons::Mobile, "Android SDK"},
+        constexpr SidebarItem SIDEBAR_ITEMS[] = {
+            {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = "General"},
+            {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = "Android SDK"},
         };
 
         bool SidebarRow(const SidebarItem &item, const bool selected) {
             ImGuiWindow *window = ImGui::GetCurrentWindow();
             const float width = ImGui::GetContentRegionAvail().x;
-            const float height = ImGui::GetFrameHeight() + 6.0f;
+            const float height = ImGui::GetFrameHeight() + 6.0F;
 
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             const ImRect bb(pos, ImVec2(pos.x + width, pos.y + height));
@@ -47,14 +47,15 @@ namespace CoreDeck {
                 return false;
             }
 
-            bool hovered, held;
+            bool hovered = false;
+            bool held = false;
             const bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
 
             ImU32 bg = 0;
             if (selected) {
-                bg = ImGui::GetColorU32(HexColor(Colors::Surface3));
+                bg = ImGui::GetColorU32(HexColor(Colors::SURFACE3));
             } else if (hovered) {
-                bg = ImGui::GetColorU32(HexColor(Colors::Surface2));
+                bg = ImGui::GetColorU32(HexColor(Colors::SURFACE2));
             }
             if (bg) {
                 window->DrawList->AddRectFilled(bb.Min, bb.Max, bg);
@@ -62,25 +63,25 @@ namespace CoreDeck {
 
             if (selected) {
                 const ImVec2 a(bb.Min.x, bb.Min.y);
-                const ImVec2 b(bb.Min.x + 4.0f, bb.Max.y);
+                const ImVec2 b(bb.Min.x + 4.0F, bb.Max.y);
                 window->DrawList->AddRectFilled(a, b, IM_COL32_WHITE);
             }
 
-            const ImU32 textColor = ImGui::GetColorU32(selected ? HexColor(Colors::TextPrimary) : HexColor(Colors::TextSubtle));
-            const float textY = bb.Min.y + (height - ImGui::GetTextLineHeight()) * 0.5f;
-            window->DrawList->AddText(ImVec2(bb.Min.x + 14.0f, textY), textColor, item.Icon);
-            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0f, textY), textColor, item.Label);
+            const ImU32 textColor = ImGui::GetColorU32(selected ? HexColor(Colors::TEXT_PRIMARY) : HexColor(Colors::TEXT_SUBTLE));
+            const float textY = bb.Min.y + ((height - ImGui::GetTextLineHeight()) * 0.5F);
+            window->DrawList->AddText(ImVec2(bb.Min.x + 14.0F, textY), textColor, item.Icon);
+            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0F, textY), textColor, item.Label);
 
             ImGui::PopID();
             return pressed;
         }
 
         void SectionHeader(const char *title, const char *subtitle) {
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
             ImGui::TextUnformatted(title);
             ImGui::PopStyleColor();
             if (subtitle && *subtitle) {
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextSubtle));
+                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
                 ImGui::TextWrapped("%s", subtitle);
                 ImGui::PopStyleColor();
             }
@@ -94,8 +95,10 @@ namespace CoreDeck {
             const bool changed = ImGui::Checkbox(title, value);
             if (tooltip && *tooltip) {
                 ImGui::SameLine();
-                ImGui::TextColored(HexColor(Colors::TextMuted), Icons::Info);
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tooltip);
+                ImGui::TextColored(HexColor(Colors::TEXT_MUTED), Icons::INFO);
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("%s", tooltip);
+                }
             }
             ImGui::Spacing();
             ImGui::PopID();
@@ -127,15 +130,15 @@ namespace CoreDeck {
         void DrawAndroidSdkSection(Context &context, char *sdkPathBuffer, size_t bufferSize) {
             SectionHeader("Android SDK", "Where CoreDeck looks for the emulator and command-line tools.");
 
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
             ImGui::TextUnformatted("SDK root");
             ImGui::PopStyleColor();
-            constexpr float browseW = 110.0f;
+            constexpr float BROWSE_W = 110.0F;
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - browseW - spacing);
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - BROWSE_W - spacing);
             ImGui::InputTextWithHint("##SdkPrefs", "Path to Android SDK", sdkPathBuffer, bufferSize);
             ImGui::SameLine();
-            if (PrimaryButton("Browse...", true, ImVec2(browseW, 0))) {
+            if (PrimaryButton("Browse...", true, ImVec2(BROWSE_W, 0))) {
                 if (const auto picked = FileDialog::PickFolder("Select Android SDK directory", sdkPathBuffer)) {
                     strncpy(sdkPathBuffer, picked->c_str(), bufferSize - 1);
                     sdkPathBuffer[bufferSize - 1] = '\0';
@@ -147,15 +150,15 @@ namespace CoreDeck {
 
             if (!pathStr.empty()) {
                 if (pathOk) {
-                    ImGui::TextColored(HexColor(Colors::Positive), "Valid Android SDK path.");
+                    ImGui::TextColored(HexColor(Colors::POSITIVE), "Valid Android SDK path.");
                 } else {
                     ImGui::TextColored(
-                        HexColor(Colors::Negative),
+                        HexColor(Colors::NEGATIVE),
                         "Not a valid SDK (need emulator and cmdline-tools with avdmanager)."
                     );
                 }
             } else {
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextSubtle));
+                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
                 ImGui::TextUnformatted("Leave empty to auto-detect from ANDROID_HOME or default install paths.");
                 ImGui::PopStyleColor();
             }
@@ -199,14 +202,14 @@ namespace CoreDeck {
         }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(ImVec2(760, 480), ImGuiCond_Appearing);
 
         static char sdkPathBuffer[2048];
         static auto activeSection = PrefsSection::General;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        if (ImGui::BeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, WindowNoResizeFlags)) {
+        if (ImGui::BeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::PopStyleVar();
 
             if (ImGui::IsWindowAppearing()) {
@@ -215,30 +218,30 @@ namespace CoreDeck {
                 sdkPathBuffer[sizeof(sdkPathBuffer) - 1] = '\0';
             }
 
-            constexpr float sidebarW = 200.0f;
+            constexpr float SIDEBAR_W = 200.0F;
 
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, HexColor(Colors::Surface0));
-            ImGui::BeginChild("##PrefsSidebar", ImVec2(sidebarW, 0), false);
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, HexColor(Colors::SURFACE0));
+            ImGui::BeginChild("##PrefsSidebar", ImVec2(SIDEBAR_W, 0), 0);
             ImGui::PopStyleColor();
             ImGui::Dummy(ImVec2(0, 12));
-            ImGui::SetWindowFontScale(1.4f);
+            ImGui::SetWindowFontScale(1.4F);
             const char *brand = "CoreDeck";
             const float brandW = ImGui::CalcTextSize(brand).x;
-            ImGui::SetCursorPosX((sidebarW - brandW) * 0.5f);
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextPrimary));
+            ImGui::SetCursorPosX((SIDEBAR_W - brandW) * 0.5F);
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
             ImGui::TextUnformatted(brand);
             ImGui::PopStyleColor();
-            ImGui::SetWindowFontScale(1.0f);
+            ImGui::SetWindowFontScale(1.0F);
             const char *version = "v" COREDECK_VERSION;
             const float versionW = ImGui::CalcTextSize(version).x;
-            ImGui::SetCursorPosX((sidebarW - versionW) * 0.5f);
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TextMuted));
+            ImGui::SetCursorPosX((SIDEBAR_W - versionW) * 0.5F);
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_MUTED));
             ImGui::TextUnformatted(version);
             ImGui::PopStyleColor();
 
             ImGui::Dummy(ImVec2(0, 12));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2));
-            for (const auto &item: SidebarItems) {
+            for (const auto &item: SIDEBAR_ITEMS) {
                 if (SidebarRow(item, item.Section == activeSection)) {
                     activeSection = item.Section;
                 }
@@ -249,17 +252,17 @@ namespace CoreDeck {
             // Vertical divider
             const ImVec2 popupPos = ImGui::GetWindowPos();
             const ImVec2 popupSize = ImGui::GetWindowSize();
-            const float dividerX = popupPos.x + sidebarW;
+            const float dividerX = popupPos.x + SIDEBAR_W;
             ImGui::GetWindowDrawList()->AddLine(
                 ImVec2(dividerX, popupPos.y),
                 ImVec2(dividerX, popupPos.y + popupSize.y),
-                ImGui::GetColorU32(HexColor(Colors::BorderSubtle)),
-                1.0f
+                ImGui::GetColorU32(HexColor(Colors::BORDER_SUBTLE)),
+                1.0F
             );
 
             ImGui::SameLine(0, 0);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0f, 12.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0F, 12.0F));
             ImGui::BeginChild("##PrefsContent", ImVec2(0, 0), ImGuiChildFlags_AlwaysUseWindowPadding);
             ImGui::PopStyleVar();
             switch (activeSection) {

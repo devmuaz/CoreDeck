@@ -7,6 +7,8 @@
 #include <sys/proc_info.h>
 #include <sys/resource.h>
 #include <unistd.h>
+
+#include <algorithm>
 #elif defined(__linux__)
 #include <cstdio>
 #include <cstring>
@@ -23,125 +25,140 @@ namespace CoreDeck {
 
     constexpr auto TICK_INTERVAL = std::chrono::milliseconds(1000);
 
-#ifdef __APPLE__
-    static bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
-        proc_taskinfo info{};
-        const int rc = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &info, sizeof(info));
-        if (rc < static_cast<int>(sizeof(info))) {
-            return false;
+    namespace {
+#if defined(__APPLE__)
+        bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
+            proc_taskinfo info{};
+            const int rc = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &info, sizeof(info));
+            if (rc < static_cast<int>(sizeof(info))) {
+                return false;
+            }
+
+            cpuTimeNs = info.pti_total_user + info.pti_total_system;
+            rssBytes = info.pti_resident_size;
+
+            rusage_info_current ru{};
+            if (proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, reinterpret_cast<rusage_info_t *>(&ru)) == 0) {
+                diskReadBytes = ru.ri_diskio_bytesread;
+                diskWriteBytes = ru.ri_diskio_byteswritten;
+            } else {
+                diskReadBytes = 0;
+                diskWriteBytes = 0;
+            }
+            return true;
         }
+#elif defined(__linux__)
+        bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
+            char path[64];
+            std::snprintf(path, sizeof(path), "/proc/%d/stat", static_cast<int>(pid));
+            std::ifstream stat(path);
+            if (!stat.is_open()) return false;
+            std::string contents((std::istreambuf_iterator<char>(stat)), std::istreambuf_iterator<char>());
 
-        cpuTimeNs = info.pti_total_user + info.pti_total_system;
-        rssBytes = info.pti_resident_size;
+            const auto rparen = contents.rfind(')');
+            if (rparen == std::string::npos) return false;
+            std::istringstream rest(contents.substr(rparen + 1));
 
-        rusage_info_current ru{};
-        if (proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, reinterpret_cast<rusage_info_t *>(&ru)) == 0) {
-            diskReadBytes = ru.ri_diskio_bytesread;
-            diskWriteBytes = ru.ri_diskio_byteswritten;
-        } else {
+            char state = 0;
+            unsigned long long utime = 0, stime = 0;
+            rest >> state;
+            for (int i = 0; i < 10; ++i) {
+                unsigned long long discard = 0;
+                rest >> discard;
+            }
+            rest >> utime >> stime;
+            if (!rest) return false;
+
+            const long ticks = sysconf(_SC_CLK_TCK);
+            if (ticks <= 0) return false;
+            const double nsPerTick = 1e9 / static_cast<double>(ticks);
+            cpuTimeNs = static_cast<std::uint64_t>(
+                (static_cast<double>(utime) + static_cast<double>(stime)) * nsPerTick
+            );
+
+            std::snprintf(path, sizeof(path), "/proc/%d/statm", static_cast<int>(pid));
+            if (std::ifstream statm(path); statm.is_open()) {
+                unsigned long long size = 0, rssPages = 0;
+                statm >> size >> rssPages;
+                rssBytes = rssPages * static_cast<std::uint64_t>(sysconf(_SC_PAGESIZE));
+            } else {
+                rssBytes = 0;
+            }
+
             diskReadBytes = 0;
             diskWriteBytes = 0;
+            std::snprintf(path, sizeof(path), "/proc/%d/io", static_cast<int>(pid));
+            if (std::ifstream io(path); io.is_open()) {
+                std::string key;
+                unsigned long long value = 0;
+                while (io >> key >> value) {
+                    if (key == "read_bytes:") diskReadBytes = value;
+                    else if (key == "write_bytes:") diskWriteBytes = value;
+                }
+            }
+            return true;
         }
-        return true;
-    }
-#elif defined(__linux__)
-    static bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
-        char path[64];
-        std::snprintf(path, sizeof(path), "/proc/%d/stat", static_cast<int>(pid));
-        std::ifstream stat(path);
-        if (!stat.is_open()) return false;
-        std::string contents((std::istreambuf_iterator<char>(stat)), std::istreambuf_iterator<char>());
-
-        const auto rparen = contents.rfind(')');
-        if (rparen == std::string::npos) return false;
-        std::istringstream rest(contents.substr(rparen + 1));
-
-        char state = 0;
-        unsigned long long utime = 0, stime = 0;
-        rest >> state;
-        for (int i = 0; i < 10; ++i) {
-            unsigned long long discard = 0;
-            rest >> discard;
-        }
-        rest >> utime >> stime;
-        if (!rest) return false;
-
-        const long ticks = sysconf(_SC_CLK_TCK);
-        if (ticks <= 0) return false;
-        const double nsPerTick = 1e9 / static_cast<double>(ticks);
-        cpuTimeNs = static_cast<std::uint64_t>(
-            (static_cast<double>(utime) + static_cast<double>(stime)) * nsPerTick
-        );
-
-        std::snprintf(path, sizeof(path), "/proc/%d/statm", static_cast<int>(pid));
-        if (std::ifstream statm(path); statm.is_open()) {
-            unsigned long long size = 0, rssPages = 0;
-            statm >> size >> rssPages;
-            rssBytes = rssPages * static_cast<std::uint64_t>(sysconf(_SC_PAGESIZE));
-        } else {
-            rssBytes = 0;
+#elif defined(_WIN32)
+        std::uint64_t FileTimeToUint(const FILETIME &ft) {
+            ULARGE_INTEGER u;
+            u.LowPart = ft.dwLowDateTime;
+            u.HighPart = ft.dwHighDateTime;
+            return u.QuadPart;
         }
 
-        diskReadBytes = 0;
-        diskWriteBytes = 0;
-        std::snprintf(path, sizeof(path), "/proc/%d/io", static_cast<int>(pid));
-        if (std::ifstream io(path); io.is_open()) {
-            std::string key;
-            unsigned long long value = 0;
-            while (io >> key >> value) {
-                if (key == "read_bytes:") diskReadBytes = value;
-                else if (key == "write_bytes:") diskWriteBytes = value;
+        bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
+            const HANDLE h = OpenProcess(
+                PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ,
+                FALSE,
+                pid
+            );
+            if (!h) return false;
+
+            FILETIME creation{}, exitTime{}, kernel{}, user{};
+            if (!GetProcessTimes(h, &creation, &exitTime, &kernel, &user)) {
+                CloseHandle(h);
+                return false;
+            }
+            cpuTimeNs = (FileTimeToUint(kernel) + FileTimeToUint(user)) * 100ULL;
+
+            PROCESS_MEMORY_COUNTERS_EX mem{};
+            if (GetProcessMemoryInfo(h, reinterpret_cast<PROCESS_MEMORY_COUNTERS *>(&mem), sizeof(mem))) {
+                rssBytes = mem.WorkingSetSize;
+            } else {
+                rssBytes = 0;
+            }
+
+            IO_COUNTERS io{};
+            if (GetProcessIoCounters(h, &io)) {
+                diskReadBytes = io.ReadTransferCount;
+                diskWriteBytes = io.WriteTransferCount;
+            } else {
+                diskReadBytes = 0;
+                diskWriteBytes = 0;
+            }
+
+            CloseHandle(h);
+            return true;
+        }
+#else
+        static bool ReadProcessSnapshot(ProcessId, std::uint64_t &, std::uint64_t &, std::uint64_t &, std::uint64_t &) {
+            return false;
+        }
+#endif
+
+        void CopyRingOldestFirst(const std::vector<float> &ring, std::size_t writeIdx, std::size_t filled, std::vector<float> &out) {
+            const std::size_t size = ring.size();
+            if (size == 0) {
+                return;
+            }
+            const bool full = filled >= size;
+            const std::size_t start = full ? writeIdx : 0;
+            const std::size_t count = full ? size : filled;
+            for (std::size_t i = 0; i < count; ++i) {
+                out[i] = ring[(start + i) % size];
             }
         }
-        return true;
     }
-#elif defined(_WIN32)
-    static std::uint64_t FileTimeToUint(const FILETIME &ft) {
-        ULARGE_INTEGER u;
-        u.LowPart = ft.dwLowDateTime;
-        u.HighPart = ft.dwHighDateTime;
-        return u.QuadPart;
-    }
-
-    static bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
-        const HANDLE h = OpenProcess(
-            PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ,
-            FALSE,
-            pid
-        );
-        if (!h) return false;
-
-        FILETIME creation{}, exitTime{}, kernel{}, user{};
-        if (!GetProcessTimes(h, &creation, &exitTime, &kernel, &user)) {
-            CloseHandle(h);
-            return false;
-        }
-        cpuTimeNs = (FileTimeToUint(kernel) + FileTimeToUint(user)) * 100ULL;
-
-        PROCESS_MEMORY_COUNTERS_EX mem{};
-        if (GetProcessMemoryInfo(h, reinterpret_cast<PROCESS_MEMORY_COUNTERS *>(&mem), sizeof(mem))) {
-            rssBytes = mem.WorkingSetSize;
-        } else {
-            rssBytes = 0;
-        }
-
-        IO_COUNTERS io{};
-        if (GetProcessIoCounters(h, &io)) {
-            diskReadBytes = io.ReadTransferCount;
-            diskWriteBytes = io.WriteTransferCount;
-        } else {
-            diskReadBytes = 0;
-            diskWriteBytes = 0;
-        }
-
-        CloseHandle(h);
-        return true;
-    }
-#else
-    static bool ReadProcessSnapshot(ProcessId, std::uint64_t &, std::uint64_t &, std::uint64_t &, std::uint64_t &) {
-        return false;
-    }
-#endif
 
 
     ProcessStatsSampler::~ProcessStatsSampler() {
@@ -149,21 +166,27 @@ namespace CoreDeck {
     }
 
     void ProcessStatsSampler::Start() {
-        if (m_Running.exchange(true)) return;
+        if (m_Running.exchange(true)) {
+            return;
+        }
         m_Worker = std::thread(&ProcessStatsSampler::m_WorkerLoop, this);
     }
 
     void ProcessStatsSampler::Stop() {
-        if (!m_Running.exchange(false)) return;
-        if (m_Worker.joinable()) m_Worker.join();
+        if (!m_Running.exchange(false)) {
+            return;
+        }
+        if (m_Worker.joinable()) {
+            m_Worker.join();
+        }
     }
 
     void ProcessStatsSampler::Track(ProcessId pid) {
         std::lock_guard lock(m_Mutex);
         auto [it, inserted] = m_Entries.try_emplace(pid);
         if (inserted) {
-            it->second.CpuHistory.assign(PROCESS_STATS_HISTORY, 0.0f);
-            it->second.RssHistoryMb.assign(PROCESS_STATS_HISTORY, 0.0f);
+            it->second.CpuHistory.assign(PROCESS_STATS_HISTORY, 0.0F);
+            it->second.RssHistoryMb.assign(PROCESS_STATS_HISTORY, 0.0F);
             it->second.TrackedAt = std::chrono::steady_clock::now();
         }
     }
@@ -182,37 +205,32 @@ namespace CoreDeck {
     }
 
 
-    static void CopyRingOldestFirst(const std::vector<float> &ring, std::size_t writeIdx, std::size_t filled, std::vector<float> &out) {
-        const std::size_t size = ring.size();
-        if (size == 0) return;
-        const bool full = filled >= size;
-        const std::size_t start = full ? writeIdx : 0;
-        const std::size_t count = full ? size : filled;
-        for (std::size_t i = 0; i < count; ++i) {
-            out[i] = ring[(start + i) % size];
-        }
-    }
-
     void ProcessStatsSampler::CopyCpuHistory(ProcessId pid, std::vector<float> &out) const {
-        out.assign(PROCESS_STATS_HISTORY, 0.0f);
+        out.assign(PROCESS_STATS_HISTORY, 0.0F);
         std::lock_guard lock(m_Mutex);
         const auto it = m_Entries.find(pid);
-        if (it == m_Entries.end()) return;
+        if (it == m_Entries.end()) {
+            return;
+        }
         CopyRingOldestFirst(it->second.CpuHistory, it->second.HistoryWrite, it->second.HistoryFilled, out);
     }
 
     void ProcessStatsSampler::CopyRssHistoryMb(ProcessId pid, std::vector<float> &out) const {
-        out.assign(PROCESS_STATS_HISTORY, 0.0f);
+        out.assign(PROCESS_STATS_HISTORY, 0.0F);
         std::lock_guard lock(m_Mutex);
         const auto it = m_Entries.find(pid);
-        if (it == m_Entries.end()) return;
+        if (it == m_Entries.end()) {
+            return;
+        }
         CopyRingOldestFirst(it->second.RssHistoryMb, it->second.HistoryWrite, it->second.HistoryFilled, out);
     }
 
     std::chrono::seconds ProcessStatsSampler::Uptime(ProcessId pid) const {
         std::lock_guard lock(m_Mutex);
         const auto it = m_Entries.find(pid);
-        if (it == m_Entries.end()) return std::chrono::seconds(0);
+        if (it == m_Entries.end()) {
+            return std::chrono::seconds(0);
+        }
         return std::chrono::duration_cast<std::chrono::seconds>(
             std::chrono::steady_clock::now() - it->second.TrackedAt
         );
@@ -234,13 +252,13 @@ namespace CoreDeck {
             elapsedSec = std::chrono::duration<double>(now - entry.PrevSampleTime).count();
         }
 
-        float cpuPercent = 0.0f;
+        float cpuPercent = 0.0F;
         if (entry.HasPrevCpu && elapsedSec > 0.0 &&
             cpuTimeNs >= entry.PrevCpuTimeNs) {
             const auto deltaNs = cpuTimeNs - entry.PrevCpuTimeNs;
             const double elapsedNs = elapsedSec * 1e9;
             cpuPercent = static_cast<float>((static_cast<double>(deltaNs) / elapsedNs) * 100.0);
-            if (cpuPercent < 0.0f) cpuPercent = 0.0f;
+            cpuPercent = std::max(cpuPercent, 0.0F);
         }
 
         std::uint64_t readRate = 0;
@@ -277,7 +295,7 @@ namespace CoreDeck {
         entry.Latest = sample;
 
         if (!entry.CpuHistory.empty()) {
-            const float rssMb = static_cast<float>(rssBytes) / (1024.0f * 1024.0f);
+            const float rssMb = static_cast<float>(rssBytes) / (1024.0F * 1024.0F);
             entry.CpuHistory[entry.HistoryWrite] = cpuPercent;
             if (entry.RssHistoryMb.size() == entry.CpuHistory.size()) {
                 entry.RssHistoryMb[entry.HistoryWrite] = rssMb;
@@ -300,13 +318,17 @@ namespace CoreDeck {
                 {
                     std::lock_guard lock(m_Mutex);
                     pids.reserve(m_Entries.size());
-                    for (const auto &kv: m_Entries) pids.push_back(kv.first);
+                    for (const auto &kv: m_Entries) {
+                        pids.push_back(kv.first);
+                    }
                 }
 
                 for (const ProcessId pid: pids) {
                     std::lock_guard lock(m_Mutex);
                     auto it = m_Entries.find(pid);
-                    if (it == m_Entries.end()) continue;
+                    if (it == m_Entries.end()) {
+                        continue;
+                    }
                     m_SampleOne(pid, it->second, now);
                 }
                 nextTick = now + TICK_INTERVAL;

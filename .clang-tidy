@@ -1,0 +1,240 @@
+# =============================================================================
+# .clang-tidy — CoreDeck
+# -----------------------------------------------------------------------------
+# Notes for VS Code users:
+#   - Install the "clangd" extension (recommended) OR enable clang-tidy in the
+#     Microsoft "C/C++" extension via the setting:
+#       "C_Cpp.codeAnalysis.clangTidy.enabled": true
+#   - Generate a compile_commands.json (e.g. with CMake:
+#       cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+#     then symlink/copy build/compile_commands.json to the project root) so
+#     clang-tidy can see the exact compiler flags for each translation unit.
+#   - HeaderFilterRegex below limits diagnostics to YOUR code only, ignoring
+#     the third-party sources in extern/.
+# =============================================================================
+
+# Only run checks against headers that belong to CoreDeck (skip extern/, build/).
+HeaderFilterRegex: '^(?!.*(/|\\)(extern|build|out|cmake-build-[^/\\]+)(/|\\)).*\.(h|hpp|hxx|inl)$'
+
+# Treat no warnings as errors by default; flip on a per-check basis if desired.
+WarningsAsErrors: ""
+
+# Use the project root .clang-format for any auto-fixes clang-tidy applies.
+FormatStyle: file
+
+# -----------------------------------------------------------------------------
+# Checks
+# -----------------------------------------------------------------------------
+# Strategy: enable broad, high-signal groups; then disable individual checks
+# that are noisy or impractical for an ImGui/OpenGL/GLFW codebase (which deals
+# with C APIs, raw pointers, magic numbers for UI, varargs, etc.).
+# -----------------------------------------------------------------------------
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  google-*,
+  hicpp-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  -cert-err58-cpp,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-narrowing-conversions,
+  -google-build-using-namespace,
+  -google-readability-todo,
+  -google-readability-namespace-comments,
+  -google-runtime-references,
+  -llvm-namespace-comment,
+  -hicpp-avoid-c-arrays,
+  -hicpp-no-array-decay,
+  -hicpp-signed-bitwise,
+  -hicpp-vararg,
+  -misc-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+  -modernize-avoid-c-arrays,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity,
+  -readability-uppercase-literal-suffix
+
+# -----------------------------------------------------------------------------
+# Check options
+# -----------------------------------------------------------------------------
+# A consistent, modern C++ style with snake_case for variables/functions,
+# PascalCase for types, and a clear marker for private members and constants.
+# Adjust to match your team's existing conventions.
+# -----------------------------------------------------------------------------
+CheckOptions:
+  # --- Modernize ---
+  - key: modernize-loop-convert.MaxCopySize
+    value: "16"
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable
+  - key: modernize-pass-by-value.IncludeStyle
+    value: llvm
+  - key: modernize-use-auto.MinTypeNameLength
+    value: "5"
+  - key: modernize-use-default-member-init.UseAssignment
+    value: "true"
+  - key: modernize-use-emplace.IgnoreImplicitConstructors
+    value: "true"
+  - key: modernize-use-override.IgnoreDestructors
+    value: "true"
+
+  # --- Readability ---
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: "2"
+  - key: readability-function-size.LineThreshold
+    value: "120"
+  - key: readability-function-size.StatementThreshold
+    value: "120"
+  - key: readability-implicit-bool-conversion.AllowIntegerConditions
+    value: "true"
+  - key: readability-implicit-bool-conversion.AllowPointerConditions
+    value: "true"
+
+  # --- Performance ---
+  - key: performance-for-range-copy.WarnOnAllAutoCopies
+    value: "true"
+  - key: performance-unnecessary-value-param.AllowedTypes
+    value: ""
+
+  # --- Bugprone ---
+  - key: bugprone-argument-comment.StrictMode
+    value: "true"
+  - key: bugprone-assert-side-effect.AssertMacros
+    value: "assert,IM_ASSERT"
+  - key: bugprone-misplaced-widening-cast.CheckImplicitCasts
+    value: "false"
+  - key: bugprone-sizeof-expression.WarnOnSizeOfIntegerExpression
+    value: "true"
+
+  # --- Naming conventions (Microsoft / Unreal-flavored PascalCase) ---
+  # Types, namespaces, free functions, methods, public members → PascalCase
+  # Locals & parameters                                        → camelCase
+  # Private / protected non-static members                     → m_PascalCase
+  # Macros                                                     → UPPER_CASE
+  - key: readability-identifier-naming.NamespaceCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.UnionCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.ScopedEnumConstantCase
+    value: CamelCase
+
+  # Functions & methods
+  # Public methods and free functions: plain PascalCase (e.g. Launch, Stop).
+  # Private / protected methods: m_PascalCase (e.g. m_EvictExistingInstance,
+  # m_SampleOne). The same rule applies to static methods — clang-tidy's
+  # ClassMethod category (which covers static members) is intentionally left
+  # permissive here so the access-level rules below take precedence.
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassMethodCase
+    value: aNy_CasE
+  - key: readability-identifier-naming.MethodCase
+    value: aNy_CasE
+  - key: readability-identifier-naming.PublicMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.PrivateMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.PrivateMethodPrefix
+    value: "m_"
+  - key: readability-identifier-naming.ProtectedMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.ProtectedMethodPrefix
+    value: "m_"
+
+  # Variables & parameters
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.LocalVariableCase
+    value: camelBack
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.PointerParameterCase
+    value: camelBack
+
+  # Members — public PascalCase (your structs expose PascalCase fields),
+  # private/protected use m_ + PascalCase as seen on Application::m_Window etc.
+  - key: readability-identifier-naming.PublicMemberCase
+    value: CamelCase
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: CamelCase
+  - key: readability-identifier-naming.ProtectedMemberPrefix
+    value: "m_"
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: CamelCase
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: "m_"
+  - key: readability-identifier-naming.ClassMemberCase
+    value: CamelCase
+
+  # Constants — UPPER_CASE only for named compile-time-style constants:
+  #   constexpr variables, file/namespace-scope globals, static class constants.
+  # Local `const` variables and `const` parameters keep camelBack so things like
+  #   const std::string &avdName, const int sortMode
+  # are NOT flagged.
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantPointerCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ClassConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.LocalConstantCase
+    value: camelBack
+  - key: readability-identifier-naming.LocalConstantPointerCase
+    value: camelBack
+  - key: readability-identifier-naming.ConstantParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.ConstantMemberCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstantCase
+    value: camelBack
+
+  # Type aliases & templates
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.ValueTemplateParameterCase
+    value: CamelCase
+
+  # Macros
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE

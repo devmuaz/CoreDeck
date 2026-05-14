@@ -14,6 +14,8 @@ namespace CoreDeck {
     class StyleColor {
     public:
         StyleColor() = default;
+        StyleColor(StyleColor &&) = delete;
+        StyleColor &operator=(StyleColor &&) = delete;
         StyleColor(const StyleColor &) = delete;
         StyleColor &operator=(const StyleColor &) = delete;
 
@@ -23,7 +25,9 @@ namespace CoreDeck {
         }
 
         ~StyleColor() {
-            if (m_Count > 0) ImGui::PopStyleColor(m_Count);
+            if (m_Count > 0) {
+                ImGui::PopStyleColor(m_Count);
+            }
         }
 
     private:
@@ -33,6 +37,8 @@ namespace CoreDeck {
     class StyleVar {
     public:
         StyleVar() = default;
+        StyleVar(StyleVar &&) = delete;
+        StyleVar &operator=(StyleVar &&) = delete;
         StyleVar(const StyleVar &) = delete;
         StyleVar &operator=(const StyleVar &) = delete;
 
@@ -47,7 +53,9 @@ namespace CoreDeck {
         }
 
         ~StyleVar() {
-            if (m_Count > 0) ImGui::PopStyleVar(m_Count);
+            if (m_Count > 0) {
+                ImGui::PopStyleVar(m_Count);
+            }
         }
 
     private:
@@ -67,29 +75,32 @@ namespace CoreDeck {
         PickerTableStyle();
     };
 
-    constexpr ImGuiTableFlags PickerTableFlags = ImGuiTableFlags_BordersInnerV |
-                                                 ImGuiTableFlags_RowBg |
-                                                 ImGuiTableFlags_ScrollY |
-                                                 ImGuiTableFlags_SizingStretchProp;
+    constexpr ImGuiTableFlags PICKER_TABLE_FLAGS =
+        ImGuiTableFlags_BordersInnerV |
+        ImGuiTableFlags_RowBg |
+        ImGuiTableFlags_ScrollY |
+        ImGuiTableFlags_SizingStretchProp;
 
-    constexpr ImGuiWindowFlags WindowNoResizeFlags = ImGuiWindowFlags_NoCollapse |
-                                                     ImGuiWindowFlags_NoResize |
-                                                     ImGuiWindowFlags_NoMove |
-                                                     ImGuiWindowFlags_NoDocking;
+    constexpr ImGuiWindowFlags WINDOW_NO_RESIZE_FLAGS =
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoDocking;
 
-    constexpr ImGuiWindowFlags WindowAutoResizeFlags = ImGuiWindowFlags_NoCollapse |
-                                                       ImGuiWindowFlags_NoResize |
-                                                       ImGuiWindowFlags_NoMove |
-                                                       ImGuiWindowFlags_AlwaysAutoResize |
-                                                       ImGuiWindowFlags_NoDocking;
+    constexpr ImGuiWindowFlags WINDOW_AUTO_RESIZE_FLAGS =
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoDocking;
 
-    enum class DialogResult {
+    enum class DialogResult : uint8_t {
         None,
         Confirmed,
         Cancelled
     };
 
-    enum class DialogType {
+    enum class DialogType : uint8_t {
         Default,
         Positive,
         Negative
@@ -97,7 +108,7 @@ namespace CoreDeck {
 
     struct DialogData {
         const char *Id{};
-        bool &IsOpen;
+        bool &IsOpen; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
         const char *Title{};
         const char *Message{};
         const char *ConfirmButtonTitle{};
@@ -129,9 +140,9 @@ namespace CoreDeck {
         const char *label,
         bool isSelected,
         const char *rightText = nullptr,
-        const ImVec4 &rightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
+        const ImVec4 &rightColor = ImVec4(1.0F, 1.0F, 1.0F, 1.0F),
         const char *leftIcon = nullptr,
-        const ImVec4 &leftIconColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
+        const ImVec4 &leftIconColor = ImVec4(1.0F, 1.0F, 1.0F, 1.0F)
     );
 
     bool PropertyText(const char *label, const char *value, bool isClickable = false, bool hasSpaceBetween = false);

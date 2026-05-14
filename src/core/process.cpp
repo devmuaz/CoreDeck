@@ -3,11 +3,10 @@
 //
 
 #include "process.h"
-#include <algorithm>
 #include <array>
 #include <string>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <windows.h>
 #include <tlhelp32.h>
 #include <io.h>
@@ -23,7 +22,7 @@
 #endif
 
 namespace CoreDeck {
-#ifdef _WIN32
+#if defined(_WIN32)
     static std::string QuoteArg(const std::string &arg) {
         if (!arg.empty() && arg.find_first_of(" \t\"") == std::string::npos) return arg;
         std::string out = "\"";
@@ -73,7 +72,7 @@ namespace CoreDeck {
         const std::string &stdinData,
         const std::function<void(const std::string &)> &onLine
     ) {
-#ifdef _WIN32
+#if defined(_WIN32)
         SECURITY_ATTRIBUTES sa = {};
         sa.nLength = sizeof(sa);
         sa.bInheritHandle = TRUE;
@@ -137,7 +136,9 @@ namespace CoreDeck {
 #else
         int outPipe[2];
         int inPipe[2];
-        if (pipe(outPipe) == -1) return;
+        if (pipe(outPipe) == -1) {
+            return;
+        }
         if (pipe(inPipe) == -1) {
             close(outPipe[0]);
             close(outPipe[1]);
@@ -164,7 +165,9 @@ namespace CoreDeck {
 
             std::vector<const char *> argv;
             argv.push_back(path.c_str());
-            for (const auto &a: args) argv.push_back(a.c_str());
+            for (const auto &a: args) {
+                argv.push_back(a.c_str());
+            }
             argv.push_back(nullptr);
             execvp(path.c_str(), const_cast<char *const *>(argv.data()));
             _exit(127);
@@ -180,20 +183,24 @@ namespace CoreDeck {
 
         std::string partial;
         std::array<char, 512> buf{};
-        ssize_t r;
+        ssize_t r = 0;
         while ((r = read(outPipe[0], buf.data(), buf.size())) > 0) {
             partial.append(buf.data(), r);
-            std::size_t pos;
+            std::size_t pos = 0;
             while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
-                if (auto line = partial.substr(0, pos); !line.empty() && onLine) onLine(line);
+                if (auto line = partial.substr(0, pos); !line.empty() && onLine) {
+                    onLine(line);
+                }
                 auto next = partial.find_first_not_of("\n\r", pos);
                 partial = (next == std::string::npos) ? std::string() : partial.substr(next);
             }
         }
-        if (!partial.empty() && onLine) onLine(partial);
+        if (!partial.empty() && onLine) {
+            onLine(partial);
+        }
 
         close(outPipe[0]);
-        int status;
+        int status = 0;
         waitpid(pid, &status, 0);
 #endif
     }
@@ -208,7 +215,7 @@ namespace CoreDeck {
     }
 
     ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {
-#ifdef _WIN32
+#if defined(_WIN32)
         HANDLE hReadPipe, hWritePipe;
         SECURITY_ATTRIBUTES sa = {};
         sa.nLength = sizeof(sa);
@@ -297,7 +304,7 @@ namespace CoreDeck {
     }
 
     bool KillProcess(const ProcessId pid) {
-#ifdef _WIN32
+#if defined(_WIN32)
         if (pid == 0) return false;
 
         HANDLE hProcess = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -322,10 +329,12 @@ namespace CoreDeck {
         CloseHandle(hProcess);
         return result;
 #else
-        if (pid <= 0) return false;
+        if (pid <= 0) {
+            return false;
+        }
 
         if (kill(pid, SIGTERM) == 0) {
-            int status;
+            int status = 0;
             if (const pid_t result = waitpid(pid, &status, WNOHANG); result == 0) {
                 usleep(500000);
                 waitpid(pid, &status, WNOHANG);
@@ -337,7 +346,7 @@ namespace CoreDeck {
     }
 
     bool WaitForProcessExit(const ProcessId pid, const int timeoutMs) {
-#ifdef _WIN32
+#if defined(_WIN32)
         if (pid == 0) return false;
         HANDLE hProcess = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
         if (hProcess == nullptr) return true;
@@ -345,20 +354,26 @@ namespace CoreDeck {
         CloseHandle(hProcess);
         return r == WAIT_OBJECT_0;
 #else
-        if (pid <= 0) return false;
+        if (pid <= 0) {
+            return false;
+        }
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
         while (true) {
-            int status;
+            int status = 0;
             const pid_t r = waitpid(pid, &status, WNOHANG);
-            if (r == pid || r == -1) return true;
-            if (std::chrono::steady_clock::now() >= deadline) return false;
+            if (r == pid || r == -1) {
+                return true;
+            }
+            if (std::chrono::steady_clock::now() >= deadline) {
+                return false;
+            }
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 #endif
     }
 
     bool TerminateProcessTree(const ProcessId pid) {
-#ifdef _WIN32
+#if defined(_WIN32)
         if (pid == 0) return false;
 
         HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -382,19 +397,23 @@ namespace CoreDeck {
         CloseHandle(hProcess);
         return ok;
 #else
-        if (pid <= 0) return false;
+        if (pid <= 0) {
+            return false;
+        }
         if (kill(-pid, SIGKILL) == 0) {
             WaitForProcessExit(pid, 2000);
             return true;
         }
         const bool ok = kill(pid, SIGKILL) == 0;
-        if (ok) WaitForProcessExit(pid, 2000);
+        if (ok) {
+            WaitForProcessExit(pid, 2000);
+        }
         return ok;
 #endif
     }
 
     bool IsProcessRunning(const ProcessId pid) {
-#ifdef _WIN32
+#if defined(_WIN32)
         if (pid == 0) return false;
 
         HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -406,9 +425,11 @@ namespace CoreDeck {
 
         return success && exitCode == STILL_ACTIVE;
 #else
-        if (pid <= 0) return false;
+        if (pid <= 0) {
+            return false;
+        }
 
-        int status;
+        int status = 0;
         if (const pid_t result = waitpid(pid, &status, WNOHANG); result == 0) {
             return true;
         }

@@ -8,7 +8,7 @@
 #include <string_view>
 
 namespace CoreDeck::CrashReporter {
-    enum class Level {
+    enum class Level : uint8_t {
         Debug,
         Info,
         Warning,

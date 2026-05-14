@@ -2,8 +2,6 @@
 // Created by AbdulMuaz Aqeel on 15/04/2026.
 //
 
-#include "imgui.h"
-
 #include "delete_avd.h"
 #include "../application.h"
 #include "../widgets.h"
@@ -11,7 +9,9 @@
 
 namespace CoreDeck {
     void StartDeleteAvdAsync(Context &context, const std::string &avdName) {
-        if (context.Jobs.AvdDeletion.Busy.load()) return;
+        if (context.Jobs.AvdDeletion.Busy.load()) {
+            return;
+        }
 
         context.Jobs.AvdDeletion.Busy = true;
         context.Jobs.AvdDeletion.Future = std::async(std::launch::async, [&context, avdName]() {
@@ -28,8 +28,12 @@ namespace CoreDeck {
             return;
         }
 
-        if (context.Catalog.SelectedAvd < 0 || context.Catalog.SelectedAvd >= static_cast<int>(context.Catalog.Avds.size())) return;
-        if (!context.UI.ShowDeleteAvdDialog) return;
+        if (context.Catalog.SelectedAvd < 0 || context.Catalog.SelectedAvd >= static_cast<int>(context.Catalog.Avds.size())) {
+            return;
+        }
+        if (!context.UI.ShowDeleteAvdDialog) {
+            return;
+        }
 
         const auto &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
         const std::string title = "Delete \"" + avdName + "\"?";

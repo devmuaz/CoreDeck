@@ -9,80 +9,84 @@
 #include "imgui.h"
 
 #include "storage.h"
-#include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
+#include "gui/context.h"
 #include "../../core/utilities.h"
 
 namespace CoreDeck {
-    static StorageScanResult ScanStorageUsage(const std::vector<AvdInfo> &avds, const std::string &sdkPath) {
-        StorageScanResult result;
+    namespace {
+        StorageScanResult ScanStorageUsage(const std::vector<AvdInfo> &avds, const std::string &sdkPath) {
+            StorageScanResult result;
 
-        for (const auto &avd: avds) {
-            if (avd.Path.empty()) continue;
-            if (std::filesystem::exists(avd.Path)) {
-                result.TotalAvdSize += GetDirectorySize(avd.Path);
+            for (const auto &avd: avds) {
+                if (avd.Path.empty()) {
+                    continue;
+                }
+                if (std::filesystem::exists(avd.Path)) {
+                    result.TotalAvdSize += GetDirectorySize(avd.Path);
+                }
             }
+
+            if (!sdkPath.empty()) {
+                const auto sysImgRoot = std::filesystem::path(sdkPath) / "system-images";
+                if (std::filesystem::exists(sysImgRoot)) {
+                    result.SystemImagesSize = GetDirectorySize(sysImgRoot.string());
+                }
+            }
+
+            return result;
         }
 
-        if (!sdkPath.empty()) {
-            const auto sysImgRoot = std::filesystem::path(sdkPath) / "system-images";
-            if (std::filesystem::exists(sysImgRoot)) {
-                result.SystemImagesSize = GetDirectorySize(sysImgRoot.string());
-            }
+        void StartStorageScan(Context &context) {
+            auto &disk = context.DiskUsage;
+            disk.Loading = true;
+            disk.Ready = false;
+
+            const auto avds = context.Catalog.Avds;
+            const std::string sdkPath = context.Host.Sdk.SdkPath;
+            disk.Future = std::async(std::launch::async, [avds, sdkPath] {
+                return ScanStorageUsage(avds, sdkPath);
+            });
         }
 
-        return result;
-    }
+        void DrawStorageSummaryCard(const char *title, const std::string &value, const char *accentColor, const float width) {
+            StyleColor sc;
+            StyleVar sv;
+            sc.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
+            sv.Push(ImGuiStyleVar_ChildRounding, 8.0F);
+            sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0F);
+            sv.Push(ImGuiStyleVar_WindowPadding, ImVec2(14.0F, 12.0F));
 
-    static void StartStorageScan(Context &context) {
-        auto &disk = context.DiskUsage;
-        disk.Loading = true;
-        disk.Ready = false;
-
-        const auto avds = context.Catalog.Avds;
-        const std::string sdkPath = context.Host.Sdk.SdkPath;
-        disk.Future = std::async(std::launch::async, [avds, sdkPath] {
-            return ScanStorageUsage(avds, sdkPath);
-        });
-    }
-
-    static void DrawStorageSummaryCard(const char *title, const std::string &value, const char *accentColor, const float width) {
-        StyleColor sc;
-        StyleVar sv;
-        sc.Push(ImGuiCol_ChildBg, HexColor(Colors::Surface1));
-        sc.Push(ImGuiCol_Border, HexColor(Colors::Surface4));
-        sv.Push(ImGuiStyleVar_ChildRounding, 8.0f);
-        sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0f);
-        sv.Push(ImGuiStyleVar_WindowPadding, ImVec2(14.0f, 12.0f));
-
-        ImGui::BeginChild(title, ImVec2(width, 74.0f), true, ImGuiWindowFlags_NoScrollbar);
-        ImGui::TextDisabled("%s", title);
-        ImGui::Spacing();
-        ImGui::TextColored(HexColor(accentColor), "%s", value.c_str());
-        ImGui::EndChild();
-    }
-
-    static void DrawStorageBreakdownBar(const std::uintmax_t avdSize, const std::uintmax_t systemImageSize) {
-        const std::uintmax_t total = avdSize + systemImageSize;
-        const float width = ImGui::GetContentRegionAvail().x;
-        constexpr float height = 14.0f;
-        const ImVec2 pos = ImGui::GetCursorScreenPos();
-        const ImVec2 end(pos.x + width, pos.y + height);
-        auto *drawList = ImGui::GetWindowDrawList();
-
-        drawList->AddRectFilled(pos, end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::Surface2)), 999.0f);
-        if (total > 0) {
-            const float avdWidth = width * (static_cast<float>(avdSize) / static_cast<float>(total));
-            if (avdSize > 0) {
-                drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor(Colors::AccentInfo)), 999.0f);
-            }
-            if (systemImageSize > 0) {
-                drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::Positive)), 999.0f);
-            }
+            ImGui::BeginChild(title, ImVec2(width, 74.0F), 1, ImGuiWindowFlags_NoScrollbar);
+            ImGui::TextDisabled("%s", title);
+            ImGui::Spacing();
+            ImGui::TextColored(HexColor(accentColor), "%s", value.c_str());
+            ImGui::EndChild();
         }
 
-        ImGui::Dummy(ImVec2(width, height));
+        void DrawStorageBreakdownBar(const std::uintmax_t avdSize, const std::uintmax_t systemImageSize) {
+            const std::uintmax_t total = avdSize + systemImageSize;
+            const float width = ImGui::GetContentRegionAvail().x;
+            constexpr float HEIGHT = 14.0F;
+            const ImVec2 pos = ImGui::GetCursorScreenPos();
+            const ImVec2 end(pos.x + width, pos.y + HEIGHT);
+            auto *drawList = ImGui::GetWindowDrawList();
+
+            drawList->AddRectFilled(pos, end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::SURFACE2)), 999.0F);
+            if (total > 0) {
+                const float avdWidth = width * (static_cast<float>(avdSize) / static_cast<float>(total));
+                if (avdSize > 0) {
+                    drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor(Colors::ACCENT_INFO)), 999.0F);
+                }
+                if (systemImageSize > 0) {
+                    drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::POSITIVE)), 999.0F);
+                }
+            }
+
+            ImGui::Dummy(ImVec2(width, HEIGHT));
+        }
     }
 
     void BuildStorageWindow(Context &context) {
@@ -91,10 +95,10 @@ namespace CoreDeck {
         }
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(ImVec2(650, 260), ImGuiCond_Appearing);
 
-        if (ImGui::BeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, WindowAutoResizeFlags)) {
+        if (ImGui::BeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &disk = context.DiskUsage;
 
             if (!disk.Ready && !disk.Loading.load() && !disk.Future.valid()) {
@@ -118,22 +122,22 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float cardWidth = (ImGui::GetContentRegionAvail().x - spacing * 2.0f) / 3.0f;
-            DrawStorageSummaryCard("Total Storage", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(grandTotal), Colors::TextPrimary, cardWidth);
+            const float cardWidth = (ImGui::GetContentRegionAvail().x - (spacing * 2.0F)) / 3.0F;
+            DrawStorageSummaryCard("Total Storage", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(grandTotal), Colors::TEXT_PRIMARY, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(TotalAvdSize), Colors::AccentInfo, cardWidth);
+            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(TotalAvdSize), Colors::ACCENT_INFO, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(SystemImagesSize), Colors::Positive, cardWidth);
+            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(SystemImagesSize), Colors::POSITIVE, cardWidth);
 
             ImGui::Spacing();
             ImGui::TextDisabled("Breakdown");
             DrawStorageBreakdownBar(TotalAvdSize, SystemImagesSize);
             ImGui::Spacing();
-            ImGui::TextColored(HexColor(Colors::AccentInfo), "AVDs");
+            ImGui::TextColored(HexColor(Colors::ACCENT_INFO), "AVDs");
             ImGui::SameLine();
             ImGui::TextDisabled("%s", FormatFileSize(TotalAvdSize).c_str());
             ImGui::SameLine();
-            ImGui::TextColored(HexColor(Colors::Positive), "System Images");
+            ImGui::TextColored(HexColor(Colors::POSITIVE), "System Images");
             ImGui::SameLine();
             ImGui::TextDisabled("%s", FormatFileSize(SystemImagesSize).c_str());
 
@@ -142,7 +146,7 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - buttonSpacing) * 0.5f;
+            const float halfWidth = (ImGui::GetContentRegionAvail().x - buttonSpacing) * 0.5F;
             if (PositiveButton(isLoading ? "Refreshing..." : "Refresh", !isLoading, ImVec2(halfWidth, 0))) {
                 StartStorageScan(context);
             }

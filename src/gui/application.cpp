@@ -2,7 +2,7 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -21,7 +21,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
-#ifdef _WIN32
+#if defined(_WIN32)
 #include <GLFW/glfw3native.h>
 #endif
 
@@ -46,13 +46,15 @@
 #include "../core/version_check.h"
 
 namespace CoreDeck {
-    static void ShowFatalError(const char *title, const char *message) {
-#ifdef _WIN32
-        MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
+    namespace {
+        void ShowFatalError(const char *title, const char *message) {
+#if defined(_WIN32)
+            MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
 #else
-        (void) title;
-        std::fprintf(stderr, "%s\n", message);
+            (void) title;
+            (void) std::fprintf(stderr, "%s\n", message);
 #endif
+        }
     }
 
     Application::Application() : m_Context(DetectAndroidSdk()) {
@@ -67,39 +69,43 @@ namespace CoreDeck {
         }
     }
 
-    Application::~Application() {
-        Shutdown();
-    }
 
     int Application::Run() {
-        if (!InitPlatform()) return 1;
-        if (!CreateMainWindow()) return 1;
-        InitImGui();
-        LoadFonts();
+        if (!m_InitPlatform()) {
+            return 1;
+        }
+        if (!m_CreateMainWindow()) {
+            return 1;
+        }
+        m_InitImGui();
+        m_LoadFonts();
 
         ImGui::StyleColorsDark();
         ApplyCustomImGuiTheme();
 
-        const auto glsl_version = "#version 330";
+        const char *glslVersion = "#version 330";
         ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-        ImGui_ImplOpenGL3_Init(glsl_version);
+        ImGui_ImplOpenGL3_Init(glslVersion);
         m_ImGuiBackendsInitialized = true;
-
-        SetupCallbacks();
-        RunLoop();
-        Shutdown();
+        m_SetupCallbacks();
+        m_RunLoop();
+        m_Shutdown();
 
         return 0;
     }
 
-    void Application::Build() {
+    Application::~Application() {
+        m_Shutdown();
+    }
+
+    void Application::m_Build() {
         if (m_Context.Flow.CurrentScreen == Screen::Onboarding) {
             BuildOnboardingWindow(m_Context);
             return;
         }
 
 #ifdef NDEBUG
-        PollUpdateCheckIfNeeded();
+        m_PollUpdateCheckIfNeeded();
 #endif
 
         if (m_Context.Catalog.SelectedAvd != m_Context.Catalog.PreviousSelectedAvd) {
@@ -129,14 +135,17 @@ namespace CoreDeck {
                 ImGui::DockBuilderAddNode(dockSpaceId, ImGuiDockNodeFlags_DockSpace);
                 ImGui::DockBuilderSetNodeSize(dockSpaceId, ImGui::GetMainViewport()->Size);
 
-                ImGuiID topId, bottomId;
-                ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.40f, &bottomId, &topId);
+                ImGuiID topId = 0;
+                ImGuiID bottomId = 0;
+                ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.40F, &bottomId, &topId);
 
-                ImGuiID leftId, centerId;
+                ImGuiID leftId = 0;
+                ImGuiID centerId = 0;
                 ImGui::DockBuilderSplitNode(topId, ImGuiDir_Left, 0.25, &leftId, &centerId);
 
-                ImGuiID middleId, rightId;
-                ImGui::DockBuilderSplitNode(centerId, ImGuiDir_Right, 0.35f, &rightId, &middleId);
+                ImGuiID middleId = 0;
+                ImGuiID rightId = 0;
+                ImGui::DockBuilderSplitNode(centerId, ImGuiDir_Right, 0.35F, &rightId, &middleId);
 
                 ImGui::DockBuilderDockWindow("Options", leftId);
                 ImGui::DockBuilderDockWindow("AVDs", middleId);
@@ -176,7 +185,8 @@ namespace CoreDeck {
         m_Context.Host.Manager.Update();
     }
 
-    bool Application::InitPlatform() {
+
+    bool Application::m_InitPlatform() {
         if (!glfwInit()) {
             ShowFatalError(COREDECK_TITLE, "Failed to initialize GLFW.");
             return false;
@@ -186,13 +196,13 @@ namespace CoreDeck {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
+#if defined(__APPLE__)
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
         return true;
     }
 
-    bool Application::CreateMainWindow() {
+    bool Application::m_CreateMainWindow() {
         m_Window = glfwCreateWindow(1200, 900, COREDECK_TITLE, nullptr, nullptr);
         if (!m_Window) {
             ShowFatalError(COREDECK_TITLE, "Failed to create window.\nYour system may not support OpenGL 3.3.");
@@ -202,7 +212,7 @@ namespace CoreDeck {
         glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1);
 
-#ifdef _WIN32
+#if defined(_WIN32)
         HWND hwnd = glfwGetWin32Window(m_Window);
         HICON icon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(1));
         SendMessage(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(icon));
@@ -213,7 +223,7 @@ namespace CoreDeck {
         return true;
     }
 
-    void Application::InitImGui() {
+    void Application::m_InitImGui() {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         m_ImGuiContextCreated = true;
@@ -225,7 +235,7 @@ namespace CoreDeck {
         io.IniFilename = imguiIniPath.c_str();
     }
 
-    void Application::LoadFonts() {
+    void Application::m_LoadFonts() {
         const ImGuiIO &io = ImGui::GetIO();
 
         const std::string resourcesDir = Paths::GetResourcesDirectory();
@@ -237,37 +247,39 @@ namespace CoreDeck {
         );
 
         if (std::filesystem::exists(textFontPath)) {
-            static constexpr ImWchar textRanges[] = {
+            static constexpr ImWchar TEXT_RANGES[] = {
                 0x0020,
                 0x00FF,
                 0x2000,
                 0x206F,
                 0,
             };
-            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), 16.0f, nullptr, textRanges);
+            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), 16.0F, nullptr, TEXT_RANGES);
         }
 
         if (std::filesystem::exists(iconFontPath)) {
             ImFontConfig iconConfig;
             iconConfig.MergeMode = true;
             iconConfig.PixelSnapH = true;
-            iconConfig.GlyphMinAdvanceX = 16.0f;
+            iconConfig.GlyphMinAdvanceX = 16.0F;
 
-            static constexpr ImWchar iconRanges[] = {0xf000, 0xf8ff, 0};
-            io.Fonts->AddFontFromFileTTF(iconFontPath.c_str(), 12.0f, &iconConfig, iconRanges);
+            static constexpr ImWchar ICON_RANGES[] = {0xf000, 0xf8ff, 0};
+            io.Fonts->AddFontFromFileTTF(iconFontPath.c_str(), 12.0F, &iconConfig, ICON_RANGES);
         }
     }
 
-    void Application::SetupCallbacks() {
+    void Application::m_SetupCallbacks() {
         glfwSetWindowUserPointer(m_Window, this);
 
         glfwSetScrollCallback(m_Window, [](GLFWwindow *, const double x, const double y) {
             ImGuiIO &imGuiIO = ImGui::GetIO();
-            imGuiIO.AddMouseWheelEvent(static_cast<float>(x) * 0.3f, static_cast<float>(y) * 0.3f);
+            imGuiIO.AddMouseWheelEvent(static_cast<float>(x) * 0.3F, static_cast<float>(y) * 0.3F);
         });
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow *w, const int width, const int height) {
-            if (width == 0 || height == 0) return;
+            if (width == 0 || height == 0) {
+                return;
+            }
 
             auto *self = static_cast<Application *>(glfwGetWindowUserPointer(w));
 
@@ -277,20 +289,20 @@ namespace CoreDeck {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            self->Build();
+            self->m_Build();
 
             ImGui::Render();
-            glClearColor(0.06f, 0.06f, 0.07f, 1.0f);
+            glClearColor(0.06F, 0.06F, 0.07F, 1.0F);
             glClear(GL_COLOR_BUFFER_BIT);
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             glfwSwapBuffers(w);
         });
     }
 
-    void Application::RunLoop() {
+    void Application::m_RunLoop() {
         while (!glfwWindowShouldClose(m_Window)) {
-            const bool focused = glfwGetWindowAttrib(m_Window, GLFW_FOCUSED);
-            const bool hovered = glfwGetWindowAttrib(m_Window, GLFW_HOVERED);
+            const bool focused = glfwGetWindowAttrib(m_Window, GLFW_FOCUSED) != 0;
+            const bool hovered = glfwGetWindowAttrib(m_Window, GLFW_HOVERED) != 0;
             const double timeout = focused && hovered ? 1.0 / 60.0 : 0.25;
             glfwWaitEventsTimeout(timeout);
 
@@ -298,20 +310,21 @@ namespace CoreDeck {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            Build();
+            m_Build();
 
             ImGui::Render();
-            int display_w, display_h;
-            glfwGetFramebufferSize(m_Window, &display_w, &display_h);
-            glViewport(0, 0, display_w, display_h);
-            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            int displayW = 0;
+            int displayH = 0;
+            glfwGetFramebufferSize(m_Window, &displayW, &displayH);
+            glViewport(0, 0, displayW, displayH);
+            glClearColor(0.1F, 0.1F, 0.1F, 1.0F);
             glClear(GL_COLOR_BUFFER_BIT);
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             glfwSwapBuffers(m_Window);
         }
     }
 
-    void Application::Shutdown() {
+    void Application::m_Shutdown() {
         if (m_ImGuiBackendsInitialized) {
             ImGui_ImplOpenGL3_Shutdown();
             ImGui_ImplGlfw_Shutdown();
@@ -331,7 +344,7 @@ namespace CoreDeck {
         }
     }
 
-    void Application::PollUpdateCheckIfNeeded() {
+    void Application::m_PollUpdateCheckIfNeeded() {
         if (m_UpdateCheckFuture.valid()) {
             if (m_UpdateCheckFuture.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
                 return;
@@ -410,7 +423,9 @@ namespace CoreDeck {
         context.Catalog.AvdNames = ListAvdNames(context.Host.Sdk);
         context.Catalog.Avds = LoadAvds(context.Catalog.AvdNames);
 
-        for (const auto &avdName: context.Catalog.AvdNames) LoadAvdOptions(context, avdName);
+        for (const auto &avdName: context.Catalog.AvdNames) {
+            LoadAvdOptions(context, avdName);
+        }
 
         context.DiskUsage.PerAvdCache.clear();
         if (!context.DiskUsage.Loading.load()) {
@@ -418,8 +433,11 @@ namespace CoreDeck {
             context.DiskUsage.Ready = false;
         }
 
-        if (!context.Catalog.Avds.empty()) context.Catalog.SelectedAvd = 0;
-        else context.Catalog.SelectedAvd = -1;
+        if (!context.Catalog.Avds.empty()) {
+            context.Catalog.SelectedAvd = 0;
+        } else {
+            context.Catalog.SelectedAvd = -1;
+        }
         context.Catalog.PreviousSelectedAvd = -1;
     }
 
@@ -429,7 +447,9 @@ namespace CoreDeck {
     }
 
     void SaveAvdOptions(Context &context, const std::string &avdName) {
-        if (!context.Catalog.PerAvdOptions.contains(avdName)) return;
+        if (!context.Catalog.PerAvdOptions.contains(avdName)) {
+            return;
+        }
 
         const std::string configPath = GetOptionsConfigPath(avdName);
         SaveOptionsToFile(configPath, context.Catalog.PerAvdOptions[avdName]);
@@ -439,7 +459,9 @@ namespace CoreDeck {
         if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
             const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
 
-            if (!context.Catalog.PerAvdOptions.contains(avdName)) LoadAvdOptions(context, avdName);
+            if (!context.Catalog.PerAvdOptions.contains(avdName)) {
+                LoadAvdOptions(context, avdName);
+            }
             return context.Catalog.PerAvdOptions[avdName];
         }
 

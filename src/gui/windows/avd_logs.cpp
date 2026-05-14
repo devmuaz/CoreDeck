@@ -77,17 +77,25 @@ namespace CoreDeck {
 
         bool RenderToolbarButtons(const PanelInputs &inputs, const bool hasContent) {
             const bool disabled = !inputs.Log;
-            if (disabled) ImGui::BeginDisabled();
-            if (PrimaryButton(IconWithLabel(Icons::Trash, "Clear").c_str())) {
+            if (disabled) {
+                ImGui::BeginDisabled();
+            }
+            if (PrimaryButton(IconWithLabel(Icons::TRASH, "Clear").c_str())) {
                 inputs.Log->Clear();
             }
-            if (disabled) ImGui::EndDisabled();
+            if (disabled) {
+                ImGui::EndDisabled();
+            }
             ImGui::SameLine();
 
             const bool canCopy = inputs.Log && hasContent;
-            if (!canCopy) ImGui::BeginDisabled();
-            const bool copyClicked = PrimaryButton(IconWithLabel(Icons::Copy, "Copy").c_str());
-            if (!canCopy) ImGui::EndDisabled();
+            if (!canCopy) {
+                ImGui::BeginDisabled();
+            }
+            const bool copyClicked = PrimaryButton(IconWithLabel(Icons::COPY, "Copy").c_str());
+            if (!canCopy) {
+                ImGui::EndDisabled();
+            }
             ImGui::SameLine();
             return copyClicked;
         }
@@ -96,25 +104,29 @@ namespace CoreDeck {
             queryChanged = false;
             bool navChanged = false;
 
-            constexpr float regexToggleWidth = 32.0f;
-            constexpr float navButtonWidth = 32.0f;
-            constexpr float searchWidth = 260.0f;
+            constexpr float REGEX_TOGGLE_WIDTH = 32.0F;
+            constexpr float NAV_BUTTON_WIDTH = 32.0F;
+            constexpr float SEARCH_WIDTH = 260.0F;
 
             const bool hasQueryForWidth = !state.Search.empty();
             const bool regexInvalidForWidth = state.UseRegex && hasQueryForWidth && !view.Filter.RegexValid;
             const int displayedIndexForWidth = matchCount > 0 ? state.ActiveMatchIndex + 1 : 0;
             std::string counter;
-            if (!hasQueryForWidth) counter = "0 / 0";
-            else if (regexInvalidForWidth) counter = "—";
-            else counter = std::to_string(displayedIndexForWidth) + " / " + std::to_string(matchCount);
+            if (!hasQueryForWidth) {
+                counter = "0 / 0";
+            } else if (regexInvalidForWidth) {
+                counter = "—";
+            } else {
+                counter = std::to_string(displayedIndexForWidth) + " / " + std::to_string(matchCount);
+            }
 
             const ImGuiStyle &style = ImGui::GetStyle();
             const float counterWidth = ImGui::CalcTextSize(counter.c_str()).x;
-            const float totalWidth = regexToggleWidth + searchWidth + counterWidth + navButtonWidth * 2.0f + style.ItemSpacing.x * 4.0f;
+            const float totalWidth = REGEX_TOGGLE_WIDTH + SEARCH_WIDTH + counterWidth + (NAV_BUTTON_WIDTH * 2.0F) + (style.ItemSpacing.x * 4.0F);
             ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - totalWidth);
 
             // Regex toggle
-            if (ToggleButton(".*##RegexToggle", state.UseRegex, ImVec2(regexToggleWidth, 0))) {
+            if (ToggleButton(".*##RegexToggle", state.UseRegex, ImVec2(REGEX_TOGGLE_WIDTH, 0))) {
                 queryChanged = true;
             }
             ImGui::SameLine();
@@ -125,14 +137,22 @@ namespace CoreDeck {
             std::strncpy(searchBuffer, state.Search.c_str(), sizeof(searchBuffer) - 1);
             searchBuffer[sizeof(searchBuffer) - 1] = '\0';
 
-            const std::string hint = IconWithLabel(Icons::Search, state.UseRegex ? "Regex" : "Search logs...");
-            ImGui::SetNextItemWidth(searchWidth);
-            if (regexInvalid) ImGui::PushStyleColor(ImGuiCol_Border, HexColor(Colors::Negative));
-            if (regexInvalid) ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+            const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? "Regex" : "Search logs...");
+            ImGui::SetNextItemWidth(SEARCH_WIDTH);
+            if (regexInvalid) {
+                ImGui::PushStyleColor(ImGuiCol_Border, HexColor(Colors::NEGATIVE));
+            }
+            if (regexInvalid) {
+                ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0F);
+            }
             const bool edited = ImGui::InputTextWithHint("##search", hint.c_str(), searchBuffer, sizeof(searchBuffer));
             const bool enterPressed = ImGui::IsItemDeactivatedAfterEdit() && ImGui::IsKeyPressed(ImGuiKey_Enter, false);
-            if (regexInvalid) ImGui::PopStyleVar();
-            if (regexInvalid) ImGui::PopStyleColor();
+            if (regexInvalid) {
+                ImGui::PopStyleVar();
+            }
+            if (regexInvalid) {
+                ImGui::PopStyleColor();
+            }
             if (regexInvalid && ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Invalid regex: %s", view.Filter.RegexError.c_str());
             }
@@ -148,17 +168,21 @@ namespace CoreDeck {
 
             // Prev / Next
             const bool canNav = matchCount > 0;
-            if (!canNav) ImGui::BeginDisabled();
-            if (ImGui::Button((std::string{Icons::ChevronLeft} + "##LogPrev").c_str(), ImVec2(navButtonWidth, 0))) {
+            if (!canNav) {
+                ImGui::BeginDisabled();
+            }
+            if (ImGui::Button((std::string{Icons::CHEVRON_LEFT} + "##LogPrev").c_str(), ImVec2(NAV_BUTTON_WIDTH, 0))) {
                 state.ActiveMatchIndex = (state.ActiveMatchIndex - 1 + matchCount) % matchCount;
                 navChanged = true;
             }
             ImGui::SameLine();
-            if (ImGui::Button((std::string{Icons::ChevronRight} + "##LogNext").c_str(), ImVec2(navButtonWidth, 0))) {
+            if (ImGui::Button((std::string{Icons::CHEVRON_RIGHT} + "##LogNext").c_str(), ImVec2(NAV_BUTTON_WIDTH, 0))) {
                 state.ActiveMatchIndex = (state.ActiveMatchIndex + 1) % matchCount;
                 navChanged = true;
             }
-            if (!canNav) ImGui::EndDisabled();
+            if (!canNav) {
+                ImGui::EndDisabled();
+            }
 
             if (canNav && enterPressed) {
                 state.ActiveMatchIndex = (state.ActiveMatchIndex + 1) % matchCount;
@@ -182,7 +206,9 @@ namespace CoreDeck {
             std::size_t line = 0;
             const std::size_t end = std::min(offset, joined.size());
             for (std::size_t i = 0; i < end; ++i) {
-                if (joined[i] == '\n') ++line;
+                if (joined[i] == '\n') {
+                    ++line;
+                }
             }
             return line;
         }
@@ -192,19 +218,25 @@ namespace CoreDeck {
         }
 
         bool ApplyScrollToLine(const int lineIndex) {
-            if (lineIndex < 0) return false;
+            if (lineIndex < 0) {
+                return false;
+            }
             ImGuiWindow *window = GetLogChildWindow();
-            if (!window) return false;
+            if (!window) {
+                return false;
+            }
             const float lineHeight = ImGui::GetTextLineHeight();
             const float regionH = window->InnerRect.GetHeight();
             const float targetY = static_cast<float>(lineIndex) * lineHeight;
-            window->Scroll.y = std::max(0.0f, targetY - regionH * 0.3f);
+            window->Scroll.y = std::max(0.0F, targetY - (regionH * 0.3F));
             return true;
         }
 
         bool ApplyScrollToBottom() {
             ImGuiWindow *w = GetLogChildWindow();
-            if (!w) return false;
+            if (!w) {
+                return false;
+            }
             w->Scroll.y = w->ScrollMax.y;
             return true;
         }
@@ -216,11 +248,17 @@ namespace CoreDeck {
 
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_ReadOnly |
                                         ImGuiInputTextFlags_NoUndoRedo;
-            if (sync.Active) flags |= ImGuiInputTextFlags_CallbackAlways;
+            if (sync.Active) {
+                flags |= ImGuiInputTextFlags_CallbackAlways;
+            }
 
-            if (!view.HasContent) ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
-            ImGui::PushStyleColor(ImGuiCol_TextSelectedBg, HexColor(Colors::AccentInfo, 0.55f));
-            if (focusLog) ImGui::SetKeyboardFocusHere();
+            if (!view.HasContent) {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+            }
+            ImGui::PushStyleColor(ImGuiCol_TextSelectedBg, HexColor(Colors::ACCENT_INFO, 0.55F));
+            if (focusLog) {
+                ImGui::SetKeyboardFocusHere();
+            }
             ImGui::InputTextMultiline(
                 "##LogText",
                 buffer.data(),
@@ -228,15 +266,21 @@ namespace CoreDeck {
                 ImVec2(-FLT_MIN, -FLT_MIN),
                 flags,
                 sync.Active ? CallbackSetSelection : nullptr,
-                sync.Active ? const_cast<SyncSelection *>(&sync) : nullptr
+                sync.Active ? const_cast<SyncSelection *>(&sync) : nullptr // NOLINT(cppcoreguidelines-pro-type-const-cast)
             );
             ImGui::PopStyleColor();
-            if (!view.HasContent) ImGui::PopStyleColor();
+            if (!view.HasContent) {
+                ImGui::PopStyleColor();
+            }
         }
 
         void DriveAutoScroll(const PanelInputs &inputs, const Context &context, const PanelView &view, const bool hasQuery) {
-            if (!inputs.Log || !context.Logs.AutoScroll || hasQuery || !view.HasContent) return;
-            if (!inputs.Log->HasNewContent()) return;
+            if (!inputs.Log || !context.Logs.AutoScroll || hasQuery || !view.HasContent) {
+                return;
+            }
+            if (!inputs.Log->HasNewContent()) {
+                return;
+            }
 
             ApplyScrollToBottom();
             inputs.Log->ResetNewContentFlag();
@@ -244,7 +288,9 @@ namespace CoreDeck {
     }
 
     void BuildAvdLogsWindow(Context &context) {
-        if (!context.UI.ShowLogPanel) return;
+        if (!context.UI.ShowLogPanel) {
+            return;
+        }
 
         ImGui::Begin("Output Log");
 
@@ -255,8 +301,10 @@ namespace CoreDeck {
         PanelView view = BuildView(inputs, state);
         const int matchCount = static_cast<int>(view.Filter.Matches.size());
 
-        if (state.ActiveMatchIndex >= matchCount) state.ActiveMatchIndex = 0;
-        if (state.ActiveMatchIndex < 0) state.ActiveMatchIndex = 0;
+        if (state.ActiveMatchIndex >= matchCount) {
+            state.ActiveMatchIndex = 0;
+        }
+        state.ActiveMatchIndex = std::max(state.ActiveMatchIndex, 0);
 
         const bool copyClicked = RenderToolbarButtons(inputs, view.HasContent);
         bool queryChanged = false;
@@ -266,7 +314,9 @@ namespace CoreDeck {
             state.ActiveMatchIndex = 0;
             view = BuildView(inputs, state);
             context.Logs.PendingScroll = !view.Filter.Matches.empty();
-            if (!view.Filter.Matches.empty()) context.Logs.PendingSyncFrames = 2;
+            if (!view.Filter.Matches.empty()) {
+                context.Logs.PendingSyncFrames = 2;
+            }
         }
         if (navChanged) {
             context.Logs.PendingScroll = true;
@@ -274,7 +324,9 @@ namespace CoreDeck {
             context.Logs.PendingSyncFrames = 2;
         }
 
-        if (copyClicked && view.HasContent) ImGui::SetClipboardText(view.Filter.Joined.c_str());
+        if (copyClicked && view.HasContent) {
+            ImGui::SetClipboardText(view.Filter.Joined.c_str());
+        }
 
         SyncSelection sync;
         int scrollLine = -1;
@@ -293,14 +345,22 @@ namespace CoreDeck {
         const bool focusLog = context.Logs.PendingFocus && haveActiveMatch;
 
         bool scrollApplied = true;
-        if (scrollLine >= 0) scrollApplied = ApplyScrollToLine(scrollLine);
-        if (scrollApplied) context.Logs.PendingScroll = false;
+        if (scrollLine >= 0) {
+            scrollApplied = ApplyScrollToLine(scrollLine);
+        }
+        if (scrollApplied) {
+            context.Logs.PendingScroll = false;
+        }
 
         context.Logs.PendingFocus = false;
-        if (context.Logs.PendingSyncFrames > 0) --context.Logs.PendingSyncFrames;
+        if (context.Logs.PendingSyncFrames > 0) {
+            --context.Logs.PendingSyncFrames;
+        }
 
         RenderLogBody(view, sync, focusLog);
-        if (scrollLine < 0) DriveAutoScroll(inputs, context, view, !state.Search.empty());
+        if (scrollLine < 0) {
+            DriveAutoScroll(inputs, context, view, !state.Search.empty());
+        }
 
         ImGui::End();
     }

@@ -31,8 +31,12 @@ namespace CoreDeck {
 
     class EmulatorManager {
     public:
-        explicit EmulatorManager(SdkInfo sdk);
+        EmulatorManager(const EmulatorManager &) = delete;
+        EmulatorManager(EmulatorManager &&) = delete;
+        EmulatorManager &operator=(const EmulatorManager &) = delete;
+        EmulatorManager &operator=(EmulatorManager &&) = delete;
 
+        explicit EmulatorManager(SdkInfo sdk);
         ~EmulatorManager();
 
         bool Launch(const std::string &avdName, const std::vector<std::string> &args);
@@ -56,6 +60,8 @@ namespace CoreDeck {
         void SetSdk(SdkInfo sdk);
 
     private:
+        void m_EvictExistingInstance(const std::string &avdName);
+
         SdkInfo m_Sdk;
         mutable std::mutex m_Mutex;
         std::unordered_map<std::string, EmulatorInstance> m_Instances;

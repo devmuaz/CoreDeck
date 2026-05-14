@@ -37,7 +37,7 @@ namespace CoreDeck {
 
     struct InstallProgressData {
         std::mutex Mutex;
-        float Percent = 0.0f;
+        float Percent = 0.0F;
         std::string StatusText;
         std::string DetailText;
         bool Finished = false;
@@ -61,7 +61,7 @@ namespace CoreDeck {
 
     bool UninstallSystemImage(const SdkInfo &sdk, const std::string &packagePath);
 
-    enum class LicenseStatus {
+    enum class LicenseStatus : uint8_t {
         AllAccepted,
         SomeUnaccepted,
         CheckFailed,
