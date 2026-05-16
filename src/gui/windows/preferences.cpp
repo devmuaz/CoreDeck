@@ -133,12 +133,12 @@ namespace CoreDeck {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
             ImGui::TextUnformatted("SDK root");
             ImGui::PopStyleColor();
-            const float BROWSE_W = Em(12.0F);
+            const float browseWidth = Em(12.0F);
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - BROWSE_W - spacing);
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - browseWidth - spacing);
             ImGui::InputTextWithHint("##SdkPrefs", "Path to Android SDK", sdkPathBuffer, bufferSize);
             ImGui::SameLine();
-            if (PrimaryButton("Browse...", true, ImVec2(BROWSE_W, 0))) {
+            if (PrimaryButton("Browse...", true, ImVec2(browseWidth, 0))) {
                 if (const auto picked = FileDialog::PickFolder("Select Android SDK directory", sdkPathBuffer)) {
                     strncpy(sdkPathBuffer, picked->c_str(), bufferSize - 1);
                     sdkPathBuffer[bufferSize - 1] = '\0';
@@ -218,23 +218,23 @@ namespace CoreDeck {
                 sdkPathBuffer[sizeof(sdkPathBuffer) - 1] = '\0';
             }
 
-            const float SIDEBAR_W = Em(22.0F);
+            const float sidebarWidth = Em(22.0F);
 
             ImGui::PushStyleColor(ImGuiCol_ChildBg, HexColor(Colors::SURFACE0));
-            ImGui::BeginChild("##PrefsSidebar", ImVec2(SIDEBAR_W, 0), 0);
+            ImGui::BeginChild("##PrefsSidebar", ImVec2(sidebarWidth, 0), 0);
             ImGui::PopStyleColor();
             ImGui::Dummy(ImVec2(0, 12));
             ImGui::SetWindowFontScale(1.4F);
             const char *brand = "CoreDeck";
             const float brandW = ImGui::CalcTextSize(brand).x;
-            ImGui::SetCursorPosX((SIDEBAR_W - brandW) * 0.5F);
+            ImGui::SetCursorPosX((sidebarWidth - brandW) * 0.5F);
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
             ImGui::TextUnformatted(brand);
             ImGui::PopStyleColor();
             ImGui::SetWindowFontScale(1.0F);
             const char *version = "v" COREDECK_VERSION;
             const float versionW = ImGui::CalcTextSize(version).x;
-            ImGui::SetCursorPosX((SIDEBAR_W - versionW) * 0.5F);
+            ImGui::SetCursorPosX((sidebarWidth - versionW) * 0.5F);
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_MUTED));
             ImGui::TextUnformatted(version);
             ImGui::PopStyleColor();
@@ -252,7 +252,7 @@ namespace CoreDeck {
             // Vertical divider
             const ImVec2 popupPos = ImGui::GetWindowPos();
             const ImVec2 popupSize = ImGui::GetWindowSize();
-            const float dividerX = popupPos.x + SIDEBAR_W;
+            const float dividerX = popupPos.x + sidebarWidth;
             ImGui::GetWindowDrawList()->AddLine(
                 ImVec2(dividerX, popupPos.y),
                 ImVec2(dividerX, popupPos.y + popupSize.y),

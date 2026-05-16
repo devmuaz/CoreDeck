@@ -57,9 +57,9 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            const float BUTTON_WIDTH = Em(20.0F);
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - BUTTON_WIDTH) * 0.5F);
-            if (PositiveButton("Get Started", true, ImVec2(BUTTON_WIDTH, 0))) {
+            const float buttonWidth = Em(20.0F);
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - buttonWidth) * 0.5F);
+            if (PositiveButton("Get Started", true, ImVec2(buttonWidth, 0))) {
                 step = Step::SdkSetup;
             }
         }
@@ -79,16 +79,16 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            const float FORM_WIDTH = Em(66.0F);
-            const float BROWSE_WIDTH = Em(11.0F);
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - FORM_WIDTH) * 0.5F);
+            const float formWidth = Em(66.0F);
+            const float browseWidth = Em(11.0F);
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - formWidth) * 0.5F);
             ImGui::BeginGroup();
 
             ImGui::Text("SDK path");
-            ImGui::SetNextItemWidth(FORM_WIDTH - BROWSE_WIDTH - ImGui::GetStyle().ItemSpacing.x);
+            ImGui::SetNextItemWidth(formWidth - browseWidth - ImGui::GetStyle().ItemSpacing.x);
             ImGui::InputTextWithHint("##sdk_path", "e.g. /Users/you/Library/Android/sdk", pathBuffer, pathBufferSize);
             ImGui::SameLine();
-            if (PrimaryButton("Browse...", true, ImVec2(BROWSE_WIDTH, 0))) {
+            if (PrimaryButton("Browse...", true, ImVec2(browseWidth, 0))) {
                 const auto picked = FileDialog::PickFolder("Select your Android SDK folder", pathBuffer);
                 if (picked.has_value()) {
                     strncpy(pathBuffer, picked->c_str(), pathBufferSize - 1);
@@ -127,17 +127,17 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            const float FOOTER_BUTTON_WIDTH = Em(14.0F);
-            const float FOOTER_WIDTH = (FOOTER_BUTTON_WIDTH * 2.0F) + ImGui::GetStyle().ItemSpacing.x;
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - FOOTER_WIDTH) * 0.5F);
+            const float footerButtonWidth = Em(14.0F);
+            const float footerWidth = (footerButtonWidth * 2.0F) + ImGui::GetStyle().ItemSpacing.x;
+            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - footerWidth) * 0.5F);
             ImGui::BeginGroup();
 
-            if (PrimaryButton("Back", true, ImVec2(FOOTER_BUTTON_WIDTH, 0))) {
+            if (PrimaryButton("Back", true, ImVec2(footerButtonWidth, 0))) {
                 step = Step::Welcome;
             }
 
             ImGui::SameLine();
-            if (PositiveButton("Continue", isValid, ImVec2(FOOTER_BUTTON_WIDTH, 0))) {
+            if (PositiveButton("Continue", isValid, ImVec2(footerButtonWidth, 0))) {
                 Paths::Onboarding::SaveSdkPathOverride(currentPath);
                 Paths::Onboarding::MarkFirstRunComplete();
 
