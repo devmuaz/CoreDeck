@@ -1,3 +1,8 @@
+## [v0.7.0-beta.5](https://github.com/devmuaz/CoreDeck/releases/tag/v0.7.0-beta.5) — 2026-05-14
+
+- Fix HiDPI text overflowing buttons and sub-windows by removing duplicate font scaling (thanks [@sjoerdev](https://github.com/sjoerdev), [#23](https://github.com/devmuaz/CoreDeck/issues/23))
+- Switch hardcoded pixel widths and heights throughout the UI to text-derived units so dialogs, sub-panels, buttons, and table columns now scale with the font on high-DPI displays
+
 ## [v0.7.0-beta.3](https://github.com/devmuaz/CoreDeck/releases/tag/v0.7.0-beta.3) — 2026-05-14
 
 - Add HiDPI monitor support so the UI scales correctly on high-DPI Windows displays at 100%, 125%, 150%, and 200% (thanks [@sjoerdev](https://github.com/sjoerdev), [#23](https://github.com/devmuaz/CoreDeck/issues/23))
