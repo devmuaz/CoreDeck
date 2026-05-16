@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+#
+# pre-push hook: ensure CHANGELOG.md has a non-empty section for every
+# version tag being pushed.
+#
+# The release workflow (.github/workflows/release.yml) extracts the
+# "What's New" section by scanning CHANGELOG.md for a heading shaped
+# like:
+#
+#     ## [vX.Y.Z...](...) — YYYY-MM-DD
+#
+# and taking the lines until the next "## [" heading. If that section
+# is missing or empty, the published release notes silently fall back
+# to a generic "see CHANGELOG.md" link. This hook prevents that by
+# refusing to push a tag whose changelog entry isn't there yet.
+#
+# Bypass when you really need to:   git push --no-verify
+#                          or:      SKIP_CHANGELOG_CHECK=1 git push ...
+#
+# Stdin format (from git):
+#   <local_ref> <local_sha> <remote_ref> <remote_sha>
+
+set -u
+
+if [ "${SKIP_CHANGELOG_CHECK:-0}" = "1" ]; then
+  exit 0
+fi
+
+# Locate the repo root so we always read the right CHANGELOG.md,
+# regardless of where the user ran `git push` from.
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+changelog="$repo_root/CHANGELOG.md"
+
+red()   { printf '\033[31m%s\033[0m\n' "$*" >&2; }
+yellow(){ printf '\033[33m%s\033[0m\n' "$*" >&2; }
+bold()  { printf '\033[1m%s\033[0m\n'  "$*" >&2; }
+
+# Return 0 if CHANGELOG.md has a non-empty section for "$1" (e.g. v0.7.0-beta.5).
+# Mirrors the awk in release.yml so this hook agrees with the workflow.
+has_changelog_entry() {
+  local ver="$1"
+  [ -f "$changelog" ] || return 1
+
+  awk -v ver="$ver" '
+    $0 ~ "^## \\["ver"\\]" { found=1; next }
+    found && /^## \[/      { exit }
+    found                  { print }
+  ' "$changelog" | grep -q '[^[:space:]]'
+}
+
+missing=()
+empty=()
+
+# Read the refs git is about to push.
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Skip branch deletions (local_sha is all zeros).
+  case "$local_sha" in
+    0000000000000000000000000000000000000000) continue ;;
+  esac
+
+  # Only care about tag pushes: refs/tags/<name>
+  case "$remote_ref" in
+    refs/tags/*) tag="${remote_ref#refs/tags/}" ;;
+    *) continue ;;
+  esac
+
+  # Only care about version tags: v<digits>...
+  case "$tag" in
+    v[0-9]*) ;;
+    *) continue ;;
+  esac
+
+  if [ ! -f "$changelog" ]; then
+    missing+=("$tag")
+    continue
+  fi
+
+  # Heading present at all?
+  if ! grep -qE "^## \[$(printf '%s' "$tag" | sed 's/[.[\*^$/]/\\&/g')\]" "$changelog"; then
+    missing+=("$tag")
+    continue
+  fi
+
+  # Heading present but body empty?
+  if ! has_changelog_entry "$tag"; then
+    empty+=("$tag")
+  fi
+done
+
+if [ ${#missing[@]} -eq 0 ] && [ ${#empty[@]} -eq 0 ]; then
+  exit 0
+fi
+
+echo >&2
+red "✗ Push blocked: CHANGELOG.md is not ready for this release."
+echo >&2
+
+if [ ${#missing[@]} -gt 0 ]; then
+  bold "  Missing changelog section for:"
+  for t in "${missing[@]}"; do
+    yellow "    - $t"
+  done
+fi
+
+if [ ${#empty[@]} -gt 0 ]; then
+  bold "  Section exists but is empty for:"
+  for t in "${empty[@]}"; do
+    yellow "    - $t"
+  done
+fi
+
+echo >&2
+bold "  Add an entry at the top of CHANGELOG.md like:"
+cat >&2 <<'EOF'
+
+    ## [vX.Y.Z](https://github.com/devmuaz/CoreDeck/releases/tag/vX.Y.Z) — YYYY-MM-DD
+
+    - Your change here
+    - Another change
+
+EOF
+bold "  Then amend/commit, recreate the tag, and push again."
+echo >&2
+yellow "  (Override with: git push --no-verify   or   SKIP_CHANGELOG_CHECK=1 git push ...)"
+echo >&2
+
+exit 1
