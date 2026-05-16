@@ -238,7 +238,7 @@ namespace CoreDeck {
 
         ImGui::SameLine();
 
-        ImGui::SetNextItemWidth(150.0F);
+        ImGui::SetNextItemWidth(Em(17.0F));
         const int currentSortIdx = static_cast<int>(context.Catalog.SortMode);
         if (ImGui::BeginCombo("##AvdSort", SORT_MODE_LABELS[currentSortIdx])) {
             for (int i = 0; i < SORT_MODE_COUNT; i++) {

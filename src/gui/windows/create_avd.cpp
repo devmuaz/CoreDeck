@@ -64,7 +64,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(Em(55.0F), 0), ImGuiCond_Appearing);
 
         if (ImGui::BeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             const bool isLoading = context.AvdCreationWork.Prefetch.Loading.load();

@@ -163,7 +163,7 @@ namespace CoreDeck {
 
             const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-            ImGui::SetNextWindowSize(ImVec2(820, 560), ImGuiCond_Appearing);
+            ImGui::SetNextWindowSize(EmV(91.0F, 28.0F), ImGuiCond_Appearing);
 
             const bool installing = context.ImageInstallationWork.Installing.load();
             const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
@@ -311,7 +311,7 @@ namespace CoreDeck {
                 {
                     PickerTableStyle tableStyle;
 
-                    ImGui::BeginChild("##RemoteImageTableFrame", ImVec2(-1.0F, 280.0F), 1, ImGuiWindowFlags_NoScrollbar);
+                    ImGui::BeginChild("##RemoteImageTableFrame", ImVec2(-1.0F, Eh(14.0F)), 1, ImGuiWindowFlags_NoScrollbar);
                     if (ImGui::BeginTable("##RemoteImageTable", 5, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                         ImGui::TableSetupScrollFreeze(0, 1);
                         ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.7F);

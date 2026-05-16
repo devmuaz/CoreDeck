@@ -17,7 +17,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(420, 0), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(Em(46.0F), 0), ImGuiCond_Appearing);
 
 
         if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, WINDOW_NO_RESIZE_FLAGS)) {

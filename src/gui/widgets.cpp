@@ -323,7 +323,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(380, 0), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(Em(42.0F), 0), ImGuiCond_Appearing);
 
         constexpr ImGuiWindowFlags FLAGS =
             ImGuiWindowFlags_NoCollapse |
