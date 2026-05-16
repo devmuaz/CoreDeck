@@ -57,7 +57,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(720, 500), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(EmV(80.0F, 25.0F), ImGuiCond_Appearing);
 
         if (ImGui::BeginPopupModal(TITLE, &context.UI.ShowSkinDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
@@ -79,11 +79,11 @@ namespace CoreDeck {
 
             {
                 PickerTableStyle ts;
-                ImGui::BeginChild("##SkinTableFrame", ImVec2(-1.0F, 320.0F), 1, ImGuiWindowFlags_NoScrollbar);
+                ImGui::BeginChild("##SkinTableFrame", ImVec2(-1.0F, Eh(16.0F)), 1, ImGuiWindowFlags_NoScrollbar);
                 if (ImGui::BeginTable("##SkinTable", 2, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                     ImGui::TableSetupScrollFreeze(0, 1);
                     ImGui::TableSetupColumn("  Name", ImGuiTableColumnFlags_WidthStretch, 2.8F);
-                    ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, 140.0F);
+                    ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, Em(15.0F));
                     ImGui::TableHeadersRow();
 
                     int visibleCount = 0;

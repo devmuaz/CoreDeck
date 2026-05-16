@@ -133,7 +133,7 @@ namespace CoreDeck {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
             ImGui::TextUnformatted("SDK root");
             ImGui::PopStyleColor();
-            constexpr float BROWSE_W = 110.0F;
+            const float BROWSE_W = Em(12.0F);
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - BROWSE_W - spacing);
             ImGui::InputTextWithHint("##SdkPrefs", "Path to Android SDK", sdkPathBuffer, bufferSize);
@@ -203,7 +203,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(760, 480), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(EmV(84.0F, 24.0F), ImGuiCond_Appearing);
 
         static char sdkPathBuffer[2048];
         static auto activeSection = PrefsSection::General;
@@ -218,7 +218,7 @@ namespace CoreDeck {
                 sdkPathBuffer[sizeof(sdkPathBuffer) - 1] = '\0';
             }
 
-            constexpr float SIDEBAR_W = 200.0F;
+            const float SIDEBAR_W = Em(22.0F);
 
             ImGui::PushStyleColor(ImGuiCol_ChildBg, HexColor(Colors::SURFACE0));
             ImGui::BeginChild("##PrefsSidebar", ImVec2(SIDEBAR_W, 0), 0);

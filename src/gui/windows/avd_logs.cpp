@@ -104,9 +104,9 @@ namespace CoreDeck {
             queryChanged = false;
             bool navChanged = false;
 
-            constexpr float REGEX_TOGGLE_WIDTH = 32.0F;
-            constexpr float NAV_BUTTON_WIDTH = 32.0F;
-            constexpr float SEARCH_WIDTH = 260.0F;
+            const float REGEX_TOGGLE_WIDTH = Em(3.5F);
+            const float NAV_BUTTON_WIDTH = Em(3.5F);
+            const float SEARCH_WIDTH = Em(29.0F);
 
             const bool hasQueryForWidth = !state.Search.empty();
             const bool regexInvalidForWidth = state.UseRegex && hasQueryForWidth && !view.Filter.RegexValid;

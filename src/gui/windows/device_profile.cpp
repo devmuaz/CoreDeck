@@ -93,7 +93,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(760, 520), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(EmV(84.0F, 26.0F), ImGuiCond_Appearing);
 
         if (ImGui::BeginPopupModal(TITLE, &context.UI.ShowDeviceProfileDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
@@ -142,11 +142,11 @@ namespace CoreDeck {
             {
                 PickerTableStyle tableStyle;
 
-                ImGui::BeginChild("##DeviceProfileTableFrame", ImVec2(-1.0F, 280.0F), 1, ImGuiWindowFlags_NoScrollbar);
+                ImGui::BeginChild("##DeviceProfileTableFrame", ImVec2(-1.0F, Eh(14.0F)), 1, ImGuiWindowFlags_NoScrollbar);
                 if (ImGui::BeginTable("##DeviceProfileTable", 2, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                     ImGui::TableSetupScrollFreeze(0, 1);
                     ImGui::TableSetupColumn("  Name", ImGuiTableColumnFlags_WidthStretch, 2.8F);
-                    ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 130.0F);
+                    ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, Em(14.0F));
                     ImGui::TableHeadersRow();
 
                     int visibleCount = 0;

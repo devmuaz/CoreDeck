@@ -242,7 +242,15 @@ namespace CoreDeck {
 
         ImGuiIO &io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        io.ConfigDpiScaleFonts = true;
+        // Do NOT enable ConfigDpiScaleFonts. It instructs ImGui to overwrite
+        // style.FontScaleDpi every time DisplayFramebufferScale changes, which
+        // would compound with the per-platform scaling we apply explicitly in
+        // m_ApplyDpiScale() + m_LoadFonts() and produce text that's roughly
+        // square-of-scale too large (e.g. 2.25x at Windows 150%), causing text
+        // to overflow buttons and sub-windows. We own font sizing ourselves.
+        //
+        // ConfigDpiScaleViewports stays on -- it only affects ImGui's
+        // per-viewport rectangle math for multi-monitor docking, not fonts.
         io.ConfigDpiScaleViewports = true;
 
         static std::string imguiIniPath = Paths::GetAppConfigPath("imgui.ini");

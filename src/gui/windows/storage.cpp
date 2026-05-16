@@ -59,7 +59,7 @@ namespace CoreDeck {
             sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0F);
             sv.Push(ImGuiStyleVar_WindowPadding, ImVec2(14.0F, 12.0F));
 
-            ImGui::BeginChild(title, ImVec2(width, 74.0F), 1, ImGuiWindowFlags_NoScrollbar);
+            ImGui::BeginChild(title, ImVec2(width, Eh(3.7F)), 1, ImGuiWindowFlags_NoScrollbar);
             ImGui::TextDisabled("%s", title);
             ImGui::Spacing();
             ImGui::TextColored(HexColor(accentColor), "%s", value.c_str());
@@ -96,7 +96,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(650, 260), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(EmV(72.0F, 13.0F), ImGuiCond_Appearing);
 
         if (ImGui::BeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &disk = context.DiskUsage;

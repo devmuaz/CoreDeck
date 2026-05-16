@@ -122,6 +122,18 @@ namespace CoreDeck {
         return StrConcat(icon, " ", label);
     }
 
+    inline float Em(const float n = 1.0F) {
+        return ImGui::CalcTextSize("M").x * n;
+    }
+
+    inline float Eh(const float n = 1.0F) {
+        return ImGui::GetTextLineHeightWithSpacing() * n;
+    }
+
+    inline ImVec2 EmV(const float w, const float h) {
+        return ImVec2(Em(w), Eh(h));
+    }
+
     bool PrimaryButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
 
     bool NegativeButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
