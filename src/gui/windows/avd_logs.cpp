@@ -104,9 +104,9 @@ namespace CoreDeck {
             queryChanged = false;
             bool navChanged = false;
 
-            const float REGEX_TOGGLE_WIDTH = Em(3.5F);
-            const float NAV_BUTTON_WIDTH = Em(3.5F);
-            const float SEARCH_WIDTH = Em(29.0F);
+            const float regexToggleWidth = Em(3.5F);
+            const float navButtonWidth = Em(3.5F);
+            const float searchWidth = Em(29.0F);
 
             const bool hasQueryForWidth = !state.Search.empty();
             const bool regexInvalidForWidth = state.UseRegex && hasQueryForWidth && !view.Filter.RegexValid;
@@ -122,11 +122,11 @@ namespace CoreDeck {
 
             const ImGuiStyle &style = ImGui::GetStyle();
             const float counterWidth = ImGui::CalcTextSize(counter.c_str()).x;
-            const float totalWidth = REGEX_TOGGLE_WIDTH + SEARCH_WIDTH + counterWidth + (NAV_BUTTON_WIDTH * 2.0F) + (style.ItemSpacing.x * 4.0F);
+            const float totalWidth = regexToggleWidth + searchWidth + counterWidth + (navButtonWidth * 2.0F) + (style.ItemSpacing.x * 4.0F);
             ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - totalWidth);
 
             // Regex toggle
-            if (ToggleButton(".*##RegexToggle", state.UseRegex, ImVec2(REGEX_TOGGLE_WIDTH, 0))) {
+            if (ToggleButton(".*##RegexToggle", state.UseRegex, ImVec2(regexToggleWidth, 0))) {
                 queryChanged = true;
             }
             ImGui::SameLine();
@@ -138,7 +138,7 @@ namespace CoreDeck {
             searchBuffer[sizeof(searchBuffer) - 1] = '\0';
 
             const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? "Regex" : "Search logs...");
-            ImGui::SetNextItemWidth(SEARCH_WIDTH);
+            ImGui::SetNextItemWidth(searchWidth);
             if (regexInvalid) {
                 ImGui::PushStyleColor(ImGuiCol_Border, HexColor(Colors::NEGATIVE));
             }
@@ -171,12 +171,12 @@ namespace CoreDeck {
             if (!canNav) {
                 ImGui::BeginDisabled();
             }
-            if (ImGui::Button((std::string{Icons::CHEVRON_LEFT} + "##LogPrev").c_str(), ImVec2(NAV_BUTTON_WIDTH, 0))) {
+            if (ImGui::Button((std::string{Icons::CHEVRON_LEFT} + "##LogPrev").c_str(), ImVec2(navButtonWidth, 0))) {
                 state.ActiveMatchIndex = (state.ActiveMatchIndex - 1 + matchCount) % matchCount;
                 navChanged = true;
             }
             ImGui::SameLine();
-            if (ImGui::Button((std::string{Icons::CHEVRON_RIGHT} + "##LogNext").c_str(), ImVec2(NAV_BUTTON_WIDTH, 0))) {
+            if (ImGui::Button((std::string{Icons::CHEVRON_RIGHT} + "##LogNext").c_str(), ImVec2(navButtonWidth, 0))) {
                 state.ActiveMatchIndex = (state.ActiveMatchIndex + 1) % matchCount;
                 navChanged = true;
             }
