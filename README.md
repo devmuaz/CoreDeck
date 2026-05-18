@@ -76,29 +76,27 @@ Each release artifact ships with a matching `.sha256` checksum for download veri
 - **Android SDK** with `emulator`, `avdmanager`, and `sdkmanager` available (typically installed via Android Studio).
 - **OS:** Windows 10/11, macOS 12+ (Apple Silicon), or a recent Linux distribution.
 
-To build from source you additionally need:
-
-- **CMake** 3.23 or newer
-- A **C++20** compiler — GCC 11+, Clang 14+, or MSVC 19.30+ (Visual Studio 2022)
-- Linux only: the system packages listed in [Build from source](#build-from-source)
-
 ## Build from source
 
-**Linux dependencies (Ubuntu/Debian):**
+CoreDeck builds with **CMake + Ninja** on all platforms. Output is single-config: `build-debug/` and `build-release/` contain the binary directly, with a `compile_commands.json` for editor tooling.
 
-`build-essential` does not include CMake, so it's listed separately:
+### Prerequisites
 
-```bash
-sudo apt-get install build-essential cmake libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
-```
+All platforms need **CMake 3.23+**, **Ninja**, and **Git** (with submodule support). Per-platform compiler:
 
-**Build:**
+| Platform | Compiler              | Install                                                                                                                                                                     |
+| -------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| macOS    | Apple Clang           | `xcode-select --install`, then `brew install cmake ninja`                                                                                                                   |
+| Windows  | MSVC 19.30+ (VS 2022) | [Build Tools for VS 2022](https://visualstudio.microsoft.com/downloads/) → _Desktop development with C++_ workload. Then `winget install Kitware.CMake Ninja-build.Ninja`   |
+| Linux    | GCC 11+ / Clang 14+   | `sudo apt-get install build-essential cmake ninja-build libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev` |
+
+### Clone and build
 
 ```bash
 git clone --recursive https://github.com/devmuaz/CoreDeck.git
 cd CoreDeck
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release --parallel
+cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build-release --parallel
 ```
 
 If you already cloned without `--recursive`:
@@ -106,6 +104,46 @@ If you already cloned without `--recursive`:
 ```bash
 git submodule update --init --recursive
 ```
+
+> **Windows note:** Ninja + MSVC needs `cl.exe` on PATH. Run the commands from the **Developer Command Prompt for VS 2022** (Start Menu), or launch VS Code / Cursor from it so the bundled tasks pick up the environment. The provided VS Code tasks handle this automatically via `vswhere` + `Enter-VsDevShell`.
+
+### Run
+
+```bash
+# macOS
+open build-release/CoreDeck.app
+
+# Linux
+./build-release/CoreDeck
+
+# Windows
+.\build-release\CoreDeck.exe
+```
+
+### Develop in VS Code or Cursor
+
+The repo ships pre-configured `.vscode/` settings (build tasks, launch configs, IntelliSense). Open the project, accept the recommended extensions when prompted, then press **F5** to build and debug.
+
+**Per-editor extensions** — the two editors use different language servers and debuggers:
+
+| Editor                      | Install                                                        | Purpose                                                                           |
+| --------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **VS Code**                 | `ms-vscode.cpptools`, `ms-vscode.cmake-tools`                  | IntelliSense + CMake integration + `cppvsdbg` (Microsoft MSVC debugger)           |
+| **VS Code** _(optional)_    | `vadimcn.vscode-lldb`                                          | Adds LLDB debugger as an alternative to MSVC                                      |
+| **Cursor**                  | `llvm-vs-code-extensions.vscode-clangd`, `vadimcn.vscode-lldb` | clangd IntelliSense + LLDB debugger (Microsoft's `cppvsdbg` is locked to VS Code) |
+| **Cursor** _(Windows only)_ | LLVM toolchain — `winget install LLVM.LLVM`                    | Provides the `clangd.exe` binary for the extension                                |
+
+**Launch configurations** in the Run & Debug panel:
+
+| Name                                | Editors           | Debugger        |
+| ----------------------------------- | ----------------- | --------------- |
+| `CoreDeck (Debug) [macOS]`          | VS Code or Cursor | `cppdbg` + LLDB |
+| `CoreDeck (Debug) [Windows · MSVC]` | VS Code only      | `cppvsdbg`      |
+| `CoreDeck (Debug) [Windows · LLDB]` | VS Code or Cursor | CodeLLDB        |
+
+Each has a matching Release entry and `CoreDeck Tests (...)` variant for the Catch2 test suite. Cursor on Windows should pick the `LLDB` entries; VS Code on Windows can pick either (MSVC is the better PDB-aware option when available).
+
+The first build is a full from-scratch compile of all bundled dependencies (sentry-native, Dear ImGui, GLFW, reflect-cpp, etc.). Subsequent builds are incremental and fast.
 
 ## FAQ
 
