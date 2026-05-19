@@ -7,7 +7,12 @@
 #include "theme.h"
 
 namespace CoreDeck {
+    namespace {
+        float ds = 1.0F;
+    }
+
     void ApplyCustomImGuiTheme(const float dpiScale) {
+        ds = dpiScale;
         auto &style = ImGui::GetStyle();
         const float s = dpiScale;
 
@@ -109,5 +114,9 @@ namespace CoreDeck {
         c[ImGuiCol_ResizeGrip] = HexColor(Colors::SURFACE4, 0.25F);
         c[ImGuiCol_ResizeGripHovered] = HexColor(Colors::BORDER_STRONG, 0.65F);
         c[ImGuiCol_ResizeGripActive] = HexColor(Colors::TEXT_MUTED, 0.95F);
+    }
+
+    float GetDpiScale() {
+        return ds;
     }
 }

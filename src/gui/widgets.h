@@ -14,21 +14,13 @@ namespace CoreDeck {
     class StyleColor {
     public:
         StyleColor() = default;
-        StyleColor(StyleColor &&) = delete;
-        StyleColor &operator=(StyleColor &&) = delete;
         StyleColor(const StyleColor &) = delete;
+        StyleColor(StyleColor &&) = delete;
         StyleColor &operator=(const StyleColor &) = delete;
+        StyleColor &operator=(StyleColor &&) = delete;
+        ~StyleColor();
 
-        void Push(const ImGuiCol idx, const ImVec4 &color) {
-            ImGui::PushStyleColor(idx, color);
-            m_Count++;
-        }
-
-        ~StyleColor() {
-            if (m_Count > 0) {
-                ImGui::PopStyleColor(m_Count);
-            }
-        }
+        void Push(ImGuiCol idx, const ImVec4 &color);
 
     private:
         int m_Count = 0;
@@ -37,26 +29,15 @@ namespace CoreDeck {
     class StyleVar {
     public:
         StyleVar() = default;
-        StyleVar(StyleVar &&) = delete;
-        StyleVar &operator=(StyleVar &&) = delete;
         StyleVar(const StyleVar &) = delete;
+        StyleVar(StyleVar &&) = delete;
         StyleVar &operator=(const StyleVar &) = delete;
+        StyleVar &operator=(StyleVar &&) = delete;
+        ~StyleVar();
 
-        void Push(const ImGuiStyleVar idx, const float val) {
-            ImGui::PushStyleVar(idx, val);
-            m_Count++;
-        }
+        void Push(ImGuiStyleVar idx, float val);
 
-        void Push(const ImGuiStyleVar idx, const ImVec2 &val) {
-            ImGui::PushStyleVar(idx, val);
-            m_Count++;
-        }
-
-        ~StyleVar() {
-            if (m_Count > 0) {
-                ImGui::PopStyleVar(m_Count);
-            }
-        }
+        void Push(ImGuiStyleVar idx, const ImVec2 &val);
 
     private:
         int m_Count = 0;
@@ -168,6 +149,31 @@ namespace CoreDeck {
     bool MenuButton(const char *label);
 
     bool MenuPopupItem(const char *label);
+
+    struct MenuStyle {
+        StyleVar Vars;
+
+        MenuStyle();
+    };
+
+    bool RoundedMenuItem(const char *label, const char *shortcut = nullptr, bool isSelected = false, bool isEnabled = true);
+
+    bool RoundedMenuItem(const char *label, const char *shortcut, bool *pIsSelected, bool isEnabled = true);
+
+    bool RoundedBeginMenu(const char *label, bool isEnabled = true);
+
+    struct ComboStyle {
+        StyleVar Vars;
+
+        ComboStyle();
+    };
+
+    bool RoundedSelectable(
+        const char *label,
+        bool isSelected = false,
+        ImGuiSelectableFlags flags = 0,
+        const ImVec2 &size = ImVec2(0, 0)
+    );
 
     DialogResult SimpleDialog(const DialogData &data);
 }

@@ -78,7 +78,8 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             {
-                PickerTableStyle ts;
+                PickerTableStyle pts;
+
                 ImGui::BeginChild("##SkinTableFrame", ImVec2(-1.0F, Eh(16.0F)), 1, ImGuiWindowFlags_NoScrollbar);
                 if (ImGui::BeginTable("##SkinTable", 2, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                     ImGui::TableSetupScrollFreeze(0, 1);

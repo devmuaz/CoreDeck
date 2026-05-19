@@ -8,6 +8,34 @@
 #include "theme.h"
 
 namespace CoreDeck {
+
+    void StyleColor::Push(ImGuiCol idx, const ImVec4 &color) {
+        ImGui::PushStyleColor(idx, color);
+        m_Count++;
+    }
+
+    StyleColor::~StyleColor() {
+        if (m_Count > 0) {
+            ImGui::PopStyleColor(m_Count);
+        }
+    }
+
+    void StyleVar::Push(ImGuiStyleVar idx, float val) {
+        ImGui::PushStyleVar(idx, val);
+        m_Count++;
+    }
+
+    void StyleVar::Push(ImGuiStyleVar idx, const ImVec2 &val) {
+        ImGui::PushStyleVar(idx, val);
+        m_Count++;
+    }
+
+    StyleVar::~StyleVar() {
+        if (m_Count > 0) {
+            ImGui::PopStyleVar(m_Count);
+        }
+    }
+
     PickerTableStyle::PickerTableStyle() {
         Colors.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
         Colors.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
@@ -391,5 +419,107 @@ namespace CoreDeck {
             ImGui::EndPopup();
         }
         return result;
+    }
+
+    MenuStyle::MenuStyle() {
+        const float s = GetDpiScale();
+        Vars.Push(ImGuiStyleVar_PopupRounding, 6.0F * s);
+        Vars.Push(ImGuiStyleVar_WindowPadding, ImVec2(14.0F * s, 12.0F * s));
+        Vars.Push(ImGuiStyleVar_FramePadding, ImVec2(12.0F * s, 10.0F * s));
+        Vars.Push(ImGuiStyleVar_ItemSpacing, ImVec2(16.0F * s, 12.0F * s));
+    }
+
+    namespace {
+        bool RoundedMenuItemImpl(const char *label, const char *shortcut, bool isSelected, bool *pIsSelected, bool isEnabled) {
+            ImDrawList *drawList = ImGui::GetWindowDrawList();
+            drawList->ChannelsSplit(2);
+            drawList->ChannelsSetCurrent(1);
+
+            // Suppress ImGui's built-in (square) hover/active fill; we draw our own.
+            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, IM_COL32(0, 0, 0, 0));
+            ImGui::PushStyleColor(ImGuiCol_HeaderActive, IM_COL32(0, 0, 0, 0));
+
+            const bool pressed =
+                pIsSelected
+                    ? ImGui::MenuItem(label, shortcut, pIsSelected, isEnabled)
+                    : ImGui::MenuItem(label, shortcut, isSelected, isEnabled);
+
+            ImGui::PopStyleColor(2);
+
+            drawList->ChannelsSetCurrent(0);
+            if (isEnabled && ImGui::IsItemHovered()) {
+                const ImVec2 pMin = ImGui::GetItemRectMin();
+                const ImVec2 pMax = ImGui::GetItemRectMax();
+                const ImVec4 fill = ImGui::IsItemActive() ? HexColor(Colors::SURFACE4) : HexColor(Colors::SURFACE3);
+                drawList->AddRectFilled(pMin, pMax, ImGui::GetColorU32(fill), 4.0F * GetDpiScale());
+            }
+            drawList->ChannelsMerge();
+            return pressed;
+        }
+    }
+
+    bool RoundedMenuItem(const char *label, const char *shortcut, const bool isSelected, const bool isEnabled) {
+        return RoundedMenuItemImpl(label, shortcut, isSelected, nullptr, isEnabled);
+    }
+
+    bool RoundedMenuItem(const char *label, const char *shortcut, bool *pIsSelected, const bool isEnabled) {
+        return RoundedMenuItemImpl(label, shortcut, false, pIsSelected, isEnabled);
+    }
+
+    bool RoundedBeginMenu(const char *label, const bool isEnabled) {
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+        drawList->ChannelsSplit(2);
+        drawList->ChannelsSetCurrent(1);
+
+        ImGui::PushStyleColor(ImGuiCol_Header, IM_COL32(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, IM_COL32(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_HeaderActive, IM_COL32(0, 0, 0, 0));
+
+        const bool open = ImGui::BeginMenu(label, isEnabled);
+
+        ImGui::PopStyleColor(3);
+
+        drawList->ChannelsSetCurrent(0);
+        if (isEnabled && (open || ImGui::IsItemHovered())) {
+            const ImVec2 pMin = ImGui::GetItemRectMin();
+            const ImVec2 pMax = ImGui::GetItemRectMax();
+            const ImVec4 fill = open ? HexColor(Colors::SURFACE4) : HexColor(Colors::SURFACE3);
+            drawList->AddRectFilled(pMin, pMax, ImGui::GetColorU32(fill), 50.0F * GetDpiScale());
+        }
+        drawList->ChannelsMerge();
+        return open;
+    }
+
+    ComboStyle::ComboStyle() {
+        const float s = GetDpiScale();
+        Vars.Push(ImGuiStyleVar_PopupRounding, 6.0F * s);
+        Vars.Push(ImGuiStyleVar_WindowPadding, ImVec2(14.0F * s, 12.0F * s));
+        Vars.Push(ImGuiStyleVar_FramePadding, ImVec2(14.0F * s, 8.0F * s));
+        Vars.Push(ImGuiStyleVar_ItemSpacing, ImVec2(16.0F * s, 12.0F * s));
+    }
+
+    bool RoundedSelectable(const char *label, const bool isSelected, const ImGuiSelectableFlags flags, const ImVec2 &size) {
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+        drawList->ChannelsSplit(2);
+        drawList->ChannelsSetCurrent(1);
+
+        ImGui::PushStyleColor(ImGuiCol_Header, IM_COL32(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, IM_COL32(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_HeaderActive, IM_COL32(0, 0, 0, 0));
+
+        const bool pressed = ImGui::Selectable(label, isSelected, flags, size);
+
+        ImGui::PopStyleColor(3);
+
+        drawList->ChannelsSetCurrent(0);
+        const bool hovered = ImGui::IsItemHovered();
+        if (hovered || isSelected) {
+            const ImVec2 pMin = ImGui::GetItemRectMin();
+            const ImVec2 pMax = ImGui::GetItemRectMax();
+            const ImVec4 fill = ImGui::IsItemActive() ? HexColor(Colors::SURFACE4) : HexColor(Colors::SURFACE3);
+            drawList->AddRectFilled(pMin, pMax, ImGui::GetColorU32(fill), 4.0F * GetDpiScale());
+        }
+        drawList->ChannelsMerge();
+        return pressed;
     }
 }

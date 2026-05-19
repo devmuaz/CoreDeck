@@ -140,7 +140,7 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             {
-                PickerTableStyle tableStyle;
+                PickerTableStyle pts;
 
                 ImGui::BeginChild("##DeviceProfileTableFrame", ImVec2(-1.0F, Eh(14.0F)), 1, ImGuiWindowFlags_NoScrollbar);
                 if (ImGui::BeginTable("##DeviceProfileTable", 2, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {

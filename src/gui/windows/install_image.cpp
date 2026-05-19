@@ -309,7 +309,7 @@ namespace CoreDeck {
                 ImGui::Spacing();
 
                 {
-                    PickerTableStyle tableStyle;
+                    PickerTableStyle pts;
 
                     ImGui::BeginChild("##RemoteImageTableFrame", ImVec2(-1.0F, Eh(14.0F)), 1, ImGuiWindowFlags_NoScrollbar);
                     if (ImGui::BeginTable("##RemoteImageTable", 5, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {

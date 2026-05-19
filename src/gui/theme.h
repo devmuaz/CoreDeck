@@ -75,6 +75,8 @@ namespace CoreDeck {
 
     void ApplyCustomImGuiTheme(float dpiScale = 1.0F);
 
+    float GetDpiScale();
+
     constexpr ImVec4 HexColor(const char *hex, float alpha = 1.0F) {
         auto hexToByte = [](const char hi, const char lo) -> float {
             auto charVal = [](const char c) -> int {

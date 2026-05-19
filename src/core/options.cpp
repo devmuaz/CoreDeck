@@ -85,6 +85,15 @@ namespace CoreDeck {
             };
             return FindDisplayLabel(OPTIONS, value);
         }
+
+        const char *CameraModeDisplayLabel(const std::string &value) {
+            static const std::vector<OptionValueLabel> OPTIONS = {
+                {.Label = "Virtual Scene", .Value = "virtualscene"},
+                {.Label = "Emulated", .Value = "emulated"},
+                {.Label = "None", .Value = "none"},
+            };
+            return FindDisplayLabel(OPTIONS, value);
+        }
     }
 
     const char *EmulatorOptionItemDisplayLabel(const std::string &flag, const std::string &value) {
@@ -105,6 +114,9 @@ namespace CoreDeck {
         }
         if (flag == "-selinux") {
             return SELinuxModeDisplayLabel(value);
+        }
+        if (flag == "-camera-back" || flag == "-camera-front") {
+            return CameraModeDisplayLabel(value);
         }
         return value.c_str();
     }

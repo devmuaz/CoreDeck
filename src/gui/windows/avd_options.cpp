@@ -80,11 +80,12 @@ namespace CoreDeck {
                             case OptionType::Selection: {
                                 ImGui::SetNextItemWidth(-1.0F);
                                 const char *selectedLabel = EmulatorOptionItemDisplayLabel(Flag, Items[SelectedItem]);
+                                ComboStyle cs;
                                 if (ImGui::BeginCombo("##selection", selectedLabel)) {
                                     for (int i = 0; i < Items.size(); ++i) {
                                         const bool isSelected = SelectedItem == i;
                                         const char *itemLabel = EmulatorOptionItemDisplayLabel(Flag, Items[i]);
-                                        if (ImGui::Selectable(itemLabel, isSelected)) {
+                                        if (RoundedSelectable(itemLabel, isSelected)) {
                                             SelectedItem = i;
                                             optionsChanged = true;
                                         }
