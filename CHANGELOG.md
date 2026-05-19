@@ -1,3 +1,12 @@
+## [v0.7.0-beta.6](https://github.com/devmuaz/CoreDeck/releases/tag/v0.7.0-beta.6) — 2026-05-19
+
+- Replace the View menu checkboxes with Show/Hide text toggles for the AVD List, Options, Details, and Output Log panels
+- Replace the modal close button with a rounded red-tinted custom render
+- Add `MenuStyle`/`ComboStyle` RAII helpers plus `RoundedMenuItem`, `RoundedBeginMenu`, and `RoundedSelectable` widgets, and map `-camera-back`/`-front` values to human-readable labels
+- Fix VS Build Tools detection in VSCode build tasks ([#26](https://github.com/devmuaz/CoreDeck/issues/26))
+- Fix HiDPI borders, table overflow, toolbar button shapes, and Windows UTF-8 glyphs, and polish the storage breakdown bar ([#23](https://github.com/devmuaz/CoreDeck/issues/23))
+- Make editor configs cross-platform on Ninja and document the dev setup in the README
+
 ## [v0.7.0-beta.5](https://github.com/devmuaz/CoreDeck/releases/tag/v0.7.0-beta.5) — 2026-05-14
 
 - Fix HiDPI text overflowing buttons and sub-windows by removing duplicate font scaling (thanks [@sjoerdev](https://github.com/sjoerdev), [#23](https://github.com/devmuaz/CoreDeck/issues/23))
