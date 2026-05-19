@@ -66,7 +66,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(ImVec2(Em(70.0F), 0), ImGuiCond_Appearing);
 
-        if (ImGui::BeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (RoundedBeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             const bool isLoading = context.AvdCreationWork.Prefetch.Loading.load();
             const bool isCreating = context.Jobs.AvdCreation.Busy.load();
             const bool formDisabled = isLoading || isCreating;

@@ -20,7 +20,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowSize(ImVec2(Em(65.0F), 0), ImGuiCond_Appearing);
 
 
-        if (ImGui::BeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, WINDOW_NO_RESIZE_FLAGS)) {
+        if (RoundedBeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, WINDOW_NO_RESIZE_FLAGS)) {
             const auto centerCursor = [](const float textWidth) {
                 ImGui::SetCursorPosX(
                     ((ImGui::GetContentRegionAvail().x - textWidth) * 0.5F) + ImGui::GetCursorStartPos().x

@@ -101,7 +101,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(EmV(80.0F, 0.0F), ImGuiCond_Appearing);
 
-        if (ImGui::BeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (RoundedBeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &disk = context.DiskUsage;
 
             if (!disk.Ready && !disk.Loading.load() && !disk.Future.valid()) {

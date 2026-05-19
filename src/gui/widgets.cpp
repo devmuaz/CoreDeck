@@ -359,7 +359,7 @@ namespace CoreDeck {
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoDocking;
 
-        if (ImGui::BeginPopupModal(title.c_str(), data.IsBusy ? nullptr : &data.IsOpen, FLAGS)) {
+        if (RoundedBeginPopupModal(title.c_str(), data.IsBusy ? nullptr : &data.IsOpen, FLAGS)) {
             if (!data.IsOpen) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
@@ -521,5 +521,64 @@ namespace CoreDeck {
         }
         drawList->ChannelsMerge();
         return pressed;
+    }
+
+    bool RoundedBeginPopupModal(const char *name, bool *pOpen, const ImGuiWindowFlags flags) {
+        const bool open = ImGui::BeginPopupModal(name, nullptr, flags);
+        if (!open || pOpen == nullptr) {
+            return open;
+        }
+
+        const ImGuiStyle &style = ImGui::GetStyle();
+        const float s = GetDpiScale();
+        const float fontSize = ImGui::GetFontSize();
+        const ImVec2 winPos = ImGui::GetWindowPos();
+        const ImVec2 winSize = ImGui::GetWindowSize();
+
+        const ImVec2 btnMin(
+            winPos.x + winSize.x - style.FramePadding.x - fontSize,
+            winPos.y + style.FramePadding.y
+        );
+        const ImVec2 btnMax(btnMin.x + fontSize, btnMin.y + fontSize);
+        const ImVec2 bbCenter((btnMin.x + btnMax.x) * 0.5F, (btnMin.y + btnMax.y) * 0.5F);
+        const ImVec2 crossCenter(bbCenter.x - 0.5F, bbCenter.y - 0.5F);
+
+        const bool windowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+        const bool hovered = windowHovered && ImGui::IsMouseHoveringRect(btnMin, btnMax, false);
+        const bool held = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+        const bool clicked = hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+        drawList->PushClipRect(winPos, ImVec2(winPos.x + winSize.x, winPos.y + winSize.y), false);
+
+        if (hovered) {
+            const float baseRadius = (fontSize * 0.5F) + (4.0F * s);
+            const float radius = held ? baseRadius - (1.5F * s) : baseRadius;
+            const ImVec4 fill = held
+                ? HexColor(Colors::NEGATIVE_STRONG)
+                : HexColor(Colors::NEGATIVE, 0.85F);
+            drawList->AddCircleFilled(crossCenter, radius, ImGui::GetColorU32(fill));
+        }
+
+        const float crossExtent = (fontSize * 0.5F * 0.7071F) - 1.0F;
+        const ImU32 crossCol = ImGui::GetColorU32(ImGuiCol_Text);
+        const float crossThick = 1.0F * s;
+        drawList->AddLine(
+            ImVec2(crossCenter.x + crossExtent, crossCenter.y + crossExtent),
+            ImVec2(crossCenter.x - crossExtent, crossCenter.y - crossExtent),
+            crossCol, crossThick
+        );
+        drawList->AddLine(
+            ImVec2(crossCenter.x + crossExtent, crossCenter.y - crossExtent),
+            ImVec2(crossCenter.x - crossExtent, crossCenter.y + crossExtent),
+            crossCol, crossThick
+        );
+        drawList->PopClipRect();
+
+        if (clicked) {
+            *pOpen = false;
+            ImGui::CloseCurrentPopup();
+        }
+        return open;
     }
 }

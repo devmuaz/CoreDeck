@@ -209,7 +209,7 @@ namespace CoreDeck {
         static auto activeSection = PrefsSection::General;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        if (ImGui::BeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, WINDOW_NO_RESIZE_FLAGS)) {
+        if (RoundedBeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::PopStyleVar();
 
             if (ImGui::IsWindowAppearing()) {

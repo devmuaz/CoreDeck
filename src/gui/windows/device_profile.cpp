@@ -95,7 +95,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(EmV(84.0F, 26.0F), ImGuiCond_Appearing);
 
-        if (ImGui::BeginPopupModal(TITLE, &context.UI.ShowDeviceProfileDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (RoundedBeginPopupModal(TITLE, &context.UI.ShowDeviceProfileDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
             if (!work.DeviceProfiles.empty()) {
                 work.PendingSelectedDevice = std::clamp(work.PendingSelectedDevice, 0, static_cast<int>(work.DeviceProfiles.size()) - 1);

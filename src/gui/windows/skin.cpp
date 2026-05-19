@@ -59,7 +59,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(EmV(80.0F, 25.0F), ImGuiCond_Appearing);
 
-        if (ImGui::BeginPopupModal(TITLE, &context.UI.ShowSkinDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (RoundedBeginPopupModal(TITLE, &context.UI.ShowSkinDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
             const int totalRows = static_cast<int>(work.Skins.size()) + 1; // +1 for "No skin"
             work.PendingSelectedSkin = std::clamp(work.PendingSelectedSkin, 0, totalRows - 1);
