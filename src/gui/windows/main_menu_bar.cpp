@@ -12,43 +12,45 @@
 
 namespace CoreDeck {
     void BuildMainMenuBar(Context &context) {
+        MenuStyle ms;
+
         if (ImGui::BeginMainMenuBar()) {
-            if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("Preferences...", nullptr)) {
+            if (RoundedBeginMenu("File")) {
+                if (RoundedMenuItem("Preferences...")) {
                     context.UI.ShowPreferences = true;
                 }
                 ImGui::Separator();
-                if (ImGui::MenuItem("Quit", nullptr, false, context.UI.MainWindow != nullptr)) {
+                if (RoundedMenuItem("Quit", nullptr, false, context.UI.MainWindow != nullptr)) {
                     glfwSetWindowShouldClose(context.UI.MainWindow, GLFW_TRUE);
                 }
                 ImGui::EndMenu();
             }
 
-            if (ImGui::BeginMenu("View")) {
-                if (ImGui::MenuItem("Show AVD List Window", nullptr, &context.UI.ShowAvdListPanel)) {
+            if (RoundedBeginMenu("View")) {
+                if (RoundedMenuItem("Show AVD List Window", nullptr, &context.UI.ShowAvdListPanel)) {
                     PersistAppSettings(context);
                 }
-                if (ImGui::MenuItem("Show Options Window", nullptr, &context.UI.ShowOptionsPanel)) {
+                if (RoundedMenuItem("Show Options Window", nullptr, &context.UI.ShowOptionsPanel)) {
                     PersistAppSettings(context);
                 }
-                if (ImGui::MenuItem("Show Details Window", nullptr, &context.UI.ShowDetailsPanel)) {
+                if (RoundedMenuItem("Show Details Window", nullptr, &context.UI.ShowDetailsPanel)) {
                     PersistAppSettings(context);
                 }
-                if (ImGui::MenuItem("Show Output Log Window", nullptr, &context.UI.ShowLogPanel)) {
+                if (RoundedMenuItem("Show Output Log Window", nullptr, &context.UI.ShowLogPanel)) {
                     PersistAppSettings(context);
                 }
                 ImGui::Separator();
-                if (ImGui::MenuItem("Storage Overview")) {
+                if (RoundedMenuItem("Storage Overview")) {
                     context.UI.ShowStorageDialog = true;
                 }
                 ImGui::EndMenu();
             }
 
-            if (ImGui::BeginMenu("Help")) {
-                if (ImGui::MenuItem(IconWithLabel(Icons::INFO, "About CoreDeck").c_str())) {
+            if (RoundedBeginMenu("Help")) {
+                if (RoundedMenuItem(IconWithLabel(Icons::INFO, "About CoreDeck").c_str())) {
                     context.UI.ShowAboutDialog = true;
                 }
-                if (ImGui::MenuItem("Check for Updates...", nullptr, false, !context.Updates.UpdateCheckInFlight)) {
+                if (RoundedMenuItem("Check for Updates...", nullptr, false, !context.Updates.UpdateCheckInFlight)) {
                     context.Updates.RequestManualUpdateCheck = true;
                 }
                 ImGui::EndMenu();
