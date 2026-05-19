@@ -175,6 +175,8 @@ namespace CoreDeck {
         const ImVec2 &size = ImVec2(0, 0)
     );
 
+    bool RoundedBeginPopupModal(const char *name, bool *pOpen = nullptr, ImGuiWindowFlags flags = 0);
+
     DialogResult SimpleDialog(const DialogData &data);
 }
 

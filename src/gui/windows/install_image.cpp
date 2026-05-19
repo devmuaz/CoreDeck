@@ -169,7 +169,7 @@ namespace CoreDeck {
             const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
             bool *pOpen = (installing || removalBusy) ? nullptr : &context.UI.ShowInstallImageDialog;
 
-            if (ImGui::BeginPopupModal(TITLE, pOpen, WINDOW_AUTO_RESIZE_FLAGS)) {
+            if (RoundedBeginPopupModal(TITLE, pOpen, WINDOW_AUTO_RESIZE_FLAGS)) {
                 auto &work = context.ImageInstallationWork;
                 auto &removal = context.AvdCreationWork.SystemImageRemoval;
                 const bool isLoading = work.Prefetch.Loading.load();

@@ -74,7 +74,7 @@ namespace CoreDeck {
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
             ImGui::SetNextWindowSize(ImVec2(Em(32.0F), 0), ImGuiCond_Appearing);
 
-            if (ImGui::BeginPopupModal("Up to date###CoreDeckUpdateOk", &context.Updates.ShowUpToDateModal, WINDOW_NO_RESIZE_FLAGS)) {
+            if (RoundedBeginPopupModal("Up to date###CoreDeckUpdateOk", &context.Updates.ShowUpToDateModal, WINDOW_NO_RESIZE_FLAGS)) {
                 ImGui::TextWrapped("You're running the latest CoreDeck release.");
                 ImGui::Spacing();
                 ImGui::Text("Current: ");
@@ -107,7 +107,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(ImVec2(Em(80.0F), 0), ImGuiCond_Appearing);
 
-        if (ImGui::BeginPopupModal("Update Available###CoreDeckUpdate", &context.Updates.ShowNewVersionModal, WINDOW_NO_RESIZE_FLAGS)) {
+        if (RoundedBeginPopupModal("Update Available###CoreDeckUpdate", &context.Updates.ShowNewVersionModal, WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::Spacing();
             ImGui::TextUnformatted("You're currently running on");
             ImGui::SameLine();
