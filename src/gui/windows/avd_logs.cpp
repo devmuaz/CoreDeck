@@ -104,8 +104,9 @@ namespace CoreDeck {
             queryChanged = false;
             bool navChanged = false;
 
-            const float regexToggleWidth = Em(3.5F);
-            const float navButtonWidth = Em(3.5F);
+            const float squareButtonSize = ImGui::GetFrameHeight();
+            const float regexToggleWidth = squareButtonSize;
+            const float navButtonWidth = squareButtonSize;
             const float searchWidth = Em(29.0F);
 
             const bool hasQueryForWidth = !state.Search.empty();
@@ -126,7 +127,7 @@ namespace CoreDeck {
             ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - totalWidth);
 
             // Regex toggle
-            if (ToggleButton(".*##RegexToggle", state.UseRegex, ImVec2(regexToggleWidth, 0))) {
+            if (ToggleButton(".*##RegexToggle", state.UseRegex, ImVec2(regexToggleWidth, squareButtonSize))) {
                 queryChanged = true;
             }
             ImGui::SameLine();
@@ -171,12 +172,12 @@ namespace CoreDeck {
             if (!canNav) {
                 ImGui::BeginDisabled();
             }
-            if (ImGui::Button((std::string{Icons::CHEVRON_LEFT} + "##LogPrev").c_str(), ImVec2(navButtonWidth, 0))) {
+            if (ImGui::Button((std::string{Icons::CHEVRON_LEFT} + "##LogPrev").c_str(), ImVec2(navButtonWidth, squareButtonSize))) {
                 state.ActiveMatchIndex = (state.ActiveMatchIndex - 1 + matchCount) % matchCount;
                 navChanged = true;
             }
             ImGui::SameLine();
-            if (ImGui::Button((std::string{Icons::CHEVRON_RIGHT} + "##LogNext").c_str(), ImVec2(navButtonWidth, 0))) {
+            if (ImGui::Button((std::string{Icons::CHEVRON_RIGHT} + "##LogNext").c_str(), ImVec2(navButtonWidth, squareButtonSize))) {
                 state.ActiveMatchIndex = (state.ActiveMatchIndex + 1) % matchCount;
                 navChanged = true;
             }

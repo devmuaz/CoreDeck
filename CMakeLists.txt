@@ -72,6 +72,9 @@ endif()
 
 if(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    if(MSVC)
+        add_compile_options(/utf-8)
+    endif()
 endif()
 
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/extern/imgui)

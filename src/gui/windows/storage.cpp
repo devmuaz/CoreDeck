@@ -77,11 +77,14 @@ namespace CoreDeck {
             drawList->AddRectFilled(pos, end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::SURFACE2)), 999.0F);
             if (total > 0) {
                 const float avdWidth = width * (static_cast<float>(avdSize) / static_cast<float>(total));
+                const bool hasBoth = avdSize > 0 && systemImageSize > 0;
                 if (avdSize > 0) {
-                    drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor(Colors::ACCENT_INFO)), 999.0F);
+                    const ImDrawFlags avdCorners = hasBoth ? ImDrawFlags_RoundCornersLeft : ImDrawFlags_RoundCornersAll;
+                    drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor(Colors::STORAGE_AVD)), 999.0F, avdCorners);
                 }
                 if (systemImageSize > 0) {
-                    drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::POSITIVE)), 999.0F);
+                    const ImDrawFlags sysCorners = hasBoth ? ImDrawFlags_RoundCornersRight : ImDrawFlags_RoundCornersAll;
+                    drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::STORAGE_SYSTEM_IMAGE)), 999.0F, sysCorners);
                 }
             }
 
@@ -96,7 +99,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(EmV(72.0F, 13.0F), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(EmV(80.0F, 0.0F), ImGuiCond_Appearing);
 
         if (ImGui::BeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &disk = context.DiskUsage;
@@ -125,19 +128,19 @@ namespace CoreDeck {
             const float cardWidth = (ImGui::GetContentRegionAvail().x - (spacing * 2.0F)) / 3.0F;
             DrawStorageSummaryCard("Total Storage", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(grandTotal), Colors::TEXT_PRIMARY, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(TotalAvdSize), Colors::ACCENT_INFO, cardWidth);
+            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(TotalAvdSize), Colors::STORAGE_AVD, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(SystemImagesSize), Colors::POSITIVE, cardWidth);
+            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(SystemImagesSize), Colors::STORAGE_SYSTEM_IMAGE, cardWidth);
 
             ImGui::Spacing();
             ImGui::TextDisabled("Breakdown");
             DrawStorageBreakdownBar(TotalAvdSize, SystemImagesSize);
             ImGui::Spacing();
-            ImGui::TextColored(HexColor(Colors::ACCENT_INFO), "AVDs");
+            ImGui::TextColored(HexColor(Colors::STORAGE_AVD), "AVDs");
             ImGui::SameLine();
             ImGui::TextDisabled("%s", FormatFileSize(TotalAvdSize).c_str());
             ImGui::SameLine();
-            ImGui::TextColored(HexColor(Colors::POSITIVE), "System Images");
+            ImGui::TextColored(HexColor(Colors::STORAGE_SYSTEM_IMAGE), "System Images");
             ImGui::SameLine();
             ImGui::TextDisabled("%s", FormatFileSize(SystemImagesSize).c_str());
 

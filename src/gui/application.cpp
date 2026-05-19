@@ -84,10 +84,7 @@ namespace CoreDeck {
         m_LoadFonts();
 
         ImGui::StyleColorsDark();
-        ApplyCustomImGuiTheme();
-        if (std::abs(m_DpiScale - 1.0F) > 0.01F) {
-            ImGui::GetStyle().ScaleAllSizes(m_DpiScale);
-        }
+        ApplyCustomImGuiTheme(m_DpiScale);
 
         const char *glslVersion = "#version 330";
         ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
@@ -341,10 +338,7 @@ namespace CoreDeck {
             io.Fonts->Build();
 
             ImGui::StyleColorsDark();
-            ApplyCustomImGuiTheme();
-            if (std::abs(self->m_DpiScale - 1.0F) > 0.01F) {
-                ImGui::GetStyle().ScaleAllSizes(self->m_DpiScale);
-            }
+            ApplyCustomImGuiTheme(self->m_DpiScale);
         });
 #endif
 
