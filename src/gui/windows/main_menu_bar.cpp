@@ -27,16 +27,20 @@ namespace CoreDeck {
             }
 
             if (RoundedBeginMenu("View")) {
-                if (RoundedMenuItem("Show AVD List Window", nullptr, &context.UI.ShowAvdListPanel)) {
+                if (RoundedMenuItem(context.UI.ShowAvdListPanel ? "Hide AVD List" : "Show AVD List")) {
+                    context.UI.ShowAvdListPanel = !context.UI.ShowAvdListPanel;
                     PersistAppSettings(context);
                 }
-                if (RoundedMenuItem("Show Options Window", nullptr, &context.UI.ShowOptionsPanel)) {
+                if (RoundedMenuItem(context.UI.ShowOptionsPanel ? "Hide Options" : "Show Options")) {
+                    context.UI.ShowOptionsPanel = !context.UI.ShowOptionsPanel;
                     PersistAppSettings(context);
                 }
-                if (RoundedMenuItem("Show Details Window", nullptr, &context.UI.ShowDetailsPanel)) {
+                if (RoundedMenuItem(context.UI.ShowDetailsPanel ? "Hide Details" : "Show Details")) {
+                    context.UI.ShowDetailsPanel = !context.UI.ShowDetailsPanel;
                     PersistAppSettings(context);
                 }
-                if (RoundedMenuItem("Show Output Log Window", nullptr, &context.UI.ShowLogPanel)) {
+                if (RoundedMenuItem(context.UI.ShowLogPanel ? "Hide Output Log" : "Show Output Log")) {
+                    context.UI.ShowLogPanel = !context.UI.ShowLogPanel;
                     PersistAppSettings(context);
                 }
                 ImGui::Separator();
