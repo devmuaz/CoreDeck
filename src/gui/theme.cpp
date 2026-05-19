@@ -7,18 +7,23 @@
 #include "theme.h"
 
 namespace CoreDeck {
-    void ApplyCustomImGuiTheme() {
+    void ApplyCustomImGuiTheme(const float dpiScale) {
         auto &style = ImGui::GetStyle();
+        const float s = dpiScale;
 
-        style.WindowRounding = 6.0F;
-        style.FrameRounding = 6.0F;
-        style.GrabRounding = 6.0F;
-        style.ScrollbarRounding = 6.0F;
-        style.PopupRounding = 4.0F;
-        style.FramePadding = ImVec2(8.0F, 8.0F);
-        style.ItemSpacing = ImVec2(8.0F, 8.0F);
-        style.WindowPadding = ImVec2(8.0F, 8.0F);
-        style.ScrollbarSize = 10.0F;
+        style.WindowRounding = 6.0F * s;
+        style.FrameRounding = 6.0F * s;
+        style.GrabRounding = 6.0F * s;
+        style.ScrollbarRounding = 6.0F * s;
+        style.PopupRounding = 4.0F * s;
+        style.FramePadding = ImVec2(8.0F * s, 8.0F * s);
+        style.ItemSpacing = ImVec2(8.0F * s, 8.0F * s);
+        style.ItemInnerSpacing = ImVec2(style.ItemInnerSpacing.x * s, style.ItemInnerSpacing.y * s);
+        style.WindowPadding = ImVec2(8.0F * s, 8.0F * s);
+        style.CellPadding = ImVec2(style.CellPadding.x * s, style.CellPadding.y * s);
+        style.IndentSpacing = style.IndentSpacing * s;
+        style.ScrollbarSize = 10.0F * s;
+        style.GrabMinSize = style.GrabMinSize * s;
         style.FrameBorderSize = 0.6F;
         style.TabRounding = 0.0F;
         style.TabBarBorderSize = 0.0F;

@@ -50,6 +50,9 @@ namespace CoreDeck {
         constexpr const char *ACCENT_INFO = "#4D9AFF";
         constexpr const char *ACCENT_INFO_SOFT = "#7AB8FF";
 
+        constexpr const char *STORAGE_AVD = "#2980B9";
+        constexpr const char *STORAGE_SYSTEM_IMAGE = "#27AE60";
+
         constexpr const char *TEXT_PRIMARY = "#F2F2F2";
         constexpr const char *TEXT_MUTED = "#66666B";
         constexpr const char *TEXT_SUBTLE = "#A7A7AD";
@@ -70,7 +73,7 @@ namespace CoreDeck {
         constexpr const char *BORDER_HOVER = "#5C5C5E";
     }
 
-    void ApplyCustomImGuiTheme();
+    void ApplyCustomImGuiTheme(float dpiScale = 1.0F);
 
     constexpr ImVec4 HexColor(const char *hex, float alpha = 1.0F) {
         auto hexToByte = [](const char hi, const char lo) -> float {

@@ -9,7 +9,7 @@
 
 #include "install_image.h"
 
-#include <math.h>
+#include <cmath>
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/utilities.h"
@@ -315,10 +315,10 @@ namespace CoreDeck {
                     if (ImGui::BeginTable("##RemoteImageTable", 5, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                         ImGui::TableSetupScrollFreeze(0, 1);
                         ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.7F);
-                        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.1F);
-                        ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthFixed, 56.0F);
-                        ImGui::TableSetupColumn("ABI", ImGuiTableColumnFlags_WidthStretch, 1.2F);
-                        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 92.0F);
+                        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.5F);
+                        ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthStretch, 1.4F);
+                        ImGui::TableSetupColumn("ABI", ImGuiTableColumnFlags_WidthStretch, 1.3F);
+                        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthStretch, 1.2F);
                         ImGui::TableHeadersRow();
 
                         int visibleCount = 0;

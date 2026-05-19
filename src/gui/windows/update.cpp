@@ -18,7 +18,7 @@ namespace CoreDeck {
 
             const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
             ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, ImGui::GetStyle().FrameRounding);
-            ImGui::BeginChild("##ReleaseNotes", ImVec2(0, lineHeight * 8.0F), 1, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGui::BeginChild("##ReleaseNotes", ImVec2(0, lineHeight * 12.0F), 1, ImGuiWindowFlags_HorizontalScrollbar);
 
             size_t start = 0;
             while (start <= notes.size()) {
@@ -72,7 +72,7 @@ namespace CoreDeck {
 
             const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-            ImGui::SetNextWindowSize(ImVec2(Em(28.0F), 0), ImGuiCond_Appearing);
+            ImGui::SetNextWindowSize(ImVec2(Em(32.0F), 0), ImGuiCond_Appearing);
 
             if (ImGui::BeginPopupModal("Up to date###CoreDeckUpdateOk", &context.Updates.ShowUpToDateModal, WINDOW_NO_RESIZE_FLAGS)) {
                 ImGui::TextWrapped("You're running the latest CoreDeck release.");
@@ -105,7 +105,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(Em(66.0F), 0), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(Em(80.0F), 0), ImGuiCond_Appearing);
 
         if (ImGui::BeginPopupModal("Update Available###CoreDeckUpdate", &context.Updates.ShowNewVersionModal, WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::Spacing();
