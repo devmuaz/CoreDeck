@@ -21,7 +21,7 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON -DCOREDECK_SENTRY_DSN=\"https://bbb4503be53864c512a1bf57e63ffc50@o4511291657486336.ingest.de.sentry.io/4511291660697680\"; if ($?) { cmake --build \"${workspaceFolder}/build-debug\" --parallel --target CoreDeck }",
+        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON -DCOREDECK_SENTRY_DSN=\"https://bbb4503be53864c512a1bf57e63ffc50@o4511291657486336.ingest.de.sentry.io/4511291660697680\"; if ($?) { cmake --build \"${workspaceFolder}/build-debug\" --parallel --target CoreDeck }",
         "problemMatcher": ["$msCompile"]
       }
     },
@@ -42,7 +42,7 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=OFF -DCOREDECK_SENTRY_DSN=\"https://bbb4503be53864c512a1bf57e63ffc50@o4511291657486336.ingest.de.sentry.io/4511291660697680\"; if ($?) { cmake --build \"${workspaceFolder}/build-release\" --parallel --target CoreDeck }",
+        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=OFF -DCOREDECK_SENTRY_DSN=\"https://bbb4503be53864c512a1bf57e63ffc50@o4511291657486336.ingest.de.sentry.io/4511291660697680\"; if ($?) { cmake --build \"${workspaceFolder}/build-release\" --parallel --target CoreDeck }",
         "problemMatcher": ["$msCompile"]
       }
     },
@@ -101,7 +101,7 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON; if ($?) { cmake --build \"${workspaceFolder}/build-debug\" --parallel --target coredeck_tests }",
+        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON; if ($?) { cmake --build \"${workspaceFolder}/build-debug\" --parallel --target coredeck_tests }",
         "problemMatcher": ["$msCompile"]
       }
     },
@@ -122,7 +122,7 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON; if ($?) { cmake --build \"${workspaceFolder}/build-release\" --parallel --target coredeck_tests }",
+        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON; if ($?) { cmake --build \"${workspaceFolder}/build-release\" --parallel --target coredeck_tests }",
         "problemMatcher": ["$msCompile"]
       }
     },
