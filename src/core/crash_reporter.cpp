@@ -34,7 +34,11 @@ namespace CoreDeck::CrashReporter {
         }
     }
 
-    bool Init() {
+    bool Init(bool isEnabled) {
+        if (!isEnabled) {
+            return false;
+        }
+
         sentry_options_t *opts = sentry_options_new();
         sentry_options_set_dsn(opts, COREDECK_SENTRY_DSN);
         sentry_options_set_release(opts, "coredeck@" COREDECK_VERSION);
@@ -55,7 +59,11 @@ namespace CoreDeck::CrashReporter {
         return sentry_init(opts) == 0;
     }
 
-    void Shutdown() {
+    void Shutdown(bool isEnabled) {
+        if (!isEnabled) {
+            return;
+        }
+
         sentry_close();
     }
 
@@ -95,11 +103,11 @@ namespace CoreDeck::CrashReporter {
 #else
 
 namespace CoreDeck::CrashReporter {
-    bool Init() {
+    bool Init(bool isEnabled) {
         return false;
     }
 
-    void Shutdown() {
+    void Shutdown(bool isEnabled) {
     }
 
     bool IsEnabled() {

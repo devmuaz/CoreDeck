@@ -3,6 +3,7 @@
 //
 
 #include "imgui.h"
+#include "imgui_internal.h"
 
 #include "widgets.h"
 #include "theme.h"
@@ -555,8 +556,8 @@ namespace CoreDeck {
             const float baseRadius = (fontSize * 0.5F) + (4.0F * s);
             const float radius = held ? baseRadius - (1.5F * s) : baseRadius;
             const ImVec4 fill = held
-                ? HexColor(Colors::NEGATIVE_STRONG)
-                : HexColor(Colors::NEGATIVE, 0.85F);
+                                    ? HexColor(Colors::NEGATIVE_STRONG)
+                                    : HexColor(Colors::NEGATIVE, 0.85F);
             drawList->AddCircleFilled(crossCenter, radius, ImGui::GetColorU32(fill));
         }
 
@@ -566,12 +567,14 @@ namespace CoreDeck {
         drawList->AddLine(
             ImVec2(crossCenter.x + crossExtent, crossCenter.y + crossExtent),
             ImVec2(crossCenter.x - crossExtent, crossCenter.y - crossExtent),
-            crossCol, crossThick
+            crossCol,
+            crossThick
         );
         drawList->AddLine(
             ImVec2(crossCenter.x + crossExtent, crossCenter.y - crossExtent),
             ImVec2(crossCenter.x - crossExtent, crossCenter.y + crossExtent),
-            crossCol, crossThick
+            crossCol,
+            crossThick
         );
         drawList->PopClipRect();
 
@@ -580,5 +583,97 @@ namespace CoreDeck {
             ImGui::CloseCurrentPopup();
         }
         return open;
+    }
+
+    bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle, const char *tooltip, float boxSize) {
+        ImGuiWindow *window = ImGui::GetCurrentWindow();
+        if (window->SkipItems) {
+            return false;
+        }
+
+        const ImGuiStyle &style = ImGui::GetStyle();
+        const ImGuiID itemId = window->GetID(id);
+        const ImVec2 titleSize = ImGui::CalcTextSize(label, nullptr, true);
+        const ImVec2 subSize = subtitle ? ImGui::CalcTextSize(subtitle, nullptr, true) : ImVec2(0, 0);
+
+        const float textBlockH = subtitle ? titleSize.y + style.ItemInnerSpacing.y + subSize.y : titleSize.y;
+        const float rowH = ImMax(boxSize, textBlockH);
+
+        const ImVec2 pos = window->DC.CursorPos;
+        const float textW = ImMax(titleSize.x, subSize.x);
+        const ImVec2 size(boxSize + style.ItemInnerSpacing.x + textW, rowH);
+        const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
+
+        ImGui::ItemSize(size, 0.0F);
+        if (!ImGui::ItemAdd(bb, itemId)) {
+            return false;
+        }
+
+        bool hovered = false;
+        bool held = false;
+        const bool pressed = ImGui::ButtonBehavior(bb, itemId, &hovered, &held);
+        if (pressed) {
+            *value = !*value;
+            ImGui::MarkItemEdited(itemId);
+        }
+
+        const ImVec2 boxMin(pos.x, pos.y + ((rowH - boxSize) * 0.5F));
+        const ImVec2 boxMax(boxMin.x + boxSize, boxMin.y + boxSize);
+        ImU32 bg = 0;
+        if (held && hovered) {
+            bg = ImGui::GetColorU32(ImGuiCol_FrameBgActive);
+        } else if (hovered) {
+            bg = ImGui::GetColorU32(ImGuiCol_FrameBgHovered);
+        } else {
+            bg = ImGui::GetColorU32(ImGuiCol_FrameBg);
+        }
+        window->DrawList->AddRectFilled(boxMin, boxMax, bg, style.FrameRounding);
+        if (style.FrameBorderSize > 0.0F) {
+            window->DrawList->AddRect(
+                boxMin,
+                boxMax,
+                ImGui::GetColorU32(ImGuiCol_Border),
+                style.FrameRounding,
+                0,
+                style.FrameBorderSize
+            );
+        }
+        if (*value) {
+            const float pad = ImMax(1.0F, ImFloor(boxSize / 6.0F));
+            ImGui::RenderCheckMark(
+                window->DrawList,
+                ImVec2(boxMin.x + pad, boxMin.y + pad),
+                ImGui::GetColorU32(ImGuiCol_CheckMark),
+                boxSize - (pad * 2.0F)
+            );
+        }
+
+        const float textX = boxMax.x + style.ItemInnerSpacing.x;
+        if (subtitle) {
+            const float textY = pos.y + ((rowH - textBlockH) * 0.5F);
+            window->DrawList->AddText(
+                ImVec2(textX, textY),
+                ImGui::GetColorU32(ImGuiCol_Text),
+                label
+            );
+            window->DrawList->AddText(
+                ImVec2(textX, textY + titleSize.y + style.ItemInnerSpacing.y),
+                ImGui::GetColorU32(ImGuiCol_TextDisabled),
+                subtitle
+            );
+        } else {
+            const float textY = pos.y + ((rowH - titleSize.y) * 0.5F);
+            window->DrawList->AddText(
+                ImVec2(textX, textY),
+                ImGui::GetColorU32(ImGuiCol_Text),
+                label
+            );
+        }
+
+        if (tooltip && ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
+            ImGui::SetTooltip("%s", tooltip);
+        }
+
+        return pressed;
     }
 }

@@ -108,20 +108,33 @@ namespace CoreDeck {
         void DrawGeneralSection(Context &context) {
             SectionHeader("General", "Behavior of CoreDeck while you work with AVDs.");
 
-            if (CheckboxRow(
-                    "autoscroll",
-                    "Auto-scroll output log",
-                    "Keep the log view pinned to the most recent line as new output arrives.",
-                    &context.Logs.AutoScroll
+            if (SubtitledCheckbox(
+                    "AutoScrollLogs",
+                    &context.Logs.AutoScroll,
+                    "Enable auto-scrolling of output logs",
+                    "Keep the log view pinned to the most recent line as new output arrives."
                 )) {
                 PersistAppSettings(context);
             }
 
-            if (CheckboxRow(
-                    "confirmdelete",
+            ImGui::Dummy(ImVec2(0, 4));
+
+            if (SubtitledCheckbox(
+                    "ConfirmDeleteAvd",
+                    &context.Prefs.ConfirmBeforeDeleteAvd,
                     "Confirm before deleting an AVD",
-                    "Show a confirmation dialog when you delete a virtual device.",
-                    &context.Prefs.ConfirmBeforeDeleteAvd
+                    "Show a confirmation dialog when you delete a virtual device."
+                )) {
+                PersistAppSettings(context);
+            }
+
+            ImGui::Dummy(ImVec2(0, 4));
+
+            if (SubtitledCheckbox(
+                    "CrashReporting",
+                    &context.Prefs.CrashReportingEnabled,
+                    "Send crash reports and diagnostics to " COREDECK_TITLE,
+                    "Share anonymous crash reports and error diagnostics (Restart Required)."
                 )) {
                 PersistAppSettings(context);
             }
@@ -203,7 +216,7 @@ namespace CoreDeck {
 
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(EmV(84.0F, 24.0F), ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(EmV(100.0F, 24.0F), ImGuiCond_Appearing);
 
         static char sdkPathBuffer[2048];
         static auto activeSection = PrefsSection::General;
