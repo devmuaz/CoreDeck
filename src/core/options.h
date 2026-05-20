@@ -24,6 +24,8 @@ namespace CoreDeck {
         constexpr const char *NETWORK = "Network";
         constexpr const char *ADVANCED = "Advanced";
         constexpr const char *CAMERA = "Camera";
+        constexpr const char *SYSTEM = "System";
+        constexpr const char *LOCATION = "Location";
     }
 
     struct EmulatorOption {

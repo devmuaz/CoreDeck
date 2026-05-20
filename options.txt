@@ -1,0 +1,210 @@
+  options:
+    -list-avds                                                          list available AVDs
+    -sysdir <dir>                                                       search for system disk images in <dir>
+    -system <file>                                                      read initial system image from <file>
+    -vendor <file>                                                      read initial vendor image from <file>
+    -writable-system                                                    make system & vendor image writable after 'adb remount'
+    -delay-adb                                                          delay adb communication till boot completes
+    -datadir <dir>                                                      write user data into <dir>
+    -kernel <file>                                                      use specific emulated kernel
+    -ramdisk <file>                                                     ramdisk image (default <system>/ramdisk.img
+    -image <file>                                                       obsolete, use -system <file> instead
+    -initdata <file>                                                    same as '-init-data <file>'
+    -data <file>                                                        data image (default <datadir>/userdata-qemu.img
+    -encryption-key <file>                                              read initial encryption key image from <file>
+    -logcat-output <file>                                               output file of logcat(default none)
+    -partition-size <size>                                              system/data partition size in MBs
+    -cache <file>                                                       cache partition image (default is temporary file)
+    -cache-size <size>                                                  cache partition size in MBs
+    -no-cache                                                           disable the cache partition
+    -nocache                                                            same as -no-cache
+    -sdcard <file>                                                      SD card image (default <datadir>/sdcard.img
+    -quit-after-boot <timeout>                                          quit emulator after guest boots completely, or after timeout in seconds
+    -qemu-top-dir <dir>                                                 Use the emulator in the specified dir (relative or absolute path)
+    -monitor-adb <verbose_level>                                        monitor the adb messages between guest and host, default not
+    -snapstorage <file>                                                 file that contains all state snapshots (default <datadir>/snapshots.img)
+    -no-snapstorage                                                     do not mount a snapshot storage file (this disables all snapshot functionality)
+    -snapshot <name>                                                    name of snapshot within storage file for auto-start and auto-save (default 'default-boot')
+    -no-snapshot                                                        perform a full boot and do not auto-save, but qemu vmload and vmsave operate on snapstorage
+    -no-snapshot-save                                                   do not auto-save to snapshot on exit: abandon changed state
+    -no-snapshot-load                                                   do not auto-start from snapshot: perform a full boot
+    -force-snapshot-load                                                force starting from snapshot: exit emulator if loading from snapshot fails
+    -qcow2-for-userdata                                                 use qcow2 for userdata
+    -snapshot-list                                                      show a list of available snapshots
+    -no-snapshot-update-time                                            do not try to correct snapshot time on restore
+    -wipe-data                                                          reset the user data image (copy it from initdata)
+    -avd <name>                                                         use a specific android virtual device
+    -avd-arch <target>                                                  use a specific target architecture
+    -skindir <dir>                                                      search skins in <dir> (default <system>/skins)
+    -skin <name>                                                        select a given skin
+    -no-skin                                                            deprecated: create an AVD with no skin instead
+    -noskin                                                             same as -no-skin
+    -memory <size>                                                      physical RAM size in MBs
+    -ui-only <UI feature>                                               run only the UI feature requested
+    -id <name>                                                          assign an id to this virtual device (separate from the avd name)
+    -cores <number>                                                     Set number of CPU cores to emulator
+    -accel <mode>                                                       Configure emulation acceleration
+    -no-accel                                                           Same as '-accel off'
+    -ranchu                                                             Use new emulator backend instead of the classic one
+    -engine <engine>                                                    Select engine. auto|classic|qemu2
+    -netspeed <speed>                                                   maximum network download/upload speeds
+    -netdelay <delay>                                                   network latency emulation
+    -netfast                                                            disable network shaping
+    -code-profile <name>                                                enable code profiling
+    -show-kernel                                                        display kernel messages
+    -shell                                                              enable root shell on current terminal
+    -no-jni                                                             deprecated, see dalvik_vm_checkjni
+    -nojni                                                              deprecated, see dalvik_vm_checkjni
+    -dalvik-vm-checkjni                                                 Enable dalvik.vm.checkjni
+    -logcat <tags>                                                      enable logcat output with given tags
+    -log-nofilter                                                       Disable the duplicate log filter (DEPRECATED)
+    -log-detailed                                                       Enable detailed logging info
+    -no-audio                                                           disable audio support
+    -noaudio                                                            same as -no-audio
+    -audio <backend>                                                    use specific audio backend
+    -radio <device>                                                     redirect radio modem interface to character device
+    -port <port>                                                        TCP port that will be used for the console
+    -ports <consoleport>,<adbport>                                      TCP ports used for the console and adb bridge
+    -modem-simulator-port <port>                                        TCP port that will be used for android modem simulator
+    -onion <image>                                                      use overlay PNG image over screen
+    -onion-alpha <%age>                                                 specify onion-skin translucency
+    -onion-rotation 0|1|2|3                                             specify onion-skin rotation
+    -dpi-device <dpi>                                                   specify device's resolution in dpi (default DEFAULT_DEVICE_DPI)
+    -scale <scale>                                                      scale emulator window (deprecated)
+    -wifi-client-port <port>                                            connect to other emulator for WiFi forwarding
+    -wifi-server-port <port>                                            listen to other emulator for WiFi forwarding
+    -http-proxy <proxy>                                                 make TCP connections through a HTTP/HTTPS proxy
+    -timezone <timezone>                                                use this timezone instead of the host's default
+    -change-language <language>                                         use this language instead of the current one. Restarts the framework.
+    -change-country <country>                                           use this country instead of the current one. Restarts the framework.
+    -change-locale <locale>                                             use this locale instead of the current one. Restarts the framework.
+    -dns-server <servers>                                               use this DNS server(s) in the emulated system
+    -net-tap <interface>                                                use this TAP interface for networking
+    -net-socket option                                                  use Socket interface for network, one of fd=, listen=, or connect=
+    -net-tap-script-up <script>                                         script to run when the TAP interface goes up
+    -net-tap-script-down <script>                                       script to run when the TAP interface goes down
+    -cpu-delay <cpudelay>                                               throttle CPU emulation
+    -no-boot-anim                                                       disable animation for faster boot
+    -no-window                                                          disable graphical window display
+    -qt-hide-window                                                     Start QT window but hide window display
+    -no-sim                                                             device has no SIM card
+    -lowram                                                             device is a low ram device
+    -version                                                            display emulator version number
+    -no-passive-gps                                                     disable passive gps updates
+    -gnss-file-path <path>                                              Use the specified filepath to read gnss data
+    -gnss-grpc-port <port number>                                       Use the specified port number to start grpc service to receive gnss data
+    -virtio-console                                                     using virtio console as console
+    -read-only                                                          allow running multiple instances of emulators on the same AVD, but cannot save snapshot.
+    -is-restart <restart-pid>                                           specifies that this emulator was a restart, and to wait out <restart-pid> before proceeding
+    -report-console <socket>                                            report console port to remote socket
+    -gps <device>                                                       redirect NMEA GPS to character device
+    -shell-serial <device>                                              specific character device for root shell
+    -tcpdump <file>                                                     capture network packets to file
+    -bootchart <timeout>                                                enable bootcharting
+    -charmap <file>                                                     use specific key character map
+    -studio-params <file>                                               used by Android Studio to provide parameters
+    -prop <name>=<value>                                                set system property on boot
+    -shared-net-id <number>                                             join the shared network, using IP address 10.1.2.<number>
+    -nand-limits <nlimits>                                              enforce NAND/Flash read/write thresholds
+    -gpu <mode>                                                         set hardware GPU mode
+    -vsync-rate <rate>                                                  set the vsync rate (refresh rate) in Hz for the guest display
+    -camera-back <mode>                                                 set emulation mode for a camera facing back
+    -camera-front <mode>                                                set emulation mode for a camera facing front
+    -webcam-list                                                        lists web cameras available for emulation
+    -virtualscene-poster <name>=<filename>                              Load a png or jpeg image as a poster in the virtual scene
+    -screen <mode>                                                      set emulated screen mode
+    -selinux <disabled|permissive>                                      Set SELinux to either disabled or permissive mode
+    -unix-pipe <path>                                                   Add <path> to the list of allowed Unix pipes
+    -fixed-scale                                                        Use fixed 1:1 scale for the initial emulator window.
+    -wait-for-debugger                                                  Pause on launch and wait for a debugger process to attach before resuming
+    -skip-adb-auth                                                      Skip adb authentication dialogue
+    -metrics-to-console                                                 Enable usage metrics and print the messages to stdout
+    -metrics-collection                                                 Enable usage metrics and send them to google play
+    -metrics-to-file <file>                                             Enable usage metrics and write the messages into specified file
+    -no-metrics                                                         Disable metrics collection
+    -detect-image-hang                                                  Enable the detection of system image hangs.
+    -feature <name|-name>                                               Force-enable or disable (-name) the features
+    -icc-profile <file>                                                 Use icc profile from specified file
+    -sim-access-rules-file <file>                                       Use SIM access rules from specified file
+    -phone-number <phone_number>                                        Sets the phone number of the emulated device
+    -acpi-config <file>                                                 specify acpi device proprerties (hierarchical key=value pair)
+    -fuchsia                                                            Run Fuchsia image. Bypasses android-specific setup; args after are treated as standard QEMU args
+    -window-size <size>                                                 Set window size for when bypassing android-specific setup.
+    -allow-host-audio                                                   Allows sending of audio from audio input devices. Otherwise, zeroes out audio.
+    -restart-when-stalled                                               Allows restarting guest when it is stalled.
+    -perf-stat <file>                                                   Run periodic perf stat reporter in the background and write output to specified file.
+    -share-vid                                                          Share current video state in shared memory region.
+    -grpc <port>                                                        TCP ports used for the gRPC bridge.
+    -grpc-tls-key <pem>                                                 File with the private key used to enable gRPC TLS.
+    -grpc-tls-cer <pem>                                                 File with the public X509 certificate used to enable gRPC TLS.
+    -grpc-tls-ca <pem>                                                  File with the Certificate Authorities used to validate client certificates.
+    -grpc-use-token                                                     Use the emulator console token for gRPC authentication.
+    -grpc-use-jwt                                                       Use a signed JWT token for gRPC authentication. (default, disable with -grpc flag)
+    -grpc-allowlist <file>                                              Use a custom allow list for gRPC authentication.
+    -idle-grpc-timeout <timeout>                                        Terminate the emulator if there is no gRPC activity within <timeout> seconds.
+    -waterfall <mode>                                                   Mode in which to run waterfall.
+    -grpc-ui                                                            Use the experimental gRPRC ui.
+    -packet-streamer-endpoint <uri>                                     Use the provided packet streamer endpoint when present.
+    -netsim-args <arg1> [<arg2> ...]                                    Additional netsim arguments.
+    -multidisplay index width height dpi flag                           config multiple displays.
+    -google-maps-key <API key>                                          API key to use with the Google Maps GUI.
+    -no-location-ui                                                     Disable the location UI in the extended window.
+    -use-keycode-forwarding                                             Use keycode forwarding instead of host charmap translation.
+    -record-session <file>,<delay>[,<duration>]                         Screen record the emulator session.
+    -legacy-fake-camera                                                 Use legacy camera HAL for the emulated fake camera.
+    -camera-hq-edge                                                     Enable high qualify edge processing for emulated camera.
+    -no-direct-adb                                                      Use external adb executable for internal communication.
+    -check-snapshot-loadable <snapshot name|exported snapshot tar file> Check if a snasphot is loadable.
+    -no-hidpi-scaling                                                   Disable HiDPI scaling of guest display on macOS devices.
+    -no-mouse-reposition                                                Do not reposition the mouse to emulator window center if mouse pointer gets out of the window.
+    -usb-passthrough VID PID BUS PORTS                                  Host USB device Passthrough
+    -append-userspace-opt key=value                                     Appends a property which is passed to the userspace.
+    -save-path <file path>                                              Override save path for screenshot and bug report. The value will not be persisted on host OS.
+    -no-nested-warnings                                                 Disable the warning dialog when emulator is running in nested virtualization.
+    -wifi-tap <interface>                                               use this TAP interface for Virtio Wi-Fi
+    -wifi-tap-script-up <script>                                        script to run when the TAP interface goes up
+    -wifi-tap-script-down <script>                                      script to run when the TAP interface goes down
+    -wifi-socket <option>                                               use Socket interface for Virtio Wi-Fi, one of fd=, listen=, or connect=
+    -vmnet-bridged <host network interface>                             Enable vmnet framework in bridged mode as the backend of tap netdev on MacOS and provide a host network interface as argument.
+    -vmnet-shared                                                       Enable vmnet framework in shared mode as the backend of tap netdev on MacOS.
+    -vmnet-start-address <ipv4 address>                                 If using vmnet in shared mode, starting IPv4 address to assing using DHCP. Must be in RFC 1918 private IP range and specified together with vmnet_end_address and vmnet_subnet_mask.
+    -vmnet-end-address <ipv4 address>                                   If using vmnet in shared mode, ending IPv4 address to assing using DHCP. Must be in RFC 1918 private IP range and specified together with vmnet_start_address and vmnet_subnet_mask.
+    -vmnet-subnet-mask <ipv4 address>                                   If using vmnet in shared mode, IPv4 netmask to assing using DHCP. Must be in RFC 1918 private IP range and specified together with vmnet_start_address and vmnet_end_address.
+    -vmnet-isolated                                                     Enable isolation for the interface. Ensures that vmnet interface is not able to communicate with any other vmnet interface.
+    -wifi-user-mode-options <option list>                               Override default user mode networking option for wifi network in Android Emulator for API 31 and above.
+    -network-user-mode-options <option list>                            Override default user mode networking option for both radio and wifi network in Android Emulator for API 30 and below. Override default user mode networking optionfor radio network for API 31 and above.
+    -adb-path <path>                                                    use adb binary from <path>
+    -hotplug-multi-display                                              Use the HAL hotplug display to implement multiDisplay.
+    -xts                                                                Use android64-xts CPU profile instead of the default one
+    -wifi-mac-address <mac address>                                     Override the mac address of the wlan0 interface in AVD. This option only applies to situation where AVD is loaded from snapshot using read-on
+
+                                                                                             ly mode. Example: -wifi-mac-address 00:11:22:33:44:55.
+    -no-ethernet                                                        Disable virtual Ethernet interface en0. This option is only effective for Android TV virtual device and when feature VirtioWifi is enabled.
+    -android-serialno <android serialno>                                Set customized android serial number. The value of this field must be encodable as 7-bit ASCII and match the regular expression “^[a-zA-Z0-9._-,]+$”.
+    -support-multiple-input-modaliti                                  Support different input modalities.
+    -hands-in-space                                                     Enable hands input for XR spatial application.
+    -systemui-renderer <option list>                                    Set guest side renderer backend. Available options: skiagl, skiavk
+    -display-modality <modality>                                        Set display modality. Available options: ost, vst
+    -fishtank <discovery_file>                                          The fishtank ui for emulator <discovery_file>
+    -crash-report-mode <option list>                                    Override crash reporting mode. Available options: disabled, never, always, ask
+    -no-display-layout                                                  Disable display layout from the environment configuration.
+
+     -qemu args...                                                      pass arguments to qemu
+     -qemu -h                                                           display qemu help
+
+     -verbose                                                           same as '-debug-init'
+     -debug <tags>                                                      enable/disable debug messages
+     -debug-<tag>                                                       enable specific debug messages
+     -debug-no-<tag>                                                    disable specific debug messages
+
+     -help                                                              print this help
+     -help-<option>                                                     print option-specific help
+
+     -help-disk-images                                                  about disk images
+     -help-debug-tags                                                   debug tags for -debug <tags>
+     -help-char-devices                                                 character <device> specification
+     -help-environment                                                  environment variables
+     -help-virtual-device                                               virtual device management
+     -help-sdk-images                                                   about disk images when using the SDK
+     -help-build-images                                                 about disk images when building Android
+     -help-all                                                          prints all help content

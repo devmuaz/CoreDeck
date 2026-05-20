@@ -65,13 +65,13 @@ namespace CoreDeck {
     constexpr ImGuiWindowFlags WINDOW_NO_RESIZE_FLAGS =
         ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
+        // ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoDocking;
 
     constexpr ImGuiWindowFlags WINDOW_AUTO_RESIZE_FLAGS =
         ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
+        // ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoDocking;
 
