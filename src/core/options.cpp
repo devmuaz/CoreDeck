@@ -2,6 +2,7 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
+#include <algorithm>
 #include <fstream>
 #include <rfl/json.hpp>
 
@@ -141,6 +142,37 @@ namespace CoreDeck {
                     .Category = OptionCategory::DISPLAY,
                     .Items = {"touch", "multi-touch", "no-touch"},
                 },
+                {
+                    .Flag = "-dpi-device",
+                    .DisplayName = "Device DPI",
+                    .Description = "Override the device's screen density in dpi",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::DISPLAY,
+                    .Hint = "e.g., 420",
+                },
+                {
+                    .Flag = "-skin",
+                    .DisplayName = "Skin",
+                    .Description = "Select a specific device skin by name",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::DISPLAY,
+                    .Hint = "e.g., pixel_7",
+                },
+                {
+                    .Flag = "-no-skin",
+                    .DisplayName = "Disable Skin",
+                    .Description = "Run without any device skin",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::DISPLAY,
+                },
+                {
+                    .Flag = "-window-size",
+                    .DisplayName = "Window Size",
+                    .Description = "Set the initial emulator window size (useful with no-skin)",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::DISPLAY,
+                    .Hint = "e.g., 1080x1920",
+                },
             };
         }
 
@@ -162,6 +194,14 @@ namespace CoreDeck {
                     .Category = OptionCategory::PERFORMANCE,
                     .Hint = "e.g., 4",
                 },
+                {
+                    .Flag = "-cache-size",
+                    .DisplayName = "Cache Size (MBs)",
+                    .Description = "Cache partition size in MBs",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::PERFORMANCE,
+                    .Hint = "e.g., 512",
+                },
             };
         }
 
@@ -171,6 +211,35 @@ namespace CoreDeck {
                     .Flag = "-no-snapshot",
                     .DisplayName = "Full Boot",
                     .Description = "Perform a full boot and do not auto-save on exit",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::BOOT,
+                },
+                {
+                    .Flag = "-no-snapshot-load",
+                    .DisplayName = "Cold Boot",
+                    .Description = "Perform a full boot without loading a snapshot (preserves user data)",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::BOOT,
+                },
+                {
+                    .Flag = "-no-snapshot-save",
+                    .DisplayName = "Discard State on Exit",
+                    .Description = "Do not auto-save to snapshot on exit; changed state is abandoned",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::BOOT,
+                },
+                {
+                    .Flag = "-snapshot",
+                    .DisplayName = "Snapshot Name",
+                    .Description = "Name of the snapshot to auto-start from and auto-save to",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::BOOT,
+                    .Hint = "e.g., default-boot",
+                },
+                {
+                    .Flag = "-read-only",
+                    .DisplayName = "Read-Only (Multi-Instance)",
+                    .Description = "Allow running multiple instances of this AVD (snapshots cannot be saved)",
                     .Type = OptionType::Default,
                     .Category = OptionCategory::BOOT,
                 },
@@ -197,6 +266,13 @@ namespace CoreDeck {
                     .Flag = "-no-audio",
                     .DisplayName = "Disable Audio",
                     .Description = "Disable audio support",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::AUDIO,
+                },
+                {
+                    .Flag = "-allow-host-audio",
+                    .DisplayName = "Allow Host Microphone",
+                    .Description = "Pass host audio input devices through to the guest (otherwise zeroed)",
                     .Type = OptionType::Default,
                     .Category = OptionCategory::AUDIO,
                 },
@@ -237,6 +313,30 @@ namespace CoreDeck {
                     .Category = OptionCategory::NETWORK,
                     .Hint = "e.g., 8.8.8.8",
                 },
+                {
+                    .Flag = "-tcpdump",
+                    .DisplayName = "Packet Capture File",
+                    .Description = "Capture network packets to the given pcap file",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::NETWORK,
+                    .Hint = "e.g., /tmp/emulator.pcap",
+                },
+                {
+                    .Flag = "-port",
+                    .DisplayName = "Console Port",
+                    .Description = "TCP port used for the emulator console (adb port is console + 1)",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::NETWORK,
+                    .Hint = "e.g., 5554",
+                },
+                {
+                    .Flag = "-ports",
+                    .DisplayName = "Console + ADB Ports",
+                    .Description = "TCP ports used for the console and adb bridge",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::NETWORK,
+                    .Hint = "e.g., 5554,5555",
+                },
             };
         }
 
@@ -261,6 +361,85 @@ namespace CoreDeck {
             };
         }
 
+        std::vector<EmulatorOption> LocationOptions() {
+            return {
+                {
+                    .Flag = "-no-passive-gps",
+                    .DisplayName = "Disable Passive GPS",
+                    .Description = "Disable passive GPS updates from the host",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::LOCATION,
+                },
+                {
+                    .Flag = "-gnss-file-path",
+                    .DisplayName = "GNSS Replay File",
+                    .Description = "Read GNSS data from the given file to replay a route",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::LOCATION,
+                    .Hint = "e.g., /path/to/track.nmea",
+                },
+            };
+        }
+
+        std::vector<EmulatorOption> SystemOptions() {
+            return {
+                {
+                    .Flag = "-phone-number",
+                    .DisplayName = "Phone Number",
+                    .Description = "Set the phone number reported by the emulated device",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::SYSTEM,
+                    .Hint = "e.g., +15555550100",
+                },
+                {
+                    .Flag = "-change-locale",
+                    .DisplayName = "Locale",
+                    .Description = "Override the device locale (restarts the framework)",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::SYSTEM,
+                    .Hint = "e.g., en-US",
+                },
+                {
+                    .Flag = "-writable-system",
+                    .DisplayName = "Writable System",
+                    .Description = "Make the system and vendor images writable after 'adb remount'",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::SYSTEM,
+                },
+                {
+                    .Flag = "-skip-adb-auth",
+                    .DisplayName = "Skip ADB Auth",
+                    .Description = "Skip the adb authentication dialog on connect",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::SYSTEM,
+                },
+                {
+                    .Flag = "-id",
+                    .DisplayName = "Instance ID",
+                    .Description = "Assign a separate id to this virtual device (independent of the AVD name)",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::SYSTEM,
+                    .Hint = "e.g., my-instance-1",
+                },
+                {
+                    .Flag = "-prop",
+                    .DisplayName = "System Property",
+                    .Description = "Set a system property on boot (single name=value pair)",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::SYSTEM,
+                    .Hint = "e.g., ro.debuggable=1",
+                },
+                {
+                    .Flag = "-feature",
+                    .DisplayName = "Emulator Features",
+                    .Description = "Force-enable or disable (-name) emulator features",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::SYSTEM,
+                    .Hint = "e.g., GLESDynamicVersion,-Vulkan",
+                },
+            };
+        }
+
         std::vector<EmulatorOption> AdvancedOptions() {
             return {
                 {
@@ -274,6 +453,20 @@ namespace CoreDeck {
                     .Flag = "-show-kernel",
                     .DisplayName = "Show Kernel Log",
                     .Description = "Display kernel messages in the output log",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::ADVANCED,
+                },
+                {
+                    .Flag = "-verbose",
+                    .DisplayName = "Verbose Logging",
+                    .Description = "Enable verbose emulator logging (same as -debug-init)",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::ADVANCED,
+                },
+                {
+                    .Flag = "-wait-for-debugger",
+                    .DisplayName = "Wait for Debugger",
+                    .Description = "Pause on launch until a debugger process attaches",
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
@@ -324,13 +517,51 @@ namespace CoreDeck {
                     .Category = OptionCategory::ADVANCED,
                     .Items = {"permissive", "disabled"},
                 },
+                {
+                    .Flag = "-system",
+                    .DisplayName = "System Image",
+                    .Description = "Override the initial system image file",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::ADVANCED,
+                    .Hint = "e.g., /path/to/system.img",
+                },
+                {
+                    .Flag = "-data",
+                    .DisplayName = "Userdata Image",
+                    .Description = "Override the userdata image file",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::ADVANCED,
+                    .Hint = "e.g., /path/to/userdata-qemu.img",
+                },
+                {
+                    .Flag = "-sdcard",
+                    .DisplayName = "SD Card Image",
+                    .Description = "Override the SD card image file",
+                    .Type = OptionType::TextInput,
+                    .Category = OptionCategory::ADVANCED,
+                    .Hint = "e.g., /path/to/sdcard.img",
+                },
+                {
+                    .Flag = "-restart-when-stalled",
+                    .DisplayName = "Restart When Stalled",
+                    .Description = "Automatically restart the guest if it becomes unresponsive",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::ADVANCED,
+                },
+                {
+                    .Flag = "-detect-image-hang",
+                    .DisplayName = "Detect Image Hangs",
+                    .Description = "Enable detection of system image hangs",
+                    .Type = OptionType::Default,
+                    .Category = OptionCategory::ADVANCED,
+                },
             };
         }
     }
 
     std::vector<EmulatorOption> GetEmulatorOptions() {
         std::vector<EmulatorOption> result;
-        result.reserve(22);
+        result.reserve(52);
 
         for (const auto &group: {
                  DisplayOptions(),
@@ -339,6 +570,8 @@ namespace CoreDeck {
                  AudioOptions(),
                  NetworkOptions(),
                  CameraOptions(),
+                 LocationOptions(),
+                 SystemOptions(),
                  AdvancedOptions(),
              }) {
             result.insert(result.end(), std::make_move_iterator(group.begin()), std::make_move_iterator(group.end()));
@@ -417,8 +650,28 @@ namespace CoreDeck {
                 return GetEmulatorOptions();
             }
 
-            auto options = rfl::json::read<std::vector<EmulatorOption>>(json);
-            return options.value();
+            auto savedResult = rfl::json::read<std::vector<EmulatorOption>>(json);
+            if (!savedResult) {
+                return GetEmulatorOptions();
+            }
+            const auto &saved = savedResult.value();
+
+            auto merged = GetEmulatorOptions();
+            for (auto &option: merged) {
+                const auto it = std::ranges::find_if(saved, [&](const EmulatorOption &s) {
+                    return s.Flag == option.Flag;
+                });
+                if (it == saved.end()) {
+                    continue;
+                }
+                option.Enabled = it->Enabled;
+                option.InputValue = it->InputValue;
+                if (option.Type == OptionType::Selection && !option.Items.empty()) {
+                    const int clamped = std::clamp(it->SelectedItem, 0, static_cast<int>(option.Items.size()) - 1);
+                    option.SelectedItem = clamped;
+                }
+            }
+            return merged;
         } catch (const std::exception &e) {
             Log::Error("Failed to load options from ", filePath, ": ", e.what());
             return GetEmulatorOptions();
