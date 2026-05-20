@@ -80,7 +80,7 @@ namespace CoreDeck {
             if (disabled) {
                 ImGui::BeginDisabled();
             }
-            if (PrimaryButton(IconWithLabel(Icons::TRASH, "Clear").c_str())) {
+            if (PrimaryButton(Icons::TRASH)) {
                 inputs.Log->Clear();
             }
             if (disabled) {
@@ -92,7 +92,7 @@ namespace CoreDeck {
             if (!canCopy) {
                 ImGui::BeginDisabled();
             }
-            const bool copyClicked = PrimaryButton(IconWithLabel(Icons::COPY, "Copy").c_str());
+            const bool copyClicked = PrimaryButton(Icons::COPY);
             if (!canCopy) {
                 ImGui::EndDisabled();
             }

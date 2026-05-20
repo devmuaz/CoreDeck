@@ -5,9 +5,9 @@
 #include "imgui.h"
 
 #include "avd_options.h"
+#include <cstddef>
 #include "../application.h"
 #include "../widgets.h"
-#include "../theme.h"
 
 namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context) {
@@ -52,15 +52,9 @@ namespace CoreDeck {
                     ImGui::PushID(Flag.c_str());
 
                     const bool wasEnabled = Enabled;
-                    ImGui::Checkbox(DisplayName.c_str(), &Enabled);
+                    SubtitledCheckbox(Flag.c_str(), &Enabled, DisplayName.c_str(), nullptr, Description.c_str());
                     if (wasEnabled != Enabled) {
                         optionsChanged = true;
-                    }
-
-                    ImGui::SameLine();
-                    ImGui::TextColored(HexColor(Colors::TEXT_MUTED), Icons::INFO);
-                    if (ImGui::IsItemHovered()) {
-                        ImGui::SetTooltip("%s", Description.c_str());
                     }
 
                     if (Enabled) {

@@ -168,16 +168,13 @@ namespace CoreDeck {
         ComboStyle();
     };
 
-    bool RoundedSelectable(
-        const char *label,
-        bool isSelected = false,
-        ImGuiSelectableFlags flags = 0,
-        const ImVec2 &size = ImVec2(0, 0)
-    );
+    bool RoundedSelectable(const char *label, bool isSelected = false, ImGuiSelectableFlags flags = 0, const ImVec2 &size = ImVec2(0, 0));
 
     bool RoundedBeginPopupModal(const char *name, bool *pOpen = nullptr, ImGuiWindowFlags flags = 0);
 
     DialogResult SimpleDialog(const DialogData &data);
+
+    bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
 }
 
 #endif // EMU_LAUNCHER_COMPONENTS_H

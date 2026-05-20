@@ -16,9 +16,9 @@ namespace CoreDeck::CrashReporter {
         Fatal
     };
 
-    bool Init();
+    bool Init(bool isEnabled);
 
-    void Shutdown();
+    void Shutdown(bool isEnabled);
 
     bool IsEnabled();
 
