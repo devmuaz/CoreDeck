@@ -1,3 +1,10 @@
+## [v0.7.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.7.0) — 2026-05-21
+
+- Add 30+ new emulator option flags and merge saved configs with defaults so new options surface without losing user state
+- Make popup windows movable
+- Make Sentry crash reporting opt-in via a new preference
+- Add a custom `SubtitledCheckbox` widget to replace ImGui's default checkboxes
+
 ## [v0.7.0-beta.6](https://github.com/devmuaz/CoreDeck/releases/tag/v0.7.0-beta.6) — 2026-05-19
 
 - Replace the View menu checkboxes with Show/Hide text toggles for the AVD List, Options, Details, and Output Log panels
