@@ -34,6 +34,11 @@ namespace CoreDeck {
     constexpr auto TICK_INTERVAL = std::chrono::milliseconds(1000);
 
     namespace {
+        unsigned LogicalCpuCount() {
+            const unsigned count = std::thread::hardware_concurrency();
+            return count > 0 ? count : 1;
+        }
+
 #if defined(__APPLE__)
         bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
             proc_taskinfo info{};
@@ -293,7 +298,12 @@ namespace CoreDeck {
             const auto deltaNs = cpuTimeNs - entry.PrevCpuTimeNs;
             const double elapsedNs = elapsedSec * 1e9;
             cpuPercent = static_cast<float>((static_cast<double>(deltaNs) / elapsedNs) * 100.0);
-            cpuPercent = std::max(cpuPercent, 0.0F);
+            cpuPercent /= static_cast<float>(LogicalCpuCount());
+            if (cpuPercent > 100.0F) {
+                cpuPercent = 100.0F;
+            } else if (cpuPercent < 0.0F) {
+                cpuPercent = 0.0F;
+            }
         }
 
         std::uint64_t readRate = 0;
