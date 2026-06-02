@@ -114,7 +114,7 @@ namespace CoreDeck {
             return u.QuadPart;
         }
 
-        bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
+        bool ReadOneProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
             const HANDLE h = OpenProcess(
                 PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ,
                 FALSE,
@@ -147,6 +147,33 @@ namespace CoreDeck {
 
             CloseHandle(h);
             return true;
+        }
+
+        bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
+            std::vector<ProcessId> pids;
+            CollectProcessTreePids(pid, pids);
+
+            cpuTimeNs = 0;
+            rssBytes = 0;
+            diskReadBytes = 0;
+            diskWriteBytes = 0;
+
+            bool anyOk = false;
+            for (const ProcessId treePid: pids) {
+                std::uint64_t cpu = 0;
+                std::uint64_t rss = 0;
+                std::uint64_t diskRead = 0;
+                std::uint64_t diskWrite = 0;
+                if (!ReadOneProcessSnapshot(treePid, cpu, rss, diskRead, diskWrite)) {
+                    continue;
+                }
+                cpuTimeNs += cpu;
+                rssBytes += rss;
+                diskReadBytes += diskRead;
+                diskWriteBytes += diskWrite;
+                anyOk = true;
+            }
+            return anyOk;
         }
 #else
         static bool ReadProcessSnapshot(ProcessId, std::uint64_t &, std::uint64_t &, std::uint64_t &, std::uint64_t &) {
