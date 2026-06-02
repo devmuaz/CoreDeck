@@ -40,6 +40,8 @@ namespace CoreDeck {
     bool WaitForProcessExit(ProcessId pid, int timeoutMs);
 
     bool IsProcessRunning(ProcessId pid);
+
+    void CollectProcessTreePids(ProcessId pid, std::vector<ProcessId> &out);
 }
 
 #endif // EMU_LAUNCHER_PROCESS_H

@@ -436,4 +436,37 @@ namespace CoreDeck {
         return false;
 #endif
     }
+
+    void CollectProcessTreePids(const ProcessId pid, std::vector<ProcessId> &out) {
+        if (pid == 0) {
+            return;
+        }
+
+#if defined(_WIN32)
+        out.push_back(pid);
+
+        HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (snap == INVALID_HANDLE_VALUE) {
+            return;
+        }
+
+        std::vector<DWORD> children;
+        PROCESSENTRY32 pe = {};
+        pe.dwSize = sizeof(pe);
+        if (Process32First(snap, &pe)) {
+            do {
+                if (pe.th32ParentProcessID == pid) {
+                    children.push_back(pe.th32ProcessID);
+                }
+            } while (Process32Next(snap, &pe));
+        }
+        CloseHandle(snap);
+
+        for (const DWORD child: children) {
+            CollectProcessTreePids(child, out);
+        }
+#else
+        out.push_back(pid);
+#endif
+    }
 }
