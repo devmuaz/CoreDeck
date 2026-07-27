@@ -32,6 +32,7 @@ namespace CoreDeck {
         constexpr const char *COPY = "\xef\x83\x85";
         constexpr const char *CHEVRON_LEFT = "\xef\x81\x93";
         constexpr const char *CHEVRON_RIGHT = "\xef\x81\x94";
+        constexpr const char *COFFEE = "\xef\x83\xb4";
     }
 
     namespace Colors {

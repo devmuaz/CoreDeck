@@ -9,6 +9,8 @@
 
 namespace CoreDeck {
     void BuildSdkMissingBanner(Context &context);
+
+    void BuildJdkWarningBanner(Context &context);
 }
 
 #endif // COREDECK_SDK_BANNER_H

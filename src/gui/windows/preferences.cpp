@@ -11,6 +11,7 @@
 #include "../application.h"
 #include "../../core/paths.h"
 #include "../../core/sdk.h"
+#include "../../core/jdk.h"
 #include "../../core/file_dialog.h"
 
 namespace CoreDeck {
@@ -18,6 +19,7 @@ namespace CoreDeck {
         enum class PrefsSection : uint8_t {
             General,
             AndroidSdk,
+            Java,
         };
 
         struct SidebarItem {
@@ -29,6 +31,7 @@ namespace CoreDeck {
         constexpr SidebarItem SIDEBAR_ITEMS[] = {
             {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = "General"},
             {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = "Android SDK"},
+            {.Section = PrefsSection::Java, .Icon = Icons::COFFEE, .Label = "Java (JDK)"},
         };
 
         bool SidebarRow(const SidebarItem &item, const bool selected) {
@@ -182,6 +185,7 @@ namespace CoreDeck {
             if (PrimaryButton("Apply SDK Path", pathOk)) {
                 Paths::Onboarding::SaveSdkPathOverride(pathStr);
                 context.Host.Sdk = DetectAndroidSdk();
+                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
                 RefreshAvds(context);
                 context.UI.HideInvalidSdkPathBanner = false;
@@ -195,6 +199,7 @@ namespace CoreDeck {
             if (PrimaryButton("Use Default Discovery", true)) {
                 Paths::Onboarding::ClearSdkPathOverride();
                 context.Host.Sdk = DetectAndroidSdk();
+                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
                 RefreshAvds(context);
                 context.UI.HideInvalidSdkPathBanner = false;
@@ -207,6 +212,141 @@ namespace CoreDeck {
                 ImGui::SetTooltip("Forget the saved override and detect the SDK from ANDROID_HOME / default paths.");
             }
         }
+
+        const char *JdkSourceLabel(const JdkSource source) {
+            switch (source) {
+                case JdkSource::Override:
+                    return "Custom Path";
+                case JdkSource::JavaHomeEnv:
+                    return "JAVA_HOME";
+                case JdkSource::Detected:
+                    return "Auto-Detected";
+                case JdkSource::None:
+                default:
+                    return "none";
+            }
+        }
+
+        void DrawJdkStatus(const JdkInfo &jdk) {
+            if (!jdk.IsFound) {
+                ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s No JDK found at this location.", Icons::TIMES);
+                return;
+            }
+
+            const char *version = jdk.VersionString.empty() ? "Java" : jdk.VersionString.c_str();
+            if (jdk.IsValid) {
+                ImGui::TextColored(
+                    HexColor(Colors::POSITIVE),
+                    "%s %s (%s)",
+                    Icons::INFO,
+                    version,
+                    JdkSourceLabel(jdk.Source)
+                );
+            } else {
+                ImGui::TextColored(
+                    HexColor(Colors::NEGATIVE),
+                    "%s %s (%s) - requires JDK %d or newer.",
+                    Icons::TIMES,
+                    version,
+                    JdkSourceLabel(jdk.Source),
+                    JDK_MINIMUM_MAJOR
+                );
+            }
+        }
+
+        void DrawJavaSection(Context &context, char *jdkPathBuffer, size_t bufferSize) {
+            SectionHeader(
+                "Java (JDK)",
+                "The Android command-line tools (avdmanager, sdkmanager) run on Java and require "
+                "JDK 17 or newer. Point CoreDeck at a compatible JDK if your system default is older."
+            );
+
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+            ImGui::TextUnformatted("Currently used");
+            ImGui::PopStyleColor();
+            if (context.Host.Jdk.IsFound) {
+                DrawJdkStatus(context.Host.Jdk);
+                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
+                ImGui::TextWrapped("%s", context.Host.Jdk.JavaHome.c_str());
+                ImGui::PopStyleColor();
+            } else {
+                ImGui::TextColored(
+                    HexColor(Colors::WARNING),
+                    "%s No JDK detected. The command-line tools will use whatever 'java' is on your PATH.",
+                    Icons::INFO
+                );
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+            ImGui::TextUnformatted("JDK home");
+            ImGui::PopStyleColor();
+            const float browseWidth = Em(12.0F);
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - browseWidth - spacing);
+            ImGui::InputTextWithHint("##JdkPrefs", "Path to a JDK home directory", jdkPathBuffer, bufferSize);
+            ImGui::SameLine();
+            if (PrimaryButton("Browse...", true, ImVec2(browseWidth, 0))) {
+                if (const auto picked = FileDialog::PickFolder("Select JDK home directory", jdkPathBuffer)) {
+                    strncpy(jdkPathBuffer, picked->c_str(), bufferSize - 1);
+                    jdkPathBuffer[bufferSize - 1] = '\0';
+                }
+            }
+
+            const std::string pathStr = jdkPathBuffer;
+            const bool binExists = !pathStr.empty() &&
+                                   (std::filesystem::exists(
+                                        Paths::JoinPaths({pathStr, "bin", "java" + Paths::GetExecutableExtension()})
+                                    ) ||
+                                    std::filesystem::exists(
+                                        Paths::JoinPaths({pathStr, "Contents", "Home", "bin", "java" + Paths::GetExecutableExtension()})
+                                    ));
+
+            if (pathStr.empty()) {
+                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
+                ImGui::TextUnformatted("Leave empty to auto-detect from JAVA_HOME or standard install paths.");
+                ImGui::PopStyleColor();
+            } else if (!binExists) {
+                ImGui::TextColored(HexColor(Colors::NEGATIVE), "No 'bin/java' found in this directory.");
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
+                ImGui::TextUnformatted("Click Apply to validate the Java version and use this JDK.");
+                ImGui::PopStyleColor();
+            }
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            if (PrimaryButton("Apply JDK Path", binExists)) {
+                Paths::Onboarding::SaveJdkPathOverride(pathStr);
+                context.Host.Jdk = DetectJdk();
+                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
+                context.Host.Manager.SetSdk(context.Host.Sdk);
+                RefreshAvds(context);
+                strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
+                jdkPathBuffer[bufferSize - 1] = '\0';
+            }
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !binExists) {
+                ImGui::SetTooltip("Choose a directory that contains bin/java before applying.");
+            }
+
+            ImGui::SameLine();
+            if (PrimaryButton("Use Default Discovery", true)) {
+                Paths::Onboarding::ClearJdkPathOverride();
+                context.Host.Jdk = DetectJdk();
+                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
+                context.Host.Manager.SetSdk(context.Host.Sdk);
+                RefreshAvds(context);
+                strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
+                jdkPathBuffer[bufferSize - 1] = '\0';
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("Forget the saved JDK and detect it from JAVA_HOME / standard paths.");
+            }
+        }
     }
 
     void BuildPreferencesWindow(Context &context) {
@@ -214,12 +354,18 @@ namespace CoreDeck {
             ImGui::OpenPopup("Preferences###CoreDeckPrefs");
         }
 
+        static auto activeSection = PrefsSection::General;
+        if (context.UI.OpenPreferencesToJava) {
+            activeSection = PrefsSection::Java;
+            context.UI.OpenPreferencesToJava = false;
+        }
+
         const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
         ImGui::SetNextWindowSize(EmV(100.0F, 24.0F), ImGuiCond_Appearing);
 
         static char sdkPathBuffer[2048];
-        static auto activeSection = PrefsSection::General;
+        static char jdkPathBuffer[2048];
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         if (RoundedBeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, WINDOW_NO_RESIZE_FLAGS)) {
@@ -229,6 +375,10 @@ namespace CoreDeck {
                 const std::string &p = context.Host.Sdk.SdkPath;
                 strncpy(sdkPathBuffer, p.c_str(), sizeof(sdkPathBuffer) - 1);
                 sdkPathBuffer[sizeof(sdkPathBuffer) - 1] = '\0';
+
+                const std::string &jp = context.Host.Jdk.JavaHome;
+                strncpy(jdkPathBuffer, jp.c_str(), sizeof(jdkPathBuffer) - 1);
+                jdkPathBuffer[sizeof(jdkPathBuffer) - 1] = '\0';
             }
 
             const float sidebarWidth = Em(22.0F);
@@ -284,6 +434,9 @@ namespace CoreDeck {
                     break;
                 case PrefsSection::AndroidSdk:
                     DrawAndroidSdkSection(context, sdkPathBuffer, sizeof(sdkPathBuffer));
+                    break;
+                case PrefsSection::Java:
+                    DrawJavaSection(context, jdkPathBuffer, sizeof(jdkPathBuffer));
                     break;
             }
             ImGui::EndChild();

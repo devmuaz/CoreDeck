@@ -257,6 +257,7 @@ namespace CoreDeck::Paths {
     namespace Onboarding {
         static constexpr const char *FIRST_RUN_FLAG_FILE = "first_run_complete";
         static constexpr const char *SDK_OVERRIDE_PATH = "sdk_path";
+        static constexpr const char *JDK_OVERRIDE_PATH = "jdk_path";
 
         bool IsFirstRunComplete() {
             const std::string path = Paths::GetAppConfigPath(FIRST_RUN_FLAG_FILE);
@@ -300,6 +301,31 @@ namespace CoreDeck::Paths {
 
         void ClearSdkPathOverride() {
             const std::string file = Paths::GetAppConfigPath(SDK_OVERRIDE_PATH);
+            if (std::filesystem::exists(file)) {
+                std::filesystem::remove(file);
+            }
+        }
+
+        std::string LoadJdkPathOverride() {
+            const std::string path = Paths::GetAppConfigPath(JDK_OVERRIDE_PATH);
+            if (!std::filesystem::exists(path)) {
+                return {};
+            }
+
+            std::ifstream in(path);
+            std::string value;
+            std::getline(in, value);
+            return value;
+        }
+
+        void SaveJdkPathOverride(const std::string &path) {
+            const std::string file = Paths::GetAppConfigPath(JDK_OVERRIDE_PATH);
+            std::ofstream out(file);
+            out << path;
+        }
+
+        void ClearJdkPathOverride() {
+            const std::string file = Paths::GetAppConfigPath(JDK_OVERRIDE_PATH);
             if (std::filesystem::exists(file)) {
                 std::filesystem::remove(file);
             }

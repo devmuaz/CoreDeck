@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "env.h"
+
 #if defined(_WIN32)
 #include <windows.h>
 using ProcessId = DWORD;
@@ -21,14 +23,16 @@ namespace CoreDeck {
     std::string RunCommandArgs(
         const std::string &path,
         const std::vector<std::string> &args,
-        const std::string &stdinData = ""
+        const std::string &stdinData = "",
+        const EnvVars &extraEnv = {}
     );
 
     void StreamCommandArgs(
         const std::string &path,
         const std::vector<std::string> &args,
         const std::string &stdinData,
-        const std::function<void(const std::string &)> &onLine
+        const std::function<void(const std::string &)> &onLine,
+        const EnvVars &extraEnv = {}
     );
 
     ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd);

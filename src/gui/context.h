@@ -15,6 +15,7 @@
 
 #include "../core/avd.h"
 #include "../core/emulator.h"
+#include "../core/jdk.h"
 #include "../core/options.h"
 #include "../core/sdk.h"
 #include "../core/skin.h"
@@ -64,6 +65,7 @@ namespace CoreDeck {
     struct Context {
         struct Host {
             SdkInfo Sdk;
+            JdkInfo Jdk;
             EmulatorManager Manager;
 
             explicit Host(SdkInfo sdk) : Sdk(std::move(sdk)), Manager(Sdk) {
@@ -123,6 +125,8 @@ namespace CoreDeck {
             bool ShowLogPanel = true;
             GLFWwindow *MainWindow = nullptr;
             bool HideInvalidSdkPathBanner = false;
+            bool HideJdkWarningBanner = false;
+            bool OpenPreferencesToJava = false;
         } UI;
 
         struct AvdCreationWork {

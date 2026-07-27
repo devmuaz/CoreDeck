@@ -4,6 +4,7 @@
 
 #include "process.h"
 #include <array>
+#include <cctype>
 #include <string>
 
 #if defined(_WIN32)
@@ -19,58 +20,152 @@
 #include <sys/wait.h>
 #include <chrono>
 #include <thread>
+
+extern char **environ;
 #endif
 
 namespace CoreDeck {
+    namespace {
 #if defined(_WIN32)
-    static std::string QuoteArg(const std::string &arg) {
-        if (!arg.empty() && arg.find_first_of(" \t\"") == std::string::npos) return arg;
-        std::string out = "\"";
-        for (size_t i = 0; i < arg.size(); ++i) {
-            size_t backslashes = 0;
-            while (i < arg.size() && arg[i] == '\\') {
-                ++backslashes;
-                ++i;
-            }
-            if (i == arg.size()) {
-                out.append(backslashes * 2, '\\');
-                break;
-            }
-            if (arg[i] == '"') {
-                out.append(backslashes * 2 + 1, '\\');
-                out.push_back('"');
-            } else {
-                out.append(backslashes, '\\');
-                out.push_back(arg[i]);
-            }
-        }
-        out.push_back('"');
-        return out;
-    }
+        std::vector<char> BuildEnvironmentBlock(const EnvVars &extra) {
+            std::vector<std::pair<std::string, std::string>> entries;
 
-    static bool IsBatchFile(const std::string &path) {
-        if (path.size() < 4) return false;
-        std::string ext = path.substr(path.size() - 4);
-        std::ranges::transform(ext, ext.begin(), ::tolower);
-        return ext == ".bat" || ext == ".cmd";
-    }
+            if (LPCH strings = GetEnvironmentStringsA()) {
+                for (LPCH p = strings; *p != '\0';) {
+                    std::string entry(p);
+                    p += entry.size() + 1;
+                    if (entry.empty()) {
+                        continue;
+                    }
+                    // Drive-letter pseudo-vars start with '=' (e.g. "=C:=C:\\"),
+                    // so search for the separator past the first character.
+                    const auto eq = entry.find('=', 1);
+                    if (eq == std::string::npos) {
+                        entries.emplace_back(entry, std::string());
+                    } else {
+                        entries.emplace_back(entry.substr(0, eq), entry.substr(eq + 1));
+                    }
+                }
+                FreeEnvironmentStringsA(strings);
+            }
 
-    static std::string BuildCommandLine(const std::string &path, const std::vector<std::string> &args) {
-        std::string cmd = QuoteArg(path);
-        for (const auto &arg: args) {
-            cmd.push_back(' ');
-            cmd += QuoteArg(arg);
+            const auto iEquals = [](const std::string &a, const std::string &b) {
+                if (a.size() != b.size()) {
+                    return false;
+                }
+                for (size_t i = 0; i < a.size(); ++i) {
+                    if (std::tolower(static_cast<unsigned char>(a[i])) != std::tolower(static_cast<unsigned char>(b[i]))) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            for (const auto &ev: extra) {
+                bool found = false;
+                for (auto &e: entries) {
+                    if (iEquals(e.first, ev.Name)) {
+                        e.second = ev.Value;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    entries.emplace_back(ev.Name, ev.Value);
+                }
+            }
+
+            std::vector<char> block;
+            for (const auto &e: entries) {
+                const std::string line = e.first + "=" + e.second;
+                block.insert(block.end(), line.begin(), line.end());
+                block.push_back('\0');
+            }
+            block.push_back('\0');
+            return block;
         }
-        if (IsBatchFile(path)) return "cmd.exe /S /C \"" + cmd + "\"";
-        return cmd;
-    }
+
+        std::string QuoteArg(const std::string &arg) {
+            if (!arg.empty() && arg.find_first_of(" \t\"") == std::string::npos) return arg;
+            std::string out = "\"";
+            for (size_t i = 0; i < arg.size(); ++i) {
+                size_t backslashes = 0;
+                while (i < arg.size() && arg[i] == '\\') {
+                    ++backslashes;
+                    ++i;
+                }
+                if (i == arg.size()) {
+                    out.append(backslashes * 2, '\\');
+                    break;
+                }
+                if (arg[i] == '"') {
+                    out.append(backslashes * 2 + 1, '\\');
+                    out.push_back('"');
+                } else {
+                    out.append(backslashes, '\\');
+                    out.push_back(arg[i]);
+                }
+            }
+            out.push_back('"');
+            return out;
+        }
+
+        bool IsBatchFile(const std::string &path) {
+            if (path.size() < 4) return false;
+            std::string ext = path.substr(path.size() - 4);
+            std::ranges::transform(ext, ext.begin(), ::tolower);
+            return ext == ".bat" || ext == ".cmd";
+        }
+
+        std::string BuildCommandLine(const std::string &path, const std::vector<std::string> &args) {
+            std::string cmd = QuoteArg(path);
+            for (const auto &arg: args) {
+                cmd.push_back(' ');
+                cmd += QuoteArg(arg);
+            }
+            if (IsBatchFile(path)) return "cmd.exe /S /C \"" + cmd + "\"";
+            return cmd;
+        }
+#else
+        std::vector<std::string> BuildMergedEnv(const EnvVars &extra) {
+            std::vector<std::string> merged;
+            std::vector<bool> used(extra.size(), false);
+
+            for (char **e = environ; e != nullptr && *e != nullptr; ++e) {
+                std::string entry(*e);
+                const auto eq = entry.find('=');
+                const std::string name = (eq == std::string::npos) ? entry : entry.substr(0, eq);
+
+                bool overridden = false;
+                for (size_t i = 0; i < extra.size(); ++i) {
+                    if (extra[i].Name == name) {
+                        merged.push_back(extra[i].Name + "=" + extra[i].Value);
+                        used[i] = true;
+                        overridden = true;
+                        break;
+                    }
+                }
+                if (!overridden) {
+                    merged.push_back(std::move(entry));
+                }
+            }
+
+            for (size_t i = 0; i < extra.size(); ++i) {
+                if (!used[i]) {
+                    merged.push_back(extra[i].Name + "=" + extra[i].Value);
+                }
+            }
+            return merged;
+        }
 #endif
+    }
 
     void StreamCommandArgs(
         const std::string &path,
         const std::vector<std::string> &args,
         const std::string &stdinData,
-        const std::function<void(const std::string &)> &onLine
+        const std::function<void(const std::string &)> &onLine,
+        const EnvVars &extraEnv
     ) {
 #if defined(_WIN32)
         SECURITY_ATTRIBUTES sa = {};
@@ -90,6 +185,13 @@ namespace CoreDeck {
 
         std::string cmdLine = BuildCommandLine(path, args);
 
+        std::vector<char> envBlock;
+        LPVOID envPtr = nullptr;
+        if (!extraEnv.empty()) {
+            envBlock = BuildEnvironmentBlock(extraEnv);
+            envPtr = envBlock.data();
+        }
+
         STARTUPINFOA si = {};
         si.cb = sizeof(si);
         si.dwFlags = STARTF_USESTDHANDLES;
@@ -98,7 +200,7 @@ namespace CoreDeck {
         si.hStdError = hOutW;
 
         PROCESS_INFORMATION pi = {};
-        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
+        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, envPtr, nullptr, &si, &pi)) {
             CloseHandle(hOutR);
             CloseHandle(hOutW);
             CloseHandle(hInR);
@@ -145,6 +247,18 @@ namespace CoreDeck {
             return;
         }
 
+        const bool useEnv = !extraEnv.empty();
+        std::vector<std::string> mergedEnv;
+        std::vector<char *> envp;
+        if (useEnv) {
+            mergedEnv = BuildMergedEnv(extraEnv);
+            envp.reserve(mergedEnv.size() + 1);
+            for (auto &entry: mergedEnv) {
+                envp.push_back(entry.data());
+            }
+            envp.push_back(nullptr);
+        }
+
         const pid_t pid = fork();
         if (pid < 0) {
             close(outPipe[0]);
@@ -169,7 +283,11 @@ namespace CoreDeck {
                 argv.push_back(a.c_str());
             }
             argv.push_back(nullptr);
-            execvp(path.c_str(), const_cast<char *const *>(argv.data()));
+            if (useEnv) {
+                execve(path.c_str(), const_cast<char *const *>(argv.data()), envp.data());
+            } else {
+                execvp(path.c_str(), const_cast<char *const *>(argv.data()));
+            }
             _exit(127);
         }
 
@@ -205,12 +323,11 @@ namespace CoreDeck {
 #endif
     }
 
-    std::string RunCommandArgs(const std::string &path, const std::vector<std::string> &args, const std::string &stdinData) {
+    std::string RunCommandArgs(const std::string &path, const std::vector<std::string> &args, const std::string &stdinData, const EnvVars &extraEnv) {
         std::string out;
         StreamCommandArgs(path, args, stdinData, [&out](const std::string &line) {
             out += line;
-            out.push_back('\n');
-        });
+            out.push_back('\n'); }, extraEnv);
         return out;
     }
 

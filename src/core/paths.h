@@ -58,6 +58,12 @@ namespace CoreDeck::Paths {
         void SaveSdkPathOverride(const std::string &path);
 
         void ClearSdkPathOverride();
+
+        std::string LoadJdkPathOverride();
+
+        void SaveJdkPathOverride(const std::string &path);
+
+        void ClearJdkPathOverride();
     }
 }
 
