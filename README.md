@@ -39,6 +39,7 @@ C++20 and Dear ImGui.
 - **Live Log Viewer** — Stream emulator output in real time with search and auto-scroll
 - **Storage Overview** — Inspect per-AVD disk usage and clear heavy or unused data
 - **SDK Auto-Detection** — Picks up your Android SDK from environment variables or standard paths
+- **JDK Configuration** — Auto-detects a compatible JDK and lets you point at a specific one when your system default is too old
 - **Guided Setup** — Onboarding wizard to configure the SDK on first run
 - **Cross-Platform** — Runs natively on Windows, macOS, and Linux
 
@@ -74,6 +75,7 @@ Each release artifact ships with a matching `.sha256` checksum for download veri
 ## Requirements
 
 - **Android SDK** with `emulator`, `avdmanager`, and `sdkmanager` available (typically installed via Android Studio).
+- **JDK 17+** — the `avdmanager` and `sdkmanager` command-line tools are Java programs and require JDK 17 or newer. CoreDeck auto-detects a suitable JDK (including the one bundled with Android Studio) and lets you select a specific one under **Preferences → Java (JDK)** if your system default is older.
 - **OS:** Windows 10/11, macOS 12+ (Apple Silicon), or a recent Linux distribution.
 
 ## Build from source
@@ -150,6 +152,9 @@ The first build is a full from-scratch compile of all bundled dependencies (sent
 **The app starts but says my Android SDK isn't detected.**
 CoreDeck looks at `ANDROID_HOME` / `ANDROID_SDK_ROOT` and standard install paths. If your SDK lives elsewhere, point it
 at the right location through the onboarding wizard or set the environment variable before launching.
+
+**Creating AVDs or installing system images fails, or nothing happens.**
+`avdmanager` and `sdkmanager` require **JDK 17 or newer**. If your default `java` is older (e.g. JDK 8/1.8), these tools fail even when the SDK is fine. CoreDeck warns you when it detects an incompatible JDK — open **Preferences → Java (JDK)** and point it at a compatible JDK (the one bundled with Android Studio works well). CoreDeck runs the tools with that JDK via `JAVA_HOME` without changing your global default.
 
 **An emulator won't launch / boots forever.**
 Make sure the matching system image is installed and that hardware acceleration is enabled (HAXM/Hyper-V on Windows,

@@ -136,6 +136,7 @@ add_library(coredeck_core STATIC
     src/core/emulator.cpp
     src/core/emulator_console.cpp
     src/core/file_dialog.cpp
+    src/core/jdk.cpp
     src/core/log_buffer.cpp
     src/core/log_filter.cpp
     src/core/options.cpp

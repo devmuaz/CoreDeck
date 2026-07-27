@@ -62,6 +62,9 @@ namespace CoreDeck {
         EnsureOptionsConfigDirectoryExists();
         ApplyAppSettingsToContext(m_Context, LoadAppSettings());
 
+        m_Context.Host.Jdk = DetectJdk();
+        ApplyJdkToSdk(m_Context.Host.Sdk, m_Context.Host.Jdk);
+
         if (!Paths::Onboarding::IsFirstRunComplete() || !m_Context.Host.Sdk.IsFound) {
             m_Context.Flow.CurrentScreen = Screen::Onboarding;
         } else {
@@ -171,6 +174,7 @@ namespace CoreDeck {
 
         BuildMainMenuBar(m_Context);
         BuildSdkMissingBanner(m_Context);
+        BuildJdkWarningBanner(m_Context);
         BuildDeleteAvdWindow(m_Context);
         BuildAvdOptionsWindow(m_Context);
         BuildAvdListWindow(m_Context);

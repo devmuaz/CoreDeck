@@ -69,7 +69,7 @@ namespace CoreDeck {
             return devices;
         }
 
-        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"});
+        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"}, "", sdk.ToolEnv);
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
@@ -168,7 +168,7 @@ namespace CoreDeck {
             return results;
         }
 
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--list"});
+        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--list"}, "", sdk.ToolEnv);
 
         std::unordered_map<std::string, bool> installedSet;
         for (const auto &img: installedImages) {
@@ -270,7 +270,8 @@ namespace CoreDeck {
             "",
             [&progress](const std::string &line) {
                 ParseProgressLine(line, progress);
-            }
+            },
+            sdk.ToolEnv
         );
 
         // Verify
@@ -295,7 +296,7 @@ namespace CoreDeck {
             return false;
         }
 
-        RunCommandArgs(sdk.SdkManagerPath, {"--uninstall", packagePath}, "y\n");
+        RunCommandArgs(sdk.SdkManagerPath, {"--uninstall", packagePath}, "y\n", sdk.ToolEnv);
 
         std::string fsPath = packagePath;
         std::ranges::replace(fsPath, ';', '/');
@@ -308,7 +309,7 @@ namespace CoreDeck {
             return LicenseStatus::CheckFailed;
         }
 
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, "N\n");
+        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, "N\n", sdk.ToolEnv);
 
         if (output.find("All SDK package licenses accepted") != std::string::npos) {
             return LicenseStatus::AllAccepted;
@@ -330,7 +331,7 @@ namespace CoreDeck {
             yes += "y\n";
         }
 
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, yes);
+        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, yes, sdk.ToolEnv);
         return output.find("All SDK package licenses accepted") != std::string::npos;
     }
 }
