@@ -1,3 +1,9 @@
+## [v0.8.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0-beta.2) — 2026-07-27
+
+- Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences → Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
+- Fix live resource usage CPU always showing 0% on Windows by aggregating stats across the emulator process tree (thanks [@sjoerdev](https://github.com/sjoerdev), [#27](https://github.com/devmuaz/CoreDeck/issues/27))
+- Fix live resource usage CPU reading above 100% by normalizing against logical core count so the Details panel shows 0–100% of total system capacity
+
 ## [v0.8.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0-beta.2) — 2026-07-27
 
 - Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences → Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
