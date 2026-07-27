@@ -1,6 +1,6 @@
 ## [v0.8.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0-beta.2) — 2026-07-27
 
-- Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences → Java (JDK) section, and a warning banner for incompatible Java (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
+- Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences → Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
 
 ## [v0.8.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0-beta.1) — 2026-06-02
 
