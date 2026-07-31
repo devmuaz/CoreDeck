@@ -1,0 +1,49 @@
+name: SDK Bootstrap Check
+
+on:
+  schedule:
+    # 06:00 UTC on the 1st of each month.
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+jobs:
+  bootstrap-check:
+    name: Verify pinned cmdline-tools on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest, macos-latest, ubuntu-latest, ubuntu-24.04-arm ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up CMake
+        if: matrix.os != 'windows-latest'
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.23.0'
+
+      - name: Install dependencies (Ubuntu)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON
+        shell: bash
+
+      - name: Build tests
+        run: cmake --build build --config Release --target coredeck_tests --parallel
+
+      - name: Download and verify the pinned archive
+        env:
+          COREDECK_TEST_NETWORK: '1'
+        run: ctest --test-dir build --build-config Release -L network --output-on-failure

@@ -24,11 +24,11 @@ namespace CoreDeck {
     }
 
     SdkInfo DetectAndroidSdk() {
-        SdkInfo sdk;
+        std::string sdkPath;
 
         const std::string savedPath = Paths::Onboarding::LoadSdkPathOverride();
         if (!savedPath.empty() && std::filesystem::exists(savedPath)) {
-            sdk.SdkPath = savedPath;
+            sdkPath = savedPath;
         } else {
             const char *sdkEnv = std::getenv("ANDROID_HOME"); // NOLINT(concurrency-mt-unsafe)
             if (!sdkEnv) {
@@ -36,14 +36,21 @@ namespace CoreDeck {
             }
 
             if (sdkEnv) {
-                sdk.SdkPath = sdkEnv;
+                sdkPath = sdkEnv;
             } else {
                 const std::string defaultPath = Paths::GetAndroidSdkDefaultPath();
                 if (std::filesystem::exists(defaultPath)) {
-                    sdk.SdkPath = defaultPath;
+                    sdkPath = defaultPath;
                 }
             }
         }
+
+        return ProbeAndroidSdk(sdkPath);
+    }
+
+    SdkInfo ProbeAndroidSdk(const std::string &sdkPath) {
+        SdkInfo sdk;
+        sdk.SdkPath = sdkPath;
 
         if (sdk.SdkPath.empty()) {
             return sdk;

@@ -110,6 +110,13 @@ set(TINYFD_DIR ${CMAKE_SOURCE_DIR}/extern/tinyfiledialogs)
 add_library(tinyfiledialogs STATIC ${TINYFD_DIR}/tinyfiledialogs.c)
 target_include_directories(tinyfiledialogs PUBLIC ${TINYFD_DIR})
 
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_FUZZERS OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_HEADER_ONLY OFF CACHE BOOL "" FORCE)
+set(INSTALL_PROJECT OFF CACHE BOOL "" FORCE)
+add_subdirectory(extern/miniz)
+
 set(COREDECK_SENTRY_DSN "" CACHE STRING "Sentry DSN for crash reporting")
 if(COREDECK_SENTRY_DSN)
     set(SENTRY_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -131,11 +138,13 @@ endif()
 
 add_library(coredeck_core STATIC
     src/core/app_settings.cpp
+    src/core/archive.cpp
     src/core/avd.cpp
     src/core/crash_reporter.cpp
     src/core/emulator.cpp
     src/core/emulator_console.cpp
     src/core/file_dialog.cpp
+    src/core/http_download.cpp
     src/core/jdk.cpp
     src/core/log_buffer.cpp
     src/core/log_filter.cpp
@@ -144,6 +153,8 @@ add_library(coredeck_core STATIC
     src/core/process.cpp
     src/core/process_stats.cpp
     src/core/sdk.cpp
+    src/core/sdk_bootstrap.cpp
+    src/core/sha256.cpp
     src/core/skin.cpp
     src/core/system_image.cpp
     src/core/utilities.cpp
@@ -152,7 +163,7 @@ add_library(coredeck_core STATIC
 
 target_include_directories(coredeck_core PUBLIC src)
 target_precompile_headers(coredeck_core PRIVATE src/pch.h)
-target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs)
+target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs miniz)
 
 target_compile_definitions(coredeck_core PUBLIC
     COREDECK_TITLE="CoreDeck"

@@ -18,6 +18,7 @@
 #include "../core/jdk.h"
 #include "../core/options.h"
 #include "../core/sdk.h"
+#include "../core/sdk_bootstrap.h"
 #include "../core/skin.h"
 #include "../core/system_image.h"
 
@@ -182,6 +183,15 @@ namespace CoreDeck {
             std::string PendingPackagePath;
             std::string LicenseError;
         } ImageInstallationWork;
+
+        struct SdkBootstrapWork {
+            BootstrapPlan Plan;
+            std::shared_ptr<BootstrapProgressData> Progress;
+            std::atomic<bool> Busy{false};
+            std::future<bool> Future;
+            BootstrapError LastError = BootstrapError::None;
+            std::string LastErrorDetail;
+        } SdkBootstrapWork;
 
         struct Jobs {
             struct {

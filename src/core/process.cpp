@@ -160,6 +160,7 @@ namespace CoreDeck {
 #endif
     }
 
+    // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
     void StreamCommandArgs(
         const std::string &path,
         const std::vector<std::string> &args,

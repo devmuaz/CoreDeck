@@ -19,6 +19,11 @@ namespace CoreDeck {
     };
 
     SdkInfo DetectAndroidSdk();
+
+    // Probes a specific directory without consulting the override or environment.
+    // Tool paths are filled in when present, so a partially bootstrapped SDK
+    // (cmdline-tools but no emulator yet) still reports its SdkManagerPath.
+    SdkInfo ProbeAndroidSdk(const std::string &sdkPath);
 }
 
 #endif // EMU_LAUNCHER_SDK_H

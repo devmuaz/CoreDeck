@@ -5,6 +5,7 @@
 #include "imgui.h"
 
 #include "sdk_banner.h"
+#include "onboarding.h"
 #include "../widgets.h"
 #include "../../core/jdk.h"
 
@@ -35,6 +36,10 @@ namespace CoreDeck {
         ImGui::TextUnformatted(
             "No working Android SDK was detected (the emulator binary is missing or the path is invalid)."
         );
+        ImGui::SameLine();
+        if (PositiveButton("Install SDK...", true)) {
+            OpenSdkSetupWizard(context);
+        }
         ImGui::SameLine();
         if (PrimaryButton("Configure SDK", true)) {
             context.UI.ShowPreferences = true;
