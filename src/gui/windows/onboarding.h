@@ -9,6 +9,8 @@
 
 namespace CoreDeck {
     void BuildOnboardingWindow(Context &context);
+
+    void OpenSdkSetupWizard(Context &context);
 }
 
 #endif // COREDECK_ONBOARDING_WINDOW_H
