@@ -1,3 +1,10 @@
+## [v0.9.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.9.0-beta.1) — 2026-08-02
+
+- Add an in-app Android SDK installer so CoreDeck can set up Google's official command-line tools, `platform-tools`, and the emulator without Android Studio (thanks [@sjoerdev](https://github.com/sjoerdev), [#28](https://github.com/devmuaz/CoreDeck/issues/28))
+- Extend the onboarding wizard and the missing-SDK banner with an **Install SDK...** flow that downloads a pinned command-line tools archive, verifies its SHA-256, extracts it, accepts licenses, and installs the required packages with progress and cancel support
+- Keep the installed SDK self-contained: CoreDeck remembers the chosen path for itself and does not modify `PATH`, `ANDROID_HOME`, or `JAVA_HOME`
+- Add unit and opt-in network tests for the bootstrap pipeline, plus a monthly CI check that verifies the pinned command-line tools archives still resolve
+
 ## [v0.8.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0) — 2026-07-27
 
 - Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences → Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
