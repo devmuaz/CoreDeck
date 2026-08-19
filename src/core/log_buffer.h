@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_LOG_BUFFER_H
-#define EMU_LAUNCHER_LOG_BUFFER_H
+#ifndef COREDECK_LOG_BUFFER_H
+#define COREDECK_LOG_BUFFER_H
 
 #include <string>
 #include <deque>
@@ -40,4 +40,4 @@ namespace CoreDeck {
     };
 }
 
-#endif // EMU_LAUNCHER_LOG_BUFFER_H
+#endif // COREDECK_LOG_BUFFER_H

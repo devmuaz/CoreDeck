@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 14/04/2026.
 //
 
-#ifndef COREDECK_CREATE_AVD_H
-#define COREDECK_CREATE_AVD_H
+#ifndef COREDECK_CREATE_AVD_WINDOW_H
+#define COREDECK_CREATE_AVD_WINDOW_H
 
 #include "../context.h"
 
@@ -11,4 +11,4 @@ namespace CoreDeck {
     void BuildCreateAvdWindow(Context &context);
 }
 
-#endif // COREDECK_CREATE_AVD_H
+#endif // COREDECK_CREATE_AVD_WINDOW_H

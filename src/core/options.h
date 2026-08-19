@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_OPTIONS_H
-#define EMU_LAUNCHER_OPTIONS_H
+#ifndef COREDECK_OPTIONS_H
+#define COREDECK_OPTIONS_H
 
 #include <string>
 #include <vector>
@@ -71,4 +71,4 @@ namespace CoreDeck {
     void EnsureOptionsConfigDirectoryExists();
 }
 
-#endif // EMU_LAUNCHER_OPTIONS_H
+#endif // COREDECK_OPTIONS_H

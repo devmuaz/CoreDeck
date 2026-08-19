@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 09/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_PATHS_H
-#define EMU_LAUNCHER_PATHS_H
+#ifndef COREDECK_PATHS_H
+#define COREDECK_PATHS_H
 
 #include <string>
 #include <vector>
@@ -67,4 +67,4 @@ namespace CoreDeck::Paths {
     }
 }
 
-#endif // EMU_LAUNCHER_PATHS_H
+#endif // COREDECK_PATHS_H
