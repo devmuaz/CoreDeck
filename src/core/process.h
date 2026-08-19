@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 02/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_PROCESS_H
-#define EMU_LAUNCHER_PROCESS_H
+#ifndef COREDECK_PROCESS_H
+#define COREDECK_PROCESS_H
 
 #include <functional>
 #include <string>
@@ -48,4 +48,4 @@ namespace CoreDeck {
     void CollectProcessTreePids(ProcessId pid, std::vector<ProcessId> &out);
 }
 
-#endif // EMU_LAUNCHER_PROCESS_H
+#endif // COREDECK_PROCESS_H

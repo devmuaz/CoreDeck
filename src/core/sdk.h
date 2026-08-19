@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 02/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_SDK_H
-#define EMU_LAUNCHER_SDK_H
+#ifndef COREDECK_SDK_H
+#define COREDECK_SDK_H
 #include <string>
 
 #include "env.h"
@@ -26,4 +26,4 @@ namespace CoreDeck {
     SdkInfo ProbeAndroidSdk(const std::string &sdkPath);
 }
 
-#endif // EMU_LAUNCHER_SDK_H
+#endif // COREDECK_SDK_H

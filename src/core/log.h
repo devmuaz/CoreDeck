@@ -23,7 +23,7 @@ namespace CoreDeck {
             LogLevel::Debug;
 #endif
 
-        constexpr const char *LevelTag(const LogLevel level) {
+        static constexpr const char *LevelTag(const LogLevel level) {
             switch (level) {
                 case LogLevel::Debug:
                     return "[DEBUG]";

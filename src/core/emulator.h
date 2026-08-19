@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 03/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_EMULATOR_H
-#define EMU_LAUNCHER_EMULATOR_H
+#ifndef COREDECK_EMULATOR_H
+#define COREDECK_EMULATOR_H
 
 #include <string>
 #include <unordered_map>
@@ -69,4 +69,4 @@ namespace CoreDeck {
     };
 }
 
-#endif // EMU_LAUNCHER_EMULATOR_H
+#endif // COREDECK_EMULATOR_H

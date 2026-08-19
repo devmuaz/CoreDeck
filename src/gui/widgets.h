@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_COMPONENTS_H
-#define EMU_LAUNCHER_COMPONENTS_H
+#ifndef COREDECK_WIDGETS_H
+#define COREDECK_WIDGETS_H
 
 #include <string>
 
@@ -177,4 +177,4 @@ namespace CoreDeck {
     bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
 }
 
-#endif // EMU_LAUNCHER_COMPONENTS_H
+#endif // COREDECK_WIDGETS_H

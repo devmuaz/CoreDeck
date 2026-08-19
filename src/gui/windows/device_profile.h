@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 02/05/2026.
 //
 
-#ifndef COREDECK_DEVICE_PROFILE_H
-#define COREDECK_DEVICE_PROFILE_H
+#ifndef COREDECK_DEVICE_PROFILE_WINDOW_H
+#define COREDECK_DEVICE_PROFILE_WINDOW_H
 
 #include <string>
 
@@ -17,4 +17,4 @@ namespace CoreDeck {
     void BuildDeviceProfileWindow(Context &context);
 }
 
-#endif // COREDECK_DEVICE_PROFILE_H
+#endif // COREDECK_DEVICE_PROFILE_WINDOW_H

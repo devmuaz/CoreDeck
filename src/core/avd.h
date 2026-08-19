@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_AVD_INFO_H
-#define EMU_LAUNCHER_AVD_INFO_H
+#ifndef COREDECK_AVD_H
+#define COREDECK_AVD_H
 
 #include <string>
 #include <vector>
@@ -56,4 +56,4 @@ namespace CoreDeck {
     bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName);
 }
 
-#endif // EMU_LAUNCHER_AVD_INFO_H
+#endif // COREDECK_AVD_H

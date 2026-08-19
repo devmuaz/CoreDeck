@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 06/05/2026.
 //
 
-#ifndef COREDECK_GUI_SKIN_H
-#define COREDECK_GUI_SKIN_H
+#ifndef COREDECK_SKIN_WINDOW_H
+#define COREDECK_SKIN_WINDOW_H
 
 #include <string>
 
@@ -15,4 +15,4 @@ namespace CoreDeck {
     void BuildSkinWindow(Context &context);
 }
 
-#endif // COREDECK_GUI_SKIN_H
+#endif // COREDECK_SKIN_WINDOW_H

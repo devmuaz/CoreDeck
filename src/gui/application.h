@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#ifndef EMU_LAUNCHER_RENDERER_H
-#define EMU_LAUNCHER_RENDERER_H
+#ifndef COREDECK_APPLICATION_H
+#define COREDECK_APPLICATION_H
 
 #include "context.h"
 #include "../core/app_settings_types.h"
@@ -82,4 +82,4 @@ namespace CoreDeck {
     std::vector<EmulatorOption> &GetDefaultAvdOptions(Context &context);
 }
 
-#endif // EMU_LAUNCHER_RENDERER_H
+#endif // COREDECK_APPLICATION_H
