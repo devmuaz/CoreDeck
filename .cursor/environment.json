@@ -1,0 +1,14 @@
+{
+  "name": "CoreDeck",
+  "user": "ubuntu",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "xvfb",
+      "command": "Xvfb :99 -screen 0 1280x960x24"
+    }
+  ]
+}
