@@ -42,7 +42,7 @@ C++20 and Dear ImGui.
 - **SDK Installer** — Downloads Google's official command-line tools and installs the platform tools and emulator, without Android Studio
 - **JDK Configuration** — Auto-detects a compatible JDK and lets you point at a specific one when your system default is too old
 - **Guided Setup** — Onboarding wizard to install or locate the SDK on first run
-- **Cross-Platform** — Runs natively on Windows, macOS, and Linux
+- **Cross-Platform** — Runs natively at speed of light on Windows, macOS, and Linux
 
 ## Preview
 
