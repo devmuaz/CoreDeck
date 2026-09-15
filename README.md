@@ -63,7 +63,13 @@ C++20 and Dear ImGui.
 
 ## Downloads
 
-Grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
+On macOS, the easiest way to install is with Homebrew:
+
+```bash
+brew install --cask devmuaz/tap/coredeck
+```
+
+You can also grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
 
 | Platform | Architecture          | File            |
 | -------- | --------------------- | --------------- |
