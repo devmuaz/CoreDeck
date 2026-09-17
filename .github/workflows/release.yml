@@ -319,7 +319,11 @@ jobs:
           prerelease: ${{ contains(github.ref, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Read macOS DMG checksum
+        id: dmg-sha
+        run: |
+          SHA_FILE=$(find artifacts -name 'coredeck-darwin-arm64.dmg.sha256' | head -n 1)
+          echo "sha256=$(awk '{print $1}' "$SHA_FILE")" >> "$GITHUB_OUTPUT"
       - name: Trigger Homebrew Cask Update
         uses: peter-evans/repository-dispatch@v3
         with:
@@ -329,5 +333,5 @@ jobs:
           client-payload: |
             {
               "version": "${{ steps.version.outputs.version }}",
-              "sha256": "$(cat artifacts/coredeck-darwin-arm64.dmg.sha256 | awk '{print $1}')"
+              "sha256": "${{ steps.dmg-sha.outputs.sha256 }}"
             }
