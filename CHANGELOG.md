@@ -1,3 +1,7 @@
+## [v0.9.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.9.1) — 2026-09-17
+
+- Reorder the Create AVD dialog so users pick System Image and Device before AVD Name and Display Name (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#35](https://github.com/devmuaz/CoreDeck/issues/35))
+
 ## [v0.9.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.9.0) — 2026-09-07
 
 - Add an in-app Android SDK installer so CoreDeck can set up Google's official command-line tools, `platform-tools`, and the emulator without Android Studio (thanks [@sjoerdev](https://github.com/sjoerdev), [#28](https://github.com/devmuaz/CoreDeck/issues/28))

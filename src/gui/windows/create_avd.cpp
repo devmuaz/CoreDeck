@@ -98,42 +98,6 @@ namespace CoreDeck {
                 }
             }
 
-            ImGui::Text("AVD Name");
-            char nameBuffer[128];
-            strncpy(nameBuffer, context.AvdCreationWork.CreationData.Name.c_str(), sizeof(nameBuffer) - 1);
-            nameBuffer[sizeof(nameBuffer) - 1] = '\0';
-            ImGui::SetNextItemWidth(-1.0F);
-            if (ImGui::InputTextWithHint("##AvdName", "e.g. MyPixel7", nameBuffer, sizeof(nameBuffer), ImGuiInputTextFlags_CallbackCharFilter, AvdNameFilter)) {
-                context.AvdCreationWork.CreationData.Name = nameBuffer;
-                context.AvdCreationWork.NameAutoFilled = (nameBuffer[0] == '\0');
-            }
-
-            const bool nameConflict = AvdNameExists(
-                context.Catalog.AvdNames,
-                context.AvdCreationWork.CreationData.Name
-            );
-
-            if (nameConflict) {
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    " An AVD named \"%s\" already exists.",
-                    context.AvdCreationWork.CreationData.Name.c_str()
-                );
-            }
-
-            ImGui::Spacing();
-
-            ImGui::Text("Display Name");
-            char displayBuffer[128];
-            strncpy(displayBuffer, context.AvdCreationWork.CreationData.DisplayName.c_str(), sizeof(displayBuffer) - 1);
-            displayBuffer[sizeof(displayBuffer) - 1] = '\0';
-            ImGui::SetNextItemWidth(-1.0F);
-            if (ImGui::InputTextWithHint("##DisplayName", "e.g. My Pixel 7", displayBuffer, sizeof(displayBuffer))) {
-                context.AvdCreationWork.CreationData.DisplayName = displayBuffer;
-                context.AvdCreationWork.DisplayNameAutoFilled = (displayBuffer[0] == '\0');
-            }
-
-            ImGui::Spacing();
             ImGui::Text("System Image");
             if (context.AvdCreationWork.Prefetch.Ready && context.AvdCreationWork.SystemImages.empty()) {
                 if (!context.Host.Sdk.SdkManagerPath.empty()) {
@@ -211,6 +175,43 @@ namespace CoreDeck {
                 }
             } else {
                 PickerButton("Loading skins...", false, ImVec2(-1.0F, 0.0F));
+            }
+
+            ImGui::Spacing();
+
+            ImGui::Text("AVD Name");
+            char nameBuffer[128];
+            strncpy(nameBuffer, context.AvdCreationWork.CreationData.Name.c_str(), sizeof(nameBuffer) - 1);
+            nameBuffer[sizeof(nameBuffer) - 1] = '\0';
+            ImGui::SetNextItemWidth(-1.0F);
+            if (ImGui::InputTextWithHint("##AvdName", "e.g. MyPixel7", nameBuffer, sizeof(nameBuffer), ImGuiInputTextFlags_CallbackCharFilter, AvdNameFilter)) {
+                context.AvdCreationWork.CreationData.Name = nameBuffer;
+                context.AvdCreationWork.NameAutoFilled = (nameBuffer[0] == '\0');
+            }
+
+            const bool nameConflict = AvdNameExists(
+                context.Catalog.AvdNames,
+                context.AvdCreationWork.CreationData.Name
+            );
+
+            if (nameConflict) {
+                ImGui::TextColored(
+                    HexColor(Colors::NEGATIVE),
+                    " An AVD named \"%s\" already exists.",
+                    context.AvdCreationWork.CreationData.Name.c_str()
+                );
+            }
+
+            ImGui::Spacing();
+
+            ImGui::Text("Display Name");
+            char displayBuffer[128];
+            strncpy(displayBuffer, context.AvdCreationWork.CreationData.DisplayName.c_str(), sizeof(displayBuffer) - 1);
+            displayBuffer[sizeof(displayBuffer) - 1] = '\0';
+            ImGui::SetNextItemWidth(-1.0F);
+            if (ImGui::InputTextWithHint("##DisplayName", "e.g. My Pixel 7", displayBuffer, sizeof(displayBuffer))) {
+                context.AvdCreationWork.CreationData.DisplayName = displayBuffer;
+                context.AvdCreationWork.DisplayNameAutoFilled = (displayBuffer[0] == '\0');
             }
 
             ImGui::Spacing();
