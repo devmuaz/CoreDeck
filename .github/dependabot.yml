@@ -14,3 +14,8 @@ updates:
       github-actions-dependencies:
         patterns:
           - "*"
+          
+- package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
