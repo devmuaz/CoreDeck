@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
@@ -47,7 +47,7 @@ jobs:
         run: ctest --test-dir build --build-config ${{ matrix.build_type }} --output-on-failure
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coredeck-${{ matrix.os }}-${{ matrix.build_type }}
           path: |
