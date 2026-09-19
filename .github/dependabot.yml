@@ -15,7 +15,7 @@ updates:
         patterns:
           - "*"
           
-- package-ecosystem: "gitsubmodule"
+  - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
       interval: "weekly"
