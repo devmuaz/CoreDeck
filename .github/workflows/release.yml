@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
@@ -208,7 +208,7 @@ jobs:
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: |
@@ -217,7 +217,7 @@ jobs:
 
       - name: Upload artifacts (Linux and macOS)
         if: matrix.os != 'windows-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: release/${{ matrix.asset_name }}
@@ -229,10 +229,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
 
@@ -269,7 +269,7 @@ jobs:
           done < <(find . -type f \( -name '*.tar.gz' -o -name '*.msi' -o -name '*.zip' -o -name '*.dmg' \))
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.version }}
           name: CoreDeck ${{ steps.version.outputs.version }}
@@ -325,7 +325,7 @@ jobs:
           SHA_FILE=$(find artifacts -name 'coredeck-darwin-arm64.dmg.sha256' | head -n 1)
           echo "sha256=$(awk '{print $1}' "$SHA_FILE")" >> "$GITHUB_OUTPUT"
       - name: Trigger Homebrew Cask Update
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.TAP_GITHUB_TOKEN }}
           repository: devmuaz/homebrew-tap
