@@ -4,7 +4,7 @@
 
 #include "crash_reporter.h"
 
-#ifdef COREDECK_SENTRY_DSN
+#if defined(COREDECK_SENTRY_DSN) && defined(NDEBUG)
 
 #include <sentry.h>
 #include <string>

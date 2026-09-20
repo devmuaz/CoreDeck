@@ -62,7 +62,6 @@ jobs:
             export CMAKE_CXX_COMPILER_LAUNCHER=ccache
           fi
           cmake -B build -DCMAKE_BUILD_TYPE=Release \
-            -DCOREDECK_SENTRY_DSN="$COREDECK_SENTRY_DSN" \
             -DCOREDECK_VERSION_OVERRIDE="$COREDECK_VERSION_REF"
         shell: bash
 

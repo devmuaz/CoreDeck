@@ -117,14 +117,25 @@ set(BUILD_HEADER_ONLY OFF CACHE BOOL "" FORCE)
 set(INSTALL_PROJECT OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/miniz)
 
-set(COREDECK_SENTRY_DSN "" CACHE STRING "Sentry DSN for crash reporting")
+set(COREDECK_SENTRY_DSN "$ENV{COREDECK_SENTRY_DSN}")
+set(COREDECK_SENTRY_ENABLED OFF)
 if(COREDECK_SENTRY_DSN)
+    if(CMAKE_CONFIGURATION_TYPES)
+        set(COREDECK_SENTRY_ENABLED ON)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(COREDECK_SENTRY_ENABLED ON)
+    endif()
+endif()
+
+if(COREDECK_SENTRY_ENABLED)
     set(SENTRY_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     set(SENTRY_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(SENTRY_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(SENTRY_BACKEND "crashpad" CACHE STRING "" FORCE)
     add_subdirectory(extern/sentry-native)
-    message(STATUS "Sentry: Enabled")
+    message(STATUS "Sentry: Enabled (Release only)")
+elseif(COREDECK_SENTRY_DSN)
+    message(STATUS "Sentry: Disabled (non-Release build)")
 else()
     message(STATUS "Sentry: Disabled")
 endif()
@@ -179,9 +190,11 @@ target_compile_definitions(coredeck_core PUBLIC
     COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
 )
 
-if(COREDECK_SENTRY_DSN)
-    target_compile_definitions(coredeck_core PUBLIC COREDECK_SENTRY_DSN="${COREDECK_SENTRY_DSN}")
-    target_link_libraries(coredeck_core PUBLIC sentry)
+if(COREDECK_SENTRY_ENABLED)
+    target_compile_definitions(coredeck_core PUBLIC
+        $<$<CONFIG:Release>:COREDECK_SENTRY_DSN="${COREDECK_SENTRY_DSN}">
+    )
+    target_link_libraries(coredeck_core PUBLIC $<$<CONFIG:Release>:sentry>)
 endif()
 
 if(WIN32)
@@ -252,7 +265,7 @@ if(UNIX AND NOT APPLE)
     )
 endif()
 
-if(COREDECK_SENTRY_DSN)
+if(COREDECK_SENTRY_ENABLED)
     if(APPLE)
         target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-no_warn_duplicate_libraries")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -359,7 +372,7 @@ install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION .
 )
 
-if(COREDECK_SENTRY_DSN AND NOT APPLE)
+if(COREDECK_SENTRY_ENABLED AND NOT APPLE)
     install(PROGRAMS $<TARGET_FILE:crashpad_handler> DESTINATION .)
 endif()
 
