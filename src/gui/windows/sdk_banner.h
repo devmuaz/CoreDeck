@@ -10,6 +10,8 @@
 namespace CoreDeck {
     void BuildSdkMissingBanner(Context &context);
 
+    void BuildMissingCmdlineToolsBanner(Context &context);
+
     void BuildJdkWarningBanner(Context &context);
 }
 

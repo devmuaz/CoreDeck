@@ -10,6 +10,7 @@ add_executable(coredeck_tests
         test_sha256.cpp
         test_archive.cpp
         test_sdk_bootstrap.cpp
+        test_system_image.cpp
         test_sdk_bootstrap_network.cpp
 )
 

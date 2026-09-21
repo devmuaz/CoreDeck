@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -47,6 +48,13 @@ namespace CoreDeck {
     std::vector<DeviceProfile> ListDeviceProfiles(const SdkInfo &sdk);
 
     std::vector<SystemImage> ListSystemImages(const SdkInfo &sdk);
+
+    // Reads one sdkmanager --list row. Accepts the legacy id
+    // (system-images;android-35;google_apis;x86_64) and the Android CLI id
+    // (system-images/android-35/google_apis/x86_64). The returned PackagePath is
+    // always the legacy semicolon form, which avdmanager -k and older sdkmanager
+    // require. Current sdkmanager accepts that form and rewrites it internally.
+    std::optional<RemoteSystemImage> ParseRemoteSystemImageLine(const std::string &line);
 
     std::vector<RemoteSystemImage> ListRemoteSystemImages(
         const SdkInfo &sdk,

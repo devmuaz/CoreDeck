@@ -135,6 +135,8 @@ namespace CoreDeck {
     std::string BootstrapStagingDirectory(const std::string &installRoot);
 
     constexpr std::uint64_t BOOTSTRAP_REQUIRED_BYTES = 2ULL * 1024ULL * 1024ULL * 1024ULL;
+
+    constexpr std::uint64_t BOOTSTRAP_TOOLS_REQUIRED_BYTES = 512ULL * 1024ULL * 1024ULL;
 }
 
 #endif // COREDECK_SDK_BOOTSTRAP_H

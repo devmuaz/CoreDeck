@@ -126,6 +126,7 @@ namespace CoreDeck {
             bool ShowLogPanel = true;
             GLFWwindow *MainWindow = nullptr;
             bool HideInvalidSdkPathBanner = false;
+            bool HideMissingCmdlineToolsBanner = false;
             bool HideJdkWarningBanner = false;
             bool OpenPreferencesToJava = false;
         } UI;

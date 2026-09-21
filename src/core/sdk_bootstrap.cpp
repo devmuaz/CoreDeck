@@ -232,7 +232,7 @@ namespace CoreDeck {
             case BootstrapError::InvalidInstallRoot:
                 return "The chosen install location cannot be used.";
             case BootstrapError::InsufficientDiskSpace:
-                return "Not enough free disk space to install the Android SDK (about 2 GB is needed).";
+                return "Not enough free disk space for this install.";
             case BootstrapError::UnsupportedPlatform:
                 return "Google does not publish command-line tools for this platform.";
             case BootstrapError::NetworkFailed:
@@ -380,9 +380,14 @@ namespace CoreDeck {
             return Finish(progress, BootstrapError::InvalidInstallRoot, plan.InstallRoot);
         }
 
+        const std::uint64_t requiredBytes = plan.Packages.empty() ? BOOTSTRAP_TOOLS_REQUIRED_BYTES : BOOTSTRAP_REQUIRED_BYTES;
         if (const std::filesystem::space_info space = std::filesystem::space(plan.InstallRoot, ec);
-            !ec && space.available > 0 && space.available < BOOTSTRAP_REQUIRED_BYTES) {
-            return Finish(progress, BootstrapError::InsufficientDiskSpace, FormatFileSize(space.available));
+            !ec && space.available > 0 && space.available < requiredBytes) {
+            return Finish(
+                progress,
+                BootstrapError::InsufficientDiskSpace,
+                StrConcat("About ", FormatFileSize(requiredBytes), " is needed, ", FormatFileSize(space.available), " is free.")
+            );
         }
 
         const std::string staging = BootstrapStagingDirectory(plan.InstallRoot);

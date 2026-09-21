@@ -8,6 +8,7 @@
 #include "onboarding.h"
 #include "../widgets.h"
 #include "../../core/jdk.h"
+#include "../../core/sdk_bootstrap.h"
 
 namespace CoreDeck {
     void BuildSdkMissingBanner(Context &context) {
@@ -47,6 +48,56 @@ namespace CoreDeck {
         ImGui::SameLine();
         if (PrimaryButton("Dismiss for this session", true)) {
             context.UI.HideInvalidSdkPathBanner = true;
+        }
+
+        ImGui::End();
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+    }
+
+    void BuildMissingCmdlineToolsBanner(Context &context) {
+        const bool toolsMissing =
+            context.Host.Sdk.IsFound &&
+            (context.Host.Sdk.AvdManagerPath.empty() || context.Host.Sdk.SdkManagerPath.empty());
+        if (!toolsMissing) {
+            context.UI.HideMissingCmdlineToolsBanner = false;
+            return;
+        }
+        if (context.UI.HideMissingCmdlineToolsBanner) {
+            return;
+        }
+        if (GetBundledCmdlineToolsRelease().DownloadUrl.empty()) {
+            return;
+        }
+        const JdkInfo &jdk = context.Host.Jdk;
+        if (jdk.IsFound && !jdk.IsValid && !context.UI.HideJdkWarningBanner) {
+            return;
+        }
+
+        const ImGuiViewport *vp = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(vp->WorkPos);
+        ImGui::SetNextWindowSize(ImVec2(vp->WorkSize.x, 0.0F));
+
+        constexpr ImGuiWindowFlags FLAGS =
+            WINDOW_AUTO_RESIZE_FLAGS |
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_NoNavFocus;
+
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.32F, 0.18F, 0.10F, 1.0F));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0F, 8.0F));
+        ImGui::Begin("##MissingCmdlineToolsBanner", nullptr, FLAGS);
+
+        ImGui::TextWrapped(
+            "%s",
+            "avdmanager and sdkmanager are missing from this SDK, so device profiles and other system images cannot be loaded. CoreDeck can download them."
+        );
+        if (PositiveButton("Download command-line tools...", true)) {
+            OpenCmdlineToolsInstall(context);
+        }
+        ImGui::SameLine();
+        if (PrimaryButton("Dismiss for this session", true)) {
+            context.UI.HideMissingCmdlineToolsBanner = true;
         }
 
         ImGui::End();

@@ -174,6 +174,7 @@ namespace CoreDeck {
 
         BuildMainMenuBar(m_Context);
         BuildSdkMissingBanner(m_Context);
+        BuildMissingCmdlineToolsBanner(m_Context);
         BuildJdkWarningBanner(m_Context);
         BuildDeleteAvdWindow(m_Context);
         BuildAvdOptionsWindow(m_Context);

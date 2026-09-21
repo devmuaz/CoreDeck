@@ -231,6 +231,32 @@ TEST_CASE("BootstrapAndroidSdk installs a usable SDK on the happy path", "[boots
     std::filesystem::remove_all(root);
 }
 
+TEST_CASE("BootstrapAndroidSdk can add command-line tools to an SDK that already has an emulator", "[bootstrap][pipeline]") {
+    const std::filesystem::path root = MakeScratchDir("tools_only");
+    CreateFakeEmulator(root.string());
+
+    BootstrapPlan plan{.InstallRoot = root.string()};
+    plan.Packages.clear();
+    const auto progress = std::make_shared<BootstrapProgressData>();
+
+    BootstrapDeps deps = MakeFakeDeps(root.string());
+    deps.InstallPackages = [](auto &&, auto &&, auto &&, auto &&) {
+        FAIL("a tools-only install must not reinstall platform-tools or the emulator");
+        return false;
+    };
+
+    REQUIRE(BootstrapAndroidSdk(plan, ValidJdk(), progress, deps));
+
+    REQUIRE(ErrorOf(progress) == BootstrapError::None);
+    const SdkInfo sdk = ProbeAndroidSdk(root.string());
+    REQUIRE(sdk.IsFound);
+    REQUIRE_FALSE(sdk.AvdManagerPath.empty());
+    REQUIRE_FALSE(sdk.SdkManagerPath.empty());
+    REQUIRE(std::filesystem::exists(root / "emulator"));
+
+    std::filesystem::remove_all(root);
+}
+
 TEST_CASE("BootstrapAndroidSdk advances stages in order with a monotonic percent", "[bootstrap][pipeline]") {
     const std::filesystem::path root = MakeScratchDir("stages");
     const BootstrapPlan plan{.InstallRoot = root.string()};

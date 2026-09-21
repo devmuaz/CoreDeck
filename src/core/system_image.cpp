@@ -4,9 +4,9 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <unordered_map>
 #include <unordered_set>
 #include <filesystem>
+#include <optional>
 #include <sstream>
 
 #include "system_image.h"
@@ -60,6 +60,53 @@ namespace CoreDeck {
             }
             progress->DetailText = line;
         }
+
+        std::string CanonicalSystemImagePackagePath(std::string packagePath) {
+            if (packagePath.starts_with("system-images/")) {
+                std::ranges::replace(packagePath, '/', ';');
+            }
+            return packagePath;
+        }
+    }
+
+    std::optional<RemoteSystemImage> ParseRemoteSystemImageLine(const std::string &rawLine) {
+        std::string line = rawLine;
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+
+        const auto start = line.find_first_not_of(" \t");
+        if (start == std::string::npos) {
+            return std::nullopt;
+        }
+        line = line.substr(start);
+
+        if (!line.starts_with("system-images;") && !line.starts_with("system-images/")) {
+            return std::nullopt;
+        }
+
+        const auto tokenEnd = line.find_first_of(" \t|");
+        std::string packagePath = CanonicalSystemImagePackagePath(
+            tokenEnd == std::string::npos ? line : line.substr(0, tokenEnd)
+        );
+
+        std::vector<std::string> parts;
+        std::istringstream partStream(packagePath);
+        std::string part;
+        while (std::getline(partStream, part, ';')) {
+            parts.push_back(part);
+        }
+        if (parts.size() < 4 || !parts[1].starts_with("android-")) {
+            return std::nullopt;
+        }
+
+        RemoteSystemImage img;
+        img.PackagePath = std::move(packagePath);
+        img.ApiLevel = parts[1].substr(8);
+        img.Variant = parts[2];
+        img.Abi = parts[3];
+        img.DisplayName = StrConcat("Android ", img.ApiLevel, " (", img.Variant, ", ", img.Abi, ")");
+        return img;
     }
 
     std::vector<DeviceProfile> ListDeviceProfiles(const SdkInfo &sdk) {
@@ -170,68 +217,25 @@ namespace CoreDeck {
 
         const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--list"}, "", sdk.ToolEnv);
 
-        std::unordered_map<std::string, bool> installedSet;
+        std::unordered_set<std::string> installedSet;
         for (const auto &img: installedImages) {
-            installedSet[img.PackagePath] = true;
+            installedSet.insert(CanonicalSystemImagePackagePath(img.PackagePath));
         }
 
         std::unordered_set<std::string> seenPackages;
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
-            if (!line.empty() && line.back() == '\r') {
-                line.pop_back();
-            }
-
-            auto start = line.find_first_not_of(" \t");
-            if (start == std::string::npos) {
+            auto parsed = ParseRemoteSystemImageLine(line);
+            if (!parsed.has_value()) {
                 continue;
             }
-            line = line.substr(start);
-
-            if (!line.starts_with("system-images;")) {
+            if (!seenPackages.insert(parsed->PackagePath).second) {
                 continue;
             }
 
-            std::string packagePath;
-            if (auto pipe = line.find('|'); pipe != std::string::npos) {
-                packagePath = line.substr(0, pipe);
-            } else {
-                packagePath = line;
-            }
-
-            while (!packagePath.empty() && (packagePath.back() == ' ' || packagePath.back() == '\t')) {
-                packagePath.pop_back();
-            }
-            if (!seenPackages.insert(packagePath).second) {
-                continue;
-            }
-
-            std::vector<std::string> parts;
-            std::istringstream partStream(packagePath);
-            std::string part;
-            while (std::getline(partStream, part, ';')) {
-                parts.push_back(part);
-            }
-            if (parts.size() < 4) {
-                continue;
-            }
-
-            RemoteSystemImage img;
-            img.PackagePath = packagePath;
-
-            if (parts[1].starts_with("android-")) {
-                img.ApiLevel = parts[1].substr(8);
-            } else {
-                continue;
-            }
-
-            img.Variant = parts[2];
-            img.Abi = parts[3];
-            img.IsInstalled = installedSet.contains(packagePath);
-            img.DisplayName = StrConcat("Android ", img.ApiLevel, " (", img.Variant, ", ", img.Abi, ")");
-
-            results.push_back(std::move(img));
+            parsed->IsInstalled = installedSet.contains(parsed->PackagePath);
+            results.push_back(std::move(*parsed));
         }
 
         std::ranges::sort(results, [](const RemoteSystemImage &a, const RemoteSystemImage &b) {
@@ -264,6 +268,8 @@ namespace CoreDeck {
             progress->Percent = 0.0F;
         }
 
+        // Semicolon ids. Older sdkmanager requires them. cmdline-tools 23 accepts
+        // them and rewrites '/' internally, so one form serves both.
         StreamCommandArgs(
             sdk.SdkManagerPath,
             {"--install", packagePath},
