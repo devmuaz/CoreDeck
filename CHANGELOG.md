@@ -1,3 +1,7 @@
+## [v0.9.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.9.2) — 2026-09-21
+
+- Update Dear ImGui to v1.92.9b (docking), GLFW to 3.5.1, sentry-native to 0.16.6, reflect-cpp to 0.25.0, and Catch2 to v3.16.0
+
 ## [v0.9.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.9.1) — 2026-09-17
 
 - Reorder the Create AVD dialog so users pick System Image and Device before AVD Name and Display Name (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#35](https://github.com/devmuaz/CoreDeck/issues/35))
