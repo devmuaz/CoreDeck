@@ -1,3 +1,7 @@
+## [v0.10.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.2) — 2026-09-22
+
+- Show whether a system image uses 4 KB or 16 KB pages in the install picker and on the Create AVD image button, so matching API rows are distinguishable (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#46](https://github.com/devmuaz/CoreDeck/issues/46))
+
 ## [v0.10.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.1) — 2026-09-21
 
 - Offer to download `avdmanager` and `sdkmanager` into an existing SDK when the emulator is already installed but those command-line tools are missing, from a main-window banner and from Create New AVD (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#42](https://github.com/devmuaz/CoreDeck/issues/42))

@@ -55,12 +55,28 @@ namespace CoreDeck {
             return category == ImageCategory::All || CategoryForImage(img) == category;
         }
 
+        const char *SystemImagePageSizeLabel(const std::string &variant) {
+            return variant.find("ps16k") != std::string::npos ? "16 KB" : "4 KB";
+        }
+
         bool MatchesImageFilter(const RemoteSystemImage &img, const char *filter) {
             if (!filter || filter[0] == '\0') {
                 return true;
             }
 
-            const auto searchable = StrConcat(img.DisplayName, " ", img.ApiLevel, " ", img.Variant, " ", img.Abi, " ", img.PackagePath);
+            const auto searchable = StrConcat(
+                img.DisplayName,
+                " ",
+                img.ApiLevel,
+                " ",
+                img.Variant,
+                " ",
+                img.Abi,
+                " ",
+                img.PackagePath,
+                " ",
+                SystemImagePageSizeLabel(img.Variant)
+            );
             return ContainsIgnoreCase(searchable, filter);
         }
 
@@ -150,7 +166,15 @@ namespace CoreDeck {
 
     std::string SystemImagePreviewLabel(const SystemImage &img) {
         const auto style = SystemImageTypeStyleFor(img);
-        return StrConcat(SystemImageDisplayName(img.ApiLevel, img.DisplayName), " - ", style.Label, " - ", img.Abi);
+        return StrConcat(
+            SystemImageDisplayName(img.ApiLevel, img.DisplayName),
+            " - ",
+            style.Label,
+            " - ",
+            SystemImagePageSizeLabel(img.Variant),
+            " - ",
+            img.Abi
+        );
     }
 
     // NOLINTNEXTLINE(readability-function-size)
@@ -163,7 +187,7 @@ namespace CoreDeck {
 
             const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-            ImGui::SetNextWindowSize(EmV(91.0F, 28.0F), ImGuiCond_Appearing);
+            ImGui::SetNextWindowSize(EmV(100.0F, 28.0F), ImGuiCond_Appearing);
 
             const bool installing = context.ImageInstallationWork.Installing.load();
             const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
@@ -312,12 +336,13 @@ namespace CoreDeck {
                     PickerTableStyle pts;
 
                     ImGui::BeginChild("##RemoteImageTableFrame", ImVec2(-1.0F, Eh(14.0F)), 1, ImGuiWindowFlags_NoScrollbar);
-                    if (ImGui::BeginTable("##RemoteImageTable", 5, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
+                    if (ImGui::BeginTable("##RemoteImageTable", 6, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                         ImGui::TableSetupScrollFreeze(0, 1);
-                        ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.7F);
+                        ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.4F);
                         ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.5F);
-                        ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthStretch, 1.4F);
+                        ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthStretch, 1.2F);
                         ImGui::TableSetupColumn("ABI", ImGuiTableColumnFlags_WidthStretch, 1.3F);
+                        ImGui::TableSetupColumn("Page Size", ImGuiTableColumnFlags_WidthFixed, Em(10.0F));
                         ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthStretch, 1.2F);
                         ImGui::TableHeadersRow();
 
@@ -364,6 +389,9 @@ namespace CoreDeck {
 
                                 ImGui::TableNextColumn();
                                 ImGui::Text("%s", img.Abi.c_str());
+
+                                ImGui::TableNextColumn();
+                                ImGui::Text("%s", SystemImagePageSizeLabel(img.Variant));
 
                                 ImGui::TableNextColumn();
                                 if (img.IsInstalled) {
