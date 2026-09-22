@@ -146,6 +146,7 @@ namespace CoreDeck {
             context.AvdCreationWork.PendingSelectedSkin = 0;
             context.AvdCreationWork.LastDeviceForSkinAuto = -1;
             context.AvdCreationWork.SkinSearchFilter[0] = '\0';
+            context.AvdCreationWork.DeviceDefinitionsSkipped = false;
             context.AvdCreationWork.Prefetch.Ready = false;
             context.AvdCreationWork.Prefetch.Loading = true;
             context.UI.ShowCreateAvdDialog = true;
@@ -155,7 +156,8 @@ namespace CoreDeck {
                 auto devices = ListDeviceProfiles(context.Host.Sdk);
                 auto skins = ListSkins(context.Host.Sdk);
                 context.AvdCreationWork.SystemImages = std::move(images);
-                context.AvdCreationWork.DeviceProfiles = std::move(devices);
+                context.AvdCreationWork.DeviceDefinitionsSkipped = devices.SkippedDeviceDefinitions;
+                context.AvdCreationWork.DeviceProfiles = std::move(devices.Profiles);
                 context.AvdCreationWork.Skins = std::move(skins);
                 context.AvdCreationWork.Prefetch.Loading = false;
                 context.AvdCreationWork.Prefetch.Ready = true;

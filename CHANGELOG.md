@@ -1,3 +1,9 @@
+## [v0.10.0-beta.3](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.3) — 2026-09-22
+
+- Keep `avdmanager` error and warning lines out of the Create AVD device list, so a system image whose `devices.xml` cannot be loaded no longer becomes the selected device, AVD name, and display name. Profiles that did load stay selectable, with a note when some definitions were skipped (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#44](https://github.com/devmuaz/CoreDeck/issues/44))
+- Treat cmdline-tools 23's "`--licenses` is no longer needed" result as all licenses accepted, so Install System Image no longer fails with "Could not query license state"
+- Show download and unzip progress while installing a system image or bootstrapping SDK packages with cmdline-tools 23, instead of leaving the bar at 0% on "Starting download..."
+
 ## [v0.10.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.2) — 2026-09-22
 
 - Show whether a system image uses 4 KB or 16 KB pages in the install picker and on the Create AVD image button, so matching API rows are distinguishable (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#46](https://github.com/devmuaz/CoreDeck/issues/46))

@@ -134,6 +134,7 @@ namespace CoreDeck {
         struct AvdCreationWork {
             std::vector<SystemImage> SystemImages;
             std::vector<DeviceProfile> DeviceProfiles;
+            bool DeviceDefinitionsSkipped = false;
             std::vector<Skin> Skins;
             AvdCreationData CreationData;
             int SelectedSystemImage = 0;

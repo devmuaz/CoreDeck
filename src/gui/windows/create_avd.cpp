@@ -163,6 +163,14 @@ namespace CoreDeck {
                 PickerButton("Loading device profiles...", false, ImVec2(-1.0F, 0.0F));
             }
 
+            if (context.AvdCreationWork.Prefetch.Ready &&
+                context.AvdCreationWork.DeviceDefinitionsSkipped &&
+                !context.AvdCreationWork.DeviceProfiles.empty()) {
+                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::WARNING));
+                ImGui::TextWrapped("Some system-image device definitions could not be loaded.");
+                ImGui::PopStyleColor();
+            }
+
             if (context.AvdCreationWork.Prefetch.Ready && hasDeviceProfile) {
                 auto &skinWork = context.AvdCreationWork;
                 if (skinWork.SkinAutoFilled && skinWork.SelectedDevice != skinWork.LastDeviceForSkinAuto) {

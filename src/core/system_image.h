@@ -19,6 +19,11 @@ namespace CoreDeck {
         std::string Name;
     };
 
+    struct DeviceProfileList {
+        std::vector<DeviceProfile> Profiles;
+        bool SkippedDeviceDefinitions = false;
+    };
+
     struct SystemImage {
         std::string ApiLevel;
         std::string Variant;
@@ -45,7 +50,9 @@ namespace CoreDeck {
         bool Succeeded = false;
     };
 
-    std::vector<DeviceProfile> ListDeviceProfiles(const SdkInfo &sdk);
+    DeviceProfileList ParseAvdManagerDeviceList(const std::string &output);
+
+    DeviceProfileList ListDeviceProfiles(const SdkInfo &sdk);
 
     std::vector<SystemImage> ListSystemImages(const SdkInfo &sdk);
 
@@ -61,6 +68,21 @@ namespace CoreDeck {
         const std::vector<SystemImage> &installedImages
     );
 
+    // Legacy sdkmanager: "[====] 42% Fetch remote repository..."
+    // cmdline-tools 23: "message #### 42% (1.2 MB/80.0 MB) ETA: 12s"
+    struct SdkManagerProgressLine {
+        bool HasPercent = false;
+        int Percent = 0;
+        std::string Status;
+    };
+
+    SdkManagerProgressLine ParseSdkManagerProgressLine(const std::string &line);
+
+    // The Android CLI redraws progress with a carriage return. Java only
+    // flushes that stream once a line is wider than its stdout buffer, and it
+    // reads COLUMNS before asking the terminal how wide it is.
+    EnvVars SdkManagerInstallEnvironment(EnvVars env);
+
     bool InstallSystemImage(
         const SdkInfo &sdk,
         const std::string &packagePath,
@@ -74,6 +96,8 @@ namespace CoreDeck {
         SomeUnaccepted,
         CheckFailed,
     };
+
+    LicenseStatus InterpretSdkLicenseOutput(const std::string &output);
 
     LicenseStatus CheckSdkLicenses(const SdkInfo &sdk);
 

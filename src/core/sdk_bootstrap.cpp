@@ -114,29 +114,21 @@ namespace CoreDeck {
                 return;
             }
 
-            const auto bracket = line.find('[');
-            const auto closeBracket = line.find(']', bracket);
-            if (bracket == std::string::npos || closeBracket == std::string::npos) {
+            const SdkManagerProgressLine parsed = ParseSdkManagerProgressLine(line);
+            if (parsed.HasPercent) {
+                SetPercent(
+                    progress,
+                    Interpolate(LICENSE_END, PACKAGES_END, static_cast<float>(parsed.Percent) / 100.0F)
+                );
+                if (!parsed.Status.empty()) {
+                    SetDetail(progress, parsed.Status);
+                }
+                return;
+            }
+
+            if (line.size() <= 512) {
                 SetDetail(progress, line);
-                return;
             }
-
-            auto afterBracket = line.substr(closeBracket + 1);
-            const auto start = afterBracket.find_first_not_of(" \t");
-            if (start == std::string::npos) {
-                return;
-            }
-            afterBracket = afterBracket.substr(start);
-
-            const auto pctEnd = afterBracket.find('%');
-            if (pctEnd == std::string::npos) {
-                SetDetail(progress, line);
-                return;
-            }
-
-            const auto pct = static_cast<float>(std::strtol(afterBracket.substr(0, pctEnd).c_str(), nullptr, 10));
-            SetPercent(progress, Interpolate(LICENSE_END, PACKAGES_END, pct / 100.0F));
-            SetDetail(progress, line);
         }
 
         std::string PlatformArchiveName() {
@@ -345,7 +337,7 @@ namespace CoreDeck {
                 args,
                 "y\n",
                 [&progress](const std::string &line) { ParseSdkManagerProgress(line, progress); },
-                sdk.ToolEnv
+                SdkManagerInstallEnvironment(sdk.ToolEnv)
             );
             return true;
         };
