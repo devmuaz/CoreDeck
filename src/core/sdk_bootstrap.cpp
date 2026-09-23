@@ -9,7 +9,6 @@
 #include "archive.h"
 #include "http_download.h"
 #include "paths.h"
-#include "process.h"
 #include "sha256.h"
 #include "utilities.h"
 
@@ -106,15 +105,15 @@ namespace CoreDeck {
             return from + ((to - from) * clamped);
         }
 
-        void ParseSdkManagerProgress(
-            const std::string &line,
+        void ApplySdkManagerProgress(
+            const SdkManagerProgressLine &parsed,
+            const std::string &raw,
             const std::shared_ptr<BootstrapProgressData> &progress
         ) {
-            if (!progress || line.empty()) {
+            if (!progress || raw.empty()) {
                 return;
             }
 
-            const SdkManagerProgressLine parsed = ParseSdkManagerProgressLine(line);
             if (parsed.HasPercent) {
                 SetPercent(
                     progress,
@@ -126,8 +125,8 @@ namespace CoreDeck {
                 return;
             }
 
-            if (line.size() <= 512) {
-                SetDetail(progress, line);
+            if (raw.size() <= 512) {
+                SetDetail(progress, raw);
             }
         }
 
@@ -320,10 +319,6 @@ namespace CoreDeck {
                                    const std::vector<std::string> &packages,
                                    const std::shared_ptr<BootstrapProgressData> &progress
                                ) {
-            if (sdk.SdkManagerPath.empty()) {
-                return false;
-            }
-
             std::vector<std::string> args;
             args.reserve(packages.size() + 2);
             args.push_back(StrConcat("--sdk_root=", sdkRoot));
@@ -332,14 +327,14 @@ namespace CoreDeck {
                 args.push_back(package);
             }
 
-            StreamCommandArgs(
-                sdk.SdkManagerPath,
+            return RunSdkManagerInstall(
+                sdk,
                 args,
                 "y\n",
-                [&progress](const std::string &line) { ParseSdkManagerProgress(line, progress); },
-                SdkManagerInstallEnvironment(sdk.ToolEnv)
+                [&progress](const SdkManagerProgressLine &parsed, const std::string &raw) {
+                    ApplySdkManagerProgress(parsed, raw, progress);
+                }
             );
-            return true;
         };
 
         return deps;

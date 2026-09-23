@@ -19,5 +19,9 @@
 #include <sstream>
 #include <thread>
 #include <optional>
+#include <cstdint>
+#include <cctype>
+#include <functional>
+#include <cstddef>
 
 #endif // COREDECK_PCH_H

@@ -17,26 +17,6 @@
 
 namespace CoreDeck {
     namespace {
-        void OpenSystemImagePicker(Context &context) {
-            context.ImageInstallationWork.SelectedImage = -1;
-            context.ImageInstallationWork.SelectedCategory = ImageCategory::PhoneTablet;
-            context.ImageInstallationWork.SearchFilter[0] = '\0';
-            context.ImageInstallationWork.Progress.reset();
-            context.ImageInstallationWork.Prefetch.Ready = false;
-            context.ImageInstallationWork.Prefetch.Loading = true;
-            context.UI.ShowInstallImageDialog = true;
-
-            context.ImageInstallationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
-                const auto localImages = ListSystemImages(context.Host.Sdk);
-                auto remoteImages = ListRemoteSystemImages(context.Host.Sdk, localImages);
-                context.AvdCreationWork.SystemImages = localImages;
-                context.ImageInstallationWork.RemoteImages = std::move(remoteImages);
-                context.ImageInstallationWork.Prefetch.Loading = false;
-                context.ImageInstallationWork.Prefetch.Ready = true;
-            });
-        }
-
-
         int DigitsOnlyFilter(ImGuiInputTextCallbackData *data) {
             return data->EventChar >= '0' && data->EventChar <= '9' ? 0 : 1;
         }
@@ -120,7 +100,7 @@ namespace CoreDeck {
             if (context.AvdCreationWork.Prefetch.Ready && context.AvdCreationWork.SystemImages.empty()) {
                 if (!context.Host.Sdk.SdkManagerPath.empty()) {
                     if (PickerButton("No system images available. Install one...", !formDisabled, ImVec2(-1.0F, 0.0F))) {
-                        OpenSystemImagePicker(context);
+                        OpenInstallImageDialog(context);
                     }
                 } else {
                     PickerButton("No system images installed", false, ImVec2(-1.0F, 0.0F));
@@ -136,7 +116,7 @@ namespace CoreDeck {
 
                 if (PickerButton(preview.c_str(), !formDisabled, ImVec2(-1.0F, 0.0F))) {
                     if (!context.Host.Sdk.SdkManagerPath.empty()) {
-                        OpenSystemImagePicker(context);
+                        OpenInstallImageDialog(context);
                     }
                 }
             } else {

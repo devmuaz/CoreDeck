@@ -175,6 +175,42 @@ namespace CoreDeck {
     DialogResult SimpleDialog(const DialogData &data);
 
     bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
+
+    enum class BannerTone : uint8_t {
+        Warning,
+        Info,
+        Positive,
+    };
+
+    enum class BannerResult : uint8_t {
+        None,
+        Action,
+        Dismissed,
+    };
+
+    struct Banner {
+        const char *Id = nullptr;
+        BannerTone Tone = BannerTone::Warning;
+        const char *Icon = nullptr;
+        const char *Title = nullptr;
+        const char *Subtitle = nullptr;
+        const char *ActionLabel = nullptr;
+        const char *DismissTooltip = "Dismiss for this session";
+        bool Dismissable = true;
+    };
+
+    BannerResult ShowBanner(const Banner &banner);
+
+    bool StatusActionItem(
+        const char *id,
+        const char *icon,
+        const ImVec4 &iconColor,
+        const char *title,
+        const char *description,
+        const ImVec4 &descriptionColor,
+        const char *actionLabel = nullptr,
+        bool actionEnabled = true
+    );
 }
 
 #endif // COREDECK_WIDGETS_H

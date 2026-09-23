@@ -37,11 +37,12 @@
 #include "windows/avd_options.h"
 #include "windows/create_avd.h"
 #include "windows/delete_avd.h"
+#include "windows/health_check.h"
+#include "windows/health_check_banner.h"
 #include "windows/install_image.h"
 #include "windows/main_menu_bar.h"
 #include "windows/onboarding.h"
 #include "windows/preferences.h"
-#include "windows/sdk_banner.h"
 #include "windows/storage.h"
 #include "windows/update.h"
 #include "../core/version_check.h"
@@ -173,9 +174,7 @@ namespace CoreDeck {
         }
 
         BuildMainMenuBar(m_Context);
-        BuildSdkMissingBanner(m_Context);
-        BuildMissingCmdlineToolsBanner(m_Context);
-        BuildJdkWarningBanner(m_Context);
+        BuildHealthCheckBanner(m_Context);
         BuildDeleteAvdWindow(m_Context);
         BuildAvdOptionsWindow(m_Context);
         BuildAvdListWindow(m_Context);
@@ -188,6 +187,7 @@ namespace CoreDeck {
         if (!m_Context.UI.ShowCreateAvdDialog) {
             BuildInstallImageWindow(m_Context);
         }
+        BuildHealthCheckWindow(m_Context);
         BuildStorageWindow(m_Context);
 
         m_Context.Host.Manager.Update();

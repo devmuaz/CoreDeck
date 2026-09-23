@@ -13,12 +13,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../core/avd.h"
+#include "../core/avd_manager.h"
 #include "../core/emulator.h"
+#include "../core/health_check.h"
 #include "../core/jdk.h"
 #include "../core/options.h"
 #include "../core/sdk.h"
 #include "../core/sdk_bootstrap.h"
+#include "../core/sdk_manager.h"
 #include "../core/skin.h"
 #include "../core/system_image.h"
 
@@ -120,14 +122,14 @@ namespace CoreDeck {
             bool ShowPreferences = false;
             bool ShowStorageDialog = false;
             bool ShowWipeDataDialog = false;
+            bool ShowHealthCheckDialog = false;
+            bool ShowAcceptLicensesDialog = false;
             bool ShowAvdListPanel = true;
             bool ShowOptionsPanel = true;
             bool ShowDetailsPanel = true;
             bool ShowLogPanel = true;
             GLFWwindow *MainWindow = nullptr;
-            bool HideInvalidSdkPathBanner = false;
-            bool HideMissingCmdlineToolsBanner = false;
-            bool HideJdkWarningBanner = false;
+            bool HideHealthCheckBanner = false;
             bool OpenPreferencesToJava = false;
         } UI;
 
@@ -194,6 +196,29 @@ namespace CoreDeck {
             BootstrapError LastError = BootstrapError::None;
             std::string LastErrorDetail;
         } SdkBootstrapWork;
+
+        struct HealthCheckWork {
+            std::shared_ptr<HealthCheckProgressData> Progress;
+            std::atomic<bool> Busy{false};
+            std::future<void> Future;
+        } HealthCheckWork;
+
+        struct AcceptLicensesWork {
+            std::atomic<bool> Busy{false};
+            bool Accepted = false;
+            std::future<bool> Future;
+            std::string Error;
+        } AcceptLicensesWork;
+
+        struct LicenseNotice {
+            std::atomic<bool> Busy{false};
+            bool Known = false;
+            LicenseStatus Status = LicenseStatus::AllAccepted;
+            std::string SdkManagerPath;
+            std::uint32_t Epoch = 0;
+            std::uint32_t PendingEpoch = 0;
+            std::future<LicenseStatus> Future;
+        } LicenseNotice;
 
         struct Jobs {
             struct {

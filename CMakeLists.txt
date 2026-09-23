@@ -150,11 +150,12 @@ endif()
 add_library(coredeck_core STATIC
     src/core/app_settings.cpp
     src/core/archive.cpp
-    src/core/avd.cpp
+    src/core/avd_manager.cpp
     src/core/crash_reporter.cpp
     src/core/emulator.cpp
     src/core/emulator_console.cpp
     src/core/file_dialog.cpp
+    src/core/health_check.cpp
     src/core/http_download.cpp
     src/core/jdk.cpp
     src/core/log_buffer.cpp
@@ -165,6 +166,7 @@ add_library(coredeck_core STATIC
     src/core/process_stats.cpp
     src/core/sdk.cpp
     src/core/sdk_bootstrap.cpp
+    src/core/sdk_manager.cpp
     src/core/sha256.cpp
     src/core/skin.cpp
     src/core/system_image.cpp
@@ -217,11 +219,13 @@ add_executable(${PROJECT_NAME}
     src/gui/windows/delete_avd.cpp
     src/gui/windows/create_avd.cpp
     src/gui/windows/device_profile.cpp
+    src/gui/windows/accept_licenses.cpp
+    src/gui/windows/health_check.cpp
     src/gui/windows/install_image.cpp
     src/gui/windows/main_menu_bar.cpp
     src/gui/windows/onboarding.cpp
     src/gui/windows/preferences.cpp
-    src/gui/windows/sdk_banner.cpp
+    src/gui/windows/health_check_banner.cpp
     src/gui/windows/skin.cpp
     src/gui/windows/storage.cpp
     src/gui/windows/update.cpp

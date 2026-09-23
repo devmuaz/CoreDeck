@@ -15,7 +15,12 @@ namespace CoreDeck {
         constexpr const char *TRASH = "\xef\x87\xb8";
         constexpr const char *CIRCLE = "\xef\x84\x91";
         constexpr const char *DESKTOP = "\xef\x84\x88";
+        constexpr const char *HARD_DRIVE = "\xef\x82\xa0";
         constexpr const char *GEAR = "\xef\x80\x93";
+        constexpr const char *POWER_OFF = "\xef\x80\x91";
+        constexpr const char *LIST = "\xef\x80\xba";
+        constexpr const char *SLIDERS = "\xef\x87\x9e";
+        constexpr const char *FILE_LINES = "\xef\x83\xb6";
         constexpr const char *TERMINAL = "\xef\x84\xa0";
         constexpr const char *INFO = "\xef\x81\x9a";
         constexpr const char *SEARCH = "\xef\x80\x82";
@@ -33,6 +38,11 @@ namespace CoreDeck {
         constexpr const char *CHEVRON_LEFT = "\xef\x81\x93";
         constexpr const char *CHEVRON_RIGHT = "\xef\x81\x94";
         constexpr const char *COFFEE = "\xef\x83\xb4";
+        constexpr const char *CHECK = "\xef\x80\x8c";
+        constexpr const char *CHECK_CIRCLE = "\xef\x81\x98";
+        constexpr const char *TIMES_CIRCLE = "\xef\x81\x97";
+        constexpr const char *WARNING_TRIANGLE = "\xef\x81\xb1";
+        constexpr const char *HEART_PULSE = "\xef\x88\x9e";
     }
 
     namespace Colors {

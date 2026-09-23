@@ -5,7 +5,7 @@
 #include "delete_avd.h"
 #include "../application.h"
 #include "../widgets.h"
-#include "../../core/avd.h"
+#include "../../core/avd_manager.h"
 
 namespace CoreDeck {
     void StartDeleteAvdAsync(Context &context, const std::string &avdName) {

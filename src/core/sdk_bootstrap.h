@@ -14,7 +14,7 @@
 
 #include "jdk.h"
 #include "sdk.h"
-#include "system_image.h"
+#include "sdk_manager.h"
 
 namespace CoreDeck {
     enum class BootstrapStage : uint8_t {

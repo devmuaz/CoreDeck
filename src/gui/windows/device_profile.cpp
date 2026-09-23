@@ -192,7 +192,7 @@ namespace CoreDeck {
 
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
-            if (PrimaryButton("Use Selected Device", !work.DeviceProfiles.empty(), ImVec2(halfWidth, 0))) {
+            if (PositiveButton("Use Selected Device", !work.DeviceProfiles.empty(), ImVec2(halfWidth, 0))) {
                 work.SelectedDevice = work.PendingSelectedDevice;
                 context.UI.ShowDeviceProfileDialog = false;
             }

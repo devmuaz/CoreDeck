@@ -676,4 +676,318 @@ namespace CoreDeck {
 
         return pressed;
     }
+
+    bool StatusActionItem(
+        const char *id,
+        const char *icon,
+        const ImVec4 &iconColor,
+        const char *title,
+        const char *description,
+        const ImVec4 &descriptionColor,
+        const char *actionLabel,
+        const bool actionEnabled
+    ) {
+        ImGuiWindow *window = ImGui::GetCurrentWindow();
+        if (window->SkipItems) {
+            return false;
+        }
+
+        ImGui::PushID(id);
+
+        const ImGuiStyle &style = ImGui::GetStyle();
+        const float avail = ImGui::GetContentRegionAvail().x;
+        const bool hasAction = actionLabel != nullptr && actionLabel[0] != '\0';
+        const ImVec2 actionSize = hasAction ? ImGui::CalcTextSize(actionLabel) : ImVec2(0.0F, 0.0F);
+        const float buttonW = hasAction ? actionSize.x + (style.FramePadding.x * 2.0F) : 0.0F;
+        const float buttonH = hasAction ? actionSize.y + (style.FramePadding.y * 2.0F) : 0.0F;
+
+        const float padX = style.FramePadding.x;
+        const float padY = style.FramePadding.y;
+        const float iconGap = style.ItemSpacing.x;
+        const float actionGap = hasAction ? style.ItemSpacing.x : 0.0F;
+        const ImVec2 iconSize = ImGui::CalcTextSize(icon != nullptr ? icon : "");
+        const float textW = ImMax(1.0F, avail - (padX * 2.0F) - iconSize.x - iconGap - actionGap - buttonW);
+
+        const ImVec2 titleSize = ImGui::CalcTextSize(title, nullptr, false, textW);
+        const bool hasDescription = description != nullptr && description[0] != '\0';
+        const ImVec2 descSize = hasDescription ? ImGui::CalcTextSize(description, nullptr, false, textW) : ImVec2(0.0F, 0.0F);
+        const float textGap = hasDescription ? style.ItemInnerSpacing.y : 0.0F;
+        const float textBlockH = titleSize.y + textGap + descSize.y;
+        const float contentH = ImMax(textBlockH, ImMax(iconSize.y, buttonH));
+        const float rowH = contentH + (padY * 2.0F);
+
+        const ImVec2 pos = window->DC.CursorPos;
+        const ImRect bb(pos, ImVec2(pos.x + avail, pos.y + rowH));
+        const ImGuiID itemId = window->GetID("##status_action");
+
+        ImGui::ItemSize(ImVec2(avail, rowH));
+        if (!ImGui::ItemAdd(bb, itemId)) {
+            ImGui::PopID();
+            return false;
+        }
+
+        window->DrawList->AddRectFilled(bb.Min, bb.Max, ImGui::GetColorU32(HexColor(Colors::SURFACE2)), style.FrameRounding);
+        window->DrawList->AddRect(
+            bb.Min,
+            bb.Max,
+            ImGui::GetColorU32(HexColor(Colors::BORDER_SUBTLE, 0.5F)),
+            style.FrameRounding,
+            0,
+            1.0F
+        );
+
+        const float textX = bb.Min.x + padX + iconSize.x + iconGap;
+        const float textY = bb.Min.y + padY + ((contentH - textBlockH) * 0.5F);
+        ImFont *font = ImGui::GetFont();
+        const float fontSize = ImGui::GetFontSize();
+
+        if (icon != nullptr && icon[0] != '\0') {
+            const float iconY = bb.Min.y + padY + ((contentH - iconSize.y) * 0.5F);
+            window->DrawList->AddText(ImVec2(bb.Min.x + padX, iconY), ImGui::GetColorU32(iconColor), icon);
+        }
+
+        window->DrawList->AddText(font, fontSize, ImVec2(textX, textY), ImGui::GetColorU32(HexColor(Colors::TEXT_PRIMARY)), title, nullptr, textW);
+        if (hasDescription) {
+            window->DrawList->AddText(
+                font,
+                fontSize,
+                ImVec2(textX, textY + titleSize.y + textGap),
+                ImGui::GetColorU32(descriptionColor),
+                description,
+                nullptr,
+                textW
+            );
+        }
+
+        bool pressed = false;
+        if (hasAction) {
+            const float buttonX = bb.Max.x - padX - buttonW;
+            const float buttonY = bb.Min.y + ((rowH - buttonH) * 0.5F);
+            ImGui::SetCursorScreenPos(ImVec2(buttonX, buttonY));
+            pressed = PrimaryButton(actionLabel, actionEnabled, ImVec2(buttonW, buttonH));
+            ImGui::SetCursorScreenPos(ImVec2(bb.Min.x, bb.Max.y + style.ItemSpacing.y));
+        }
+
+        ImGui::PopID();
+        return pressed;
+    }
+
+    namespace {
+        struct BannerPalette {
+            const char *Surface;
+            const char *Ink;
+            const char *Detail;
+            const char *Accent;
+            const char *AccentStrong;
+            const char *AccentHover;
+            const char *AccentActive;
+        };
+
+        BannerPalette PaletteFor(const BannerTone tone) {
+            switch (tone) {
+                case BannerTone::Info:
+                    return {
+                        .Surface = "#161C28",
+                        .Ink = "#081018",
+                        .Detail = "#B7C6D6",
+                        .Accent = Colors::ACCENT_INFO,
+                        .AccentStrong = Colors::ACCENT_INFO_SOFT,
+                        .AccentHover = "#8EC4FF",
+                        .AccentActive = "#2E6FDB",
+                    };
+                case BannerTone::Positive:
+                    return {
+                        .Surface = "#16241C",
+                        .Ink = "#08140C",
+                        .Detail = "#B7D4C4",
+                        .Accent = Colors::POSITIVE,
+                        .AccentStrong = "#5AD66A",
+                        .AccentHover = "#7AE088",
+                        .AccentActive = "#1F9A32",
+                    };
+                case BannerTone::Warning:
+                default:
+                    return {
+                        .Surface = "#241E16",
+                        .Ink = "#1A1408",
+                        .Detail = "#D2C4AA",
+                        .Accent = Colors::WARNING,
+                        .AccentStrong = Colors::WARNING_STRONG,
+                        .AccentHover = "#F0D056",
+                        .AccentActive = "#C49A12",
+                    };
+            }
+        }
+
+        bool BannerPrimaryButton(const char *label, const ImVec2 &size, const BannerPalette &palette) {
+            StyleColor colors;
+            colors.Push(ImGuiCol_Button, HexColor(palette.AccentStrong));
+            colors.Push(ImGuiCol_ButtonHovered, HexColor(palette.AccentHover));
+            colors.Push(ImGuiCol_ButtonActive, HexColor(palette.AccentActive));
+            colors.Push(ImGuiCol_Text, HexColor(palette.Ink));
+            colors.Push(ImGuiCol_Border, HexColor(palette.AccentStrong));
+
+            StyleVar vars;
+            vars.Push(ImGuiStyleVar_FrameBorderSize, 0.0F);
+            return ImGui::Button(label, size);
+        }
+
+        bool BannerQuietButton(const char *label, const ImVec2 &size, const BannerPalette &palette) {
+            StyleColor colors;
+            colors.Push(ImGuiCol_Button, HexColor(palette.Accent, 0.0F));
+            colors.Push(ImGuiCol_ButtonHovered, HexColor(palette.Accent, 0.16F));
+            colors.Push(ImGuiCol_ButtonActive, HexColor(palette.Accent, 0.28F));
+            colors.Push(ImGuiCol_Text, HexColor(palette.Detail));
+            colors.Push(ImGuiCol_Border, HexColor(palette.Accent, 0.0F));
+
+            StyleVar vars;
+            vars.Push(ImGuiStyleVar_FrameBorderSize, 0.0F);
+            return ImGui::Button(label, size);
+        }
+
+        void DrawBannerChrome(const float accentW, const BannerPalette &palette) {
+            ImDrawList *drawList = ImGui::GetWindowDrawList();
+            const ImVec2 pos = ImGui::GetWindowPos();
+            const ImVec2 size = ImGui::GetWindowSize();
+            drawList->AddRectFilled(
+                pos,
+                ImVec2(pos.x + accentW, pos.y + size.y),
+                ImGui::GetColorU32(HexColor(palette.Accent))
+            );
+            drawList->AddLine(
+                ImVec2(pos.x, pos.y + size.y - 1.0F),
+                ImVec2(pos.x + size.x, pos.y + size.y - 1.0F),
+                ImGui::GetColorU32(HexColor(palette.Accent, 0.45F)),
+                1.0F
+            );
+        }
+    }
+
+    BannerResult ShowBanner(const Banner &banner) {
+        if (banner.Id == nullptr || banner.Id[0] == '\0' || banner.Title == nullptr || banner.Title[0] == '\0') {
+            return BannerResult::None;
+        }
+
+        const BannerPalette palette = PaletteFor(banner.Tone);
+        const bool hasIcon = banner.Icon != nullptr && banner.Icon[0] != '\0';
+        const bool hasSubtitle = banner.Subtitle != nullptr && banner.Subtitle[0] != '\0';
+        const bool hasAction = banner.ActionLabel != nullptr && banner.ActionLabel[0] != '\0';
+        const bool hasDismiss = banner.Dismissable;
+        const bool hasButtons = hasAction || hasDismiss;
+
+        const ImGuiViewport *vp = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(vp->WorkPos);
+        ImGui::SetNextWindowSize(ImVec2(vp->WorkSize.x, 0.0F));
+
+        constexpr ImGuiWindowFlags FLAGS =
+            WINDOW_AUTO_RESIZE_FLAGS |
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_NoNavFocus |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoScrollWithMouse;
+
+        const float dpi = GetDpiScale();
+        const float accentW = 3.0F * dpi;
+        const ImGuiStyle &themeStyle = ImGui::GetStyle();
+        const float tooltipRounding = themeStyle.WindowRounding;
+        const float tooltipBorder = themeStyle.WindowBorderSize;
+        const ImVec2 tooltipPadding = themeStyle.WindowPadding;
+
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, HexColor(palette.Surface));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2((14.0F * dpi) + accentW, 12.0F * dpi));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0F);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0F);
+        ImGui::Begin(banner.Id, nullptr, FLAGS);
+
+        const ImGuiStyle &style = ImGui::GetStyle();
+        const float spacing = style.ItemSpacing.x;
+        const ImVec2 actionText = hasAction ? ImGui::CalcTextSize(banner.ActionLabel) : ImVec2(0.0F, 0.0F);
+        const float labelH = hasAction ? actionText.y : ImGui::CalcTextSize(Icons::TIMES).y;
+        const float buttonH = labelH + (style.FramePadding.y * 2.0F);
+        const float actionW = hasAction ? actionText.x + (style.FramePadding.x * 2.0F) : 0.0F;
+        const float dismissW = hasDismiss ? buttonH : 0.0F;
+        float buttonsW = actionW + dismissW;
+        if (hasAction && hasDismiss) {
+            buttonsW += spacing;
+        }
+
+        const float avail = ImGui::GetContentRegionAvail().x;
+        const ImVec2 iconSize = hasIcon ? ImGui::CalcTextSize(banner.Icon) : ImVec2(0.0F, 0.0F);
+        const float iconGap = hasIcon ? style.ItemInnerSpacing.x : 0.0F;
+        const float textGap = hasSubtitle ? style.ItemInnerSpacing.y : 0.0F;
+        const float leading = iconSize.x + iconGap;
+        const float trailing = hasButtons ? spacing + buttonsW : 0.0F;
+        const bool sideBySide = !hasButtons || avail > (leading + trailing + Em(16.0F));
+        const float textW = sideBySide
+                                ? ImMax(1.0F, avail - trailing - leading)
+                                : ImMax(1.0F, avail - leading);
+
+        const ImVec2 titleSize = ImGui::CalcTextSize(banner.Title, nullptr, false, textW);
+        const ImVec2 detailSize = hasSubtitle
+                                      ? ImGui::CalcTextSize(banner.Subtitle, nullptr, false, textW)
+                                      : ImVec2(0.0F, 0.0F);
+        const float textBlockH = titleSize.y + (hasSubtitle ? textGap + detailSize.y : 0.0F);
+        const float rowH = sideBySide && hasButtons ? ImMax(textBlockH, buttonH) : textBlockH;
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+
+        if (hasIcon) {
+            ImGui::SetCursorScreenPos(ImVec2(origin.x, origin.y + ((titleSize.y - iconSize.y) * 0.5F)));
+            ImGui::TextColored(HexColor(palette.AccentStrong), "%s", banner.Icon);
+        }
+
+        const float textX = origin.x + leading;
+        ImGui::SetCursorScreenPos(ImVec2(textX, origin.y));
+        ImGui::PushTextWrapPos(textX + textW);
+        ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+        ImGui::TextWrapped("%s", banner.Title);
+        ImGui::PopStyleColor();
+
+        if (hasSubtitle) {
+            ImGui::SetCursorScreenPos(ImVec2(textX, origin.y + titleSize.y + textGap));
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(palette.Detail));
+            ImGui::TextWrapped("%s", banner.Subtitle);
+            ImGui::PopStyleColor();
+        }
+        ImGui::PopTextWrapPos();
+
+        BannerResult result = BannerResult::None;
+        if (hasButtons) {
+            const float buttonsY = sideBySide
+                                       ? origin.y + ((rowH - buttonH) * 0.5F)
+                                       : origin.y + textBlockH + style.ItemSpacing.y;
+            const float buttonsX = (buttonsW >= avail) ? origin.x : origin.x + avail - buttonsW;
+            ImGui::SetCursorScreenPos(ImVec2(buttonsX, buttonsY));
+            if (hasAction && BannerPrimaryButton(banner.ActionLabel, ImVec2(actionW, buttonH), palette)) {
+                result = BannerResult::Action;
+            }
+            if (hasDismiss) {
+                if (hasAction) {
+                    ImGui::SameLine();
+                }
+                if (BannerQuietButton(Icons::TIMES, ImVec2(dismissW, buttonH), palette)) {
+                    result = BannerResult::Dismissed;
+                }
+                if (banner.DismissTooltip != nullptr && banner.DismissTooltip[0] != '\0' && ImGui::IsItemHovered()) {
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, tooltipPadding);
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, tooltipRounding);
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, tooltipBorder);
+                    ImGui::SetTooltip("%s", banner.DismissTooltip);
+                    ImGui::PopStyleVar(3);
+                }
+            }
+        }
+
+        const float usedH = sideBySide ? rowH : textBlockH + style.ItemSpacing.y + buttonH;
+        ImGui::SetCursorScreenPos(ImVec2(origin.x, origin.y + usedH));
+        ImGui::Dummy(ImVec2(avail, 0.0F));
+
+        DrawBannerChrome(accentW, palette);
+
+        ImGui::End();
+        ImGui::PopStyleVar(3);
+        ImGui::PopStyleColor();
+        return result;
+    }
 }

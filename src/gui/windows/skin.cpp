@@ -150,7 +150,7 @@ namespace CoreDeck {
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
 
-            if (PrimaryButton("Use Selected Skin", true, ImVec2(halfWidth, 0))) {
+            if (PositiveButton("Use Selected Skin", true, ImVec2(halfWidth, 0))) {
                 work.SelectedSkin = work.PendingSelectedSkin;
                 work.SkinAutoFilled = false;
                 context.UI.ShowSkinDialog = false;

@@ -12,6 +12,7 @@
 #include <cmath>
 #include "../widgets.h"
 #include "../theme.h"
+#include "../../core/sdk_manager.h"
 #include "../../core/utilities.h"
 
 namespace CoreDeck {
@@ -175,6 +176,25 @@ namespace CoreDeck {
             " - ",
             img.Abi
         );
+    }
+
+    void OpenInstallImageDialog(Context &context) {
+        context.ImageInstallationWork.SelectedImage = -1;
+        context.ImageInstallationWork.SelectedCategory = ImageCategory::PhoneTablet;
+        context.ImageInstallationWork.SearchFilter[0] = '\0';
+        context.ImageInstallationWork.Progress.reset();
+        context.ImageInstallationWork.Prefetch.Ready = false;
+        context.ImageInstallationWork.Prefetch.Loading = true;
+        context.UI.ShowInstallImageDialog = true;
+
+        context.ImageInstallationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
+            const auto localImages = ListSystemImages(context.Host.Sdk);
+            auto remoteImages = ListRemoteSystemImages(context.Host.Sdk, localImages);
+            context.AvdCreationWork.SystemImages = localImages;
+            context.ImageInstallationWork.RemoteImages = std::move(remoteImages);
+            context.ImageInstallationWork.Prefetch.Loading = false;
+            context.ImageInstallationWork.Prefetch.Ready = true;
+        });
     }
 
     // NOLINTNEXTLINE(readability-function-size)

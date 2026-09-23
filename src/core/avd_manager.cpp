@@ -3,18 +3,23 @@
 //
 
 #include <algorithm>
+#include <cctype>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
 
-#include "avd.h"
+#include "avd_manager.h"
 #include "paths.h"
 #include "process.h"
 #include "utilities.h"
 
 namespace CoreDeck {
     namespace {
+        bool IsAvdManagerDiagnostic(const std::string &line) {
+            return line.starts_with("Error:") || line.starts_with("Warning:");
+        }
+
         std::unordered_map<std::string, std::string> ParseConfigFile(const std::string &path) {
             std::unordered_map<std::string, std::string> config;
             std::ifstream file(path);
@@ -227,6 +232,46 @@ namespace CoreDeck {
 
             return avd;
         }
+    }
+
+    DeviceProfileList ParseAvdManagerDeviceList(const std::string &output) {
+        DeviceProfileList result;
+        std::istringstream stream(output);
+        std::string line;
+        while (std::getline(stream, line)) {
+            while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) {
+                line.pop_back();
+            }
+            if (line.empty()) {
+                continue;
+            }
+            if (IsAvdManagerDiagnostic(line)) {
+                if (line.find("Could not load devices") != std::string::npos) {
+                    result.SkippedDeviceDefinitions = true;
+                }
+                continue;
+            }
+
+            DeviceProfile device;
+            device.Id = line;
+            device.Name = line;
+            std::ranges::replace(device.Name, '_', ' ');
+            if (!device.Name.empty()) {
+                device.Name[0] = static_cast<char>(std::toupper(device.Name[0]));
+            }
+            result.Profiles.push_back(std::move(device));
+        }
+
+        return result;
+    }
+
+    DeviceProfileList ListDeviceProfiles(const SdkInfo &sdk) {
+        if (sdk.AvdManagerPath.empty()) {
+            return {};
+        }
+
+        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"}, "", sdk.ToolEnv);
+        return ParseAvdManagerDeviceList(output);
     }
 
     std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames) {

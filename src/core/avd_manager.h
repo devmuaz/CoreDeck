@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
-#ifndef COREDECK_AVD_H
-#define COREDECK_AVD_H
+#ifndef COREDECK_AVD_MANAGER_H
+#define COREDECK_AVD_MANAGER_H
 
 #include <string>
 #include <vector>
@@ -11,6 +11,16 @@
 #include "sdk.h"
 
 namespace CoreDeck {
+    struct DeviceProfile {
+        std::string Id;
+        std::string Name;
+    };
+
+    struct DeviceProfileList {
+        std::vector<DeviceProfile> Profiles;
+        bool SkippedDeviceDefinitions = false;
+    };
+
     struct AvdInfo {
         std::string Name;
         std::string DisplayName;
@@ -47,6 +57,10 @@ namespace CoreDeck {
         std::string SkinPath;
     };
 
+    DeviceProfileList ParseAvdManagerDeviceList(const std::string &output);
+
+    DeviceProfileList ListDeviceProfiles(const SdkInfo &sdk);
+
     std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames);
 
     std::vector<std::string> ListAvdNames(const SdkInfo &sdk);
@@ -56,4 +70,4 @@ namespace CoreDeck {
     bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName);
 }
 
-#endif // COREDECK_AVD_H
+#endif // COREDECK_AVD_MANAGER_H

@@ -12,101 +12,11 @@
 #include "system_image.h"
 #include "paths.h"
 #include "process.h"
+#include "sdk_manager.h"
 #include "utilities.h"
 
 namespace CoreDeck {
     namespace {
-        // Java's PrintStream buffers 8192 characters and auto-flushes on newline.
-        // A wider COLUMNS makes each Android CLI progress redraw spill that buffer.
-        constexpr const char *SDK_MANAGER_PROGRESS_COLUMNS = "16384";
-
-        std::string TrimProgressText(const std::string &text) {
-            const auto start = text.find_first_not_of(" \t");
-            if (start == std::string::npos) {
-                return {};
-            }
-            const auto end = text.find_last_not_of(" \t");
-            return text.substr(start, end - start + 1);
-        }
-
-        std::string FractionAfterPercent(const std::string &line, const size_t pctPos) {
-            const auto open = line.find('(', pctPos);
-            if (open == std::string::npos) {
-                return {};
-            }
-            const auto close = line.find(')', open);
-            if (close == std::string::npos || close <= open + 1) {
-                return {};
-            }
-
-            const std::string inner = TrimProgressText(line.substr(open + 1, close - open - 1));
-            const auto slash = inner.find('/');
-            if (slash == std::string::npos) {
-                return inner;
-            }
-            return TrimProgressText(inner.substr(0, slash)) + " / " + TrimProgressText(inner.substr(slash + 1));
-        }
-
-        std::string StatusForProgress(const std::string &line, const size_t pctPos) {
-            const std::string fraction = FractionAfterPercent(line, pctPos);
-            const bool unzipping = line.find("Unzipping") != std::string::npos;
-            if (!fraction.empty()) {
-                return (unzipping ? "Unzipping " : "Downloading ") + fraction;
-            }
-
-            std::string after;
-            if (pctPos + 1 < line.size()) {
-                after = TrimProgressText(line.substr(pctPos + 1));
-            }
-            if (!after.empty() && !after.starts_with("ETA:")) {
-                return after;
-            }
-            if (unzipping) {
-                return "Unzipping...";
-            }
-            return "Downloading...";
-        }
-
-        bool IsProgressPercent(const std::string &line, const size_t pctPos) {
-            if (pctPos == 0 || line[pctPos] != '%') {
-                return false;
-            }
-            const char after = pctPos + 1 < line.size() ? line[pctPos + 1] : '\0';
-            if (after != '\0' && after != ' ' && after != '\t' && after != '(') {
-                return false;
-            }
-
-            size_t start = pctPos;
-            while (start > 0 && line[start - 1] >= '0' && line[start - 1] <= '9') {
-                --start;
-            }
-            if (start == pctPos || pctPos - start > 3) {
-                return false;
-            }
-            return true;
-        }
-
-        void ParseProgressLine(const std::string &line, const std::shared_ptr<InstallProgressData> &progress) {
-            if (!progress) {
-                return;
-            }
-
-            const SdkManagerProgressLine parsed = ParseSdkManagerProgressLine(line);
-            std::lock_guard lock(progress->Mutex);
-            if (parsed.HasPercent) {
-                progress->Percent = static_cast<float>(parsed.Percent) / 100.0F;
-                if (!parsed.Status.empty()) {
-                    progress->StatusText = parsed.Status;
-                }
-                progress->DetailText = parsed.Status.empty() ? line : parsed.Status;
-                return;
-            }
-
-            if (!line.empty() && line.size() <= 512) {
-                progress->DetailText = line;
-            }
-        }
-
         std::string CanonicalSystemImagePackagePath(std::string packagePath) {
             if (packagePath.starts_with("system-images/")) {
                 std::ranges::replace(packagePath, '/', ';');
@@ -114,8 +24,28 @@ namespace CoreDeck {
             return packagePath;
         }
 
-        bool IsAvdManagerDiagnostic(const std::string &line) {
-            return line.starts_with("Error:") || line.starts_with("Warning:");
+        void ApplyProgressLine(
+            const SdkManagerProgressLine &parsed,
+            const std::string &raw,
+            const std::shared_ptr<InstallProgressData> &progress
+        ) {
+            if (!progress) {
+                return;
+            }
+
+            std::lock_guard lock(progress->Mutex);
+            if (parsed.HasPercent) {
+                progress->Percent = static_cast<float>(parsed.Percent) / 100.0F;
+                if (!parsed.Status.empty()) {
+                    progress->StatusText = parsed.Status;
+                }
+                progress->DetailText = parsed.Status.empty() ? raw : parsed.Status;
+                return;
+            }
+
+            if (!raw.empty() && raw.size() <= 512) {
+                progress->DetailText = raw;
+            }
         }
     }
 
@@ -157,46 +87,6 @@ namespace CoreDeck {
         img.Abi = parts[3];
         img.DisplayName = StrConcat("Android ", img.ApiLevel, " (", img.Variant, ", ", img.Abi, ")");
         return img;
-    }
-
-    DeviceProfileList ParseAvdManagerDeviceList(const std::string &output) {
-        DeviceProfileList result;
-        std::istringstream stream(output);
-        std::string line;
-        while (std::getline(stream, line)) {
-            while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) {
-                line.pop_back();
-            }
-            if (line.empty()) {
-                continue;
-            }
-            if (IsAvdManagerDiagnostic(line)) {
-                if (line.find("Could not load devices") != std::string::npos) {
-                    result.SkippedDeviceDefinitions = true;
-                }
-                continue;
-            }
-
-            DeviceProfile device;
-            device.Id = line;
-            device.Name = line;
-            std::ranges::replace(device.Name, '_', ' ');
-            if (!device.Name.empty()) {
-                device.Name[0] = static_cast<char>(std::toupper(device.Name[0]));
-            }
-            result.Profiles.push_back(std::move(device));
-        }
-
-        return result;
-    }
-
-    DeviceProfileList ListDeviceProfiles(const SdkInfo &sdk) {
-        if (sdk.AvdManagerPath.empty()) {
-            return {};
-        }
-
-        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"}, "", sdk.ToolEnv);
-        return ParseAvdManagerDeviceList(output);
     }
 
     std::vector<SystemImage> ListSystemImages(const SdkInfo &sdk) {
@@ -309,42 +199,6 @@ namespace CoreDeck {
         return results;
     }
 
-    SdkManagerProgressLine ParseSdkManagerProgressLine(const std::string &line) {
-        SdkManagerProgressLine result;
-        size_t pctPos = line.rfind('%');
-        while (pctPos != std::string::npos) {
-            if (IsProgressPercent(line, pctPos)) {
-                size_t start = pctPos;
-                while (start > 0 && line[start - 1] >= '0' && line[start - 1] <= '9') {
-                    --start;
-                }
-                const int pct = static_cast<int>(std::strtol(line.c_str() + start, nullptr, 10));
-                if (pct >= 0 && pct <= 100) {
-                    result.HasPercent = true;
-                    result.Percent = pct;
-                    result.Status = StatusForProgress(line, pctPos);
-                    return result;
-                }
-            }
-            if (pctPos == 0) {
-                break;
-            }
-            pctPos = line.rfind('%', pctPos - 1);
-        }
-        return result;
-    }
-
-    EnvVars SdkManagerInstallEnvironment(EnvVars env) {
-        for (auto &var: env) {
-            if (var.Name == "COLUMNS") {
-                var.Value = SDK_MANAGER_PROGRESS_COLUMNS;
-                return env;
-            }
-        }
-        env.insert(env.begin(), {.Name = "COLUMNS", .Value = SDK_MANAGER_PROGRESS_COLUMNS});
-        return env;
-    }
-
     bool InstallSystemImage(
         const SdkInfo &sdk,
         const std::string &packagePath,
@@ -362,14 +216,13 @@ namespace CoreDeck {
 
         // Semicolon ids. Older sdkmanager requires them. cmdline-tools 23 accepts
         // them and rewrites '/' internally, so one form serves both.
-        StreamCommandArgs(
-            sdk.SdkManagerPath,
+        RunSdkManagerInstall(
+            sdk,
             {"--install", packagePath},
             "",
-            [&progress](const std::string &line) {
-                ParseProgressLine(line, progress);
-            },
-            SdkManagerInstallEnvironment(sdk.ToolEnv)
+            [&progress](const SdkManagerProgressLine &parsed, const std::string &raw) {
+                ApplyProgressLine(parsed, raw, progress);
+            }
         );
 
         // Verify
@@ -400,42 +253,5 @@ namespace CoreDeck {
         std::ranges::replace(fsPath, ';', '/');
         const std::string sysImg = Paths::JoinPaths({sdk.SdkPath, fsPath, "system.img"});
         return !std::filesystem::exists(sysImg);
-    }
-
-    LicenseStatus InterpretSdkLicenseOutput(const std::string &output) {
-        if (output.find("All SDK package licenses accepted") != std::string::npos) {
-            return LicenseStatus::AllAccepted;
-        }
-        if (output.find("The --licenses option is no longer needed") != std::string::npos) {
-            return LicenseStatus::AllAccepted;
-        }
-        if (output.find("licenses not accepted") != std::string::npos) {
-            return LicenseStatus::SomeUnaccepted;
-        }
-        return LicenseStatus::CheckFailed;
-    }
-
-    LicenseStatus CheckSdkLicenses(const SdkInfo &sdk) {
-        if (sdk.SdkManagerPath.empty()) {
-            return LicenseStatus::CheckFailed;
-        }
-
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, "N\n", sdk.ToolEnv);
-        return InterpretSdkLicenseOutput(output);
-    }
-
-    bool AcceptSdkLicenses(const SdkInfo &sdk) {
-        if (sdk.SdkManagerPath.empty()) {
-            return false;
-        }
-
-        std::string yes;
-        yes.reserve(static_cast<size_t>(64 * 2));
-        for (int i = 0; i < 64; ++i) {
-            yes += "y\n";
-        }
-
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, yes, sdk.ToolEnv);
-        return InterpretSdkLicenseOutput(output) == LicenseStatus::AllAccepted;
     }
 }

@@ -19,6 +19,8 @@ namespace CoreDeck {
 
     std::string SystemImagePreviewLabel(const SystemImage &img);
 
+    void OpenInstallImageDialog(Context &context);
+
     void BuildInstallImageWindow(Context &context);
 }
 

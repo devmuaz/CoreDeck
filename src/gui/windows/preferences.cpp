@@ -188,7 +188,7 @@ namespace CoreDeck {
                 ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
                 RefreshAvds(context);
-                context.UI.HideInvalidSdkPathBanner = false;
+                context.UI.HideHealthCheckBanner = false;
                 PersistAppSettings(context);
             }
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !pathOk) {
@@ -202,7 +202,7 @@ namespace CoreDeck {
                 ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
                 RefreshAvds(context);
-                context.UI.HideInvalidSdkPathBanner = false;
+                context.UI.HideHealthCheckBanner = false;
                 const std::string &p = context.Host.Sdk.SdkPath;
                 strncpy(sdkPathBuffer, p.c_str(), bufferSize - 1);
                 sdkPathBuffer[bufferSize - 1] = '\0';
@@ -326,6 +326,7 @@ namespace CoreDeck {
                 ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
                 RefreshAvds(context);
+                context.UI.HideHealthCheckBanner = false;
                 strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
                 jdkPathBuffer[bufferSize - 1] = '\0';
             }
@@ -340,6 +341,7 @@ namespace CoreDeck {
                 ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
                 RefreshAvds(context);
+                context.UI.HideHealthCheckBanner = false;
                 strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
                 jdkPathBuffer[bufferSize - 1] = '\0';
             }

@@ -1,3 +1,11 @@
+## [v0.10.0-beta.4](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.4) — 2026-09-23
+
+- Add a Health Check (Tools → Health Check...) that reports the Android SDK location, emulator, platform-tools, command-line tools, JDK 17 or newer, whether those tools actually start, SDK licenses, installed system images, and free disk space, with a fix action on each problem
+- Replace the separate missing-SDK, missing command-line tools, and old-Java banners with one warning bar that also appears when SDK licenses are not accepted, and opens the Health Check
+- Accept SDK licenses in their own window above the Health Check; agreeing, canceling, or closing it returns to the check and runs it again
+- Move Storage Overview to the Tools menu, and add icons to the menu bar
+- Make **Use Selected Device** and **Use Selected Skin** the green confirm button
+
 ## [v0.10.0-beta.3](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.3) — 2026-09-22
 
 - Keep `avdmanager` error and warning lines out of the Create AVD device list, so a system image whose `devices.xml` cannot be loaded no longer becomes the selected device, AVD name, and display name. Profiles that did load stay selectable, with a note when some definitions were skipped (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#44](https://github.com/devmuaz/CoreDeck/issues/44))
