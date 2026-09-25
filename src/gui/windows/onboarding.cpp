@@ -69,9 +69,17 @@ namespace CoreDeck {
         }
 
         void StepTitle(const char *title, const char *subtitle = nullptr, const char *subtitle2 = nullptr) {
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            ImFont *titleFont = nullptr;
+            if (ImFontAtlas *atlas = ImGui::GetIO().Fonts; atlas != nullptr && !atlas->Fonts.empty()) {
+                titleFont = atlas->Fonts.front();
+            }
+            if (titleFont != nullptr) {
+                ImGui::PushFont(titleFont);
+            }
             CenteredText(title, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::PopFont();
+            if (titleFont != nullptr) {
+                ImGui::PopFont();
+            }
 
             if (subtitle) {
                 ImGui::Spacing();
@@ -503,54 +511,31 @@ namespace CoreDeck {
             std::string status;
             std::string detail;
             if (work.Progress) {
-                std::lock_guard lock(work.Progress->Mutex);
+                std::scoped_lock lock(work.Progress->Mutex);
                 stage = work.Progress->Stage;
                 percent = work.Progress->Percent;
                 status = work.Progress->StatusText;
                 detail = work.Progress->DetailText;
             }
 
-            VerticalCenter(260.0F);
-
-            StepTitle(
-                Wizard().CommandLineToolsOnly ? "Installing command-line tools" : "Installing the Android SDK",
-                BootstrapStageLabel(stage)
-            );
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            const float formWidth = Em(66.0F);
-            BeginCenteredGroup(formWidth);
-
-            ImGui::ProgressBar(percent, ImVec2(formWidth, 0.0F));
-
-            ImGui::Spacing();
-            if (!status.empty()) {
-                ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), "%s", status.c_str());
-            }
-            if (!detail.empty()) {
-                ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + formWidth);
-                ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", detail.c_str());
-                ImGui::PopTextWrapPos();
-            }
-
-            ImGui::EndGroup();
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
             bool cancelRequested = false;
             if (work.Progress) {
-                std::lock_guard lock(work.Progress->Mutex);
+                std::scoped_lock lock(work.Progress->Mutex);
                 cancelRequested = work.Progress->CancelRequested;
             }
 
-            const float buttonWidth = Em(14.0F);
-            ImGui::SetCursorPosX((ImGui::GetWindowWidth() - buttonWidth) * 0.5F);
-            if (NegativeButton(cancelRequested ? "Cancelling..." : "Cancel", !cancelRequested, ImVec2(buttonWidth, 0))) {
+            const TaskProgress task{
+                .Title = Wizard().CommandLineToolsOnly ? "Installing command-line tools" : "Installing the Android SDK",
+                .Subtitle = cancelRequested ? "Cancelling..." : BootstrapStageLabel(stage),
+                .Fraction = percent,
+                .Status = status.empty() ? nullptr : status.c_str(),
+                .Detail = detail.empty() ? nullptr : detail.c_str(),
+                .CancelLabel = cancelRequested ? "Cancelling..." : "Cancel",
+                .CancelSizingLabel = "Cancelling...",
+                .CancelEnabled = !cancelRequested,
+                .CenterVertically = true,
+            };
+            if (TaskProgressPanel(task)) {
                 if (work.Progress) {
                     std::lock_guard lock(work.Progress->Mutex);
                     work.Progress->CancelRequested = true;

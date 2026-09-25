@@ -158,8 +158,8 @@ namespace CoreDeck {
                 return false;
             }
             for (std::size_t i = 0; i < suffix.size(); ++i) {
-                const auto left = static_cast<unsigned char>(text[text.size() - suffix.size() + i]);
-                const auto right = static_cast<unsigned char>(suffix[i]);
+                const auto left = static_cast<unsigned char>(text.at(text.size() - suffix.size() + i));
+                const auto right = static_cast<unsigned char>(suffix.at(i));
                 if (std::tolower(left) != std::tolower(right)) {
                     return false;
                 }
@@ -208,7 +208,7 @@ namespace CoreDeck {
                 if (i > 0 && (digits.size() - i) % 3 == 0) {
                     grouped.push_back(',');
                 }
-                grouped.push_back(digits[i]);
+                grouped.push_back(digits.at(i));
             }
             if (negative) {
                 grouped.insert(grouped.begin(), '-');
@@ -322,8 +322,8 @@ namespace CoreDeck {
             float phase = 0.0F;
             bool drawing = true;
             for (std::size_t i = 1; i < points.size(); ++i) {
-                const ImVec2 from = points[i - 1];
-                const ImVec2 to = points[i];
+                const ImVec2 from = points.at(i - 1);
+                const ImVec2 to = points.at(i);
                 const float length = std::sqrt(((to.x - from.x) * (to.x - from.x)) + ((to.y - from.y) * (to.y - from.y)));
                 if (length <= 0.0F) {
                     continue;
@@ -897,8 +897,9 @@ namespace CoreDeck {
                     clipper.Begin(static_cast<int>(rows.size()));
                     while (clipper.Step()) {
                         for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
-                            FileNode *node = rows[static_cast<std::size_t>(row)].Node;
-                            const int depth = rows[static_cast<std::size_t>(row)].Depth;
+                            const FlatFile &file = rows.at(static_cast<std::size_t>(row));
+                            FileNode *node = file.Node;
+                            const int depth = file.Depth;
                             const bool hasChildren = !node->Children.empty();
                             const bool isOpen = filtering || cache.Open.contains(node->FullPath);
                             const bool selected = work.SelectedPath == node->FullPath;
@@ -1018,64 +1019,25 @@ namespace CoreDeck {
 
         void DrawReadingState(Context &context) {
             auto &work = context.ApkAnalyzerWork;
-            const float availW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const float availH = std::max(1.0F, ImGui::GetContentRegionAvail().y);
-            const float margin = 32.0F;
-            const float cardPadX = 18.0F;
             const std::string name = FileNameOf(work.PendingPath);
-            const std::string fullTitle = StrConcat("Analyzing ", name.empty() ? "APK" : name);
-            const float maxCard = std::max(1.0F, availW - margin);
-            const float fittedCard = ImGui::CalcTextSize(fullTitle.c_str()).x + (cardPadX * 2.0F) + 8.0F;
-            const float cardW = std::min(maxCard, std::max(560.0F, fittedCard));
-            const float cardH = Eh(8.6F);
-            ImGui::Dummy(ImVec2(0.0F, std::max(0.0F, (availH - cardH) * 0.5F)));
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0F, (availW - cardW) * 0.5F));
-
-            const ImVec2 cardMin = ImGui::GetCursorScreenPos();
-            const ImVec2 cardMax(cardMin.x + cardW, cardMin.y + cardH);
-            ImGui::GetWindowDrawList()->AddRectFilled(cardMin, cardMax, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::SURFACE1)), 12.0F);
-
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(cardPadX, 16.0F));
-            ImGui::BeginChild("##ApkReadingCard", ImVec2(cardW, cardH), ImGuiChildFlags_AlwaysUseWindowPadding, ImGuiWindowFlags_NoScrollbar);
-
-            const float innerW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const std::string prefix = "Analyzing ";
-            const float prefixW = ImGui::CalcTextSize(prefix.c_str()).x;
-            const std::string shownName = FitFileName(name.empty() ? "APK" : name, std::max(1.0F, innerW - prefixW));
-            const std::string title = prefix + shownName;
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0F, (innerW - ImGui::CalcTextSize(title.c_str()).x) * 0.5F));
-            ImGui::TextUnformatted(title.c_str());
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-                ImGui::SetTooltip("%s", work.PendingPath.c_str());
-            }
-            ImGui::Spacing();
-
-            const float progress = std::clamp(work.Progress.load(), 0.0F, 1.0F);
-            const int percent = static_cast<int>(std::lround(progress * 100.0F));
-            char percentText[16];
-            (void) std::snprintf(percentText, sizeof(percentText), "%d%%", percent);
-            ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor(Colors::POSITIVE));
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, HexColor(Colors::SURFACE3));
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::WHITE));
-            ImGui::ProgressBar(progress, ImVec2(-1.0F, 0.0F), percentText);
-            ImGui::PopStyleColor(3);
-
-            ImGui::Spacing();
-            const char *stage = LoadStageText(work.Stage.load());
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0F, (ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(stage).x) * 0.5F));
-            ImGui::TextColored(HexColor(Colors::TEXT_SUBTLE), "%s", stage);
-
-            ImGui::Spacing();
+            const float titleBudget = std::max(1.0F, Em(66.0F) - ImGui::CalcTextSize("Analyzing ").x);
+            const std::string shownName = FitFileName(name.empty() ? "APK" : name, titleBudget);
+            const std::string title = StrConcat("Analyzing ", shownName);
             const bool cancelling = work.Cancel.load();
-            const float labelW = std::max(ImGui::CalcTextSize("Cancel").x, ImGui::CalcTextSize("Cancelling...").x);
-            const float buttonW = labelW + (ImGui::GetStyle().FramePadding.x * 2.0F);
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0F, (ImGui::GetContentRegionAvail().x - buttonW) * 0.5F));
-            if (NegativeButton(cancelling ? "Cancelling..." : "Cancel", !cancelling, ImVec2(buttonW, 0.0F))) {
+            const TaskProgress task{
+                .Title = title.c_str(),
+                .TitleTooltip = work.PendingPath.c_str(),
+                .Subtitle = cancelling ? "Cancelling..." : "In Progress... (This may take a while)",
+                .Fraction = work.Progress.load(),
+                .Status = LoadStageText(work.Stage.load()),
+                .CancelLabel = cancelling ? "Cancelling..." : "Cancel",
+                .CancelSizingLabel = "Cancelling...",
+                .CancelEnabled = !cancelling,
+                .CenterVertically = true,
+            };
+            if (TaskProgressPanel(task)) {
                 work.Cancel.store(true);
             }
-
-            ImGui::EndChild();
-            ImGui::PopStyleVar();
         }
 
         void DrawEmptyState(Context &context) {

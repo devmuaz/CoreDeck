@@ -103,7 +103,7 @@ namespace CoreDeck {
         bool SelectInstalledSystemImage(Context &context, const std::string &packagePath) {
             auto &images = context.AvdCreationWork.SystemImages;
             for (int i = 0; i < static_cast<int>(images.size()); i++) {
-                if (images[i].PackagePath == packagePath) {
+                if (images.at(static_cast<std::size_t>(i)).PackagePath == packagePath) {
                     context.AvdCreationWork.SelectedSystemImage = i;
                     return true;
                 }
@@ -111,7 +111,7 @@ namespace CoreDeck {
 
             images = ListSystemImages(context.Host.Sdk);
             for (int i = 0; i < static_cast<int>(images.size()); i++) {
-                if (images[i].PackagePath == packagePath) {
+                if (images.at(static_cast<std::size_t>(i)).PackagePath == packagePath) {
                     context.AvdCreationWork.SelectedSystemImage = i;
                     return true;
                 }
@@ -333,13 +333,13 @@ namespace CoreDeck {
                 };
 
                 bool firstCategory = true;
-                for (const auto &[Category, Label]: CATEGORY_OPTIONS) {
+                for (const auto &[category, label]: CATEGORY_OPTIONS) {
                     if (!firstCategory) {
                         ImGui::SameLine();
                     }
                     firstCategory = false;
-                    if (CategoryChip(Label, work.SelectedCategory == Category)) {
-                        work.SelectedCategory = Category;
+                    if (CategoryChip(label, work.SelectedCategory == category)) {
+                        work.SelectedCategory = category;
                         work.SelectedImage = -1;
                     }
                 }
@@ -376,14 +376,14 @@ namespace CoreDeck {
                             );
                         } else {
                             for (int i = 0; i < static_cast<int>(work.RemoteImages.size()); i++) {
-                                const auto &img = work.RemoteImages[i];
+                                const auto &img = work.RemoteImages.at(static_cast<std::size_t>(i));
                                 if (!MatchesImageFilters(img, work.SearchFilter, work.SelectedCategory)) {
                                     continue;
                                 }
 
                                 visibleCount++;
                                 const bool isSelected = work.SelectedImage == i;
-                                const auto [_, Label, Color] = SystemImageTypeStyleFor(img);
+                                const auto [_, slabel, color] = SystemImageTypeStyleFor(img);
 
                                 ImGui::TableNextRow();
                                 ImGui::TableNextColumn();
@@ -402,7 +402,7 @@ namespace CoreDeck {
                                 }
 
                                 ImGui::TableNextColumn();
-                                ImGui::TextColored(HexColor(Color), "%s", Label);
+                                ImGui::TextColored(HexColor(color), "%s", slabel);
 
                                 ImGui::TableNextColumn();
                                 ImGui::Text("%s", img.ApiLevel.c_str());
@@ -452,10 +452,7 @@ namespace CoreDeck {
 
                     ImGui::Text("%s", statusText.c_str());
                     ImGui::Spacing();
-
-                    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor(Colors::POSITIVE));
                     ImGui::ProgressBar(fraction, ImVec2(-1.0F, 0.0F));
-                    ImGui::PopStyleColor();
                 }
 
                 if (!isInstalling && work.Progress) {
@@ -490,9 +487,9 @@ namespace CoreDeck {
                 const bool hasVisibleSelection =
                     work.SelectedImage >= 0 &&
                     work.SelectedImage < static_cast<int>(work.RemoteImages.size()) &&
-                    MatchesImageFilters(work.RemoteImages[work.SelectedImage], work.SearchFilter, work.SelectedCategory);
+                    MatchesImageFilters(work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)), work.SearchFilter, work.SelectedCategory);
 
-                const bool selectedInstalled = hasVisibleSelection && work.RemoteImages[work.SelectedImage].IsInstalled;
+                const bool selectedInstalled = hasVisibleSelection && work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)).IsInstalled;
                 const bool canUseSelected = !isLoading && !isInstalling && !removalBusy && selectedInstalled;
                 const bool canRemove = canUseSelected;
                 const bool canInstall = !isLoading && !isInstalling && !removalBusy && hasVisibleSelection && !selectedInstalled;
@@ -515,7 +512,7 @@ namespace CoreDeck {
                         PositiveButton("Use Selected Image", false, ImVec2(thirdWidth, 0));
                         ImGui::EndDisabled();
                     } else if (PositiveButton("Use Selected Image", canUseSelected, ImVec2(thirdWidth, 0))) {
-                        const auto &img = work.RemoteImages[work.SelectedImage];
+                        const auto &img = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage));
                         if (SelectInstalledSystemImage(context, img.PackagePath)) {
                             work.Progress.reset();
                             context.UI.ShowInstallImageDialog = false;
@@ -528,7 +525,7 @@ namespace CoreDeck {
                         NegativeButton("Removing...", false, ImVec2(thirdWidth, 0));
                         ImGui::EndDisabled();
                     } else if (NegativeButton("Remove Image", canRemove, ImVec2(thirdWidth, 0))) {
-                        const std::string pkg = work.RemoteImages[work.SelectedImage].PackagePath;
+                        const std::string pkg = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)).PackagePath;
                         removal.Busy = true;
                         removal.Future = std::async(std::launch::async, [&context, pkg] {
                             try {
@@ -564,7 +561,7 @@ namespace CoreDeck {
                     }
                 } else {
                     if (PositiveButton("Install", canInstall, ImVec2(halfWidth, 0))) {
-                        const auto &img = work.RemoteImages[work.SelectedImage];
+                        const auto &img = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage));
                         work.PendingPackagePath = img.PackagePath;
                         work.LicenseError.clear();
                         work.LicenseBusy = true;

@@ -17,14 +17,9 @@
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
 [![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 
-[CoreDeck](https://coredeck.dev) is an open source native desktop application around your Android SDK’s official
-emulator, avdmanager, and sdkmanager binaries — running them for you in one place, through a friendly GUI, so you get
-the same results without hand-writing commands. Use it for everyday work without opening Android Studio. Built with
-C++20 and Dear ImGui.
+[CoreDeck](https://coredeck.dev) is a native desktop command center for the Android SDK. Create virtual devices, launch them, install system images, inspect APKs, and see whether your tools are actually ready, all in one fast app. It drives Google's official `emulator`, `avdmanager`, `sdkmanager`, and `apkanalyzer` itself. Android Studio does not need to be installed. Built with C++20 and Dear ImGui.
 
-> [!IMPORTANT]
-> CoreDeck can download and install Google's official command-line tools for you on first run if you don't have Android Studio installed, or you can point it at an existing SDK (for example the one from Android Studio).
-> CoreDeck can run without Android Studio installed, if your intent is to only play around Android's emulators and its tooling
+> Bring an SDK you already have, or let CoreDeck download Google's tools and set them up for you.
 
 <div align="center">
   <video src="https://github.com/user-attachments/assets/cade70a8-c7b4-47ac-98c1-6b8986893dcc" controls width="720"></video>
@@ -38,6 +33,8 @@ C++20 and Dear ImGui.
 - **Per-AVD Options** — Configure GPU, RAM, CPU cores, camera, network, boot mode, and more
 - **Live Log Viewer** — Stream emulator output in real time with search and auto-scroll
 - **Storage Overview** — Inspect per-AVD disk usage and clear heavy or unused data
+- **Health Check** — Reviews the SDK, emulator, command-line tools, JDK, licenses, system images, and free disk space, and offers a fix for each problem
+- **APK Analyzer** — Opens an APK with the official `apkanalyzer` and shows package info, download size, compression, and alignment
 - **SDK Auto-Detection** — Picks up your Android SDK from environment variables or standard paths
 - **SDK Installer** — Downloads Google's official command-line tools and installs the platform tools and emulator, without Android Studio
 - **JDK Configuration** — Auto-detects a compatible JDK and lets you point at a specific one when your system default is too old
@@ -46,20 +43,20 @@ C++20 and Dear ImGui.
 
 ## Preview
 
-|                                AVD List & Options                                 |                                    Running Emulator & Logs                                    |
-| :-------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
-| <img src="media/screenshots/list-avds.png" alt="AVD List & Options" width="400"/> | <img src="media/screenshots/run-selected-avd.png" alt="Running Emulator & Logs" width="400"/> |
-|                 _Browse AVDs with per-device options and details_                 |                      _Live emulator output with search and auto-scroll_                       |
+|                                AVD List & Options                                |                                    Running Emulator & Logs                                    |
+| :------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
+| <img src="media/screenshots/avd-list.png" alt="AVD List & Options" width="400"/> | <img src="media/screenshots/avd-list-running.png" alt="Running Emulator & Logs" width="400"/> |
+|                _Browse AVDs with per-device options and details_                 |                      _Live emulator output with search and auto-scroll_                       |
 
-|                                 Create New AVD                                 |                                  Device Profile Selection                                   |
-| :----------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: |
-| <img src="media/screenshots/create-avd.png" alt="Create New AVD" width="400"/> | <img src="media/screenshots/select-device.png" alt="Device Profile Selection" width="400"/> |
-|              _Configure system image, device, RAM, and GPU mode_               |                    _Pick from a rich catalog of Android device profiles_                    |
+|                                 Create New AVD                                 |                                Preferences                                |
+| :----------------------------------------------------------------------------: | :-----------------------------------------------------------------------: |
+| <img src="media/screenshots/create-avd.png" alt="Create New AVD" width="400"/> | <img src="media/screenshots/settings.png" alt="Preferences" width="400"/> |
+|          _Choose a system image, device, and skin, then name the AVD_          |     _Point CoreDeck at a JDK 17 or newer for the command-line tools_      |
 
-|                                         System Image Browser                                          |                                    Storage Overview                                    |
-| :---------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
-| <img src="media/screenshots/install-select-system-image.png" alt="System Image Browser" width="400"/> | <img src="media/screenshots/storage-overview.png" alt="Storage Overview" width="400"/> |
-|                           _List, install, and remove Android system images_                           |                     _Inspect AVD disk usage and clear heavy data_                      |
+|                                  Health Check                                  |                                  APK Analyzer                                  |
+| :----------------------------------------------------------------------------: | :----------------------------------------------------------------------------: |
+| <img src="media/screenshots/health-check.png" alt="Health Check" width="400"/> | <img src="media/screenshots/apk-analyzer.png" alt="APK Analyzer" width="400"/> |
+|               _Review the SDK setup and fix whatever is missing_               |       _Inspect package size, download size, compression, and alignment_        |
 
 ## Downloads
 
@@ -81,7 +78,7 @@ Each release artifact ships with a matching `.sha256` checksum for download veri
 
 ## Requirements
 
-- **Android SDK** with `emulator`, `avdmanager`, and `sdkmanager` available. CoreDeck can install these for you from the onboarding wizard, or you can use an existing SDK (for example one installed via Android Studio).
+- **Android SDK** with `emulator`, `avdmanager`, `sdkmanager`, and `apkanalyzer` available. CoreDeck can install these for you from the onboarding wizard, or you can use an existing SDK (for example one installed via Android Studio).
 - **JDK 17+** — the `avdmanager` and `sdkmanager` command-line tools are Java programs and require JDK 17 or newer. CoreDeck auto-detects a suitable JDK (including the one bundled with Android Studio) and lets you select a specific one under **Preferences → Java (JDK)** if your system default is older.
 - **OS:** Windows 10/11, macOS 12+ (Apple Silicon), or a recent Linux distribution.
 

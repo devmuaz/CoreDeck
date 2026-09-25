@@ -78,13 +78,13 @@ namespace CoreDeck {
     enum class DialogResult : uint8_t {
         None,
         Confirmed,
-        Cancelled
+        Cancelled,
     };
 
     enum class DialogType : uint8_t {
         Default,
         Positive,
-        Negative
+        Negative,
     };
 
     struct DialogData {
@@ -214,6 +214,21 @@ namespace CoreDeck {
     };
 
     BannerResult ShowBanner(const Banner &banner);
+
+    struct TaskProgress {
+        const char *Title = nullptr;
+        const char *TitleTooltip = nullptr;
+        const char *Subtitle = nullptr;
+        float Fraction = 0.0F;
+        const char *Status = nullptr;
+        const char *Detail = nullptr;
+        const char *CancelLabel = nullptr;
+        const char *CancelSizingLabel = nullptr;
+        bool CancelEnabled = true;
+        bool CenterVertically = false;
+    };
+
+    bool TaskProgressPanel(const TaskProgress &task);
 
     bool StatusActionItem(
         const char *id,

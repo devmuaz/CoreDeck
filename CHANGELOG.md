@@ -1,3 +1,12 @@
+## [v0.10.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0) — 2026-09-25
+
+- Add a Health Check (Tools → Health Check...) that reviews the Android SDK, emulator, platform-tools, command-line tools, JDK 17 or newer, SDK licenses, installed system images, and free disk space, with a fix action for each problem
+- Replace the separate setup banners with one warning bar, and accept SDK licenses from the Health Check
+- Add APK Analyzer (Tools → APK Analyzer) so a package can be opened, compared, and inspected with the official `apkanalyzer`, without Android Studio
+- Offer to download the command-line tools into an existing SDK when the emulator is already installed but `avdmanager` and `sdkmanager` are missing (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#42](https://github.com/devmuaz/CoreDeck/issues/42))
+- Show whether a system image uses 4 KB or 16 KB pages, and keep `avdmanager` errors out of the Create AVD device list (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#46](https://github.com/devmuaz/CoreDeck/issues/46), [#44](https://github.com/devmuaz/CoreDeck/issues/44))
+- Support cmdline-tools 23 package ids, license checks, and install progress, and notice when `avdmanager`, `sdkmanager`, or `apkanalyzer` is removed or restored without restarting
+
 ## [v0.10.0-beta.5](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.5) — 2026-09-25
 
 - Add APK Analyzer (Tools → APK Analyzer) that reads a package with the official `apkanalyzer` from the command-line tools, without Android Studio. Open an APK from the file picker or by dropping it on the window, and reopen recent APKs

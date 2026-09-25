@@ -2,6 +2,8 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
+#include <algorithm>
+
 #include "imgui.h"
 #include "imgui_internal.h"
 
@@ -306,18 +308,20 @@ namespace CoreDeck {
         ImGui::TextWrapped("%s", value);
     }
 
-    bool CategoryChip(const char *label, const char *fill, const char *accent) {
-        StyleColor sc;
-        StyleVar sv;
-        sc.Push(ImGuiCol_Button, HexColor(fill, 0.16F));
-        sc.Push(ImGuiCol_ButtonHovered, HexColor(fill, 0.24F));
-        sc.Push(ImGuiCol_ButtonActive, HexColor(fill, 0.32F));
-        sc.Push(ImGuiCol_Text, HexColor(accent));
-        sc.Push(ImGuiCol_Border, HexColor(accent));
-        sv.Push(ImGuiStyleVar_FrameRounding, 999.0F);
-        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(10.0F, 5.0F));
-        sv.Push(ImGuiStyleVar_FrameBorderSize, 1.0F);
-        return ImGui::Button(label);
+    namespace {
+        bool CategoryChip(const char *label, const char *fill, const char *accent) {
+            StyleColor sc;
+            StyleVar sv;
+            sc.Push(ImGuiCol_Button, HexColor(fill, 0.16F));
+            sc.Push(ImGuiCol_ButtonHovered, HexColor(fill, 0.24F));
+            sc.Push(ImGuiCol_ButtonActive, HexColor(fill, 0.32F));
+            sc.Push(ImGuiCol_Text, HexColor(accent));
+            sc.Push(ImGuiCol_Border, HexColor(accent));
+            sv.Push(ImGuiStyleVar_FrameRounding, 999.0F);
+            sv.Push(ImGuiStyleVar_FramePadding, ImVec2(10.0F, 5.0F));
+            sv.Push(ImGuiStyleVar_FrameBorderSize, 1.0F);
+            return ImGui::Button(label);
+        }
     }
 
     bool CategoryChip(const char *label, const bool isSelected) {
@@ -535,7 +539,7 @@ namespace CoreDeck {
     }
 
     float RecentFileItemHeight() {
-        return ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0F;
+        return ImGui::GetTextLineHeight() + (ImGui::GetStyle().FramePadding.y * 2.0F);
     }
 
     float RecentFileItemWidth(const char *label) {
@@ -559,7 +563,7 @@ namespace CoreDeck {
         const bool rowHovered = ImGui::IsItemHovered();
         const bool rowHeld = ImGui::IsItemActive();
 
-        const ImVec2 circleMin(origin.x + size.x - padding.x - diameter, origin.y + (size.y - diameter) * 0.5F);
+        const ImVec2 circleMin(origin.x + size.x - padding.x - diameter, origin.y + ((size.y - diameter) * 0.5F));
         const ImVec2 circleMax(circleMin.x + diameter, circleMin.y + diameter);
         ImGui::SetCursorScreenPos(circleMin);
         const bool removePressed = ImGui::InvisibleButton("##recent-remove", ImVec2(diameter, diameter));
@@ -581,7 +585,7 @@ namespace CoreDeck {
         draw->AddCircleFilled(center, diameter * 0.5F, circle);
         const ImVec2 iconSize = ImGui::CalcTextSize(Icons::TIMES);
         draw->AddText(
-            ImVec2(center.x - iconSize.x * 0.5F, center.y - iconSize.y * 0.5F),
+            ImVec2(center.x - (iconSize.x * 0.5F), center.y - (iconSize.y * 0.5F)),
             ImGui::GetColorU32(removeHovered ? HexColor(Colors::WHITE) : HexColor(Colors::TEXT_SUBTLE)),
             Icons::TIMES
         );
@@ -933,6 +937,108 @@ namespace CoreDeck {
                 1.0F
             );
         }
+    }
+
+    namespace {
+        bool HasText(const char *text) {
+            return text != nullptr && text[0] != '\0';
+        }
+
+        void DrawCenteredLine(const char *text, const float width, const float columnX, const ImVec4 &color) {
+            const float textW = ImGui::CalcTextSize(text).x;
+            ImGui::SetCursorPosX(columnX + std::max(0.0F, (width - textW) * 0.5F));
+            ImGui::TextColored(color, "%s", text);
+        }
+    }
+
+    bool TaskProgressPanel(const TaskProgress &task) {
+        const float availW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
+        const float width = std::min(Em(66.0F), availW);
+        const float columnX = ImGui::GetCursorPosX() + std::max(0.0F, (availW - width) * 0.5F);
+        const bool hasTitle = HasText(task.Title);
+        const bool hasSubtitle = HasText(task.Subtitle);
+        const bool hasStatus = HasText(task.Status);
+        const bool hasDetail = HasText(task.Detail);
+        const bool hasCancel = HasText(task.CancelLabel);
+        const float gap = ImGui::GetStyle().ItemSpacing.y;
+        const float line = ImGui::GetTextLineHeightWithSpacing();
+
+        if (task.CenterVertically) {
+            float blockH = ImGui::GetFrameHeight();
+            if (hasTitle) {
+                blockH += line;
+            }
+            if (hasSubtitle) {
+                blockH += gap + line;
+            }
+            if (hasTitle || hasSubtitle) {
+                blockH += gap * 3.0F;
+            }
+            if (hasStatus) {
+                blockH += gap + line;
+            }
+            if (hasDetail) {
+                blockH += gap + ImGui::CalcTextSize(task.Detail, nullptr, false, width).y;
+            }
+            if (hasCancel) {
+                blockH += (gap * 3.0F) + ImGui::GetFrameHeight();
+            }
+            const float availH = ImGui::GetContentRegionAvail().y;
+            if (availH > blockH) {
+                ImGui::Dummy(ImVec2(0.0F, (availH - blockH) * 0.5F));
+            }
+        }
+
+        ImGui::SetCursorPosX(columnX);
+        ImGui::BeginGroup();
+
+        if (hasTitle) {
+            DrawCenteredLine(task.Title, width, columnX, HexColor(Colors::TEXT_PRIMARY));
+            if (HasText(task.TitleTooltip) && ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+                ImGui::SetTooltip("%s", task.TitleTooltip);
+            }
+        }
+        if (hasSubtitle) {
+            if (hasTitle) {
+                ImGui::Spacing();
+            }
+            DrawCenteredLine(task.Subtitle, width, columnX, HexColor(Colors::TEXT_MUTED));
+        }
+        if (hasTitle || hasSubtitle) {
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+        }
+
+        ImGui::SetCursorPosX(columnX);
+        ImGui::ProgressBar(std::clamp(task.Fraction, 0.0F, 1.0F), ImVec2(width, 0.0F));
+
+        if (hasStatus) {
+            ImGui::Spacing();
+            ImGui::SetCursorPosX(columnX);
+            ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), "%s", task.Status);
+        }
+        if (hasDetail) {
+            ImGui::SetCursorPosX(columnX);
+            ImGui::PushTextWrapPos(columnX + width);
+            ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", task.Detail);
+            ImGui::PopTextWrapPos();
+        }
+
+        bool cancelPressed = false;
+        if (hasCancel) {
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            const float shownW = ImGui::CalcTextSize(task.CancelLabel).x;
+            const float reservedW = HasText(task.CancelSizingLabel) ? ImGui::CalcTextSize(task.CancelSizingLabel).x : 0.0F;
+            const float buttonW = std::max(Em(14.0F), std::max(shownW, reservedW) + (ImGui::GetStyle().FramePadding.x * 2.0F));
+            ImGui::SetCursorPosX(columnX + std::max(0.0F, (width - buttonW) * 0.5F));
+            cancelPressed = NegativeButton(task.CancelLabel, task.CancelEnabled, ImVec2(buttonW, 0.0F));
+        }
+
+        ImGui::EndGroup();
+        return cancelPressed;
     }
 
     BannerResult ShowBanner(const Banner &banner) {
