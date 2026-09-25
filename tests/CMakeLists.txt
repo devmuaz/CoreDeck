@@ -9,6 +9,7 @@ add_executable(coredeck_tests
         test_version_check.cpp
         test_sha256.cpp
         test_archive.cpp
+        test_apk_analyzer.cpp
         test_avd_manager.cpp
         test_health_check.cpp
         test_sdk_bootstrap.cpp

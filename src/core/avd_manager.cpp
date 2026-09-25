@@ -285,22 +285,29 @@ namespace CoreDeck {
         return avds;
     }
 
-    std::vector<std::string> ListAvdNames(const SdkInfo &sdk) {
+    std::vector<std::string> ParseAvdManagerAvdList(const std::string &output) {
         std::vector<std::string> avds;
-        if (!sdk.IsFound) {
-            return avds;
-        }
-
-        const std::string output = RunCommandArgs(sdk.EmulatorPath, {"-list-avds"});
         std::istringstream stream(output);
         std::string line;
         while (std::getline(stream, line)) {
-            if (!line.empty()) {
-                avds.emplace_back(line);
+            while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) {
+                line.pop_back();
             }
+            if (line.empty() || IsAvdManagerDiagnostic(line)) {
+                continue;
+            }
+            avds.push_back(line);
+        }
+        return avds;
+    }
+
+    std::vector<std::string> ListAvdNames(const SdkInfo &sdk) {
+        if (sdk.AvdManagerPath.empty()) {
+            return {};
         }
 
-        return avds;
+        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "avd", "-c"}, "", sdk.ToolEnv);
+        return ParseAvdManagerAvdList(output);
     }
 
     bool CreateAvd(const SdkInfo &sdk, const AvdCreationData &data) {

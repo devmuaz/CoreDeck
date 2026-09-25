@@ -211,6 +211,9 @@ namespace CoreDeck {
     void OpenHealthCheckDialog(Context &context) {
         auto &work = context.HealthCheckWork;
         context.UI.ShowHealthCheckDialog = true;
+        RefreshAndroidSdk(context.Host.Sdk);
+        const SdkInfo &sdk = context.Host.Sdk;
+        work.ObservedTools = sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath;
         if (work.Busy.load()) {
             return;
         }
@@ -219,7 +222,7 @@ namespace CoreDeck {
         work.Busy = true;
         work.Future = std::async(
             std::launch::async,
-            [sdk = context.Host.Sdk, jdk = context.Host.Jdk, progress = work.Progress] {
+            [sdk, jdk = context.Host.Jdk, progress = work.Progress] {
                 RunHealthChecks(sdk, jdk, progress);
             }
         );
@@ -230,6 +233,12 @@ namespace CoreDeck {
 
         if (!context.UI.ShowHealthCheckDialog) {
             return;
+        }
+
+        const SdkInfo &sdk = context.Host.Sdk;
+        const std::string toolsNow = sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath;
+        if (!context.HealthCheckWork.Busy.load() && context.HealthCheckWork.ObservedTools != toolsNow) {
+            OpenHealthCheckDialog(context);
         }
 
         constexpr auto TITLE = "Health Check###HealthCheckDialog";

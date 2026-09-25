@@ -11,7 +11,6 @@
 
 #include "system_image.h"
 #include "paths.h"
-#include "process.h"
 #include "sdk_manager.h"
 #include "utilities.h"
 
@@ -157,11 +156,10 @@ namespace CoreDeck {
         const std::vector<SystemImage> &installedImages
     ) {
         std::vector<RemoteSystemImage> results;
-        if (sdk.SdkManagerPath.empty()) {
+        const auto output = RunSdkManager(sdk, {"--list"});
+        if (!output) {
             return results;
         }
-
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--list"}, "", sdk.ToolEnv);
 
         std::unordered_set<std::string> installedSet;
         for (const auto &img: installedImages) {
@@ -169,7 +167,7 @@ namespace CoreDeck {
         }
 
         std::unordered_set<std::string> seenPackages;
-        std::istringstream stream(output);
+        std::istringstream stream(*output);
         std::string line;
         while (std::getline(stream, line)) {
             auto parsed = ParseRemoteSystemImageLine(line);
@@ -204,7 +202,7 @@ namespace CoreDeck {
         const std::string &packagePath,
         const std::shared_ptr<InstallProgressData> &progress
     ) {
-        if (sdk.SdkManagerPath.empty() || packagePath.empty()) {
+        if (packagePath.empty()) {
             return false;
         }
 
@@ -216,14 +214,22 @@ namespace CoreDeck {
 
         // Semicolon ids. Older sdkmanager requires them. cmdline-tools 23 accepts
         // them and rewrites '/' internally, so one form serves both.
-        RunSdkManagerInstall(
-            sdk,
-            {"--install", packagePath},
-            "",
-            [&progress](const SdkManagerProgressLine &parsed, const std::string &raw) {
-                ApplyProgressLine(parsed, raw, progress);
+        if (!RunSdkManagerInstall(
+                sdk,
+                {"--install", packagePath},
+                "",
+                [&progress](const SdkManagerProgressLine &parsed, const std::string &raw) {
+                    ApplyProgressLine(parsed, raw, progress);
+                }
+            )) {
+            if (progress) {
+                std::lock_guard lock(progress->Mutex);
+                progress->Finished = true;
+                progress->Succeeded = false;
+                progress->StatusText = "Installation Failed!";
             }
-        );
+            return false;
+        }
 
         // Verify
         std::string fsPath = packagePath;
@@ -243,11 +249,13 @@ namespace CoreDeck {
     }
 
     bool UninstallSystemImage(const SdkInfo &sdk, const std::string &packagePath) {
-        if (sdk.SdkManagerPath.empty() || packagePath.empty()) {
+        if (packagePath.empty()) {
             return false;
         }
 
-        RunCommandArgs(sdk.SdkManagerPath, {"--uninstall", packagePath}, "y\n", sdk.ToolEnv);
+        if (!RunSdkManager(sdk, {"--uninstall", packagePath}, "y\n")) {
+            return false;
+        }
 
         std::string fsPath = packagePath;
         std::ranges::replace(fsPath, ';', '/');

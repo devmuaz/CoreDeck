@@ -306,29 +306,39 @@ namespace CoreDeck {
         ImGui::TextWrapped("%s", value);
     }
 
-    bool CategoryChip(const char *label, const bool isSelected) {
+    bool CategoryChip(const char *label, const char *fill, const char *accent) {
         StyleColor sc;
         StyleVar sv;
-
-        if (isSelected) {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::POSITIVE_FILL, 0.16F));
-            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::POSITIVE_FILL, 0.24F));
-            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::POSITIVE_FILL, 0.32F));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::POSITIVE));
-            sc.Push(ImGuiCol_Border, HexColor(Colors::POSITIVE));
-        } else {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::SURFACE2));
-            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE3));
-            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE4));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_HINT));
-            sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
-        }
-
+        sc.Push(ImGuiCol_Button, HexColor(fill, 0.16F));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(fill, 0.24F));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(fill, 0.32F));
+        sc.Push(ImGuiCol_Text, HexColor(accent));
+        sc.Push(ImGuiCol_Border, HexColor(accent));
         sv.Push(ImGuiStyleVar_FrameRounding, 999.0F);
         sv.Push(ImGuiStyleVar_FramePadding, ImVec2(10.0F, 5.0F));
         sv.Push(ImGuiStyleVar_FrameBorderSize, 1.0F);
-
         return ImGui::Button(label);
+    }
+
+    bool CategoryChip(const char *label, const bool isSelected) {
+        if (isSelected) {
+            return CategoryChip(label, Colors::POSITIVE_FILL, Colors::POSITIVE);
+        }
+        StyleColor sc;
+        StyleVar sv;
+        sc.Push(ImGuiCol_Button, HexColor(Colors::SURFACE2));
+        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE3));
+        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE4));
+        sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_HINT));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
+        sv.Push(ImGuiStyleVar_FrameRounding, 999.0F);
+        sv.Push(ImGuiStyleVar_FramePadding, ImVec2(10.0F, 5.0F));
+        sv.Push(ImGuiStyleVar_FrameBorderSize, 1.0F);
+        return ImGui::Button(label);
+    }
+
+    bool CategoryChip(const char *label, const char *accent) {
+        return CategoryChip(label, accent, accent);
     }
 
     bool CollapsingHeader(const char *label, const ImGuiTreeNodeFlags flags) {
@@ -522,6 +532,68 @@ namespace CoreDeck {
         }
         drawList->ChannelsMerge();
         return pressed;
+    }
+
+    float RecentFileItemHeight() {
+        return ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0F;
+    }
+
+    float RecentFileItemWidth(const char *label) {
+        const float scale = GetDpiScale();
+        const ImVec2 padding = ImGui::GetStyle().FramePadding;
+        const float gap = 8.0F * scale;
+        const float textW = ImGui::CalcTextSize(label == nullptr ? "" : label).x;
+        return padding.x + textW + gap + ImGui::GetTextLineHeight() + padding.x;
+    }
+
+    RecentFileAction RecentFileItem(const char *id, const char *label) {
+        const float scale = GetDpiScale();
+        const ImVec2 padding = ImGui::GetStyle().FramePadding;
+        const float diameter = ImGui::GetTextLineHeight();
+        const ImVec2 size(RecentFileItemWidth(label), RecentFileItemHeight());
+
+        ImGui::PushID(id);
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        const float rowHitW = std::max(1.0F, size.x - padding.x - diameter);
+        const bool rowPressed = ImGui::InvisibleButton("##recent-file", ImVec2(rowHitW, size.y));
+        const bool rowHovered = ImGui::IsItemHovered();
+        const bool rowHeld = ImGui::IsItemActive();
+
+        const ImVec2 circleMin(origin.x + size.x - padding.x - diameter, origin.y + (size.y - diameter) * 0.5F);
+        const ImVec2 circleMax(circleMin.x + diameter, circleMin.y + diameter);
+        ImGui::SetCursorScreenPos(circleMin);
+        const bool removePressed = ImGui::InvisibleButton("##recent-remove", ImVec2(diameter, diameter));
+        const bool removeHovered = ImGui::IsItemHovered();
+
+        ImDrawList *draw = ImGui::GetWindowDrawList();
+        if (rowHovered || rowHeld) {
+            const ImVec4 fill = rowHeld ? HexColor(Colors::SURFACE3, 0.8F) : HexColor(Colors::SURFACE3, 0.4F);
+            draw->AddRectFilled(origin, ImVec2(origin.x + size.x, origin.y + size.y), ImGui::GetColorU32(fill), 6.0F * scale);
+        }
+        draw->AddText(
+            ImVec2(origin.x + padding.x, origin.y + padding.y),
+            ImGui::GetColorU32(HexColor(Colors::TEXT_PRIMARY)),
+            label
+        );
+
+        const ImVec2 center((circleMin.x + circleMax.x) * 0.5F, (circleMin.y + circleMax.y) * 0.5F);
+        const ImU32 circle = ImGui::GetColorU32(removeHovered ? HexColor(Colors::NEGATIVE) : HexColor(Colors::SURFACE4));
+        draw->AddCircleFilled(center, diameter * 0.5F, circle);
+        const ImVec2 iconSize = ImGui::CalcTextSize(Icons::TIMES);
+        draw->AddText(
+            ImVec2(center.x - iconSize.x * 0.5F, center.y - iconSize.y * 0.5F),
+            ImGui::GetColorU32(removeHovered ? HexColor(Colors::WHITE) : HexColor(Colors::TEXT_SUBTLE)),
+            Icons::TIMES
+        );
+
+        ImGui::PopID();
+        if (removePressed) {
+            return RecentFileAction::Removed;
+        }
+        if (rowPressed && !removeHovered) {
+            return RecentFileAction::Activated;
+        }
+        return RecentFileAction::None;
     }
 
     bool RoundedBeginPopupModal(const char *name, bool *pOpen, const ImGuiWindowFlags flags) {

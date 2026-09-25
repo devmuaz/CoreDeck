@@ -102,7 +102,7 @@ namespace CoreDeck {
             ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
             ImGui::SameLine();
             if (PrimaryButton(StrConcat("Browse...##", id).c_str(), true, ImVec2(browseWidth, 0))) {
-                if (const auto picked = FileDialog::PickFolder(dialogTitle, buffer); picked.has_value()) {
+                if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer); picked.has_value()) {
                     CopyToBuffer(buffer, bufferSize, picked.value());
                 }
             }

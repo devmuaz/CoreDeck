@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -29,8 +30,16 @@ namespace CoreDeck {
     // reads COLUMNS before asking the terminal how wide it is.
     EnvVars SdkManagerInstallEnvironment(EnvVars env);
 
-    using SdkManagerProgressSink =
-        std::function<void(const SdkManagerProgressLine &parsed, const std::string &raw)>;
+    using SdkManagerProgressSink = std::function<void(
+        const SdkManagerProgressLine &parsed,
+        const std::string &raw
+    )>;
+
+    std::optional<std::string> RunSdkManager(
+        const SdkInfo &sdk,
+        const std::vector<std::string> &args,
+        const std::string &stdinData = ""
+    );
 
     // Streams "sdkmanager <args>" with the progress-friendly environment and
     // feeds every output line (parsed and raw) to the sink. Returns false when

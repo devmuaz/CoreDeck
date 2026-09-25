@@ -114,6 +114,18 @@ namespace CoreDeck {
         return env;
     }
 
+    std::optional<std::string> RunSdkManager(
+        const SdkInfo &sdk,
+        const std::vector<std::string> &args,
+        const std::string &stdinData
+    ) {
+        if (sdk.SdkManagerPath.empty()) {
+            return std::nullopt;
+        }
+
+        return RunCommandArgs(sdk.SdkManagerPath, args, stdinData, sdk.ToolEnv);
+    }
+
     bool RunSdkManagerInstall(
         const SdkInfo &sdk,
         const std::vector<std::string> &args,
@@ -152,26 +164,21 @@ namespace CoreDeck {
     }
 
     LicenseStatus CheckSdkLicenses(const SdkInfo &sdk) {
-        if (sdk.SdkManagerPath.empty()) {
+        const auto output = RunSdkManager(sdk, {"--licenses"}, "N\n");
+        if (!output) {
             return LicenseStatus::CheckFailed;
         }
-
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, "N\n", sdk.ToolEnv);
-        return InterpretSdkLicenseOutput(output);
+        return InterpretSdkLicenseOutput(*output);
     }
 
     bool AcceptSdkLicenses(const SdkInfo &sdk) {
-        if (sdk.SdkManagerPath.empty()) {
-            return false;
-        }
-
         std::string yes;
         yes.reserve(static_cast<size_t>(64 * 2));
         for (int i = 0; i < 64; ++i) {
             yes += "y\n";
         }
 
-        const std::string output = RunCommandArgs(sdk.SdkManagerPath, {"--licenses"}, yes, sdk.ToolEnv);
-        return InterpretSdkLicenseOutput(output) == LicenseStatus::AllAccepted;
+        const auto output = RunSdkManager(sdk, {"--licenses"}, yes);
+        return output && InterpretSdkLicenseOutput(*output) == LicenseStatus::AllAccepted;
     }
 }

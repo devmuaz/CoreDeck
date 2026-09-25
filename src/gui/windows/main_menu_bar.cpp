@@ -51,6 +51,9 @@ namespace CoreDeck {
                 if (RoundedMenuItem(IconWithLabel(Icons::HEART_PULSE, "Health Check...").c_str())) {
                     OpenHealthCheckDialog(context);
                 }
+                if (RoundedMenuItem(IconWithLabel(Icons::FILE_LINES, "APK Analyzer").c_str())) {
+                    context.UI.ShowApkAnalyzerWindow = true;
+                }
                 if (RoundedMenuItem(IconWithLabel(Icons::HARD_DRIVE, "Storage Overview").c_str())) {
                     context.UI.ShowStorageDialog = true;
                 }

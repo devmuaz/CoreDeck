@@ -149,6 +149,7 @@ endif()
 
 add_library(coredeck_core STATIC
     src/core/app_settings.cpp
+    src/core/apk_analyzer.cpp
     src/core/archive.cpp
     src/core/avd_manager.cpp
     src/core/crash_reporter.cpp
@@ -212,6 +213,7 @@ add_executable(${PROJECT_NAME}
     ${IMGUI_SOURCES}
     src/main.cpp
     src/gui/windows/about.cpp
+    src/gui/windows/apk_analyzer.cpp
     src/gui/windows/avd_info.cpp
     src/gui/windows/avd_list.cpp
     src/gui/windows/avd_logs.cpp

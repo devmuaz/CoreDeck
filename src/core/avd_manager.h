@@ -63,6 +63,8 @@ namespace CoreDeck {
 
     std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames);
 
+    std::vector<std::string> ParseAvdManagerAvdList(const std::string &output);
+
     std::vector<std::string> ListAvdNames(const SdkInfo &sdk);
 
     bool CreateAvd(const SdkInfo &sdk, const AvdCreationData &data);

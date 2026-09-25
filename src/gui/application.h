@@ -50,6 +50,8 @@ namespace CoreDeck {
 
         void m_PollUpdateCheckIfNeeded();
 
+        void m_ApplyNativeWindowTitle();
+
         Context m_Context;
         GLFWwindow *m_Window = nullptr;
         bool m_GlfwInitialized = false;
@@ -62,6 +64,7 @@ namespace CoreDeck {
         // Multiplier used when rasterizing fonts (matches the framebuffer pixel density).
         float m_FontPixelScale = 1.0F;
 
+        std::string m_AppliedWindowPage;
         std::future<std::optional<RemoteRelease>> m_UpdateCheckFuture;
         bool m_AutoUpdateCheckStarted = false;
         bool m_UpdateCheckWasManual = false;

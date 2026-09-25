@@ -38,3 +38,22 @@ TEST_CASE("ParseAvdManagerDeviceList leaves an empty list when only device-load 
     REQUIRE(list.SkippedDeviceDefinitions);
     REQUIRE(list.Profiles.empty());
 }
+
+TEST_CASE("ParseAvdManagerAvdList keeps compact avd ids and drops diagnostics", "[avd]") {
+    const auto names = ParseAvdManagerAvdList(
+        "Error: Could not load devices from C:\\Users\\cheng\\AppData\\Local\\Android\\Sdk\\system-images\\android-37.2\\google_apis\\x86_64\\devices.xml\r\n"
+        "Pixel_7_Pro\n"
+        "Warning: Observed package id 'tools' in inconsistent location\n"
+        "My Phone\r\n"
+    );
+
+    REQUIRE(names.size() == 2);
+    REQUIRE(names[0] == "Pixel_7_Pro");
+    REQUIRE(names[1] == "My Phone");
+}
+
+TEST_CASE("ParseAvdManagerAvdList leaves an empty list when only diagnostics are present", "[avd]") {
+    const auto names = ParseAvdManagerAvdList("Warning: package.xml parsing problem\n");
+
+    REQUIRE(names.empty());
+}

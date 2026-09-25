@@ -63,7 +63,9 @@ namespace CoreDeck {
         const auto &notice = context.LicenseNotice;
 
         const bool sdkMissing = !sdk.IsFound;
-        const bool toolsMissing = sdk.IsFound && (sdk.AvdManagerPath.empty() || sdk.SdkManagerPath.empty());
+        const bool managersMissing = sdk.IsFound && (sdk.AvdManagerPath.empty() || sdk.SdkManagerPath.empty());
+        const bool analyzerMissing = sdk.IsFound && sdk.ApkAnalyzerPath.empty();
+        const bool toolsMissing = managersMissing || analyzerMissing;
         const bool jdkIncompatible = sdk.IsFound && jdk.IsFound && !jdk.IsValid;
         const bool licensesUnaccepted =
             notice.Known && notice.Status == LicenseStatus::SomeUnaccepted && !toolsMissing;
@@ -82,9 +84,12 @@ namespace CoreDeck {
         if (!sdkMissing && toolsMissing && jdkIncompatible) {
             title = "SDK tools and Java need attention";
             detail = "The command-line tools are missing, and the detected Java is too old to run them.";
-        } else if (!sdkMissing && toolsMissing) {
+        } else if (!sdkMissing && managersMissing) {
             title = "Command-line tools are missing";
-            detail = "avdmanager and sdkmanager are missing, so device profiles and system images cannot be loaded.";
+            detail = "avdmanager and sdkmanager are missing, so the AVD list, device profiles, and system images cannot be loaded.";
+        } else if (!sdkMissing && analyzerMissing) {
+            title = "APK Analyzer is missing";
+            detail = "apkanalyzer is missing from the command-line tools, so APK Analyzer cannot read packages.";
         } else if (!sdkMissing && jdkIncompatible) {
             title = "Java is too old for the SDK tools";
             detail =

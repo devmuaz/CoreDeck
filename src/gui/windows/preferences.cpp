@@ -155,7 +155,7 @@ namespace CoreDeck {
             ImGui::InputTextWithHint("##SdkPrefs", "Path to Android SDK", sdkPathBuffer, bufferSize);
             ImGui::SameLine();
             if (PrimaryButton("Browse...", true, ImVec2(browseWidth, 0))) {
-                if (const auto picked = FileDialog::PickFolder("Select Android SDK directory", sdkPathBuffer)) {
+                if (const auto picked = FileDialog::PickDirectory("Select Android SDK directory", sdkPathBuffer)) {
                     strncpy(sdkPathBuffer, picked->c_str(), bufferSize - 1);
                     sdkPathBuffer[bufferSize - 1] = '\0';
                 }
@@ -290,7 +290,7 @@ namespace CoreDeck {
             ImGui::InputTextWithHint("##JdkPrefs", "Path to a JDK home directory", jdkPathBuffer, bufferSize);
             ImGui::SameLine();
             if (PrimaryButton("Browse...", true, ImVec2(browseWidth, 0))) {
-                if (const auto picked = FileDialog::PickFolder("Select JDK home directory", jdkPathBuffer)) {
+                if (const auto picked = FileDialog::PickDirectory("Select JDK home directory", jdkPathBuffer)) {
                     strncpy(jdkPathBuffer, picked->c_str(), bufferSize - 1);
                     jdkPathBuffer[bufferSize - 1] = '\0';
                 }

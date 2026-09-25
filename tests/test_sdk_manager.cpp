@@ -85,3 +85,8 @@ TEST_CASE("RunSdkManagerInstall refuses to run without a sdkmanager binary", "[s
     const SdkInfo sdk; // No SdkManagerPath.
     REQUIRE_FALSE(RunSdkManagerInstall(sdk, {"--install", "platform-tools"}, "", nullptr));
 }
+
+TEST_CASE("RunSdkManager refuses to run without a sdkmanager binary", "[sdk-manager]") {
+    const SdkInfo sdk; // No SdkManagerPath.
+    REQUIRE_FALSE(RunSdkManager(sdk, {"--version"}).has_value());
+}

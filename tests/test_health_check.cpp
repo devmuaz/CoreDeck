@@ -11,6 +11,7 @@ namespace {
         sdk.EmulatorPath = "/sdk/emulator/emulator";
         sdk.AvdManagerPath = "/sdk/cmdline-tools/latest/bin/avdmanager";
         sdk.SdkManagerPath = "/sdk/cmdline-tools/latest/bin/sdkmanager";
+        sdk.ApkAnalyzerPath = "/sdk/cmdline-tools/latest/bin/apkanalyzer";
         sdk.IsFound = true;
         return sdk;
     }
@@ -145,6 +146,32 @@ TEST_CASE("RunHealthChecks flags missing cmdline-tools and skips checks that nee
 
     REQUIRE(Find(items, HealthCheckId::ToolsRun).Status == HealthStatus::Skipped);
     REQUIRE(Find(items, HealthCheckId::Licenses).Status == HealthStatus::Skipped);
+}
+
+TEST_CASE("RunHealthChecks treats a deleted sdkmanager as missing tools, not a JDK problem", "[health-check]") {
+    SdkInfo sdk = FullSdk();
+    HealthCheckDeps deps = AllGoodDeps();
+    deps.PathExists = [](const std::string &path) { return path.find("sdkmanager") == std::string::npos; };
+    deps.SdkManagerVersion = [](const SdkInfo &) { return std::string{}; };
+
+    const auto items = Run(sdk, ValidJdk(), deps);
+
+    const auto &tools = Find(items, HealthCheckId::CmdlineTools);
+    REQUIRE(tools.Status == HealthStatus::Failed);
+    REQUIRE(tools.Fix == HealthFix::InstallCmdlineTools);
+    REQUIRE(Find(items, HealthCheckId::ToolsRun).Fix == HealthFix::InstallCmdlineTools);
+    REQUIRE(Find(items, HealthCheckId::JdkRuntime).Status == HealthStatus::Passed);
+}
+
+TEST_CASE("RunHealthChecks flags a missing apkanalyzer", "[health-check]") {
+    SdkInfo sdk = FullSdk();
+    sdk.ApkAnalyzerPath.clear();
+
+    const auto items = Run(sdk, ValidJdk(), AllGoodDeps());
+
+    const auto &tools = Find(items, HealthCheckId::CmdlineTools);
+    REQUIRE(tools.Status == HealthStatus::Failed);
+    REQUIRE(tools.Fix == HealthFix::InstallCmdlineTools);
 }
 
 TEST_CASE("RunHealthChecks warns about missing system images and low disk space", "[health-check]") {

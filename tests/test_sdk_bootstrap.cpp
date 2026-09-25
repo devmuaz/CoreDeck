@@ -27,8 +27,8 @@ namespace {
         std::filesystem::permissions(
             path,
             std::filesystem::perms::owner_all | std::filesystem::perms::group_read |
-            std::filesystem::perms::group_exec | std::filesystem::perms::others_read |
-            std::filesystem::perms::others_exec,
+                std::filesystem::perms::group_exec | std::filesystem::perms::others_read |
+                std::filesystem::perms::others_exec,
             std::filesystem::perm_options::add
         );
     }
@@ -39,9 +39,11 @@ namespace {
 #if defined(_WIN32)
         WriteExecutable(bin / "avdmanager.bat");
         WriteExecutable(bin / "sdkmanager.bat");
+        WriteExecutable(bin / "apkanalyzer.bat");
 #else
         WriteExecutable(bin / "avdmanager");
         WriteExecutable(bin / "sdkmanager");
+        WriteExecutable(bin / "apkanalyzer");
 #endif
     }
 
@@ -70,11 +72,11 @@ namespace {
         BootstrapDeps deps = DefaultBootstrapDeps();
 
         deps.Download = [](
-            const std::string & /*url*/,
-            const std::string &destPath,
-            const std::function<bool(std::uint64_t, std::uint64_t)> &onProgress,
-            std::string &error
-        ) {
+                            const std::string & /*url*/,
+                            const std::string &destPath,
+                            const std::function<bool(std::uint64_t, std::uint64_t)> &onProgress,
+                            std::string &error
+                        ) {
             std::filesystem::create_directories(std::filesystem::path(destPath).parent_path());
             std::ofstream out(destPath, std::ios::binary | std::ios::trunc);
             out << FAKE_ARCHIVE_BODY;
@@ -96,11 +98,11 @@ namespace {
         };
 
         deps.Extract = [](
-            const std::string & /*zipPath*/,
-            const std::string &destDir,
-            const std::function<bool(float)> &onProgress,
-            std::string &error
-        ) {
+                           const std::string & /*zipPath*/,
+                           const std::string &destDir,
+                           const std::function<bool(float)> &onProgress,
+                           std::string &error
+                       ) {
             CreateFakeCmdlineTools(destDir);
             if (onProgress && !onProgress(1.0F)) {
                 error = "cancelled";
@@ -113,11 +115,11 @@ namespace {
         deps.AcceptLicenses = [](const SdkInfo &) { return true; };
 
         deps.InstallPackages = [installRoot](
-            const SdkInfo & /*sdk*/,
-            const std::string &sdkRoot,
-            const std::vector<std::string> &packages,
-            const std::shared_ptr<BootstrapProgressData> & /*progress*/
-        ) {
+                                   const SdkInfo & /*sdk*/,
+                                   const std::string &sdkRoot,
+                                   const std::vector<std::string> &packages,
+                                   const std::shared_ptr<BootstrapProgressData> & /*progress*/
+                               ) {
             REQUIRE(sdkRoot == installRoot);
             REQUIRE_FALSE(packages.empty());
             CreateFakeEmulator(sdkRoot);
@@ -195,6 +197,7 @@ TEST_CASE("ProbeAndroidSdk reports partial and complete SDK trees", "[bootstrap]
         REQUIRE_FALSE(sdk.IsFound);
         REQUIRE_FALSE(sdk.SdkManagerPath.empty());
         REQUIRE_FALSE(sdk.AvdManagerPath.empty());
+        REQUIRE_FALSE(sdk.ApkAnalyzerPath.empty());
     }
 
     SECTION("cmdline-tools and emulator") {
@@ -252,6 +255,7 @@ TEST_CASE("BootstrapAndroidSdk can add command-line tools to an SDK that already
     REQUIRE(sdk.IsFound);
     REQUIRE_FALSE(sdk.AvdManagerPath.empty());
     REQUIRE_FALSE(sdk.SdkManagerPath.empty());
+    REQUIRE_FALSE(sdk.ApkAnalyzerPath.empty());
     REQUIRE(std::filesystem::exists(root / "emulator"));
 
     std::filesystem::remove_all(root);
@@ -301,12 +305,12 @@ TEST_CASE("BootstrapAndroidSdk advances stages in order with a monotonic percent
     REQUIRE(BootstrapAndroidSdk(plan, ValidJdk(), progress, deps));
 
     REQUIRE(observed == std::vector{
-                BootstrapStage::DownloadingCmdlineTools,
-                BootstrapStage::Verifying,
-                BootstrapStage::Extracting,
-                BootstrapStage::AcceptingLicenses,
-                BootstrapStage::InstallingPackages,
-            });
+                            BootstrapStage::DownloadingCmdlineTools,
+                            BootstrapStage::Verifying,
+                            BootstrapStage::Extracting,
+                            BootstrapStage::AcceptingLicenses,
+                            BootstrapStage::InstallingPackages,
+                        });
 
     std::filesystem::remove_all(root);
 }
@@ -501,11 +505,11 @@ TEST_CASE("BootstrapAndroidSdk honours a cancellation during download", "[bootst
 
     BootstrapDeps deps = MakeFakeDeps(root.string());
     deps.Download = [&progress](
-        auto &&,
-        const std::string &destPath,
-        const std::function<bool(std::uint64_t, std::uint64_t)> &onProgress,
-        std::string &error
-    ) {
+                        auto &&,
+                        const std::string &destPath,
+                        const std::function<bool(std::uint64_t, std::uint64_t)> &onProgress,
+                        std::string &error
+                    ) {
         std::filesystem::create_directories(std::filesystem::path(destPath).parent_path());
         std::ofstream(destPath, std::ios::binary) << "partial";
         {

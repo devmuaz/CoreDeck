@@ -18,6 +18,7 @@
 #include "../core/health_check.h"
 #include "../core/jdk.h"
 #include "../core/options.h"
+#include "../core/apk_analyzer.h"
 #include "../core/sdk.h"
 #include "../core/sdk_bootstrap.h"
 #include "../core/sdk_manager.h"
@@ -121,6 +122,7 @@ namespace CoreDeck {
             bool ReopenCreateAvdOnInstallClose = false;
             bool ShowPreferences = false;
             bool ShowStorageDialog = false;
+            bool ShowApkAnalyzerWindow = false;
             bool ShowWipeDataDialog = false;
             bool ShowHealthCheckDialog = false;
             bool ShowAcceptLicensesDialog = false;
@@ -131,6 +133,7 @@ namespace CoreDeck {
             GLFWwindow *MainWindow = nullptr;
             bool HideHealthCheckBanner = false;
             bool OpenPreferencesToJava = false;
+            std::string NativeWindowPage;
         } UI;
 
         struct AvdCreationWork {
@@ -201,6 +204,7 @@ namespace CoreDeck {
             std::shared_ptr<HealthCheckProgressData> Progress;
             std::atomic<bool> Busy{false};
             std::future<void> Future;
+            std::string ObservedTools;
         } HealthCheckWork;
 
         struct AcceptLicensesWork {
@@ -235,6 +239,33 @@ namespace CoreDeck {
             std::future<StorageScanResult> Future;
         } DiskUsage;
 
+        struct ApkAnalyzerWork {
+            std::atomic<bool> Busy{false};
+            std::atomic<float> Progress{0.0F};
+            std::atomic<int> Stage{1};
+            std::atomic<bool> Cancel{false};
+            std::atomic<std::uint32_t> LoadEpoch{0};
+            std::string PendingPath;
+            std::future<ApkReport> Future;
+            bool HasReport = false;
+            ApkReport Report;
+
+            std::atomic<bool> CompareBusy{false};
+            std::string ComparePath;
+            std::future<ApkAnalyzerQuery<std::vector<ApkCompareEntry>>> CompareFuture;
+            bool HasCompare = false;
+            ApkAnalyzerQuery<std::vector<ApkCompareEntry>> Compare;
+
+            std::string SelectedPath;
+            std::uint32_t ContentEpoch = 0;
+
+            char TreeFilter[128] = {};
+
+            std::vector<std::string> RecentApks;
+            bool RecentLoaded = false;
+            std::vector<std::string> PendingDrops;
+        } ApkAnalyzerWork;
+
         struct Updates {
             bool ShowNewVersionModal = false;
             std::string LatestVersion;
@@ -247,6 +278,10 @@ namespace CoreDeck {
         explicit Context(SdkInfo sdk) : Host(std::move(sdk)) {
         }
     };
+
+    inline void SetNativeWindowPage(Context &context, const char *page) {
+        context.UI.NativeWindowPage = page != nullptr ? page : "";
+    }
 }
 
 #endif // COREDECK_CONTEXT_H

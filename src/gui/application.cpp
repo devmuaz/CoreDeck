@@ -31,6 +31,7 @@
 #include "../core/app_settings.h"
 #include "../core/paths.h"
 #include "windows/about.h"
+#include "windows/apk_analyzer.h"
 #include "windows/avd_info.h"
 #include "windows/avd_list.h"
 #include "windows/avd_logs.h"
@@ -105,11 +106,27 @@ namespace CoreDeck {
         m_Shutdown();
     }
 
-    void Application::m_Build() {
-        if (m_Context.Flow.CurrentScreen == Screen::Onboarding) {
-            BuildOnboardingWindow(m_Context);
+    void Application::m_ApplyNativeWindowTitle() {
+        if (m_AppliedWindowPage == m_Context.UI.NativeWindowPage) {
             return;
         }
+        m_AppliedWindowPage = m_Context.UI.NativeWindowPage;
+        const std::string title = m_AppliedWindowPage.empty()
+                                      ? std::string(COREDECK_TITLE)
+                                      : std::string(COREDECK_TITLE) + " - " + m_AppliedWindowPage;
+        glfwSetWindowTitle(m_Window, title.c_str());
+    }
+
+    void Application::m_Build() {
+        m_Context.UI.NativeWindowPage.clear();
+
+        if (m_Context.Flow.CurrentScreen == Screen::Onboarding) {
+            BuildOnboardingWindow(m_Context);
+            m_ApplyNativeWindowTitle();
+            return;
+        }
+
+        RefreshAndroidSdk(m_Context.Host.Sdk);
 
 #ifdef NDEBUG
         m_PollUpdateCheckIfNeeded();
@@ -174,12 +191,14 @@ namespace CoreDeck {
         }
 
         BuildMainMenuBar(m_Context);
-        BuildHealthCheckBanner(m_Context);
+        if (!m_Context.UI.ShowApkAnalyzerWindow) {
+            BuildHealthCheckBanner(m_Context);
+            BuildAvdOptionsWindow(m_Context);
+            BuildAvdListWindow(m_Context);
+            BuildAvdInfoWindow(m_Context);
+            BuildAvdLogsWindow(m_Context);
+        }
         BuildDeleteAvdWindow(m_Context);
-        BuildAvdOptionsWindow(m_Context);
-        BuildAvdListWindow(m_Context);
-        BuildAvdInfoWindow(m_Context);
-        BuildAvdLogsWindow(m_Context);
         BuildAboutWindow(m_Context);
         BuildPreferencesWindow(m_Context);
         BuildUpdateNoticeWindow(m_Context);
@@ -188,9 +207,11 @@ namespace CoreDeck {
             BuildInstallImageWindow(m_Context);
         }
         BuildHealthCheckWindow(m_Context);
+        BuildApkAnalyzerWindow(m_Context);
         BuildStorageWindow(m_Context);
 
         m_Context.Host.Manager.Update();
+        m_ApplyNativeWindowTitle();
     }
 
 
@@ -346,6 +367,32 @@ namespace CoreDeck {
             ApplyCustomImGuiTheme(self->m_DpiScale);
         });
 #endif
+
+        glfwSetDropCallback(m_Window, [](GLFWwindow *w, const int count, const char **paths) {
+            auto *self = static_cast<Application *>(glfwGetWindowUserPointer(w));
+            if (self == nullptr || paths == nullptr) {
+                return;
+            }
+            auto &pending = self->m_Context.ApkAnalyzerWork.PendingDrops;
+            for (int i = 0; i < count; ++i) {
+                if (paths[i] == nullptr) {
+                    continue;
+                }
+                const std::string path(paths[i]);
+                const auto dot = path.rfind('.');
+                if (dot == std::string::npos) {
+                    continue;
+                }
+                const std::string ext = path.substr(dot);
+                if (ext != ".apk" && ext != ".APK" && ext != ".Apk") {
+                    continue;
+                }
+                pending.push_back(path);
+            }
+            if (!pending.empty()) {
+                self->m_Context.UI.ShowApkAnalyzerWindow = true;
+            }
+        });
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow *w, const int width, const int height) {
             if (width == 0 || height == 0) {

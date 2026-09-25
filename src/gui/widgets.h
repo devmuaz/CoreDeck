@@ -144,6 +144,8 @@ namespace CoreDeck {
 
     bool CategoryChip(const char *label, bool isSelected);
 
+    bool CategoryChip(const char *label, const char *accent);
+
     bool CollapsingHeader(const char *label, ImGuiTreeNodeFlags flags = 0);
 
     bool MenuButton(const char *label);
@@ -169,6 +171,18 @@ namespace CoreDeck {
     };
 
     bool RoundedSelectable(const char *label, bool isSelected = false, ImGuiSelectableFlags flags = 0, const ImVec2 &size = ImVec2(0, 0));
+
+    enum class RecentFileAction : uint8_t {
+        None,
+        Activated,
+        Removed,
+    };
+
+    float RecentFileItemHeight();
+
+    float RecentFileItemWidth(const char *label);
+
+    RecentFileAction RecentFileItem(const char *id, const char *label);
 
     bool RoundedBeginPopupModal(const char *name, bool *pOpen = nullptr, ImGuiWindowFlags flags = 0);
 

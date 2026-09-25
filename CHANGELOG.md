@@ -1,3 +1,11 @@
+## [v0.10.0-beta.5](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.5) — 2026-09-25
+
+- Add APK Analyzer (Tools → APK Analyzer) that reads a package with the official `apkanalyzer` from the command-line tools, without Android Studio. Open an APK from the file picker or by dropping it on the window, and reopen recent APKs
+- Show package name, version name, version code, APK size, download size, and whether the package is debuggable, then a file table sorted by download size with raw size, share of download size, compression, and zip alignment
+- Compare the open APK with a previous one, with the comparison status beside the file count
+- Re-check `avdmanager`, `sdkmanager`, and `apkanalyzer` while the app is running, so removing or restoring one updates the Health Check and APK Analyzer without a restart. A missing `sdkmanager` offers to install the command-line tools instead of asking to configure Java, and a missing `apkanalyzer` is reported the same way
+- List AVDs with `avdmanager` and ignore its error and warning lines, so a broken `devices.xml` no longer shows up as an AVD name
+
 ## [v0.10.0-beta.4](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.4) — 2026-09-23
 
 - Add a Health Check (Tools → Health Check...) that reports the Android SDK location, emulator, platform-tools, command-line tools, JDK 17 or newer, whether those tools actually start, SDK licenses, installed system images, and free disk space, with a fix action on each problem

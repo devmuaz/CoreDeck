@@ -3,6 +3,8 @@
 //
 
 #include <filesystem>
+#include <utility>
+#include <vector>
 
 #include "sdk.h"
 #include "paths.h"
@@ -58,36 +60,41 @@ namespace CoreDeck {
 
         sdk.EmulatorPath = Paths::JoinPaths({sdk.SdkPath, "emulator", "emulator" + Paths::GetExecutableExtension()});
 
-        const std::string latestBin = Paths::JoinPaths({sdk.SdkPath, "cmdline-tools", "latest", "bin"});
-        sdk.AvdManagerPath = FindCmdlineTool(latestBin, "avdmanager");
-
-        if (sdk.AvdManagerPath.empty()) {
-            const std::string cmdlineRoot = Paths::JoinPaths({sdk.SdkPath, "cmdline-tools"});
-            if (std::filesystem::exists(cmdlineRoot) && std::filesystem::is_directory(cmdlineRoot)) {
-                for (const auto &entry: std::filesystem::directory_iterator(cmdlineRoot)) {
-                    if (!entry.is_directory()) {
-                        continue;
-                    }
-                    const std::string candidate = FindCmdlineTool(
-                        Paths::JoinPaths({entry.path().string(), "bin"}),
-                        "avdmanager"
-                    );
-                    if (!candidate.empty()) {
-                        sdk.AvdManagerPath = candidate;
-                        break;
-                    }
+        std::vector<std::string> binDirs;
+        binDirs.push_back(Paths::JoinPaths({sdk.SdkPath, "cmdline-tools", "latest", "bin"}));
+        const std::string cmdlineRoot = Paths::JoinPaths({sdk.SdkPath, "cmdline-tools"});
+        if (std::filesystem::exists(cmdlineRoot) && std::filesystem::is_directory(cmdlineRoot)) {
+            for (const auto &entry: std::filesystem::directory_iterator(cmdlineRoot)) {
+                if (!entry.is_directory() || entry.path().filename() == "latest") {
+                    continue;
                 }
+                binDirs.push_back(Paths::JoinPaths({entry.path().string(), "bin"}));
             }
         }
 
-        if (!sdk.AvdManagerPath.empty()) {
-            const std::filesystem::path avdMgrPath(sdk.AvdManagerPath);
-            sdk.SdkManagerPath = FindCmdlineTool(avdMgrPath.parent_path().string(), "sdkmanager");
-        }
+        const auto takeFirst = [&binDirs](const std::string &name) {
+            for (const std::string &binDir: binDirs) {
+                const std::string candidate = FindCmdlineTool(binDir, name);
+                if (!candidate.empty()) {
+                    return candidate;
+                }
+            }
+            return std::string{};
+        };
+        sdk.AvdManagerPath = takeFirst("avdmanager");
+        sdk.SdkManagerPath = takeFirst("sdkmanager");
+        sdk.ApkAnalyzerPath = takeFirst("apkanalyzer");
 
         if (std::filesystem::exists(sdk.EmulatorPath)) {
             sdk.IsFound = true;
         }
         return sdk;
+    }
+
+    void RefreshAndroidSdk(SdkInfo &sdk) {
+        const std::string sdkPath = sdk.SdkPath;
+        EnvVars toolEnv = std::move(sdk.ToolEnv);
+        sdk = sdkPath.empty() ? DetectAndroidSdk() : ProbeAndroidSdk(sdkPath);
+        sdk.ToolEnv = std::move(toolEnv);
     }
 }

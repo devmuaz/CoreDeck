@@ -9,7 +9,6 @@
 
 #include "health_check.h"
 #include "paths.h"
-#include "process.h"
 #include "sdk_bootstrap.h"
 #include "system_image.h"
 #include "utilities.h"
@@ -141,16 +140,23 @@ namespace CoreDeck {
             return result;
         }
 
-        HealthCheckResult CheckCmdlineTools(const SdkInfo &sdk) {
+        bool CmdlineToolMissing(const std::string &path, const HealthCheckDeps &deps) {
+            return path.empty() || !deps.PathExists(path);
+        }
+
+        HealthCheckResult CheckCmdlineTools(const SdkInfo &sdk, const HealthCheckDeps &deps) {
             HealthCheckResult result{.Id = HealthCheckId::CmdlineTools};
-            if (sdk.AvdManagerPath.empty() || sdk.SdkManagerPath.empty()) {
+            const bool avdMissing = CmdlineToolMissing(sdk.AvdManagerPath, deps);
+            const bool sdkManagerMissing = CmdlineToolMissing(sdk.SdkManagerPath, deps);
+            const bool analyzerMissing = CmdlineToolMissing(sdk.ApkAnalyzerPath, deps);
+            if (avdMissing || sdkManagerMissing || analyzerMissing) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = "avdmanager and/or sdkmanager are missing from this SDK.";
+                result.Detail = "avdmanager, sdkmanager, and/or apkanalyzer are missing from this SDK.";
                 result.Fix = HealthFix::InstallCmdlineTools;
                 return result;
             }
             result.Status = HealthStatus::Passed;
-            result.Detail = "avdmanager and sdkmanager are available.";
+            result.Detail = "avdmanager, sdkmanager, and apkanalyzer are available.";
             return result;
         }
 
@@ -184,6 +190,13 @@ namespace CoreDeck {
             if (sdk.SdkManagerPath.empty()) {
                 result.Status = HealthStatus::Skipped;
                 result.Detail = "sdkmanager is not installed.";
+                return result;
+            }
+
+            if (!deps.PathExists(sdk.SdkManagerPath)) {
+                result.Status = HealthStatus::Failed;
+                result.Detail = "sdkmanager is missing from this SDK.";
+                result.Fix = HealthFix::InstallCmdlineTools;
                 return result;
             }
 
@@ -292,7 +305,7 @@ namespace CoreDeck {
                 case HealthCheckId::PlatformTools:
                     return sdkAvailable ? CheckPlatformTools(sdk, deps) : SkippedResult(id);
                 case HealthCheckId::CmdlineTools:
-                    return sdkAvailable ? CheckCmdlineTools(sdk) : SkippedResult(id);
+                    return sdkAvailable ? CheckCmdlineTools(sdk, deps) : SkippedResult(id);
                 case HealthCheckId::JdkRuntime:
                     return CheckJdkRuntime(jdk);
                 case HealthCheckId::ToolsRun:
@@ -319,7 +332,8 @@ namespace CoreDeck {
         deps.CheckLicenses = [](const SdkInfo &sdk) { return CheckSdkLicenses(sdk); };
 
         deps.SdkManagerVersion = [](const SdkInfo &sdk) {
-            return RunCommandArgs(sdk.SdkManagerPath, {"--version"}, "", sdk.ToolEnv);
+            const auto output = RunSdkManager(sdk, {"--version"});
+            return output.value_or("");
         };
 
         deps.CountSystemImages = [](const SdkInfo &sdk) { return ListSystemImages(sdk).size(); };
@@ -345,7 +359,7 @@ namespace CoreDeck {
             case HealthCheckId::PlatformTools:
                 return "Platform tools (adb)";
             case HealthCheckId::CmdlineTools:
-                return "Command-line tools (avdmanager, sdkmanager)";
+                return "Command-line tools (avdmanager, sdkmanager, apkanalyzer)";
             case HealthCheckId::JdkRuntime:
                 return "Java runtime (JDK 17 or newer)";
             case HealthCheckId::ToolsRun:
