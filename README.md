@@ -68,11 +68,11 @@ brew install --cask devmuaz/tap/coredeck
 
 You can also grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
 
-| Platform | Architecture          | File            |
-| -------- | --------------------- | --------------- |
-| Windows  | x86-64                | `.msi` / `.zip` |
-| macOS    | arm64 (Apple Silicon) | `.dmg`          |
-| Linux    | x86-64, arm64         | `.tar.gz`       |
+| Platform | Architecture                          | File            |
+| -------- | ------------------------------------- | --------------- |
+| Windows  | x86-64                                | `.msi` / `.zip` |
+| macOS    | arm64 (Apple Silicon), x86-64 (Intel) | `.dmg`          |
+| Linux    | x86-64, arm64                         | `.tar.gz`       |
 
 Each release artifact ships with a matching `.sha256` checksum for download verification.
 
@@ -80,7 +80,7 @@ Each release artifact ships with a matching `.sha256` checksum for download veri
 
 - **Android SDK** with `emulator`, `avdmanager`, `sdkmanager`, and `apkanalyzer` available. CoreDeck can install these for you from the onboarding wizard, or you can use an existing SDK (for example one installed via Android Studio).
 - **JDK 17+** — the `avdmanager` and `sdkmanager` command-line tools are Java programs and require JDK 17 or newer. CoreDeck auto-detects a suitable JDK (including the one bundled with Android Studio) and lets you select a specific one under **Preferences → Java (JDK)** if your system default is older.
-- **OS:** Windows 10/11, macOS 12+ (Apple Silicon), or a recent Linux distribution.
+- **OS:** Windows 10/11, macOS 12+ (Apple Silicon and Intel), or a recent Linux distribution.
 
 ## Build from source
 

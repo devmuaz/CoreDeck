@@ -1,3 +1,7 @@
+## [v0.10.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.1) — 2026-09-26
+
+- Publish a signed and notarized Intel macOS build, `coredeck-darwin-x86-64.dmg`, alongside the Apple Silicon DMG
+
 ## [v0.10.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0) — 2026-09-25
 
 - Add a Health Check (Tools → Health Check...) that reviews the Android SDK, emulator, platform-tools, command-line tools, JDK 17 or newer, SDK licenses, installed system images, and free disk space, with a fix action for each problem

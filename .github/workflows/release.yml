@@ -26,6 +26,11 @@ jobs:
           - os: macos-latest
             artifact_name: coredeck-darwin-arm64
             asset_name: coredeck-darwin-arm64.dmg
+            cmake_osx_architectures: arm64
+          - os: macos-15-intel
+            artifact_name: coredeck-darwin-x86-64
+            asset_name: coredeck-darwin-x86-64.dmg
+            cmake_osx_architectures: x86_64
 
     steps:
       - name: Checkout code
@@ -61,8 +66,15 @@ jobs:
             export CMAKE_C_COMPILER_LAUNCHER=ccache
             export CMAKE_CXX_COMPILER_LAUNCHER=ccache
           fi
-          cmake -B build -DCMAKE_BUILD_TYPE=Release \
+          cmake_args=(
+            -B build
+            -DCMAKE_BUILD_TYPE=Release
             -DCOREDECK_VERSION_OVERRIDE="$COREDECK_VERSION_REF"
+          )
+          if [[ -n "${{ matrix.cmake_osx_architectures }}" ]]; then
+            cmake_args+=(-DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_osx_architectures }}")
+          fi
+          cmake "${cmake_args[@]}"
         shell: bash
 
       - name: Build
@@ -94,11 +106,21 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           APP_PATH="build/CoreDeck.app"
+          BIN="$APP_PATH/Contents/MacOS/CoreDeck"
+          ACTUAL_ARCH=$(lipo -archs "$BIN")
+          if [[ "$ACTUAL_ARCH" != "${{ matrix.cmake_osx_architectures }}" ]]; then
+            echo "::error::CoreDeck.app is $ACTUAL_ARCH, expected ${{ matrix.cmake_osx_architectures }}"
+            exit 1
+          fi
 
-          # Sign every nested Mach-O file first (replaces deprecated --deep).
-          # Detect Mach-O by content, not extension, so we cover bundled helpers
-          # like sentry-native's crashpad_handler that have no .dylib suffix.
+          # Sign nested Mach-O files before the bundle (replaces deprecated --deep).
+          # Detect Mach-O by content, not extension, so helpers such as
+          # sentry-native's crashpad_handler are included.
+          # Skip the main executable. Signing Contents/MacOS/CoreDeck on its
+          # own clears the signature on sibling helpers, and verify --strict
+          # then reports crashpad_handler as unsigned.
           while IFS= read -r -d '' f; do
+            [[ "$f" == "$BIN" ]] && continue
             if file -b "$f" 2>/dev/null | grep -q "Mach-O"; then
               codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$f"
             fi
@@ -112,7 +134,12 @@ jobs:
             done < <(find "$APP_PATH/Contents/Frameworks" -maxdepth 1 -type d -name "*.framework")
           fi
 
-          # Then sign the outer bundle.
+          # Sign the helper last among nested code, then seal the bundle.
+          if [[ -f "$APP_PATH/Contents/MacOS/crashpad_handler" ]]; then
+            codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$APP_PATH/Contents/MacOS/crashpad_handler"
+          fi
+
+          # Then sign the outer bundle, which signs the main executable.
           codesign --force --options runtime --sign "$CERTIFICATE_NAME" "$APP_PATH"
 
           # Sanity-check the signature before packaging.
@@ -290,6 +317,8 @@ jobs:
 
             **macOS (Apple Silicon):** `coredeck-darwin-arm64.dmg`
 
+            **macOS (Intel):** `coredeck-darwin-x86-64.dmg`
+
             **Linux (x86-64):** `coredeck-linux-x86-64.tar.gz`
 
             **Linux (ARM64):** `coredeck-linux-arm64.tar.gz`
@@ -318,11 +347,17 @@ jobs:
           prerelease: ${{ contains(github.ref, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Read macOS DMG checksum
+      - name: Read macOS DMG checksums
         id: dmg-sha
         run: |
-          SHA_FILE=$(find artifacts -name 'coredeck-darwin-arm64.dmg.sha256' | head -n 1)
-          echo "sha256=$(awk '{print $1}' "$SHA_FILE")" >> "$GITHUB_OUTPUT"
+          ARM_SHA_FILE=$(find artifacts -name 'coredeck-darwin-arm64.dmg.sha256' | head -n 1)
+          INTEL_SHA_FILE=$(find artifacts -name 'coredeck-darwin-x86-64.dmg.sha256' | head -n 1)
+          if [[ -z "$ARM_SHA_FILE" || -z "$INTEL_SHA_FILE" ]]; then
+            echo "::error::Missing a macOS DMG checksum (arm64='${ARM_SHA_FILE}', x86-64='${INTEL_SHA_FILE}')"
+            exit 1
+          fi
+          echo "sha256=$(awk '{print $1}' "$ARM_SHA_FILE")" >> "$GITHUB_OUTPUT"
+          echo "sha256_x86_64=$(awk '{print $1}' "$INTEL_SHA_FILE")" >> "$GITHUB_OUTPUT"
       - name: Trigger Homebrew Cask Update
         uses: peter-evans/repository-dispatch@v4
         with:
@@ -332,5 +367,6 @@ jobs:
           client-payload: |
             {
               "version": "${{ steps.version.outputs.version }}",
-              "sha256": "${{ steps.dmg-sha.outputs.sha256 }}"
+              "sha256": "${{ steps.dmg-sha.outputs.sha256 }}",
+              "sha256_x86_64": "${{ steps.dmg-sha.outputs.sha256_x86_64 }}"
             }

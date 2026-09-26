@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest, ubuntu-latest, ubuntu-24.04-arm ]
+        os: [ windows-latest, macos-latest, macos-15-intel, ubuntu-latest, ubuntu-24.04-arm ]
         build_type: [ Release ]
 
     steps:
@@ -37,7 +37,15 @@ jobs:
       - name: Configure CMake
         env:
           COREDECK_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCOREDECK_BUILD_TESTS=ON
+        run: |
+          cmake_args=(-B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCOREDECK_BUILD_TESTS=ON)
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            case "$(uname -m)" in
+              x86_64) cmake_args+=(-DCMAKE_OSX_ARCHITECTURES=x86_64) ;;
+              arm64) cmake_args+=(-DCMAKE_OSX_ARCHITECTURES=arm64) ;;
+            esac
+          fi
+          cmake "${cmake_args[@]}"
         shell: bash
 
       - name: Build
