@@ -11,7 +11,6 @@
 #include "health_check.h"
 #include "../theme.h"
 #include "../widgets.h"
-#include "../../core/utilities.h"
 
 namespace CoreDeck {
     namespace {
@@ -33,20 +32,12 @@ namespace CoreDeck {
             auto &work = context.AcceptLicensesWork;
             const bool busy = work.Busy.load();
 
-            ImGui::TextWrapped(
+            LicenseConsentNotice(
                 "Some Android SDK package licenses have not been accepted yet. "
                 "By clicking Agree, you confirm that you have read and accept "
-                "Google's current Android SDK license terms."
+                "Google's current Android SDK license terms.",
+                busy
             );
-            ImGui::Spacing();
-            if (PrimaryButton("Open license terms in browser")) {
-                OpenUrl("https://developer.android.com/studio/terms");
-            }
-
-            if (busy) {
-                ImGui::Spacing();
-                ImGui::TextDisabled("Recording acceptance with the SDK Manager...");
-            }
 
             if (!work.Error.empty()) {
                 ImGui::Spacing();
@@ -57,8 +48,7 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
+            const float halfWidth = EqualButtonWidth(2);
 
             if (PositiveButton("Agree", !busy, ImVec2(halfWidth, 0))) {
                 work.Error.clear();
@@ -102,17 +92,9 @@ namespace CoreDeck {
         }
 
         constexpr auto TITLE = "Accept SDK Licenses###AcceptLicensesDialog";
-        if (!ImGui::IsPopupOpen(TITLE)) {
-            ImGui::OpenPopup(TITLE);
-        }
-
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(EmV(56.0F, 14.0F), ImGuiCond_Appearing);
-
         const bool busy = work.Busy.load();
         bool *pOpen = busy ? nullptr : &context.UI.ShowAcceptLicensesDialog;
-        if (RoundedBeginPopupModal(TITLE, pOpen, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, pOpen, EmV(56.0F, 14.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             if (work.Accepted) {
                 work.Accepted = false;
                 context.UI.ShowAcceptLicensesDialog = false;

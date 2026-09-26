@@ -186,6 +186,30 @@ namespace CoreDeck {
 
     bool RoundedBeginPopupModal(const char *name, bool *pOpen = nullptr, ImGuiWindowFlags flags = 0);
 
+    bool BeginCenteredModal(const char *name, bool *pOpen, const ImVec2 &size, ImGuiWindowFlags flags = 0);
+
+    float EqualButtonWidth(int count);
+
+    void SearchField(const char *id, const char *hint, char *buffer, std::size_t bufferSize);
+
+    bool CategoryChipRow(const char *const *labels, int count, int &selectedIndex);
+
+    bool BeginPickerTable(const char *childId, const char *tableId, int columns, float height);
+
+    void EndPickerTable(bool open);
+
+    std::string PathPicker(
+        const char *id,
+        const char *label,
+        const char *hint,
+        const char *dialogTitle,
+        char *buffer,
+        std::size_t bufferSize,
+        float fieldWidth = 0.0F
+    );
+
+    void LicenseConsentNotice(const char *message, bool busy = false);
+
     DialogResult SimpleDialog(const DialogData &data);
 
     bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
@@ -226,6 +250,7 @@ namespace CoreDeck {
         const char *CancelSizingLabel = nullptr;
         bool CancelEnabled = true;
         bool CenterVertically = false;
+        bool CenterHorizontally = true;
     };
 
     bool TaskProgressPanel(const TaskProgress &task);

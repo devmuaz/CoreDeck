@@ -123,7 +123,7 @@ namespace CoreDeck {
 
                 std::vector<HealthCheckResult> items;
                 if (work.Progress) {
-                    std::lock_guard lock(work.Progress->Mutex);
+                    std::scoped_lock lock(work.Progress->Mutex);
                     items = work.Progress->Items;
                 }
                 PublishLicenseNotice(context, items);
@@ -181,7 +181,7 @@ namespace CoreDeck {
             ImGui::BeginChild("##HealthChecks", ImVec2(0.0F, Eh(22.0F)), 0);
 
             for (const auto &item: items) {
-                const auto [Icon, Color] = StatusStyleFor(item.Status);
+                const auto [icon, color] = StatusStyleFor(item.Status);
                 const bool showAction =
                     item.Fix != HealthFix::None &&
                     (item.Status == HealthStatus::Failed || item.Status == HealthStatus::Warning);
@@ -190,8 +190,8 @@ namespace CoreDeck {
                 ImGui::PushID(static_cast<int>(item.Id));
                 if (StatusActionItem(
                         "##check",
-                        Icon,
-                        HexColor(Color),
+                        icon,
+                        HexColor(color),
                         HealthCheckLabel(item.Id),
                         description,
                         DescriptionColorFor(item.Status),
@@ -242,24 +242,16 @@ namespace CoreDeck {
         }
 
         constexpr auto TITLE = "Health Check###HealthCheckDialog";
-        if (!ImGui::IsPopupOpen(TITLE)) {
-            ImGui::OpenPopup(TITLE);
-        }
-
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(EmV(92.0F, 24.0F), ImGuiCond_Appearing);
-
         const bool licenseOpen = context.UI.ShowAcceptLicensesDialog || context.AcceptLicensesWork.Busy.load();
         bool *healthOpen = licenseOpen ? nullptr : &context.UI.ShowHealthCheckDialog;
-        if (RoundedBeginPopupModal(TITLE, healthOpen, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, healthOpen, EmV(92.0F, 24.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.HealthCheckWork;
             const bool busy = work.Busy.load();
 
             std::vector<HealthCheckResult> items;
             bool finished = false;
             if (work.Progress) {
-                std::lock_guard lock(work.Progress->Mutex);
+                std::scoped_lock lock(work.Progress->Mutex);
                 items = work.Progress->Items;
                 finished = work.Progress->Finished;
             }
@@ -273,8 +265,7 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
+            const float halfWidth = EqualButtonWidth(2);
 
             if (PositiveButton(busy ? "Checking..." : "Run Again", !busy && !licenseOpen, ImVec2(halfWidth, 0))) {
                 OpenHealthCheckDialog(context);

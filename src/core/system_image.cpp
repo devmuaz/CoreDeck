@@ -32,7 +32,7 @@ namespace CoreDeck {
                 return;
             }
 
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             if (parsed.HasPercent) {
                 progress->Percent = static_cast<float>(parsed.Percent) / 100.0F;
                 if (!parsed.Status.empty()) {
@@ -207,7 +207,7 @@ namespace CoreDeck {
         }
 
         if (progress) {
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             progress->StatusText = "Starting download...";
             progress->Percent = 0.0F;
         }
@@ -223,7 +223,7 @@ namespace CoreDeck {
                 }
             )) {
             if (progress) {
-                std::lock_guard lock(progress->Mutex);
+                std::scoped_lock lock(progress->Mutex);
                 progress->Finished = true;
                 progress->Succeeded = false;
                 progress->StatusText = "Installation Failed!";
@@ -238,7 +238,7 @@ namespace CoreDeck {
         const bool ok = std::filesystem::exists(sysImg);
 
         if (progress) {
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             progress->Finished = true;
             progress->Succeeded = ok;
             progress->Percent = ok ? 1.0F : progress->Percent;

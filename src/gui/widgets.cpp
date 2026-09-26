@@ -3,12 +3,14 @@
 //
 
 #include <algorithm>
+#include <cstring>
 
 #include "imgui.h"
 #include "imgui_internal.h"
 
 #include "widgets.h"
 #include "theme.h"
+#include "../core/file_dialog.h"
 
 namespace CoreDeck {
 
@@ -360,21 +362,17 @@ namespace CoreDeck {
         auto result = DialogResult::None;
         const std::string title = StrConcat(data.Title, "###", data.Id);
 
-        if (data.IsOpen && !ImGui::IsPopupOpen(title.c_str())) {
-            ImGui::OpenPopup(title.c_str());
-        }
-
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(Em(42.0F), 0), ImGuiCond_Appearing);
-
         constexpr ImGuiWindowFlags FLAGS =
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoDocking;
 
-        if (RoundedBeginPopupModal(title.c_str(), data.IsBusy ? nullptr : &data.IsOpen, FLAGS)) {
+        if (!data.IsOpen && !ImGui::IsPopupOpen(title.c_str())) {
+            return result;
+        }
+
+        if (BeginCenteredModal(title.c_str(), data.IsBusy ? nullptr : &data.IsOpen, ImVec2(Em(42.0F), 0), FLAGS)) {
             if (!data.IsOpen) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
@@ -387,8 +385,7 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = ((ImGui::GetContentRegionAvail().x - spacing) * 0.5F);
+            const float halfWidth = EqualButtonWidth(2);
 
             if (data.IsBusy) {
                 ImGui::BeginDisabled();
@@ -659,6 +656,96 @@ namespace CoreDeck {
             ImGui::CloseCurrentPopup();
         }
         return open;
+    }
+
+    bool BeginCenteredModal(const char *name, bool *pOpen, const ImVec2 &size, const ImGuiWindowFlags flags) {
+        if (!ImGui::IsPopupOpen(name)) {
+            ImGui::OpenPopup(name);
+        }
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
+        ImGui::SetNextWindowSize(size, ImGuiCond_Appearing);
+        return RoundedBeginPopupModal(name, pOpen, flags);
+    }
+
+    float EqualButtonWidth(const int count) {
+        const float spacing = ImGui::GetStyle().ItemSpacing.x;
+        const float gaps = spacing * static_cast<float>(count - 1);
+        return (ImGui::GetContentRegionAvail().x - gaps) / static_cast<float>(count);
+    }
+
+    void SearchField(const char *id, const char *hint, char *buffer, const std::size_t bufferSize) {
+        ImGui::SetNextItemWidth(-1.0F);
+        const std::string searchHint = IconWithLabel(Icons::SEARCH, hint);
+        ImGui::InputTextWithHint(id, searchHint.c_str(), buffer, bufferSize);
+    }
+
+    bool CategoryChipRow(const char *const *labels, const int count, int &selectedIndex) {
+        bool clicked = false;
+        for (int i = 0; i < count; ++i) {
+            if (i > 0) {
+                ImGui::SameLine();
+            }
+            if (CategoryChip(labels[i], selectedIndex == i)) {
+                selectedIndex = i;
+                clicked = true;
+            }
+        }
+        return clicked;
+    }
+
+    bool BeginPickerTable(const char *childId, const char *tableId, const int columns, const float height) {
+        ImGui::BeginChild(childId, ImVec2(-1.0F, height), 1, ImGuiWindowFlags_NoScrollbar);
+        const bool open = ImGui::BeginTable(tableId, columns, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F));
+        if (open) {
+            ImGui::TableSetupScrollFreeze(0, 1);
+        }
+        return open;
+    }
+
+    void EndPickerTable(const bool open) {
+        if (open) {
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
+
+    std::string PathPicker(
+        const char *id,
+        const char *label,
+        const char *hint,
+        const char *dialogTitle,
+        char *buffer,
+        const std::size_t bufferSize,
+        const float fieldWidth
+    ) {
+        const float browseWidth = Em(11.0F);
+        const float spacing = ImGui::GetStyle().ItemSpacing.x;
+        ImGui::Text("%s", label);
+        const float totalWidth = fieldWidth > 0.0F ? fieldWidth : ImGui::GetContentRegionAvail().x;
+        ImGui::SetNextItemWidth(totalWidth - browseWidth - spacing);
+        ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
+        ImGui::SameLine();
+        if (PrimaryButton(StrConcat("Browse...##", id).c_str(), true, ImVec2(browseWidth, 0))) {
+            if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer)) {
+                std::strncpy(buffer, picked->c_str(), bufferSize - 1);
+                buffer[bufferSize - 1] = '\0';
+            }
+        }
+        return buffer;
+    }
+
+    void LicenseConsentNotice(const char *message, const bool busy) {
+        ImGui::TextWrapped("%s", message);
+        ImGui::Spacing();
+        if (PrimaryButton("Open license terms in browser")) {
+            OpenUrl("https://developer.android.com/studio/terms");
+        }
+        if (busy) {
+            ImGui::Spacing();
+            ImGui::TextDisabled("Recording acceptance with the SDK Manager...");
+        }
     }
 
     bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle, const char *tooltip, float boxSize) {
@@ -944,17 +1031,22 @@ namespace CoreDeck {
             return text != nullptr && text[0] != '\0';
         }
 
-        void DrawCenteredLine(const char *text, const float width, const float columnX, const ImVec4 &color) {
-            const float textW = ImGui::CalcTextSize(text).x;
-            ImGui::SetCursorPosX(columnX + std::max(0.0F, (width - textW) * 0.5F));
+        void DrawTaskLine(const char *text, const float width, const float columnX, const ImVec4 &color, const bool center) {
+            float x = columnX;
+            if (center) {
+                const float textW = ImGui::CalcTextSize(text).x;
+                x += std::max(0.0F, (width - textW) * 0.5F);
+            }
+            ImGui::SetCursorPosX(x);
             ImGui::TextColored(color, "%s", text);
         }
     }
 
     bool TaskProgressPanel(const TaskProgress &task) {
+        const bool center = task.CenterHorizontally;
         const float availW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-        const float width = std::min(Em(66.0F), availW);
-        const float columnX = ImGui::GetCursorPosX() + std::max(0.0F, (availW - width) * 0.5F);
+        const float width = center ? std::min(Em(66.0F), availW) : availW;
+        const float columnX = ImGui::GetCursorPosX() + (center ? std::max(0.0F, (availW - width) * 0.5F) : 0.0F);
         const bool hasTitle = HasText(task.Title);
         const bool hasSubtitle = HasText(task.Subtitle);
         const bool hasStatus = HasText(task.Status);
@@ -972,7 +1064,7 @@ namespace CoreDeck {
                 blockH += gap + line;
             }
             if (hasTitle || hasSubtitle) {
-                blockH += gap * 3.0F;
+                blockH += gap * (task.CenterHorizontally ? 3.0F : 1.0F);
             }
             if (hasStatus) {
                 blockH += gap + line;
@@ -993,7 +1085,7 @@ namespace CoreDeck {
         ImGui::BeginGroup();
 
         if (hasTitle) {
-            DrawCenteredLine(task.Title, width, columnX, HexColor(Colors::TEXT_PRIMARY));
+            DrawTaskLine(task.Title, width, columnX, HexColor(Colors::TEXT_PRIMARY), center);
             if (HasText(task.TitleTooltip) && ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
                 ImGui::SetTooltip("%s", task.TitleTooltip);
             }
@@ -1002,12 +1094,14 @@ namespace CoreDeck {
             if (hasTitle) {
                 ImGui::Spacing();
             }
-            DrawCenteredLine(task.Subtitle, width, columnX, HexColor(Colors::TEXT_MUTED));
+            DrawTaskLine(task.Subtitle, width, columnX, HexColor(Colors::TEXT_MUTED), center);
         }
         if (hasTitle || hasSubtitle) {
             ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Spacing();
+            if (center) {
+                ImGui::Spacing();
+                ImGui::Spacing();
+            }
         }
 
         ImGui::SetCursorPosX(columnX);
@@ -1033,7 +1127,8 @@ namespace CoreDeck {
             const float shownW = ImGui::CalcTextSize(task.CancelLabel).x;
             const float reservedW = HasText(task.CancelSizingLabel) ? ImGui::CalcTextSize(task.CancelSizingLabel).x : 0.0F;
             const float buttonW = std::max(Em(14.0F), std::max(shownW, reservedW) + (ImGui::GetStyle().FramePadding.x * 2.0F));
-            ImGui::SetCursorPosX(columnX + std::max(0.0F, (width - buttonW) * 0.5F));
+            const float buttonX = center ? columnX + std::max(0.0F, (width - buttonW) * 0.5F) : columnX;
+            ImGui::SetCursorPosX(buttonX);
             cancelPressed = NegativeButton(task.CancelLabel, task.CancelEnabled, ImVec2(buttonW, 0.0F));
         }
 

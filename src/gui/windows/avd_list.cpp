@@ -5,53 +5,15 @@
 #include "imgui.h"
 
 #include "avd_list.h"
+#include "avd_info.h"
 #include "delete_avd.h"
+#include "device_profile.h"
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
 
 namespace CoreDeck {
     namespace {
-        struct DeviceIconStyle {
-            const char *Icon;
-            const char *HexColor;
-        };
-
-        DeviceIconStyle DeviceIconStyleFor(const std::string &device) {
-            std::string d;
-            d.reserve(device.size());
-            for (const char c: device) {
-                d.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
-            }
-
-            if (d.find("wear") != std::string::npos) {
-                return {.Icon = Icons::WATCH, .HexColor = Colors::ACCENT_WEAR};
-            }
-            if (d.find("auto") != std::string::npos) {
-                return {.Icon = Icons::CAR, .HexColor = Colors::NEGATIVE};
-            }
-            if (d.find("tv") != std::string::npos) {
-                return {.Icon = Icons::TV, .HexColor = Colors::ACCENT_TV};
-            }
-            if (d.find("tablet") != std::string::npos || d.find("pixel_c") != std::string::npos) {
-                return {.Icon = Icons::TABLET, .HexColor = Colors::ACCENT_TABLET};
-            }
-            return {.Icon = Icons::MOBILE, .HexColor = Colors::ACCENT_PHONE};
-        }
-
-        const char *AvdTypeLabel(const AvdInfo &avd) {
-            if (avd.IsGooglePlayImage) {
-                return "Google Play";
-            }
-            if (avd.IsGoogleApisImage) {
-                return "Google APIs";
-            }
-            if (!avd.SystemImageTagDisplay.empty()) {
-                return avd.SystemImageTagDisplay.c_str();
-            }
-            return "Default";
-        }
-
         bool ContainsCaseInsensitive(const std::string &haystack, const char *needle) {
             if (needle[0] == '\0') {
                 return true;
@@ -79,7 +41,7 @@ namespace CoreDeck {
                         !ContainsCaseInsensitive(avd.Name, catalog.SearchFilter) &&
                         !ContainsCaseInsensitive(avd.Device, catalog.SearchFilter) &&
                         !ContainsCaseInsensitive(avd.ApiLevel, catalog.SearchFilter) &&
-                        !ContainsCaseInsensitive(AvdTypeLabel(avd), catalog.SearchFilter)) {
+                        !ContainsCaseInsensitive(SystemImageKindLabel(avd), catalog.SearchFilter)) {
                         continue;
                     }
                 }
@@ -302,9 +264,9 @@ namespace CoreDeck {
             ImGui::PushID(i);
             const char *avdStatusText = isRunning ? "Running..." : "Ready";
             const ImVec4 avdStatusColor = isRunning ? HexColor(Colors::POSITIVE) : HexColor(Colors::TEXT_MUTED);
-            const std::string avdRightText = StrConcat(AvdTypeLabel(avd), " - ", avdStatusText);
-            const auto [Icon, Color] = DeviceIconStyleFor(avd.Device);
-            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdRightText.c_str(), avdStatusColor, Icon, HexColor(Color))) {
+            const std::string avdRightText = StrConcat(SystemImageKindLabel(avd), " - ", avdStatusText);
+            const auto style = DeviceFormFactorStyle(DeviceCategoryForText(avd.Device));
+            if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdRightText.c_str(), avdStatusColor, style.Icon, HexColor(style.Color))) {
                 context.Catalog.SelectedAvd = i;
             }
             ImGui::PopID();

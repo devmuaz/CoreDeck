@@ -14,6 +14,19 @@
 #include "../../core/utilities.h"
 
 namespace CoreDeck {
+    const char *SystemImageKindLabel(const AvdInfo &avd) {
+        if (avd.IsGooglePlayImage) {
+            return "Google Play";
+        }
+        if (avd.IsGoogleApisImage) {
+            return "Google APIs";
+        }
+        if (!avd.SystemImageTagDisplay.empty()) {
+            return avd.SystemImageTagDisplay.c_str();
+        }
+        return "Default";
+    }
+
     namespace {
         std::string JoinAvdInfoList(const std::vector<std::string> &items) {
             std::stringstream stream;
@@ -24,19 +37,6 @@ namespace CoreDeck {
                 stream << items[i];
             }
             return stream.str();
-        }
-
-        const char *SystemImageKindLabel(const AvdInfo &avd) {
-            if (avd.IsGooglePlayImage) {
-                return "Google Play";
-            }
-            if (avd.IsGoogleApisImage) {
-                return "Google APIs";
-            }
-            if (!avd.SystemImageTagDisplay.empty()) {
-                return avd.SystemImageTagDisplay.c_str();
-            }
-            return "Default";
         }
 
         std::string FormatBytesPerSec(const std::uint64_t bytesPerSec) {
@@ -248,8 +248,7 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             const bool isRunning = context.Host.Manager.IsRunning(name);
-            const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - buttonSpacing) * 0.5F;
+            const float halfWidth = EqualButtonWidth(2);
 
             if (isRunning) {
                 ImGui::BeginDisabled();

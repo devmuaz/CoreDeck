@@ -51,27 +51,12 @@ namespace CoreDeck {
         }
 
         constexpr auto TITLE = "Choose Skin###SkinDialog";
-        if (!ImGui::IsPopupOpen(TITLE)) {
-            ImGui::OpenPopup(TITLE);
-        }
-
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(EmV(80.0F, 25.0F), ImGuiCond_Appearing);
-
-        if (RoundedBeginPopupModal(TITLE, &context.UI.ShowSkinDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, &context.UI.ShowSkinDialog, EmV(80.0F, 25.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
             const int totalRows = static_cast<int>(work.Skins.size()) + 1; // +1 for "No skin"
             work.PendingSelectedSkin = std::clamp(work.PendingSelectedSkin, 0, totalRows - 1);
 
-            ImGui::SetNextItemWidth(-1.0F);
-            const std::string searchHint = IconWithLabel(Icons::SEARCH, "Search skins...");
-            ImGui::InputTextWithHint(
-                "##SkinSearch",
-                searchHint.c_str(),
-                work.SkinSearchFilter,
-                sizeof(work.SkinSearchFilter)
-            );
+            SearchField("##SkinSearch", "Search skins...", work.SkinSearchFilter, sizeof(work.SkinSearchFilter));
 
             ImGui::Spacing();
             ImGui::Text("Skins");
@@ -79,10 +64,8 @@ namespace CoreDeck {
 
             {
                 PickerTableStyle pts;
-
-                ImGui::BeginChild("##SkinTableFrame", ImVec2(-1.0F, Eh(16.0F)), 1, ImGuiWindowFlags_NoScrollbar);
-                if (ImGui::BeginTable("##SkinTable", 2, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
-                    ImGui::TableSetupScrollFreeze(0, 1);
+                const bool tableOpen = BeginPickerTable("##SkinTableFrame", "##SkinTable", 2, Eh(16.0F));
+                if (tableOpen) {
                     ImGui::TableSetupColumn("  Name", ImGuiTableColumnFlags_WidthStretch, 2.8F);
                     ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, Em(15.0F));
                     ImGui::TableHeadersRow();
@@ -132,10 +115,8 @@ namespace CoreDeck {
                         ImGui::TableNextColumn();
                         ImGui::TextDisabled("No skins match the search.");
                     }
-
-                    ImGui::EndTable();
                 }
-                ImGui::EndChild();
+                EndPickerTable(tableOpen);
             }
 
             if (work.Skins.empty()) {
@@ -147,8 +128,7 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
+            const float halfWidth = EqualButtonWidth(2);
 
             if (PositiveButton("Use Selected Skin", true, ImVec2(halfWidth, 0))) {
                 work.SelectedSkin = work.PendingSelectedSkin;

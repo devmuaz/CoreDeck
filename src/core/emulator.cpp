@@ -55,7 +55,7 @@ namespace CoreDeck {
             };
 
             while (!stopFlag->load()) {
-#if defined(_WIN32)
+#ifdef _WIN32
                 const auto handle = reinterpret_cast<HANDLE>(_get_osfhandle(outputFd));
                 DWORD nRead = 0;
                 if (ReadFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &nRead, nullptr)) {
@@ -90,7 +90,7 @@ namespace CoreDeck {
                 log->Push(partial);
             }
 
-#if defined(_WIN32)
+#ifdef _WIN32
             _close(outputFd);
 #else
             close(outputFd);
@@ -107,7 +107,7 @@ namespace CoreDeck {
         m_Stats.Stop();
         std::vector<std::thread> pendingStops;
         {
-            std::lock_guard lock(m_Mutex);
+            std::scoped_lock lock(m_Mutex);
             for (auto &instance: m_Instances | std::views::values) {
                 if (instance.StopThread.joinable()) {
                     pendingStops.push_back(std::move(instance.StopThread));
@@ -118,7 +118,7 @@ namespace CoreDeck {
             thread.join();
         }
 
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         for (auto &instance: m_Instances | std::views::values) {
             if (instance.IsRunning) {
                 bool exited = false;
@@ -151,7 +151,7 @@ namespace CoreDeck {
         std::thread oldStopThread;
         std::thread oldReaderThread;
         {
-            std::lock_guard lock(m_Mutex);
+            std::scoped_lock lock(m_Mutex);
             if (const auto existing = m_Instances.find(avdName); existing != m_Instances.end()) {
                 if (existing->second.StopRequested) {
                     existing->second.StopRequested->store(true);
@@ -171,7 +171,7 @@ namespace CoreDeck {
 
     bool EmulatorManager::Launch(const std::string &avdName, const std::vector<std::string> &args) {
         {
-            std::lock_guard lock(m_Mutex);
+            std::scoped_lock lock(m_Mutex);
             if (const auto it = m_Instances.find(avdName); it != m_Instances.end() && it->second.IsRunning) {
                 return false;
             }
@@ -187,7 +187,7 @@ namespace CoreDeck {
         int outputFd = -1;
         const ProcessId pid = SpawnProcessWithPipe(m_Sdk.EmulatorPath, finalArgs, outputFd);
 
-#if defined(_WIN32)
+#ifdef _WIN32
         if (pid == 0) {
             return false;
         }
@@ -203,7 +203,7 @@ namespace CoreDeck {
 
         m_EvictExistingInstance(avdName);
         {
-            std::lock_guard lock(m_Mutex);
+            std::scoped_lock lock(m_Mutex);
 
             EmulatorInstance instance;
             instance.AvdName = avdName;
@@ -227,7 +227,7 @@ namespace CoreDeck {
         std::thread readerThread;
         std::thread oldStopThread;
         {
-            std::lock_guard lock(m_Mutex);
+            std::scoped_lock lock(m_Mutex);
             const auto it = m_Instances.find(avdName);
             if (it == m_Instances.end() || !it->second.IsRunning || it->second.Stopping) {
                 return false;
@@ -272,7 +272,7 @@ namespace CoreDeck {
                     m_Stats.Untrack(pid);
                 }
                 {
-                    std::lock_guard lock(m_Mutex);
+                    std::scoped_lock lock(m_Mutex);
                     if (const auto it = m_Instances.find(avdName); it != m_Instances.end()) {
                         it->second.IsRunning = !exited;
                         it->second.Stopping = false;
@@ -287,7 +287,7 @@ namespace CoreDeck {
             }
         );
 
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         if (const auto it = m_Instances.find(avdName); it != m_Instances.end()) {
             it->second.StopThread = std::move(worker);
         } else {
@@ -297,7 +297,7 @@ namespace CoreDeck {
     }
 
     bool EmulatorManager::IsStopping(const std::string &avdName) const {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) {
             return false;
@@ -306,7 +306,7 @@ namespace CoreDeck {
     }
 
     bool EmulatorManager::IsRunning(const std::string &avdName) const {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) {
             return false;
@@ -315,7 +315,7 @@ namespace CoreDeck {
     }
 
     std::shared_ptr<LogBuffer> EmulatorManager::GetLog(const std::string &avdName) {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) {
             return nullptr;
@@ -324,7 +324,7 @@ namespace CoreDeck {
     }
 
     ProcessId EmulatorManager::GetPid(const std::string &avdName) const {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end() || !it->second.IsRunning) {
             return 0;
@@ -335,7 +335,7 @@ namespace CoreDeck {
     void EmulatorManager::Update() {
         std::vector<ProcessId> toUntrack;
         {
-            std::lock_guard lock(m_Mutex);
+            std::scoped_lock lock(m_Mutex);
             for (auto &instance: m_Instances | std::views::values) {
                 if (instance.IsRunning) {
                     if (!IsProcessRunning(instance.Pid)) {
@@ -354,7 +354,7 @@ namespace CoreDeck {
     }
 
     void EmulatorManager::SetSdk(SdkInfo sdk) {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         m_Sdk = std::move(sdk);
     }
 }

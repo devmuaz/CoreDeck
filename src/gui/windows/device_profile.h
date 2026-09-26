@@ -8,9 +8,14 @@
 #include <string>
 
 #include "../context.h"
+#include "../widgets.h"
 
 namespace CoreDeck {
+    DeviceCategory DeviceCategoryForText(const std::string &text);
+
     DeviceCategory DeviceCategoryForProfile(const DeviceProfile &device);
+
+    LabeledIconStyle DeviceFormFactorStyle(DeviceCategory category);
 
     std::string DeviceProfilePreviewLabel(const DeviceProfile &device);
 

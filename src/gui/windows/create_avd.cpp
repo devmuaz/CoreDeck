@@ -40,15 +40,12 @@ namespace CoreDeck {
 
     // NOLINTNEXTLINE(readability-function-size)
     void BuildCreateAvdWindow(Context &context) {
-        if (context.UI.ShowCreateAvdDialog && !ImGui::IsPopupOpen("Create New AVD###CreateAvdDialog")) {
-            ImGui::OpenPopup("Create New AVD###CreateAvdDialog");
+        constexpr auto TITLE = "Create New AVD###CreateAvdDialog";
+        if (!context.UI.ShowCreateAvdDialog && !ImGui::IsPopupOpen(TITLE)) {
+            return;
         }
 
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(Em(70.0F), 0), ImGuiCond_Appearing);
-
-        if (RoundedBeginPopupModal("Create New AVD###CreateAvdDialog", &context.UI.ShowCreateAvdDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, &context.UI.ShowCreateAvdDialog, ImVec2(Em(70.0F), 0), WINDOW_AUTO_RESIZE_FLAGS)) {
             const bool isLoading = context.AvdCreationWork.Prefetch.Loading.load();
             const bool isCreating = context.Jobs.AvdCreation.Busy.load();
             const bool formDisabled = isLoading || isCreating;
@@ -277,8 +274,7 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
+            const float halfWidth = EqualButtonWidth(2);
 
             const bool canCreate = !context.AvdCreationWork.CreationData.Name.empty() && hasImage && !nameConflict && !formDisabled;
 

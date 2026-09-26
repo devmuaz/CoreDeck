@@ -39,7 +39,7 @@ namespace CoreDeck {
             return count > 0 ? count : 1;
         }
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
         bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
             proc_taskinfo info{};
             const int rc = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &info, sizeof(info));
@@ -195,7 +195,7 @@ namespace CoreDeck {
             const std::size_t start = full ? writeIdx : 0;
             const std::size_t count = full ? size : filled;
             for (std::size_t i = 0; i < count; ++i) {
-                out[i] = ring[(start + i) % size];
+                out.at(i) = ring.at((start + i) % size);
             }
         }
     }
@@ -222,7 +222,7 @@ namespace CoreDeck {
     }
 
     void ProcessStatsSampler::Track(ProcessId pid) {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         auto [it, inserted] = m_Entries.try_emplace(pid);
         if (inserted) {
             it->second.CpuHistory.assign(PROCESS_STATS_HISTORY, 0.0F);
@@ -232,12 +232,12 @@ namespace CoreDeck {
     }
 
     void ProcessStatsSampler::Untrack(ProcessId pid) {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         m_Entries.erase(pid);
     }
 
     ProcessSample ProcessStatsSampler::Latest(ProcessId pid) const {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         if (const auto it = m_Entries.find(pid); it != m_Entries.end()) {
             return it->second.Latest;
         }
@@ -247,7 +247,7 @@ namespace CoreDeck {
 
     void ProcessStatsSampler::CopyCpuHistory(ProcessId pid, std::vector<float> &out) const {
         out.assign(PROCESS_STATS_HISTORY, 0.0F);
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         const auto it = m_Entries.find(pid);
         if (it == m_Entries.end()) {
             return;
@@ -257,7 +257,7 @@ namespace CoreDeck {
 
     void ProcessStatsSampler::CopyRssHistoryMb(ProcessId pid, std::vector<float> &out) const {
         out.assign(PROCESS_STATS_HISTORY, 0.0F);
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         const auto it = m_Entries.find(pid);
         if (it == m_Entries.end()) {
             return;
@@ -266,7 +266,7 @@ namespace CoreDeck {
     }
 
     std::chrono::seconds ProcessStatsSampler::Uptime(ProcessId pid) const {
-        std::lock_guard lock(m_Mutex);
+        std::scoped_lock lock(m_Mutex);
         const auto it = m_Entries.find(pid);
         if (it == m_Entries.end()) {
             return std::chrono::seconds(0);
@@ -341,9 +341,9 @@ namespace CoreDeck {
 
         if (!entry.CpuHistory.empty()) {
             const float rssMb = static_cast<float>(rssBytes) / (1024.0F * 1024.0F);
-            entry.CpuHistory[entry.HistoryWrite] = cpuPercent;
+            entry.CpuHistory.at(entry.HistoryWrite) = cpuPercent;
             if (entry.RssHistoryMb.size() == entry.CpuHistory.size()) {
-                entry.RssHistoryMb[entry.HistoryWrite] = rssMb;
+                entry.RssHistoryMb.at(entry.HistoryWrite) = rssMb;
             }
             entry.HistoryWrite =
                 (entry.HistoryWrite + 1) % entry.CpuHistory.size();
@@ -361,7 +361,7 @@ namespace CoreDeck {
             if (now >= nextTick) {
                 std::vector<ProcessId> pids;
                 {
-                    std::lock_guard lock(m_Mutex);
+                    std::scoped_lock lock(m_Mutex);
                     pids.reserve(m_Entries.size());
                     for (const auto &kv: m_Entries) {
                         pids.push_back(kv.first);
@@ -369,7 +369,7 @@ namespace CoreDeck {
                 }
 
                 for (const ProcessId pid: pids) {
-                    std::lock_guard lock(m_Mutex);
+                    std::scoped_lock lock(m_Mutex);
                     auto it = m_Entries.find(pid);
                     if (it == m_Entries.end()) {
                         continue;

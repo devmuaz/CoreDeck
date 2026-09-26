@@ -8,6 +8,8 @@
 #include "../context.h"
 
 namespace CoreDeck {
+    const char *SystemImageKindLabel(const AvdInfo &avd);
+
     void BuildAvdInfoWindow(Context &context);
 }
 

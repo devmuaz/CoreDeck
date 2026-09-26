@@ -11,16 +11,12 @@
 
 namespace CoreDeck {
     void BuildAboutWindow(Context &context) {
-        if (context.UI.ShowAboutDialog && !ImGui::IsPopupOpen("About CoreDeck")) {
-            ImGui::OpenPopup("About CoreDeck");
+        constexpr auto TITLE = "About CoreDeck";
+        if (!context.UI.ShowAboutDialog && !ImGui::IsPopupOpen(TITLE)) {
+            return;
         }
 
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(Em(65.0F), 0), ImGuiCond_Appearing);
-
-
-        if (RoundedBeginPopupModal("About CoreDeck", &context.UI.ShowAboutDialog, WINDOW_NO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, &context.UI.ShowAboutDialog, ImVec2(Em(65.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
             const auto centerCursor = [](const float textWidth) {
                 ImGui::SetCursorPosX(
                     ((ImGui::GetContentRegionAvail().x - textWidth) * 0.5F) + ImGui::GetCursorStartPos().x

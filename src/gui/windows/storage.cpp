@@ -93,15 +93,12 @@ namespace CoreDeck {
     }
 
     void BuildStorageWindow(Context &context) {
-        if (context.UI.ShowStorageDialog && !ImGui::IsPopupOpen("Storage Overview###StorageDialog")) {
-            ImGui::OpenPopup("Storage Overview###StorageDialog");
+        constexpr auto TITLE = "Storage Overview###StorageDialog";
+        if (!context.UI.ShowStorageDialog && !ImGui::IsPopupOpen(TITLE)) {
+            return;
         }
 
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(EmV(80.0F, 0.0F), ImGuiCond_Appearing);
-
-        if (RoundedBeginPopupModal("Storage Overview###StorageDialog", &context.UI.ShowStorageDialog, WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, &context.UI.ShowStorageDialog, EmV(80.0F, 0.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &disk = context.DiskUsage;
 
             if (!disk.Ready && !disk.Loading.load() && !disk.Future.valid()) {
@@ -148,8 +145,7 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            const float buttonSpacing = ImGui::GetStyle().ItemSpacing.x;
-            const float halfWidth = (ImGui::GetContentRegionAvail().x - buttonSpacing) * 0.5F;
+            const float halfWidth = EqualButtonWidth(2);
             if (PositiveButton(isLoading ? "Refreshing..." : "Refresh", !isLoading, ImVec2(halfWidth, 0))) {
                 StartStorageScan(context);
             }

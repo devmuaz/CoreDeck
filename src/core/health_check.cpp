@@ -37,13 +37,13 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             if (index >= progress->Items.size()) {
                 return;
             }
-            progress->Items[index].Status = status;
-            progress->Items[index].Detail = detail;
-            progress->Items[index].Fix = fix;
+            progress->Items.at(static_cast<std::size_t>(index)).Status = status;
+            progress->Items.at(static_cast<std::size_t>(index)).Detail = detail;
+            progress->Items.at(static_cast<std::size_t>(index)).Fix = fix;
         }
 
         std::string TrimLine(std::string line) {
@@ -440,7 +440,7 @@ namespace CoreDeck {
         const HealthCheckDeps &deps
     ) {
         if (progress) {
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             progress->Items.clear();
             progress->Items.reserve(std::size(CHECK_ORDER));
             for (const HealthCheckId id: CHECK_ORDER) {
@@ -458,7 +458,7 @@ namespace CoreDeck {
         }
 
         if (progress) {
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             progress->Finished = true;
         }
     }

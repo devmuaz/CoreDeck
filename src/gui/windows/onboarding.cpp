@@ -12,7 +12,6 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../../core/file_dialog.h"
 #include "../../core/jdk.h"
 #include "../../core/paths.h"
 #include "../../core/sdk.h"
@@ -93,28 +92,6 @@ namespace CoreDeck {
         void BeginCenteredGroup(const float width) {
             ImGui::SetCursorPosX((ImGui::GetWindowWidth() - width) * 0.5F);
             ImGui::BeginGroup();
-        }
-
-        std::string PathPicker(
-            const char *id,
-            const char *label,
-            const char *hint,
-            const char *dialogTitle,
-            char *buffer,
-            const size_t bufferSize,
-            const float formWidth
-        ) {
-            const float browseWidth = Em(11.0F);
-            ImGui::Text("%s", label);
-            ImGui::SetNextItemWidth(formWidth - browseWidth - ImGui::GetStyle().ItemSpacing.x);
-            ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
-            ImGui::SameLine();
-            if (PrimaryButton(StrConcat("Browse...##", id).c_str(), true, ImVec2(browseWidth, 0))) {
-                if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer); picked.has_value()) {
-                    CopyToBuffer(buffer, bufferSize, picked.value());
-                }
-            }
-            return buffer;
         }
 
         void CommitSdkPath(Context &context, const std::string &sdkPath) {
@@ -355,14 +332,11 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + formWidth);
-            ImGui::TextWrapped(
+            LicenseConsentNotice(
                 "Installing these packages requires accepting Google's Android SDK license terms. "
                 "By clicking Agree & Install, you confirm that you have read and accept the current terms."
             );
             ImGui::PopTextWrapPos();
-            if (PrimaryButton("Open license terms in browser")) {
-                OpenUrl("https://developer.android.com/studio/terms");
-            }
 
             const JdkInfo &jdk = context.Host.Jdk;
             ImGui::Spacing();
@@ -493,7 +467,7 @@ namespace CoreDeck {
                 work.Busy = false;
 
                 if (work.Progress) {
-                    std::lock_guard lock(work.Progress->Mutex);
+                    std::scoped_lock lock(work.Progress->Mutex);
                     work.LastError = work.Progress->Error;
                     work.LastErrorDetail = work.Progress->ErrorDetail;
                 }
@@ -537,7 +511,7 @@ namespace CoreDeck {
             };
             if (TaskProgressPanel(task)) {
                 if (work.Progress) {
-                    std::lock_guard lock(work.Progress->Mutex);
+                    std::scoped_lock lock(work.Progress->Mutex);
                     work.Progress->CancelRequested = true;
                 }
             }
@@ -633,14 +607,11 @@ namespace CoreDeck {
                 "The emulator and system images already in this folder are left in place."
             );
             ImGui::Spacing();
-            ImGui::TextWrapped(
+            LicenseConsentNotice(
                 "Installing these tools requires accepting Google's Android SDK license terms. "
                 "By clicking Agree & Install, you confirm that you have read and accept the current terms."
             );
             ImGui::PopTextWrapPos();
-            if (PrimaryButton("Open license terms in browser")) {
-                OpenUrl("https://developer.android.com/studio/terms");
-            }
 
             const JdkInfo &jdk = context.Host.Jdk;
             ImGui::Spacing();

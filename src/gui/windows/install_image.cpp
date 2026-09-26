@@ -8,8 +8,6 @@
 #include "imgui.h"
 
 #include "install_image.h"
-
-#include <cmath>
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/sdk_manager.h"
@@ -17,11 +15,6 @@
 
 namespace CoreDeck {
     namespace {
-        struct ImageCategoryOption {
-            ImageCategory Category;
-            const char *Label;
-        };
-
         ImageCategory CategoryForImage(const RemoteSystemImage &img) {
             const std::string searchable = LowerCopy(StrConcat(img.PackagePath, " ", img.Variant, " ", img.DisplayName));
 
@@ -201,19 +194,11 @@ namespace CoreDeck {
     void BuildInstallImageWindow(Context &context) {
         if (context.UI.ShowInstallImageDialog) {
             constexpr auto TITLE = "Install System Image###InstallImageDialog";
-            if (!ImGui::IsPopupOpen(TITLE)) {
-                ImGui::OpenPopup(TITLE);
-            }
-
-            const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-            ImGui::SetNextWindowSize(EmV(100.0F, 28.0F), ImGuiCond_Appearing);
-
             const bool installing = context.ImageInstallationWork.Installing.load();
             const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
             bool *pOpen = (installing || removalBusy) ? nullptr : &context.UI.ShowInstallImageDialog;
 
-            if (RoundedBeginPopupModal(TITLE, pOpen, WINDOW_AUTO_RESIZE_FLAGS)) {
+            if (BeginCenteredModal(TITLE, pOpen, EmV(100.0F, 28.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
                 auto &work = context.ImageInstallationWork;
                 auto &removal = context.AvdCreationWork.SystemImageRemoval;
                 const bool isLoading = work.Prefetch.Loading.load();
@@ -253,28 +238,19 @@ namespace CoreDeck {
 
                     ImGui::Text("Accept Android SDK License Terms");
                     ImGui::Spacing();
-                    ImGui::TextWrapped(
+                    LicenseConsentNotice(
                         "Some Android SDK package licenses have not been accepted yet. "
                         "To install this system image, you must agree to Google's Android "
                         "SDK license terms. By clicking Agree, you confirm that you have "
-                        "read and accept the current terms."
+                        "read and accept the current terms.",
+                        licenseBusy
                     );
-                    ImGui::Spacing();
-                    if (PrimaryButton("Open license terms in browser")) {
-                        OpenUrl("https://developer.android.com/studio/terms");
-                    }
-
-                    if (licenseBusy) {
-                        ImGui::Spacing();
-                        ImGui::TextDisabled("Recording acceptance with the SDK Manager...");
-                    }
 
                     ImGui::Spacing();
                     ImGui::Separator();
                     ImGui::Spacing();
 
-                    const float spacing2 = ImGui::GetStyle().ItemSpacing.x;
-                    const float halfWidth2 = (ImGui::GetContentRegionAvail().x - spacing2) * 0.5F;
+                    const float halfWidth2 = EqualButtonWidth(2);
 
                     if (PositiveButton("Agree & Install", !licenseBusy, ImVec2(halfWidth2, 0))) {
                         work.LicenseBusy = true;
@@ -314,34 +290,26 @@ namespace CoreDeck {
                     ImGui::BeginDisabled();
                 }
 
-                ImGui::SetNextItemWidth(-1.0F);
-                const std::string searchHint = IconWithLabel(Icons::SEARCH, "Search for a system image by name");
-                ImGui::InputTextWithHint("##RemoteImageSearch", searchHint.c_str(), work.SearchFilter, sizeof(work.SearchFilter));
+                SearchField("##RemoteImageSearch", "Search for a system image by name", work.SearchFilter, sizeof(work.SearchFilter));
 
                 ImGui::Spacing();
                 ImGui::TextDisabled("Categories");
 
-                static constexpr ImageCategoryOption CATEGORY_OPTIONS[] = {
-                    {.Category = ImageCategory::All, .Label = "All"},
-                    {.Category = ImageCategory::PhoneTablet, .Label = "Phone / Tablet"},
-                    {.Category = ImageCategory::Wear, .Label = "Wear OS"},
-                    {.Category = ImageCategory::Tv, .Label = "TV"},
-                    {.Category = ImageCategory::Automotive, .Label = "Automotive"},
-                    {.Category = ImageCategory::Desktop, .Label = "Desktop"},
-                    {.Category = ImageCategory::Xr, .Label = "XR"},
-                    {.Category = ImageCategory::Other, .Label = "Other"},
+                static constexpr const char *CATEGORY_LABELS[] = {
+                    "All",
+                    "Phone / Tablet",
+                    "Wear OS",
+                    "TV",
+                    "Automotive",
+                    "Desktop",
+                    "XR",
+                    "Other",
                 };
-
-                bool firstCategory = true;
-                for (const auto &[category, label]: CATEGORY_OPTIONS) {
-                    if (!firstCategory) {
-                        ImGui::SameLine();
-                    }
-                    firstCategory = false;
-                    if (CategoryChip(label, work.SelectedCategory == category)) {
-                        work.SelectedCategory = category;
-                        work.SelectedImage = -1;
-                    }
+                static_assert(IM_ARRAYSIZE(CATEGORY_LABELS) == static_cast<int>(ImageCategory::Other) + 1);
+                int selectedCategory = static_cast<int>(work.SelectedCategory);
+                if (CategoryChipRow(CATEGORY_LABELS, IM_ARRAYSIZE(CATEGORY_LABELS), selectedCategory)) {
+                    work.SelectedCategory = static_cast<ImageCategory>(selectedCategory);
+                    work.SelectedImage = -1;
                 }
 
                 ImGui::Spacing();
@@ -354,10 +322,8 @@ namespace CoreDeck {
 
                 {
                     PickerTableStyle pts;
-
-                    ImGui::BeginChild("##RemoteImageTableFrame", ImVec2(-1.0F, Eh(14.0F)), 1, ImGuiWindowFlags_NoScrollbar);
-                    if (ImGui::BeginTable("##RemoteImageTable", 6, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
-                        ImGui::TableSetupScrollFreeze(0, 1);
+                    const bool tableOpen = BeginPickerTable("##RemoteImageTableFrame", "##RemoteImageTable", 6, Eh(14.0F));
+                    if (tableOpen) {
                         ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.4F);
                         ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.5F);
                         ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthStretch, 1.2F);
@@ -427,10 +393,8 @@ namespace CoreDeck {
                             ImGui::TableNextColumn();
                             ImGui::TextDisabled(" No system images available!");
                         }
-
-                        ImGui::EndTable();
                     }
-                    ImGui::EndChild();
+                    EndPickerTable(tableOpen);
                 }
 
                 if (isInstalling || removalBusy) {
@@ -442,17 +406,20 @@ namespace CoreDeck {
                     ImGui::Separator();
                     ImGui::Spacing();
 
-                    float fraction = NAN;
+                    float fraction = 0.0F;
                     std::string statusText;
                     {
-                        std::lock_guard lock(work.Progress->Mutex);
+                        std::scoped_lock lock(work.Progress->Mutex);
                         fraction = work.Progress->Percent;
                         statusText = work.Progress->StatusText;
                     }
 
-                    ImGui::Text("%s", statusText.c_str());
-                    ImGui::Spacing();
-                    ImGui::ProgressBar(fraction, ImVec2(-1.0F, 0.0F));
+                    const TaskProgress task{
+                        .Subtitle = statusText.c_str(),
+                        .Fraction = fraction,
+                        .CenterHorizontally = false,
+                    };
+                    TaskProgressPanel(task);
                 }
 
                 if (!isInstalling && work.Progress) {
@@ -460,7 +427,7 @@ namespace CoreDeck {
                     bool succeeded = false;
                     std::string statusText;
                     {
-                        std::lock_guard lock(work.Progress->Mutex);
+                        std::scoped_lock lock(work.Progress->Mutex);
                         finished = work.Progress->Finished;
                         succeeded = work.Progress->Succeeded;
                         statusText = work.Progress->StatusText;
@@ -494,10 +461,8 @@ namespace CoreDeck {
                 const bool canRemove = canUseSelected;
                 const bool canInstall = !isLoading && !isInstalling && !removalBusy && hasVisibleSelection && !selectedInstalled;
 
-                const float spacing = ImGui::GetStyle().ItemSpacing.x;
-                const float actionWidth = ImGui::GetContentRegionAvail().x;
-                const float halfWidth = (actionWidth - spacing) * 0.5F;
-                const float thirdWidth = (actionWidth - (spacing * 2.0F)) / 3.0F;
+                const float halfWidth = EqualButtonWidth(2);
+                const float thirdWidth = EqualButtonWidth(3);
 
                 const bool licenseBusy = work.LicenseBusy.load();
 

@@ -35,7 +35,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             progress->Stage = stage;
             progress->Percent = percent;
             progress->StatusText = status;
@@ -46,7 +46,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             progress->DetailText = detail;
         }
 
@@ -54,7 +54,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             progress->Percent = percent;
         }
 
@@ -62,7 +62,7 @@ namespace CoreDeck {
             if (!progress) {
                 return false;
             }
-            std::lock_guard lock(progress->Mutex);
+            std::scoped_lock lock(progress->Mutex);
             return progress->CancelRequested;
         }
 
@@ -81,7 +81,7 @@ namespace CoreDeck {
             }
 
             if (progress) {
-                std::lock_guard lock(progress->Mutex);
+                std::scoped_lock lock(progress->Mutex);
                 progress->Stage = finalStage;
                 progress->Error = error;
                 progress->ErrorDetail = detail;
@@ -197,7 +197,7 @@ namespace CoreDeck {
         release.Sha256 = PlatformArchiveSha256();
         release.DownloadSize = PlatformArchiveSize();
 
-#if !defined(NDEBUG)
+#ifndef NDEBUG
         // Debug-only escape hatch for exercising failure paths against a local file server.
         if (const char *urlOverride = std::getenv("COREDECK_CMDLINE_TOOLS_URL")) { // NOLINT(concurrency-mt-unsafe)
             if (*urlOverride) {

@@ -66,15 +66,8 @@ namespace CoreDeck {
                 return;
             }
 
-            if (!ImGui::IsPopupOpen("Up to date###CoreDeckUpdateOk")) {
-                ImGui::OpenPopup("Up to date###CoreDeckUpdateOk");
-            }
-
-            const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-            ImGui::SetNextWindowSize(ImVec2(Em(32.0F), 0), ImGuiCond_Appearing);
-
-            if (RoundedBeginPopupModal("Up to date###CoreDeckUpdateOk", &context.Updates.ShowUpToDateModal, WINDOW_NO_RESIZE_FLAGS)) {
+            constexpr auto TITLE = "Up to date###CoreDeckUpdateOk";
+            if (BeginCenteredModal(TITLE, &context.Updates.ShowUpToDateModal, ImVec2(Em(32.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
                 ImGui::TextWrapped("You're running the latest CoreDeck release.");
                 ImGui::Spacing();
                 ImGui::Text("Current: ");
@@ -99,15 +92,8 @@ namespace CoreDeck {
             return;
         }
 
-        if (!ImGui::IsPopupOpen("Update Available###CoreDeckUpdate")) {
-            ImGui::OpenPopup("Update Available###CoreDeckUpdate");
-        }
-
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(ImVec2(Em(80.0F), 0), ImGuiCond_Appearing);
-
-        if (RoundedBeginPopupModal("Update Available###CoreDeckUpdate", &context.Updates.ShowNewVersionModal, WINDOW_NO_RESIZE_FLAGS)) {
+        constexpr auto TITLE = "Update Available###CoreDeckUpdate";
+        if (BeginCenteredModal(TITLE, &context.Updates.ShowNewVersionModal, ImVec2(Em(80.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::Spacing();
             ImGui::TextUnformatted("You're currently running on");
             ImGui::SameLine();
@@ -120,8 +106,7 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float half = (ImGui::GetContentRegionAvail().x - spacing) * 0.5F;
+            const float half = EqualButtonWidth(2);
 
             if (PositiveButton("Download", true, ImVec2(half, 0))) {
                 OpenUrl(COREDECK_WEBSITE);

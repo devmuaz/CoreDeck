@@ -12,7 +12,6 @@
 #include "../../core/paths.h"
 #include "../../core/sdk.h"
 #include "../../core/jdk.h"
-#include "../../core/file_dialog.h"
 
 namespace CoreDeck {
     namespace {
@@ -93,21 +92,6 @@ namespace CoreDeck {
             ImGui::Spacing();
         }
 
-        bool CheckboxRow(const char *id, const char *title, const char *tooltip, bool *value) {
-            ImGui::PushID(id);
-            const bool changed = ImGui::Checkbox(title, value);
-            if (tooltip && *tooltip) {
-                ImGui::SameLine();
-                ImGui::TextColored(HexColor(Colors::TEXT_MUTED), Icons::INFO);
-                if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip("%s", tooltip);
-                }
-            }
-            ImGui::Spacing();
-            ImGui::PopID();
-            return changed;
-        }
-
         void DrawGeneralSection(Context &context) {
             SectionHeader("General", "Behavior of CoreDeck while you work with AVDs.");
 
@@ -146,22 +130,14 @@ namespace CoreDeck {
         void DrawAndroidSdkSection(Context &context, char *sdkPathBuffer, size_t bufferSize) {
             SectionHeader("Android SDK", "Where CoreDeck looks for the emulator and command-line tools.");
 
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted("SDK root");
-            ImGui::PopStyleColor();
-            const float browseWidth = Em(12.0F);
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - browseWidth - spacing);
-            ImGui::InputTextWithHint("##SdkPrefs", "Path to Android SDK", sdkPathBuffer, bufferSize);
-            ImGui::SameLine();
-            if (PrimaryButton("Browse...", true, ImVec2(browseWidth, 0))) {
-                if (const auto picked = FileDialog::PickDirectory("Select Android SDK directory", sdkPathBuffer)) {
-                    strncpy(sdkPathBuffer, picked->c_str(), bufferSize - 1);
-                    sdkPathBuffer[bufferSize - 1] = '\0';
-                }
-            }
-
-            const std::string pathStr = sdkPathBuffer;
+            const std::string pathStr = PathPicker(
+                "##SdkPrefs",
+                "SDK root",
+                "Path to Android SDK",
+                "Select Android SDK directory",
+                sdkPathBuffer,
+                bufferSize
+            );
             const bool pathOk = Paths::Onboarding::ValidateSdkPath(pathStr);
 
             if (!pathStr.empty()) {
@@ -281,22 +257,14 @@ namespace CoreDeck {
             ImGui::Separator();
             ImGui::Spacing();
 
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted("JDK home");
-            ImGui::PopStyleColor();
-            const float browseWidth = Em(12.0F);
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - browseWidth - spacing);
-            ImGui::InputTextWithHint("##JdkPrefs", "Path to a JDK home directory", jdkPathBuffer, bufferSize);
-            ImGui::SameLine();
-            if (PrimaryButton("Browse...", true, ImVec2(browseWidth, 0))) {
-                if (const auto picked = FileDialog::PickDirectory("Select JDK home directory", jdkPathBuffer)) {
-                    strncpy(jdkPathBuffer, picked->c_str(), bufferSize - 1);
-                    jdkPathBuffer[bufferSize - 1] = '\0';
-                }
-            }
-
-            const std::string pathStr = jdkPathBuffer;
+            const std::string pathStr = PathPicker(
+                "##JdkPrefs",
+                "JDK home",
+                "Path to a JDK home directory",
+                "Select JDK home directory",
+                jdkPathBuffer,
+                bufferSize
+            );
             const bool binExists = !pathStr.empty() &&
                                    (std::filesystem::exists(
                                         Paths::JoinPaths({pathStr, "bin", "java" + Paths::GetExecutableExtension()})
@@ -352,25 +320,22 @@ namespace CoreDeck {
     }
 
     void BuildPreferencesWindow(Context &context) {
-        if (context.UI.ShowPreferences && !ImGui::IsPopupOpen("Preferences###CoreDeckPrefs")) {
-            ImGui::OpenPopup("Preferences###CoreDeckPrefs");
-        }
-
         static auto activeSection = PrefsSection::General;
         if (context.UI.OpenPreferencesToJava) {
             activeSection = PrefsSection::Java;
             context.UI.OpenPreferencesToJava = false;
         }
 
-        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5F, 0.5F));
-        ImGui::SetNextWindowSize(EmV(100.0F, 24.0F), ImGuiCond_Appearing);
-
         static char sdkPathBuffer[2048];
         static char jdkPathBuffer[2048];
 
+        constexpr auto TITLE = "Preferences###CoreDeckPrefs";
+        if (!context.UI.ShowPreferences && !ImGui::IsPopupOpen(TITLE)) {
+            return;
+        }
+
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        if (RoundedBeginPopupModal("Preferences###CoreDeckPrefs", &context.UI.ShowPreferences, WINDOW_NO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, &context.UI.ShowPreferences, EmV(100.0F, 24.0F), WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::PopStyleVar();
 
             if (ImGui::IsWindowAppearing()) {
