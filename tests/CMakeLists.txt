@@ -12,6 +12,7 @@ add_executable(coredeck_tests
         test_apk_analyzer.cpp
         test_avd_manager.cpp
         test_health_check.cpp
+        test_jdk.cpp
         test_sdk_bootstrap.cpp
         test_sdk_manager.cpp
         test_system_image.cpp

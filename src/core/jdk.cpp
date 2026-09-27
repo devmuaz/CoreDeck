@@ -244,6 +244,14 @@ namespace CoreDeck {
 
         env.push_back({.Name = "JAVA_HOME", .Value = jdk.JavaHome});
 
+        // The Windows sdkmanager/avdmanager/apkanalyzer scripts encode "17.0" as 170
+        // and compare with `lss`. `java version "27"` has no minor component, so the
+        // script stores 27 and exits before Java starts. CoreDeck already requires
+        // JDK 17 or newer.
+        if (jdk.MajorVersion >= JDK_MINIMUM_MAJOR) {
+            env.push_back({.Name = "SKIP_JDK_VERSION_CHECK", .Value = "1"});
+        }
+
         std::string binDir;
         if (!jdk.JavaBin.empty()) {
             binDir = std::filesystem::path(jdk.JavaBin).parent_path().string();
