@@ -251,6 +251,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenGL::GL
 )
 
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE dwmapi)
+endif()
+
+if(APPLE)
+    target_sources(${PROJECT_NAME} PRIVATE src/gui/theme_mac.mm)
+    set_source_files_properties(src/gui/theme_mac.mm PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation")
+endif()
+
 if(APPLE)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory

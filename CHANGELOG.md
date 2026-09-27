@@ -1,3 +1,9 @@
+## [v0.11.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.11.0) — 2026-09-27
+
+- Add a light theme, and an Appearance setting in Preferences → General to follow the system, stay dark, or stay light
+- Follow the system appearance on macOS, Windows, and Linux, and match the window frame on macOS and Windows
+- Tune status colors, buttons, banners, and the Storage Overview bar for the light background. The dark theme is unchanged
+
 ## [v0.10.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.1) — 2026-09-26
 
 - Publish a signed and notarized Intel macOS build, `coredeck-darwin-x86-64.dmg`, alongside the Apple Silicon DMG

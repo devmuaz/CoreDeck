@@ -75,15 +75,15 @@ namespace CoreDeck {
         while (std::getline(partStream, part, ';')) {
             parts.push_back(part);
         }
-        if (parts.size() < 4 || !parts[1].starts_with("android-")) {
+        if (parts.size() < 4 || !parts.at(1).starts_with("android-")) {
             return std::nullopt;
         }
 
         RemoteSystemImage img;
         img.PackagePath = std::move(packagePath);
-        img.ApiLevel = parts[1].substr(8);
-        img.Variant = parts[2];
-        img.Abi = parts[3];
+        img.ApiLevel = parts.at(1).substr(8);
+        img.Variant = parts.at(2);
+        img.Abi = parts.at(3);
         img.DisplayName = StrConcat("Android ", img.ApiLevel, " (", img.Variant, ", ", img.Abi, ")");
         return img;
     }

@@ -817,7 +817,7 @@ namespace CoreDeck {
             const float rounding = ImGui::GetStyle().FrameRounding * (barH / frameH);
             ImGui::PushStyleColor(ImGuiCol_PlotHistogram, HexColor(SHARE_BAR));
             ImGui::PushStyleColor(ImGuiCol_FrameBg, HexColor(Colors::SURFACE3));
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::WHITE));
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(IsLightColorScheme() ? Colors::TEXT_PRIMARY : Colors::WHITE));
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0.0F));
             ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, rounding);
             ImGui::ProgressBar(fraction, ImVec2(-1.0F, barH), label);

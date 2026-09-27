@@ -13,7 +13,7 @@ namespace CoreDeck::CrashReporter {
         Info,
         Warning,
         Error,
-        Fatal
+        Fatal,
     };
 
     bool Init(bool isEnabled);

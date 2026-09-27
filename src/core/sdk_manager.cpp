@@ -6,7 +6,6 @@
 
 #include "sdk_manager.h"
 #include "process.h"
-#include "utilities.h"
 
 namespace CoreDeck {
     namespace {
@@ -62,16 +61,16 @@ namespace CoreDeck {
         }
 
         bool IsProgressPercent(const std::string &line, const size_t pctPos) {
-            if (pctPos == 0 || line[pctPos] != '%') {
+            if (pctPos == 0 || line.at(pctPos) != '%') {
                 return false;
             }
-            const char after = pctPos + 1 < line.size() ? line[pctPos + 1] : '\0';
+            const char after = pctPos + 1 < line.size() ? line.at(pctPos + 1) : '\0';
             if (after != '\0' && after != ' ' && after != '\t' && after != '(') {
                 return false;
             }
 
             size_t start = pctPos;
-            while (start > 0 && line[start - 1] >= '0' && line[start - 1] <= '9') {
+            while (start > 0 && line.at(start - 1) >= '0' && line.at(start - 1) <= '9') {
                 --start;
             }
             return start != pctPos && pctPos - start <= 3;
@@ -84,7 +83,7 @@ namespace CoreDeck {
         while (pctPos != std::string::npos) {
             if (IsProgressPercent(line, pctPos)) {
                 size_t start = pctPos;
-                while (start > 0 && line[start - 1] >= '0' && line[start - 1] <= '9') {
+                while (start > 0 && line.at(start - 1) >= '0' && line.at(start - 1) <= '9') {
                     --start;
                 }
                 const int pct = static_cast<int>(std::strtol(line.c_str() + start, nullptr, 10));

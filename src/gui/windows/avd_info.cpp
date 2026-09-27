@@ -34,7 +34,7 @@ namespace CoreDeck {
                 if (i > 0) {
                     stream << ", ";
                 }
-                stream << items[i];
+                stream << items.at(i);
             }
             return stream.str();
         }
@@ -164,7 +164,7 @@ namespace CoreDeck {
             return;
         }
 
-        const auto &avd = context.Catalog.Avds[context.Catalog.SelectedAvd];
+        const auto &avd = context.Catalog.Avds.at(context.Catalog.SelectedAvd);
         const auto &path = avd.Path;
         const auto &name = avd.Name;
         const auto &displayName = avd.DisplayName;

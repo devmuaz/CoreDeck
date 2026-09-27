@@ -74,9 +74,9 @@ namespace CoreDeck {
             const bool hasDeviceProfile = !work.DeviceProfiles.empty() && work.SelectedDevice >= 0 && work.SelectedDevice < static_cast<int>(work.DeviceProfiles.size());
             const bool hasImage = !work.SystemImages.empty() && work.SelectedSystemImage >= 0 && work.SelectedSystemImage < static_cast<int>(work.SystemImages.size());
             if (hasImage) {
-                const auto &img = work.SystemImages[work.SelectedSystemImage];
-                const std::string deviceId = hasDeviceProfile ? work.DeviceProfiles[work.SelectedDevice].Id : "Android";
-                const std::string deviceName = hasDeviceProfile ? work.DeviceProfiles[work.SelectedDevice].Name : "Android Device";
+                const auto &img = work.SystemImages.at(work.SelectedSystemImage);
+                const std::string deviceId = hasDeviceProfile ? work.DeviceProfiles.at(work.SelectedDevice).Id : "Android";
+                const std::string deviceName = hasDeviceProfile ? work.DeviceProfiles.at(work.SelectedDevice).Name : "Android Device";
 
                 if (work.NameAutoFilled) {
                     const std::string base = deviceId + "_API_" + img.ApiLevel;
@@ -109,7 +109,7 @@ namespace CoreDeck {
             } else if (!context.AvdCreationWork.SystemImages.empty()) {
                 const auto &systemImages = context.AvdCreationWork.SystemImages;
                 const auto &selectedSystemImage = context.AvdCreationWork.SelectedSystemImage;
-                const std::string preview = SystemImagePreviewLabel(systemImages[selectedSystemImage]);
+                const std::string preview = SystemImagePreviewLabel(systemImages.at(selectedSystemImage));
 
                 if (PickerButton(preview.c_str(), !formDisabled, ImVec2(-1.0F, 0.0F))) {
                     if (!context.Host.Sdk.SdkManagerPath.empty()) {
@@ -127,7 +127,7 @@ namespace CoreDeck {
                 ImGui::TextDisabled("No device profiles found.");
                 ImGui::TextWrapped("CoreDeck will use avdmanager's default hardware profile.");
             } else if (!context.AvdCreationWork.DeviceProfiles.empty()) {
-                const auto &selectedDevice = context.AvdCreationWork.DeviceProfiles[context.AvdCreationWork.SelectedDevice];
+                const auto &selectedDevice = context.AvdCreationWork.DeviceProfiles.at(context.AvdCreationWork.SelectedDevice);
                 const std::string devicePreview = DeviceProfilePreviewLabel(selectedDevice);
 
                 if (PickerButton(devicePreview.c_str(), !formDisabled, ImVec2(-1.0F, 0.0F))) {
@@ -151,11 +151,11 @@ namespace CoreDeck {
             if (context.AvdCreationWork.Prefetch.Ready && hasDeviceProfile) {
                 auto &skinWork = context.AvdCreationWork;
                 if (skinWork.SkinAutoFilled && skinWork.SelectedDevice != skinWork.LastDeviceForSkinAuto) {
-                    const auto &deviceId = skinWork.DeviceProfiles[skinWork.SelectedDevice].Id;
+                    const auto &deviceId = skinWork.DeviceProfiles.at(skinWork.SelectedDevice).Id;
                     const auto match = FindSkinForDevice(skinWork.Skins, deviceId);
                     if (match.has_value()) {
                         for (int i = 0; i < static_cast<int>(skinWork.Skins.size()); i++) {
-                            if (skinWork.Skins[i].Name == match->Name) {
+                            if (skinWork.Skins.at(i).Name == match->Name) {
                                 skinWork.SelectedSkin = i + 1;
                                 break;
                             }
@@ -253,10 +253,10 @@ namespace CoreDeck {
             ImGui::SetNextItemWidth(-1.0F);
             {
                 ComboStyle cs;
-                if (ImGui::BeginCombo("##gpu", gpuModes[context.AvdCreationWork.SelectedGpuMode].Label)) {
+                if (ImGui::BeginCombo("##gpu", gpuModes.at(context.AvdCreationWork.SelectedGpuMode).Label)) {
                     for (int i = 0; i < static_cast<int>(gpuModes.size()); i++) {
                         const bool isSelected = context.AvdCreationWork.SelectedGpuMode == i;
-                        if (RoundedSelectable(gpuModes[i].Label, isSelected)) {
+                        if (RoundedSelectable(gpuModes.at(i).Label, isSelected)) {
                             context.AvdCreationWork.SelectedGpuMode = i;
                         }
                         if (isSelected) {
@@ -284,17 +284,17 @@ namespace CoreDeck {
                 ImGui::EndDisabled();
             } else {
                 if (PositiveButton("Create", canCreate, ImVec2(halfWidth, 0))) {
-                    const auto &systemImagePackagePath = context.AvdCreationWork.SystemImages[context.AvdCreationWork.SelectedSystemImage].PackagePath;
+                    const auto &systemImagePackagePath = context.AvdCreationWork.SystemImages.at(context.AvdCreationWork.SelectedSystemImage).PackagePath;
 
                     context.AvdCreationWork.CreationData.SystemImagePackagePath = systemImagePackagePath;
                     context.AvdCreationWork.CreationData.DeviceId =
                         hasDeviceProfile
-                            ? context.AvdCreationWork.DeviceProfiles[context.AvdCreationWork.SelectedDevice].Id
+                            ? context.AvdCreationWork.DeviceProfiles.at(context.AvdCreationWork.SelectedDevice).Id
                             : "";
-                    context.AvdCreationWork.CreationData.GpuMode = gpuModes[context.AvdCreationWork.SelectedGpuMode].Value;
+                    context.AvdCreationWork.CreationData.GpuMode = gpuModes.at(context.AvdCreationWork.SelectedGpuMode).Value;
                     if (context.AvdCreationWork.SelectedSkin > 0 &&
                         context.AvdCreationWork.SelectedSkin - 1 < static_cast<int>(context.AvdCreationWork.Skins.size())) {
-                        const auto &chosenSkin = context.AvdCreationWork.Skins[context.AvdCreationWork.SelectedSkin - 1];
+                        const auto &chosenSkin = context.AvdCreationWork.Skins.at(context.AvdCreationWork.SelectedSkin - 1);
                         context.AvdCreationWork.CreationData.SkinName = chosenSkin.Name;
                         context.AvdCreationWork.CreationData.SkinPath = chosenSkin.Path;
                     } else {
@@ -302,7 +302,7 @@ namespace CoreDeck {
                         context.AvdCreationWork.CreationData.SkinPath.clear();
                     }
                     if (!context.AvdCreationWork.CreationData.SdCardSize.empty()) {
-                        context.AvdCreationWork.CreationData.SdCardSize += "M";
+                        context.AvdCreationWork.CreationData.SdCardSize += 'M';
                     }
 
                     context.Jobs.AvdCreation.Busy = true;

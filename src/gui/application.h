@@ -70,6 +70,8 @@ namespace CoreDeck {
         bool m_UpdateCheckWasManual = false;
     };
 
+    void ApplyWindowChrome(GLFWwindow *window);
+
     AppSettings CaptureAppSettingsFromContext(const Context &context);
 
     void ApplyAppSettingsToContext(Context &context, const AppSettings &settings);

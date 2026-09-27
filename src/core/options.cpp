@@ -13,9 +13,9 @@
 namespace CoreDeck {
     namespace {
         const char *FindDisplayLabel(const std::vector<OptionValueLabel> &options, const std::string &value) {
-            for (const auto &[Label, RawValue]: options) {
-                if (value == RawValue) {
-                    return Label;
+            for (const auto &[label, rawValue]: options) {
+                if (value == rawValue) {
+                    return label;
                 }
             }
             return value.c_str();
@@ -600,7 +600,7 @@ namespace CoreDeck {
 
                 case OptionType::Selection:
                     if (!option.Items.empty()) {
-                        args.emplace_back(option.Items[option.SelectedItem]);
+                        args.emplace_back(option.Items.at(option.SelectedItem));
                     }
                     break;
 

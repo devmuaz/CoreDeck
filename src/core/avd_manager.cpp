@@ -32,7 +32,7 @@ namespace CoreDeck {
                 if (!line.empty() && line.back() == '\r') {
                     line.pop_back();
                 }
-                if (line.empty() || line[0] == '#') {
+                if (line.empty() || line.at(0) == '#') {
                     continue;
                 }
 
@@ -257,7 +257,7 @@ namespace CoreDeck {
             device.Name = line;
             std::ranges::replace(device.Name, '_', ' ');
             if (!device.Name.empty()) {
-                device.Name[0] = static_cast<char>(std::toupper(device.Name[0]));
+                device.Name.at(0) = static_cast<char>(std::toupper(device.Name.at(0)));
             }
             result.Profiles.push_back(std::move(device));
         }
@@ -324,7 +324,7 @@ namespace CoreDeck {
             "-n",
             data.Name,
             "-k",
-            data.SystemImagePackagePath
+            data.SystemImagePackagePath,
         };
         if (!data.DeviceId.empty()) {
             args.emplace_back("-d");

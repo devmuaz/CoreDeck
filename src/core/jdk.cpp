@@ -13,7 +13,7 @@
 
 namespace CoreDeck {
     namespace {
-#if defined(_WIN32)
+#ifdef _WIN32
         constexpr char PATH_SEPARATOR = ';';
 #else
         constexpr char PATH_SEPARATOR = ':';
@@ -59,10 +59,10 @@ namespace CoreDeck {
             if (parts.empty()) {
                 return 0;
             }
-            if (parts[0] == 1 && parts.size() >= 2) {
-                return parts[1];
+            if (parts.at(0) == 1 && parts.size() >= 2) {
+                return parts.at(1);
             }
-            return parts[0];
+            return parts.at(0);
         }
 
         std::string JavaBinaryIn(const std::string &home) {
@@ -93,7 +93,7 @@ namespace CoreDeck {
             std::vector<std::string> homes;
             const std::string home = Paths::GetHomeDirectory();
 
-#if defined(_WIN32)
+#ifdef _WIN32
             const char *programFiles = std::getenv("ProgramFiles");
             const char *localAppData = std::getenv("LOCALAPPDATA");
             if (programFiles) {
@@ -108,7 +108,7 @@ namespace CoreDeck {
             if (localAppData) {
                 homes.push_back(Paths::JoinPaths({std::string(localAppData), "Programs", "Android Studio", "jbr"}));
             }
-#elif defined(__APPLE__)
+#elif __APPLE__
             AddSubdirCandidates(homes, "/Library/Java/JavaVirtualMachines", "Contents/Home");
             if (!home.empty()) {
                 AddSubdirCandidates(homes, Paths::JoinPaths({home, "Library", "Java", "JavaVirtualMachines"}), "Contents/Home");

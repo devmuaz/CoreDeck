@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../core/app_settings_types.h"
 #include "../core/avd_manager.h"
 #include "../core/emulator.h"
 #include "../core/health_check.h"
@@ -110,6 +111,7 @@ namespace CoreDeck {
         struct Prefs {
             bool ConfirmBeforeDeleteAvd = true;
             bool CrashReportingEnabled = true;
+            ThemePreference Theme = ThemePreference::System;
         } Prefs;
 
         struct UI {

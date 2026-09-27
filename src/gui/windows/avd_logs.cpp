@@ -41,7 +41,7 @@ namespace CoreDeck {
             PanelInputs inputs;
             if (context.Catalog.SelectedAvd >= 0) {
                 inputs.HasSelection = true;
-                inputs.AvdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
+                inputs.AvdName = context.Catalog.Avds.at(context.Catalog.SelectedAvd).Name;
                 inputs.Log = context.Host.Manager.GetLog(inputs.AvdName);
             }
             return inputs;
@@ -207,7 +207,7 @@ namespace CoreDeck {
             std::size_t line = 0;
             const std::size_t end = std::min(offset, joined.size());
             for (std::size_t i = 0; i < end; ++i) {
-                if (joined[i] == '\n') {
+                if (joined.at(i) == '\n') {
                     ++line;
                 }
             }
@@ -333,14 +333,14 @@ namespace CoreDeck {
         int scrollLine = -1;
         const bool haveActiveMatch = !view.Filter.Matches.empty() && state.ActiveMatchIndex < static_cast<int>(view.Filter.Matches.size());
         if (haveActiveMatch && context.Logs.PendingSyncFrames > 0) {
-            const auto &[StartOffset, EndOffset] = view.Filter.Matches[state.ActiveMatchIndex];
+            const auto &[startOffset, endOffset] = view.Filter.Matches.at(state.ActiveMatchIndex);
             sync.Active = true;
-            sync.Start = static_cast<int>(StartOffset);
-            sync.End = static_cast<int>(EndOffset);
+            sync.Start = static_cast<int>(startOffset);
+            sync.End = static_cast<int>(endOffset);
         }
         if (haveActiveMatch && context.Logs.PendingScroll) {
-            const auto &[StartOffset, _] = view.Filter.Matches[state.ActiveMatchIndex];
-            scrollLine = static_cast<int>(LineIndexFor(view.Filter.Joined, StartOffset));
+            const auto &[startOffset, _] = view.Filter.Matches.at(state.ActiveMatchIndex);
+            scrollLine = static_cast<int>(LineIndexFor(view.Filter.Joined, startOffset));
         }
 
         const bool focusLog = context.Logs.PendingFocus && haveActiveMatch;

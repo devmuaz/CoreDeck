@@ -35,7 +35,7 @@ namespace CoreDeck {
 
             // Filter
             for (int i = 0; i < static_cast<int>(catalog.Avds.size()); i++) {
-                const auto &avd = catalog.Avds[i];
+                const auto &avd = catalog.Avds.at(i);
                 if (catalog.SearchFilter[0] != '\0') {
                     if (!ContainsCaseInsensitive(avd.DisplayName, catalog.SearchFilter) &&
                         !ContainsCaseInsensitive(avd.Name, catalog.SearchFilter) &&
@@ -51,8 +51,8 @@ namespace CoreDeck {
             // Sort
             const bool asc = catalog.SortAscending;
             std::ranges::sort(catalog.FilteredIndices, [&](const int a, const int b) {
-                const auto &avdA = catalog.Avds[a];
-                const auto &avdB = catalog.Avds[b];
+                const auto &avdA = catalog.Avds.at(a);
+                const auto &avdB = catalog.Avds.at(b);
                 int cmp = 0;
 
                 switch (catalog.SortMode) {
@@ -143,7 +143,7 @@ namespace CoreDeck {
         }
 
         if (context.Catalog.SelectedAvd >= 0) {
-            const auto &avd = context.Catalog.Avds[context.Catalog.SelectedAvd];
+            const auto &avd = context.Catalog.Avds.at(context.Catalog.SelectedAvd);
             const bool isRunning = context.Host.Manager.IsRunning(avd.Name);
             const auto args = BuildArgs(avd.Name, GetDefaultAvdOptions(context));
 
@@ -245,7 +245,7 @@ namespace CoreDeck {
                 }
             }
             if (!selectionVisible && !filtered.empty()) {
-                context.Catalog.SelectedAvd = filtered[0];
+                context.Catalog.SelectedAvd = filtered.at(0);
             }
         }
 
@@ -257,7 +257,7 @@ namespace CoreDeck {
 
         ImGui::BeginChild("AvdList", ImVec2(0, 0), ImGuiChildFlags_None);
         for (const int i: filtered) {
-            const auto &avd = context.Catalog.Avds[i];
+            const auto &avd = context.Catalog.Avds.at(i);
             const bool isSelected = context.Catalog.SelectedAvd == i;
             const bool isRunning = context.Host.Manager.IsRunning(avd.Name);
 

@@ -80,9 +80,9 @@ Checks: >
 # -----------------------------------------------------------------------------
 # Check options
 # -----------------------------------------------------------------------------
-# A consistent, modern C++ style with snake_case for variables/functions,
-# PascalCase for types, and a clear marker for private members and constants.
-# Adjust to match your team's existing conventions.
+# PascalCase for types and functions, camelBack for locals and parameters,
+# g_PascalCase for namespace-scope variables, m_PascalCase for private members,
+# and UPPER_CASE for constants and macros.
 # -----------------------------------------------------------------------------
 CheckOptions:
   # --- Modernize ---
@@ -132,6 +132,7 @@ CheckOptions:
   # --- Naming conventions (Microsoft / Unreal-flavored PascalCase) ---
   # Types, namespaces, free functions, methods, public members → PascalCase
   # Locals & parameters                                        → camelCase
+  # Namespace-scope variables                                  → g_PascalCase
   # Private / protected non-static members                     → m_PascalCase
   # Macros                                                     → UPPER_CASE
   - key: readability-identifier-naming.NamespaceCase
@@ -173,6 +174,7 @@ CheckOptions:
     value: "m_"
 
   # Variables & parameters
+  # Namespace-scope variables use g_PascalCase, matching m_PascalCase members.
   - key: readability-identifier-naming.VariableCase
     value: camelBack
   - key: readability-identifier-naming.LocalVariableCase
@@ -181,6 +183,10 @@ CheckOptions:
     value: camelBack
   - key: readability-identifier-naming.PointerParameterCase
     value: camelBack
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalVariablePrefix
+    value: "g_"
 
   # Members — public PascalCase (your structs expose PascalCase fields),
   # private/protected use m_ + PascalCase as seen on Application::m_Window etc.

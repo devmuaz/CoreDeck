@@ -18,7 +18,7 @@
 
 namespace CoreDeck {
     void OpenUrl(const char *url) {
-#if defined(_WIN32)
+#ifdef _WIN32
         ShellExecuteA(nullptr, "open", url, nullptr, nullptr, SW_SHOWNORMAL);
 #elif defined(__APPLE__)
         RunCommandArgs("/usr/bin/open", {url});

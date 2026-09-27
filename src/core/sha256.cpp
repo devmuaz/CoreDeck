@@ -125,19 +125,19 @@ namespace CoreDeck {
             std::string Finish() {
                 const uint64_t bitCount = m_BitCount;
 
-                m_Buffer[m_BufferUsed++] = 0x80;
+                m_Buffer.at(m_BufferUsed++) = 0x80;
                 if (m_BufferUsed > BLOCK_SIZE - 8) {
                     while (m_BufferUsed < BLOCK_SIZE) {
-                        m_Buffer[m_BufferUsed++] = 0x00;
+                        m_Buffer.at(m_BufferUsed++) = 0x00;
                     }
                     m_Transform(m_Buffer.data());
                     m_BufferUsed = 0;
                 }
                 while (m_BufferUsed < BLOCK_SIZE - 8) {
-                    m_Buffer[m_BufferUsed++] = 0x00;
+                    m_Buffer.at(m_BufferUsed++) = 0x00;
                 }
                 for (size_t i = 0; i < 8; ++i) {
-                    m_Buffer[BLOCK_SIZE - 8 + i] = static_cast<uint8_t>(bitCount >> (56 - (i * 8)));
+                    m_Buffer.at(BLOCK_SIZE - 8 + i) = static_cast<uint8_t>(bitCount >> (56 - (i * 8)));
                 }
                 m_Transform(m_Buffer.data());
 
@@ -158,30 +158,30 @@ namespace CoreDeck {
             void m_Transform(const uint8_t *block) {
                 std::array<uint32_t, 64> schedule = {};
                 for (size_t i = 0; i < 16; ++i) {
-                    schedule[i] = (static_cast<uint32_t>(block[i * 4]) << 24) |
-                                  (static_cast<uint32_t>(block[(i * 4) + 1]) << 16) |
-                                  (static_cast<uint32_t>(block[(i * 4) + 2]) << 8) |
-                                  static_cast<uint32_t>(block[(i * 4) + 3]);
+                    schedule.at(i) = (static_cast<uint32_t>(block[i * 4]) << 24) |
+                                     (static_cast<uint32_t>(block[(i * 4) + 1]) << 16) |
+                                     (static_cast<uint32_t>(block[(i * 4) + 2]) << 8) |
+                                     static_cast<uint32_t>(block[(i * 4) + 3]);
                 }
                 for (size_t i = 16; i < 64; ++i) {
-                    const uint32_t s0 = RotR(schedule[i - 15], 7) ^ RotR(schedule[i - 15], 18) ^ (schedule[i - 15] >> 3);
-                    const uint32_t s1 = RotR(schedule[i - 2], 17) ^ RotR(schedule[i - 2], 19) ^ (schedule[i - 2] >> 10);
-                    schedule[i] = schedule[i - 16] + s0 + schedule[i - 7] + s1;
+                    const uint32_t s0 = RotR(schedule.at(i - 15), 7) ^ RotR(schedule.at(i - 15), 18) ^ (schedule.at(i - 15) >> 3);
+                    const uint32_t s1 = RotR(schedule.at(i - 2), 17) ^ RotR(schedule.at(i - 2), 19) ^ (schedule.at(i - 2) >> 10);
+                    schedule.at(i) = schedule.at(i - 16) + s0 + schedule.at(i - 7) + s1;
                 }
 
-                uint32_t a = m_State[0];
-                uint32_t b = m_State[1];
-                uint32_t c = m_State[2];
-                uint32_t d = m_State[3];
-                uint32_t e = m_State[4];
-                uint32_t f = m_State[5];
-                uint32_t g = m_State[6];
-                uint32_t h = m_State[7];
+                uint32_t a = m_State.at(0);
+                uint32_t b = m_State.at(1);
+                uint32_t c = m_State.at(2);
+                uint32_t d = m_State.at(3);
+                uint32_t e = m_State.at(4);
+                uint32_t f = m_State.at(5);
+                uint32_t g = m_State.at(6);
+                uint32_t h = m_State.at(7);
 
                 for (size_t i = 0; i < 64; ++i) {
                     const uint32_t s1 = RotR(e, 6) ^ RotR(e, 11) ^ RotR(e, 25);
                     const uint32_t ch = (e & f) ^ (~e & g);
-                    const uint32_t temp1 = h + s1 + ch + ROUND_CONSTANTS[i] + schedule[i];
+                    const uint32_t temp1 = h + s1 + ch + ROUND_CONSTANTS.at(i) + schedule.at(i);
                     const uint32_t s0 = RotR(a, 2) ^ RotR(a, 13) ^ RotR(a, 22);
                     const uint32_t maj = (a & b) ^ (a & c) ^ (b & c);
                     const uint32_t temp2 = s0 + maj;
@@ -196,18 +196,25 @@ namespace CoreDeck {
                     a = temp1 + temp2;
                 }
 
-                m_State[0] += a;
-                m_State[1] += b;
-                m_State[2] += c;
-                m_State[3] += d;
-                m_State[4] += e;
-                m_State[5] += f;
-                m_State[6] += g;
-                m_State[7] += h;
+                m_State.at(0) += a;
+                m_State.at(1) += b;
+                m_State.at(2) += c;
+                m_State.at(3) += d;
+                m_State.at(4) += e;
+                m_State.at(5) += f;
+                m_State.at(6) += g;
+                m_State.at(7) += h;
             }
 
             std::array<uint32_t, 8> m_State = {
-                0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+                0x6a09e667,
+                0xbb67ae85,
+                0x3c6ef372,
+                0xa54ff53a,
+                0x510e527f,
+                0x9b05688c,
+                0x1f83d9ab,
+                0x5be0cd19,
             };
             std::array<uint8_t, BLOCK_SIZE> m_Buffer = {};
             size_t m_BufferUsed = 0;
@@ -251,8 +258,8 @@ namespace CoreDeck {
             return false;
         }
         for (size_t i = 0; i < a.size(); ++i) {
-            const auto left = static_cast<char>(std::tolower(static_cast<unsigned char>(a[i])));
-            const auto right = static_cast<char>(std::tolower(static_cast<unsigned char>(b[i])));
+            const auto left = static_cast<char>(std::tolower(static_cast<unsigned char>(a.at(i))));
+            const auto right = static_cast<char>(std::tolower(static_cast<unsigned char>(b.at(i))));
             if (left != right) {
                 return false;
             }

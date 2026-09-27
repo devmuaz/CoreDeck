@@ -103,7 +103,7 @@ namespace CoreDeck::CrashReporter {
 #else
 
 namespace CoreDeck::CrashReporter {
-    bool Init(bool isEnabled) {
+    bool Init(bool /*unused*/) {
         return false;
     }
 
@@ -114,13 +114,13 @@ namespace CoreDeck::CrashReporter {
         return false;
     }
 
-    void CaptureMessage(Level, std::string_view) {
+    void CaptureMessage(Level /*unused*/, std::string_view /*unused*/) {
     }
 
-    void CaptureException(std::string_view, std::string_view) {
+    void CaptureException(std::string_view /*unused*/, std::string_view /*unused*/) {
     }
 
-    void AddBreadcrumb(std::string_view, std::string_view) {
+    void AddBreadcrumb(std::string_view /*unused*/, std::string_view /*unused*/) {
     }
 }
 

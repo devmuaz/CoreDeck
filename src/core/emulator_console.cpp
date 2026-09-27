@@ -23,7 +23,7 @@ static constexpr CoreDeckSocket COREDECK_INVALID_SOCKET = -1;
 
 namespace CoreDeck::EmulatorConsole {
     namespace {
-#if defined(_WIN32)
+#ifdef _WIN32
         struct WsaInit {
             WsaInit() {
                 WSADATA d;
@@ -126,7 +126,7 @@ namespace CoreDeck::EmulatorConsole {
             }
 
             int error = 0;
-#if defined(_WIN32)
+#ifdef _WIN32
             int len = sizeof(error);
 #else
             socklen_t len = sizeof(error);
@@ -141,7 +141,7 @@ namespace CoreDeck::EmulatorConsole {
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
             size_t sent = 0;
             while (sent < payload.size()) {
-#if defined(_WIN32)
+#ifdef _WIN32
                 const int n = send(s, payload.data() + sent, static_cast<int>(payload.size() - sent), 0);
 #else
                 const ssize_t n = send(s, payload.data() + sent, payload.size() - sent, 0);
@@ -212,7 +212,7 @@ namespace CoreDeck::EmulatorConsole {
         payload += "kill\r\n";
 
         const bool sent = SendAll(s, payload, timeoutMs);
-#if defined(_WIN32)
+#ifdef _WIN32
         shutdown(s, SD_SEND);
 #else
         shutdown(s, SHUT_WR);

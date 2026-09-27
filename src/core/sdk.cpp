@@ -12,7 +12,7 @@
 namespace CoreDeck {
     namespace {
         std::string FindCmdlineTool(const std::string &binDir, const std::string &name) {
-#if defined(_WIN32)
+#ifdef _WIN32
             for (const auto *ext: {".bat", ".exe"}) {
                 const std::string candidate = Paths::JoinPaths({binDir, name + ext});
                 if (std::filesystem::exists(candidate)) return candidate;

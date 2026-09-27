@@ -94,7 +94,7 @@ namespace CoreDeck {
         int CompareSemanticVersion(const std::string &newVersion, const std::string &currentVersion) {
             auto parse = [](const std::string &raw) -> std::pair<std::vector<int>, bool> {
                 std::string s = raw;
-                if (!s.empty() && (s[0] == 'v' || s[0] == 'V')) {
+                if (!s.empty() && (s.at(0) == 'v' || s.at(0) == 'V')) {
                     s.erase(s.begin());
                 }
                 const bool hasPreRelease = s.find('-') != std::string::npos;
@@ -126,8 +126,8 @@ namespace CoreDeck {
             const auto [vb, preB] = parse(currentVersion);
             const size_t n = std::max(va.size(), vb.size());
             for (size_t i = 0; i < n; ++i) {
-                const int a = i < va.size() ? va[i] : 0;
-                const int b = i < vb.size() ? vb[i] : 0;
+                const int a = i < va.size() ? va.at(i) : 0;
+                const int b = i < vb.size() ? vb.at(i) : 0;
                 if (a != b) {
                     return a < b ? -1 : 1;
                 }

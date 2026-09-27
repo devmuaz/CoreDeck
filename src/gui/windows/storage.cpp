@@ -74,18 +74,23 @@ namespace CoreDeck {
             const ImVec2 end(pos.x + width, pos.y + HEIGHT);
             auto *drawList = ImGui::GetWindowDrawList();
 
-            drawList->AddRectFilled(pos, end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::SURFACE2)), 999.0F);
+            const bool light = IsLightColorScheme();
+            const ImU32 track = ImGui::ColorConvertFloat4ToU32(HexColor(light ? Colors::SURFACE3 : Colors::SURFACE2));
+            drawList->AddRectFilled(pos, end, track, 999.0F);
             if (total > 0) {
                 const float avdWidth = width * (static_cast<float>(avdSize) / static_cast<float>(total));
                 const bool hasBoth = avdSize > 0 && systemImageSize > 0;
                 if (avdSize > 0) {
                     const ImDrawFlags avdCorners = hasBoth ? ImDrawFlags_RoundCornersLeft : ImDrawFlags_RoundCornersAll;
-                    drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor(Colors::STORAGE_AVD)), 999.0F, avdCorners);
+                    drawList->AddRectFilled(pos, ImVec2(pos.x + avdWidth, end.y), ImGui::ColorConvertFloat4ToU32(HexColor(Colors::STORAGE_AVD_FILL)), 999.0F, avdCorners);
                 }
                 if (systemImageSize > 0) {
                     const ImDrawFlags sysCorners = hasBoth ? ImDrawFlags_RoundCornersRight : ImDrawFlags_RoundCornersAll;
-                    drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::STORAGE_SYSTEM_IMAGE)), 999.0F, sysCorners);
+                    drawList->AddRectFilled(ImVec2(pos.x + avdWidth, pos.y), end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::STORAGE_SYSTEM_IMAGE_FILL)), 999.0F, sysCorners);
                 }
+            }
+            if (light) {
+                drawList->AddRect(pos, end, ImGui::ColorConvertFloat4ToU32(HexColor(Colors::BORDER)), 999.0F, 0, 1.0F);
             }
 
             ImGui::Dummy(ImVec2(width, HEIGHT));
@@ -113,8 +118,8 @@ namespace CoreDeck {
             }
 
             const bool isLoading = disk.Loading.load();
-            const auto &[TotalAvdSize, SystemImagesSize] = disk.LastScan;
-            const std::uintmax_t grandTotal = TotalAvdSize + SystemImagesSize;
+            const auto &[totalAvdSize, systemImagesSize] = disk.LastScan;
+            const std::uintmax_t grandTotal = totalAvdSize + systemImagesSize;
 
             ImGui::Text("Statistics");
             ImGui::TextDisabled("%s", isLoading ? "Calculating..." : "Calculated from local SDK and AVD folders");
@@ -125,21 +130,21 @@ namespace CoreDeck {
             const float cardWidth = (ImGui::GetContentRegionAvail().x - (spacing * 2.0F)) / 3.0F;
             DrawStorageSummaryCard("Total Storage", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(grandTotal), Colors::TEXT_PRIMARY, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(TotalAvdSize), Colors::STORAGE_AVD, cardWidth);
+            DrawStorageSummaryCard("AVDs", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(totalAvdSize), Colors::STORAGE_AVD, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(SystemImagesSize), Colors::STORAGE_SYSTEM_IMAGE, cardWidth);
+            DrawStorageSummaryCard("System Images", isLoading && !disk.Ready ? "Calculating..." : FormatFileSize(systemImagesSize), Colors::STORAGE_SYSTEM_IMAGE, cardWidth);
 
             ImGui::Spacing();
             ImGui::TextDisabled("Breakdown");
-            DrawStorageBreakdownBar(TotalAvdSize, SystemImagesSize);
+            DrawStorageBreakdownBar(totalAvdSize, systemImagesSize);
             ImGui::Spacing();
             ImGui::TextColored(HexColor(Colors::STORAGE_AVD), "AVDs");
             ImGui::SameLine();
-            ImGui::TextDisabled("%s", FormatFileSize(TotalAvdSize).c_str());
+            ImGui::TextDisabled("%s", FormatFileSize(totalAvdSize).c_str());
             ImGui::SameLine();
             ImGui::TextColored(HexColor(Colors::STORAGE_SYSTEM_IMAGE), "System Images");
             ImGui::SameLine();
-            ImGui::TextDisabled("%s", FormatFileSize(SystemImagesSize).c_str());
+            ImGui::TextDisabled("%s", FormatFileSize(systemImagesSize).c_str());
 
             ImGui::Spacing();
             ImGui::Separator();

@@ -35,7 +35,7 @@ namespace CoreDeck {
         void CollectRegexMatches(const std::string &line, const std::size_t lineStart, const std::regex &re, std::vector<LogMatch> &out) {
             const auto end = std::sregex_iterator{};
             for (auto it = std::sregex_iterator(line.begin(), line.end(), re); it != end; ++it) {
-                if (it->length() == 0) {
+                if (it->empty()) {
                     continue;
                 }
                 LogMatch m;

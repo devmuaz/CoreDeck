@@ -5,7 +5,15 @@
 #ifndef COREDECK_APP_SETTINGS_TYPES_H
 #define COREDECK_APP_SETTINGS_TYPES_H
 
+#include <cstdint>
+
 namespace CoreDeck {
+    enum class ThemePreference : uint8_t {
+        System = 0,
+        Dark = 1,
+        Light = 2,
+    };
+
     struct AppSettings {
         int SchemaVersion = 1;
         bool AutoScroll = true;
@@ -17,6 +25,7 @@ namespace CoreDeck {
         bool ShowLogPanel = true;
         int AvdSortMode = 0;
         bool AvdSortAscending = true;
+        int Theme = static_cast<int>(ThemePreference::System);
     };
 }
 

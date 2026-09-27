@@ -11,6 +11,11 @@
 #endif
 #include <windows.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
+#include <dwmapi.h>
+#endif
+
+#if defined(__APPLE__)
+#define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 
 #include <chrono>
@@ -22,7 +27,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__APPLE__)
 #include <GLFW/glfw3native.h>
 #endif
 
@@ -50,8 +55,14 @@
 
 namespace CoreDeck {
     namespace {
+        void ClearFramebuffer() {
+            const ImVec4 color = HexColor(Colors::SURFACE0);
+            glClearColor(color.x, color.y, color.z, 1.0F);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
+
         void ShowFatalError(const char *title, const char *message) {
-#if defined(_WIN32)
+#ifdef _WIN32
             MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
 #else
             (void) title;
@@ -88,8 +99,8 @@ namespace CoreDeck {
         m_ApplyDpiScale();
         m_LoadFonts();
 
-        ImGui::StyleColorsDark();
         ApplyCustomImGuiTheme(m_DpiScale);
+        ApplyWindowChrome(m_Window);
 
         const char *glslVersion = "#version 330";
         ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
@@ -134,7 +145,8 @@ namespace CoreDeck {
 
         if (m_Context.Catalog.SelectedAvd != m_Context.Catalog.PreviousSelectedAvd) {
             if (m_Context.Catalog.SelectedAvd >= 0 && m_Context.Catalog.SelectedAvd < m_Context.Catalog.Avds.size()) {
-                const std::string &avdName = m_Context.Catalog.Avds[m_Context.Catalog.SelectedAvd].Name;
+                const auto &avd = m_Context.Catalog.Avds.at(m_Context.Catalog.SelectedAvd);
+                const std::string &avdName = avd.Name;
                 if (!m_Context.Catalog.PerAvdOptions.contains(avdName)) {
                     LoadAvdOptions(m_Context, avdName);
                 }
@@ -225,7 +237,7 @@ namespace CoreDeck {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#if defined(__APPLE__)
+#ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
@@ -247,7 +259,7 @@ namespace CoreDeck {
         glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1);
 
-#if defined(_WIN32)
+#ifdef _WIN32
         HWND hwnd = glfwGetWin32Window(m_Window);
         HICON icon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(1));
         SendMessage(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(icon));
@@ -326,7 +338,7 @@ namespace CoreDeck {
         }
         const float reportedScale = (xscale > 0.0F) ? xscale : 1.0F;
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
         m_DpiScale = 1.0F;
         m_FontPixelScale = 1.0F;
 #else
@@ -344,7 +356,7 @@ namespace CoreDeck {
             imGuiIO.AddMouseWheelEvent(static_cast<float>(x) * 0.3F, static_cast<float>(y) * 0.3F);
         });
 
-#if !defined(__APPLE__)
+#ifndef __APPLE__
         glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow *w, const float xscale, const float /*yscale*/) {
             auto *self = static_cast<Application *>(glfwGetWindowUserPointer(w));
             if (self == nullptr || xscale <= 0.0F) {
@@ -363,7 +375,6 @@ namespace CoreDeck {
             self->m_LoadFonts();
             io.Fonts->Build();
 
-            ImGui::StyleColorsDark();
             ApplyCustomImGuiTheme(self->m_DpiScale);
         });
 #endif
@@ -410,8 +421,7 @@ namespace CoreDeck {
             self->m_Build();
 
             ImGui::Render();
-            glClearColor(0.06F, 0.06F, 0.07F, 1.0F);
-            glClear(GL_COLOR_BUFFER_BIT);
+            ClearFramebuffer();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             glfwSwapBuffers(w);
         });
@@ -428,6 +438,11 @@ namespace CoreDeck {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
+            if (SyncSystemColorScheme()) {
+                RefreshThemeColors();
+            }
+            ApplyWindowChrome(m_Window);
+
             m_Build();
 
             ImGui::Render();
@@ -435,8 +450,7 @@ namespace CoreDeck {
             int displayH = 0;
             glfwGetFramebufferSize(m_Window, &displayW, &displayH);
             glViewport(0, 0, displayW, displayH);
-            glClearColor(0.1F, 0.1F, 0.1F, 1.0F);
-            glClear(GL_COLOR_BUFFER_BIT);
+            ClearFramebuffer();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             glfwSwapBuffers(m_Window);
         }
@@ -517,6 +531,7 @@ namespace CoreDeck {
         s.ShowLogPanel = context.UI.ShowLogPanel;
         s.AvdSortMode = static_cast<int>(context.Catalog.SortMode);
         s.AvdSortAscending = context.Catalog.SortAscending;
+        s.Theme = static_cast<int>(context.Prefs.Theme);
         return s;
     }
 
@@ -533,6 +548,43 @@ namespace CoreDeck {
             context.Catalog.SortMode = static_cast<AvdSortMode>(sortMode);
         }
         context.Catalog.SortAscending = settings.AvdSortAscending;
+
+        const int theme = settings.Theme;
+        const auto preference = theme >= static_cast<int>(ThemePreference::System) &&
+                                        theme <= static_cast<int>(ThemePreference::Light)
+                                    ? static_cast<ThemePreference>(theme)
+                                    : ThemePreference::System;
+        context.Prefs.Theme = preference;
+        SetThemePreference(preference);
+    }
+
+    void ApplyWindowChrome(GLFWwindow *window) {
+        if (window == nullptr) {
+            return;
+        }
+
+        const bool light = IsLightColorScheme();
+        static GLFWwindow *appliedWindow = nullptr;
+        static bool appliedLight = false;
+        static bool applied = false;
+        if (applied && appliedWindow == window && appliedLight == light) {
+            return;
+        }
+        applied = true;
+        appliedWindow = window;
+        appliedLight = light;
+
+#ifdef _WIN32
+        HWND hwnd = glfwGetWin32Window(window);
+        if (hwnd != nullptr) {
+            const BOOL useDark = light ? FALSE : TRUE;
+            if (FAILED(DwmSetWindowAttribute(hwnd, 20, &useDark, sizeof(useDark)))) {
+                DwmSetWindowAttribute(hwnd, 19, &useDark, sizeof(useDark));
+            }
+        }
+#elif defined(__APPLE__)
+        SetCocoaWindowAppearance(glfwGetCocoaWindow(window), light);
+#endif
     }
 
     void PersistAppSettings(const Context &context) {
@@ -577,7 +629,8 @@ namespace CoreDeck {
 
     std::vector<EmulatorOption> &GetDefaultAvdOptions(Context &context) {
         if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
-            const std::string &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
+            const auto &avd = context.Catalog.Avds.at(context.Catalog.SelectedAvd);
+            const std::string &avdName = avd.Name;
 
             if (!context.Catalog.PerAvdOptions.contains(avdName)) {
                 LoadAvdOptions(context, avdName);

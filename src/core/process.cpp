@@ -21,12 +21,12 @@
 #include <chrono>
 #include <thread>
 
-extern char **environ;
+extern char **environ; // NOLINT(readability-identifier-naming)
 #endif
 
 namespace CoreDeck {
     namespace {
-#if defined(_WIN32)
+#ifdef _WIN32
         std::vector<char> BuildEnvironmentBlock(const EnvVars &extra) {
             std::vector<std::pair<std::string, std::string>> entries;
 
@@ -138,9 +138,9 @@ namespace CoreDeck {
 
                 bool overridden = false;
                 for (size_t i = 0; i < extra.size(); ++i) {
-                    if (extra[i].Name == name) {
-                        merged.push_back(extra[i].Name + "=" + extra[i].Value);
-                        used[i] = true;
+                    if (extra.at(i).Name == name) {
+                        merged.push_back(extra.at(i).Name + "=" + extra.at(i).Value);
+                        used.at(i) = true;
                         overridden = true;
                         break;
                     }
@@ -151,8 +151,8 @@ namespace CoreDeck {
             }
 
             for (size_t i = 0; i < extra.size(); ++i) {
-                if (!used[i]) {
-                    merged.push_back(extra[i].Name + "=" + extra[i].Value);
+                if (!used.at(i)) {
+                    merged.push_back(extra.at(i).Name + "=" + extra.at(i).Value);
                 }
             }
             return merged;
@@ -168,7 +168,7 @@ namespace CoreDeck {
         const std::function<void(const std::string &)> &onLine,
         const EnvVars &extraEnv
     ) {
-#if defined(_WIN32)
+#ifdef _WIN32
         SECURITY_ATTRIBUTES sa = {};
         sa.nLength = sizeof(sa);
         sa.bInheritHandle = TRUE;
@@ -333,7 +333,7 @@ namespace CoreDeck {
     }
 
     ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {
-#if defined(_WIN32)
+#ifdef _WIN32
         HANDLE hReadPipe, hWritePipe;
         SECURITY_ATTRIBUTES sa = {};
         sa.nLength = sizeof(sa);
@@ -422,7 +422,7 @@ namespace CoreDeck {
     }
 
     bool KillProcess(const ProcessId pid) {
-#if defined(_WIN32)
+#ifdef _WIN32
         if (pid == 0) return false;
 
         HANDLE hProcess = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -464,7 +464,7 @@ namespace CoreDeck {
     }
 
     bool WaitForProcessExit(const ProcessId pid, const int timeoutMs) {
-#if defined(_WIN32)
+#ifdef _WIN32
         if (pid == 0) return false;
         HANDLE hProcess = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
         if (hProcess == nullptr) return true;
@@ -491,7 +491,7 @@ namespace CoreDeck {
     }
 
     bool TerminateProcessTree(const ProcessId pid) {
-#if defined(_WIN32)
+#ifdef _WIN32
         if (pid == 0) return false;
 
         HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -531,7 +531,7 @@ namespace CoreDeck {
     }
 
     bool IsProcessRunning(const ProcessId pid) {
-#if defined(_WIN32)
+#ifdef _WIN32
         if (pid == 0) return false;
 
         HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -560,7 +560,7 @@ namespace CoreDeck {
             return;
         }
 
-#if defined(_WIN32)
+#ifdef _WIN32
         out.push_back(pid);
 
         HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);

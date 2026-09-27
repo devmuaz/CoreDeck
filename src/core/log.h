@@ -16,7 +16,7 @@ namespace CoreDeck {
     };
 
     namespace Log {
-        static inline LogLevel minLevel =
+        static inline LogLevel g_MinLevel =
 #ifdef NDEBUG
             LogLevel::Warning;
 #else
@@ -39,7 +39,7 @@ namespace CoreDeck {
 
         template<typename... Args>
         void Write(const LogLevel level, Args &&...args) {
-            if (level < minLevel) {
+            if (level < g_MinLevel) {
                 return;
             }
             auto &out = (level >= LogLevel::Error) ? std::cerr : std::cout;

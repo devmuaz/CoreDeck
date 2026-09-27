@@ -66,7 +66,7 @@ namespace CoreDeck {
             if (selected) {
                 const ImVec2 a(bb.Min.x, bb.Min.y);
                 const ImVec2 b(bb.Min.x + 4.0F, bb.Max.y);
-                window->DrawList->AddRectFilled(a, b, IM_COL32_WHITE);
+                window->DrawList->AddRectFilled(a, b, ImGui::GetColorU32(HexColor(Colors::TEXT_PRIMARY)));
             }
 
             const ImU32 textColor = ImGui::GetColorU32(selected ? HexColor(Colors::TEXT_PRIMARY) : HexColor(Colors::TEXT_SUBTLE));
@@ -92,8 +92,48 @@ namespace CoreDeck {
             ImGui::Spacing();
         }
 
+        void DrawAppearancePicker(Context &context) {
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+            ImGui::TextUnformatted("Appearance");
+            ImGui::PopStyleColor();
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
+            ImGui::TextWrapped("Follow the system appearance, or keep CoreDeck dark or light.");
+            ImGui::PopStyleColor();
+            ImGui::Spacing();
+
+            static constexpr const char *LABELS[] = {"System", "Dark", "Light"};
+            const int current = static_cast<int>(context.Prefs.Theme);
+            const int selectedIndex = current >= 0 && current < IM_ARRAYSIZE(LABELS) ? current : 0;
+
+            ImGui::SetNextItemWidth(Em(18.0F));
+            ComboStyle comboStyle;
+            if (ImGui::BeginCombo("##Theme", LABELS[selectedIndex])) {
+                for (int i = 0; i < IM_ARRAYSIZE(LABELS); ++i) {
+                    const bool selected = selectedIndex == i;
+                    if (RoundedSelectable(LABELS[i], selected)) {
+                        const auto preference = static_cast<ThemePreference>(i);
+                        context.Prefs.Theme = preference;
+                        SetThemePreference(preference);
+                        RefreshThemeColors();
+                        ApplyWindowChrome(context.UI.MainWindow);
+                        PersistAppSettings(context);
+                    }
+                    if (selected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
+
         void DrawGeneralSection(Context &context) {
-            SectionHeader("General", "Behavior of CoreDeck while you work with AVDs.");
+            SectionHeader("General", "Appearance and behavior while you work with AVDs.");
+
+            DrawAppearancePicker(context);
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
 
             if (SubtitledCheckbox(
                     "AutoScrollLogs",

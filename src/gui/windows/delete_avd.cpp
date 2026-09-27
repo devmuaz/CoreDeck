@@ -35,20 +35,20 @@ namespace CoreDeck {
             return;
         }
 
-        const auto &avdName = context.Catalog.Avds[context.Catalog.SelectedAvd].Name;
+        const auto &avdName = context.Catalog.Avds.at(context.Catalog.SelectedAvd).Name;
         const std::string title = "Delete \"" + avdName + "\"?";
         const bool isDeleting = context.Jobs.AvdDeletion.Busy.load();
-        const DialogResult result = SimpleDialog(
-            {.Id = "Delete###DeleteAvdDialog",
-             .IsOpen = context.UI.ShowDeleteAvdDialog,
-             .Title = title.c_str(),
-             .Message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
-             .ConfirmButtonTitle = "Delete",
-             .CancelButtonTitle = "Cancel",
-             .BusyButtonTitle = "Deleting...",
-             .Type = DialogType::Negative,
-             .IsBusy = isDeleting}
-        );
+        const DialogResult result = SimpleDialog({
+            .Id = "Delete###DeleteAvdDialog",
+            .IsOpen = context.UI.ShowDeleteAvdDialog,
+            .Title = title.c_str(),
+            .Message = "This will permanently remove the AVD and all its data. This action cannot be undone.",
+            .ConfirmButtonTitle = "Delete",
+            .CancelButtonTitle = "Cancel",
+            .BusyButtonTitle = "Deleting...",
+            .Type = DialogType::Negative,
+            .IsBusy = isDeleting,
+        });
 
         if (result == DialogResult::Confirmed) {
             StartDeleteAvdAsync(context, avdName);

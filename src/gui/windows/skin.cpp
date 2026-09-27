@@ -40,7 +40,7 @@ namespace CoreDeck {
             return "No skin (plain emulator window)";
         }
         const int idx = std::clamp(work.SelectedSkin - 1, 0, static_cast<int>(work.Skins.size()) - 1);
-        const auto &s = work.Skins[idx];
+        const auto &s = work.Skins.at(idx);
         return StrConcat(s.DisplayName, " - ", SkinSourceLabel(s.Source));
     }
 
@@ -87,7 +87,7 @@ namespace CoreDeck {
                     visibleCount++;
 
                     for (int i = 0; i < static_cast<int>(work.Skins.size()); i++) {
-                        const auto &skin = work.Skins[i];
+                        const auto &skin = work.Skins.at(i);
                         if (!MatchesSkinFilter(skin, work.SkinSearchFilter)) {
                             continue;
                         }

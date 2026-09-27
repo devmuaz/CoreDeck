@@ -129,13 +129,13 @@ namespace CoreDeck {
             return std::nullopt;
         }
         const auto parts = SplitTabs(*line, 3);
-        if (!parts || (*parts)[0].empty() || (*parts)[1].empty()) {
+        if (!parts || parts->at(0).empty() || parts->at(1).empty()) {
             return std::nullopt;
         }
         ApkSummary summary;
-        summary.ApplicationId = (*parts)[0];
-        summary.VersionCode = (*parts)[1];
-        summary.VersionName = (*parts)[2];
+        summary.ApplicationId = parts->at(0);
+        summary.VersionCode = parts->at(1);
+        summary.VersionName = parts->at(2);
         return summary;
     }
 
@@ -171,18 +171,18 @@ namespace CoreDeck {
                 continue;
             }
             const auto parts = SplitTabs(line, 3);
-            if (!parts || (*parts)[2].empty()) {
+            if (!parts || parts->at(2).empty()) {
                 return std::nullopt;
             }
-            const auto raw = ParseByteToken((*parts)[0]);
-            const auto download = ParseByteToken((*parts)[1]);
+            const auto raw = ParseByteToken(parts->at(0));
+            const auto download = ParseByteToken(parts->at(1));
             if (!raw || !download) {
                 return std::nullopt;
             }
             ApkFileEntry entry;
             entry.RawSize = *raw;
             entry.DownloadSize = *download;
-            entry.Path = (*parts)[2];
+            entry.Path = parts->at(2);
             entries.push_back(std::move(entry));
         }
         return entries;
@@ -198,12 +198,12 @@ namespace CoreDeck {
                 continue;
             }
             const auto parts = SplitTabs(line, 4);
-            if (!parts || (*parts)[3].empty()) {
+            if (!parts || parts->at(3).empty()) {
                 return std::nullopt;
             }
-            const auto oldSize = ParseByteToken((*parts)[0]);
-            const auto newSize = ParseByteToken((*parts)[1]);
-            const auto difference = ParseByteToken((*parts)[2]);
+            const auto oldSize = ParseByteToken(parts->at(0));
+            const auto newSize = ParseByteToken(parts->at(1));
+            const auto difference = ParseByteToken(parts->at(2));
             if (!oldSize || !newSize || !difference) {
                 return std::nullopt;
             }
@@ -211,7 +211,7 @@ namespace CoreDeck {
             entry.OldSize = *oldSize;
             entry.NewSize = *newSize;
             entry.Difference = *difference;
-            entry.Path = (*parts)[3];
+            entry.Path = parts->at(3);
             entries.push_back(std::move(entry));
         }
         return entries;

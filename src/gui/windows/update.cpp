@@ -30,7 +30,7 @@ namespace CoreDeck {
 
                 std::string trimmed = line;
                 size_t leading = 0;
-                while (leading < trimmed.size() && (trimmed[leading] == ' ' || trimmed[leading] == '\t')) {
+                while (leading < trimmed.size() && (trimmed.at(leading) == ' ' || trimmed.at(leading) == '\t')) {
                     ++leading;
                 }
                 trimmed.erase(0, leading);

@@ -13,7 +13,7 @@ namespace CoreDeck::Paths {
         Windows,
         MacOS,
         Linux,
-        Unknown
+        Unknown,
     };
 
     Platform GetCurrentPlatform();

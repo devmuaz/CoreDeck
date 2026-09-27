@@ -19,7 +19,7 @@ namespace CoreDeck {
 
         std::string panelTitle = "Options";
         if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
-            panelTitle = "Options - " + context.Catalog.Avds[context.Catalog.SelectedAvd].DisplayName;
+            panelTitle = "Options - " + context.Catalog.Avds.at(context.Catalog.SelectedAvd).DisplayName;
         }
 
         ImGui::Begin((panelTitle + "###Options").c_str(), nullptr, FLAGS);
@@ -40,32 +40,32 @@ namespace CoreDeck {
             }
         }
 
-        for (const auto &category: categories) {
-            if (CollapsingHeader(category.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+        for (const auto &categoryItem: categories) {
+            if (CollapsingHeader(categoryItem.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::Indent(20.0F);
 
-                for (auto &[Flag, DisplayName, Description, Enabled, Type, Category, Hint, TextInput, Items, SelectedItem]: options) {
-                    if (category != Category) {
+                for (auto &[flag, displayName, description, enabled, type, category, hint, textInput, items, selectedItem]: options) {
+                    if (categoryItem != category) {
                         continue;
                     }
 
-                    ImGui::PushID(Flag.c_str());
+                    ImGui::PushID(flag.c_str());
 
-                    const bool wasEnabled = Enabled;
-                    SubtitledCheckbox(Flag.c_str(), &Enabled, DisplayName.c_str(), nullptr, Description.c_str());
-                    if (wasEnabled != Enabled) {
+                    const bool wasEnabled = enabled;
+                    SubtitledCheckbox(flag.c_str(), &enabled, displayName.c_str(), nullptr, description.c_str());
+                    if (wasEnabled != enabled) {
                         optionsChanged = true;
                     }
 
-                    if (Enabled) {
-                        switch (Type) {
+                    if (enabled) {
+                        switch (type) {
                             case OptionType::TextInput: {
                                 ImGui::SetNextItemWidth(-1.0F);
                                 char buffer[256];
-                                strncpy(buffer, TextInput.c_str(), sizeof(buffer) - 1);
+                                strncpy(buffer, textInput.c_str(), sizeof(buffer) - 1);
                                 buffer[sizeof(buffer) - 1] = '\0';
-                                if (ImGui::InputTextWithHint("##val", Hint.c_str(), buffer, sizeof(buffer))) {
-                                    TextInput = buffer;
+                                if (ImGui::InputTextWithHint("##val", hint.c_str(), buffer, sizeof(buffer))) {
+                                    textInput = buffer;
                                     optionsChanged = true;
                                 }
                                 break;
@@ -73,14 +73,14 @@ namespace CoreDeck {
 
                             case OptionType::Selection: {
                                 ImGui::SetNextItemWidth(-1.0F);
-                                const char *selectedLabel = EmulatorOptionItemDisplayLabel(Flag, Items[SelectedItem]);
+                                const char *selectedLabel = EmulatorOptionItemDisplayLabel(flag, items.at(selectedItem));
                                 ComboStyle cs;
                                 if (ImGui::BeginCombo("##selection", selectedLabel)) {
-                                    for (int i = 0; i < Items.size(); ++i) {
-                                        const bool isSelected = SelectedItem == i;
-                                        const char *itemLabel = EmulatorOptionItemDisplayLabel(Flag, Items[i]);
+                                    for (int i = 0; i < items.size(); ++i) {
+                                        const bool isSelected = selectedItem == i;
+                                        const char *itemLabel = EmulatorOptionItemDisplayLabel(flag, items.at(i));
                                         if (RoundedSelectable(itemLabel, isSelected)) {
-                                            SelectedItem = i;
+                                            selectedItem = i;
                                             optionsChanged = true;
                                         }
                                         if (isSelected) {
@@ -105,7 +105,7 @@ namespace CoreDeck {
         }
 
         if (optionsChanged) {
-            SaveAvdOptions(context, context.Catalog.Avds[context.Catalog.SelectedAvd].Name);
+            SaveAvdOptions(context, context.Catalog.Avds.at(context.Catalog.SelectedAvd).Name);
         }
         ImGui::End();
     }

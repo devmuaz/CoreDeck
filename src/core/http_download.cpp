@@ -63,7 +63,7 @@ namespace CoreDeck {
 
         using SinkFn = std::function<bool(const char *data, size_t size)>;
 
-#if defined(_WIN32)
+#ifdef _WIN32
         std::wstring Widen(const std::string &value) {
             if (value.empty()) {
                 return {};

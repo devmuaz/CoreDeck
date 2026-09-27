@@ -66,8 +66,13 @@ namespace CoreDeck {
 
         StyleColor sc;
         sc.Push(ImGuiCol_Button, HexColor(Colors::SURFACE2));
-        sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE4, 0.6F));
-        sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE0));
+        if (IsLightColorScheme()) {
+            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE3));
+            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE4));
+        } else {
+            sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::SURFACE4, 0.6F));
+            sc.Push(ImGuiCol_ButtonActive, HexColor(Colors::SURFACE0));
+        }
         sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
         sc.Push(ImGuiCol_Border, HexColor(Colors::BORDER_STRONG));
 
@@ -144,9 +149,9 @@ namespace CoreDeck {
     bool ToggleButton(const char *label, bool &isToggled, const ImVec2 size) {
         StyleColor sc;
         if (isToggled) {
-            sc.Push(ImGuiCol_Button, HexColor(Colors::WHITE, 0.10F));
-            sc.Push(ImGuiCol_Border, HexColor(Colors::WHITE, 0.75F));
-            sc.Push(ImGuiCol_Text, HexColor(Colors::WHITE));
+            sc.Push(ImGuiCol_Button, HexColor(Colors::TEXT_PRIMARY, 0.10F));
+            sc.Push(ImGuiCol_Border, HexColor(Colors::TEXT_PRIMARY, 0.75F));
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
         }
         const bool clicked = ImGui::Button(label, size);
         if (clicked) {
@@ -635,7 +640,9 @@ namespace CoreDeck {
         }
 
         const float crossExtent = (fontSize * 0.5F * 0.7071F) - 1.0F;
-        const ImU32 crossCol = ImGui::GetColorU32(ImGuiCol_Text);
+        const ImU32 crossCol = hovered
+                                   ? ImGui::GetColorU32(HexColor(Colors::WHITE))
+                                   : ImGui::GetColorU32(ImGuiCol_Text);
         const float crossThick = 1.0F * s;
         drawList->AddLine(
             ImVec2(crossCenter.x + crossExtent, crossCenter.y + crossExtent),
@@ -947,6 +954,42 @@ namespace CoreDeck {
         };
 
         BannerPalette PaletteFor(const BannerTone tone) {
+            if (IsLightColorScheme()) {
+                switch (tone) {
+                    case BannerTone::Info:
+                        return {
+                            .Surface = "#E8F1FC",
+                            .Ink = Colors::WHITE,
+                            .Detail = "#1E3A5F",
+                            .Accent = Colors::ACCENT_INFO,
+                            .AccentStrong = Colors::ACCENT_INFO,
+                            .AccentHover = "#2563EB",
+                            .AccentActive = "#1E3A8A",
+                        };
+                    case BannerTone::Positive:
+                        return {
+                            .Surface = "#E7F6EA",
+                            .Ink = Colors::WHITE,
+                            .Detail = "#14532D",
+                            .Accent = Colors::POSITIVE,
+                            .AccentStrong = Colors::POSITIVE,
+                            .AccentHover = "#1A8740",
+                            .AccentActive = "#0F5C28",
+                        };
+                    case BannerTone::Warning:
+                    default:
+                        return {
+                            .Surface = "#FBF3E4",
+                            .Ink = Colors::WHITE,
+                            .Detail = "#6B5420",
+                            .Accent = Colors::WARNING,
+                            .AccentStrong = Colors::WARNING,
+                            .AccentHover = "#9A6808",
+                            .AccentActive = "#6A4C05",
+                        };
+                }
+            }
+
             switch (tone) {
                 case BannerTone::Info:
                     return {

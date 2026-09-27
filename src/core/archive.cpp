@@ -10,7 +10,7 @@
 #include "archive.h"
 #include "utilities.h"
 
-#if !defined(_WIN32)
+#ifndef _WIN32
 #include <sys/stat.h>
 #endif
 
@@ -38,7 +38,7 @@ namespace CoreDeck {
                 return false;
             }
             // Drive-qualified paths such as "C:/x" or "C:x".
-            if (normalized.size() >= 2 && normalized[1] == ':') {
+            if (normalized.size() >= 2 && normalized.at(1) == ':') {
                 return false;
             }
 
@@ -70,7 +70,7 @@ namespace CoreDeck {
     }
 
     void MakeFileExecutable(const std::string &path) {
-#if defined(_WIN32)
+#ifdef _WIN32
         (void) path;
 #else
         struct stat info = {};

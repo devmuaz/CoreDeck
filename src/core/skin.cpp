@@ -121,11 +121,11 @@ namespace CoreDeck {
 
         std::unordered_map<std::string, size_t> bestByName;
         for (size_t i = 0; i < all.size(); ++i) {
-            const std::string key = LowerCopy(all[i].Name);
+            const std::string key = LowerCopy(all.at(i).Name);
             auto it = bestByName.find(key);
             if (it == bestByName.end()) {
                 bestByName.emplace(key, i);
-            } else if (SourcePriority(all[i].Source) < SourcePriority(all[it->second].Source)) {
+            } else if (SourcePriority(all.at(i).Source) < SourcePriority(all.at(it->second).Source)) {
                 it->second = i;
             }
         }
@@ -133,7 +133,7 @@ namespace CoreDeck {
         std::vector<Skin> deduped;
         deduped.reserve(bestByName.size());
         for (auto &idx: bestByName | std::views::values) {
-            deduped.push_back(std::move(all[idx]));
+            deduped.push_back(std::move(all.at(idx)));
         }
 
         std::ranges::sort(deduped, [](const Skin &a, const Skin &b) {

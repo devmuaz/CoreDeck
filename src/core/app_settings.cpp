@@ -35,7 +35,7 @@ namespace CoreDeck {
                 return AppSettings{};
             }
 
-            return rfl::json::read<AppSettings>(json).value();
+            return rfl::json::read<AppSettings, rfl::DefaultIfMissing>(json).value();
         } catch (const std::exception &e) {
             Log::Error("Failed to load app settings: ", e.what());
             return AppSettings{};
