@@ -83,10 +83,11 @@ namespace CoreDeck {
             work.Progress = std::make_shared<InstallProgressData>();
             work.Installing = true;
             auto progress = work.Progress;
+            const SdkInfo sdk = context.Host.Sdk;
             work.InstallFuture = std::async(
                 std::launch::async,
-                [&context, pkgPath, progress] {
-                    const bool ok = InstallSystemImage(context.Host.Sdk, pkgPath, progress);
+                [&context, sdk, pkgPath, progress] {
+                    const bool ok = InstallSystemImage(sdk, pkgPath, progress);
                     context.ImageInstallationWork.Installing = false;
                     return ok;
                 }
@@ -180,9 +181,10 @@ namespace CoreDeck {
         context.ImageInstallationWork.Prefetch.Loading = true;
         context.UI.ShowInstallImageDialog = true;
 
-        context.ImageInstallationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
-            const auto localImages = ListSystemImages(context.Host.Sdk);
-            auto remoteImages = ListRemoteSystemImages(context.Host.Sdk, localImages);
+        const SdkInfo sdk = context.Host.Sdk;
+        context.ImageInstallationWork.Prefetch.Future = std::async(std::launch::async, [&context, sdk] {
+            const auto localImages = ListSystemImages(sdk);
+            auto remoteImages = ListRemoteSystemImages(sdk, localImages);
             context.AvdCreationWork.SystemImages = localImages;
             context.ImageInstallationWork.RemoteImages = std::move(remoteImages);
             context.ImageInstallationWork.Prefetch.Loading = false;
@@ -206,15 +208,19 @@ namespace CoreDeck {
 
                 if (work.LicenseCheckFuture.valid() &&
                     work.LicenseCheckFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-                    const LicenseStatus status = work.LicenseCheckFuture.get();
+                    const SdkLicenseQuery query = work.LicenseCheckFuture.get();
                     work.LicenseBusy = false;
-                    if (status == LicenseStatus::AllAccepted) {
+                    if (query.Status == LicenseStatus::AllAccepted) {
                         StartInstall(context, work.PendingPackagePath);
                         work.PendingPackagePath.clear();
-                    } else if (status == LicenseStatus::SomeUnaccepted) {
+                    } else if (query.Status == LicenseStatus::SomeUnaccepted) {
                         work.AwaitingLicenseConsent = true;
                     } else {
                         work.LicenseError = "Could not query license state. Check that the SDK Manager is working.";
+                        if (!query.FailureDetail.empty()) {
+                            work.LicenseError.push_back('\n');
+                            work.LicenseError += query.FailureDetail;
+                        }
                         work.PendingPackagePath.clear();
                     }
                 }
@@ -254,8 +260,9 @@ namespace CoreDeck {
 
                     if (PositiveButton("Agree & Install", !licenseBusy, ImVec2(halfWidth2, 0))) {
                         work.LicenseBusy = true;
-                        work.LicenseAcceptFuture = std::async(std::launch::async, [&context] {
-                            return AcceptSdkLicenses(context.Host.Sdk);
+                        const SdkInfo sdk = context.Host.Sdk;
+                        work.LicenseAcceptFuture = std::async(std::launch::async, [sdk] {
+                            return AcceptSdkLicenses(sdk);
                         });
                     }
                     ImGui::SameLine();
@@ -467,7 +474,9 @@ namespace CoreDeck {
                 const bool licenseBusy = work.LicenseBusy.load();
 
                 if (!work.LicenseError.empty()) {
-                    ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s", work.LicenseError.c_str());
+                    ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::NEGATIVE));
+                    ImGui::TextWrapped("%s", work.LicenseError.c_str());
+                    ImGui::PopStyleColor();
                     ImGui::Spacing();
                 }
 
@@ -492,9 +501,10 @@ namespace CoreDeck {
                     } else if (NegativeButton("Remove Image", canRemove, ImVec2(thirdWidth, 0))) {
                         const std::string pkg = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)).PackagePath;
                         removal.Busy = true;
-                        removal.Future = std::async(std::launch::async, [&context, pkg] {
+                        const SdkInfo sdk = context.Host.Sdk;
+                        removal.Future = std::async(std::launch::async, [sdk, pkg] {
                             try {
-                                return UninstallSystemImage(context.Host.Sdk, pkg);
+                                return UninstallSystemImage(sdk, pkg);
                             } catch (...) {
                                 return false;
                             }
@@ -530,8 +540,9 @@ namespace CoreDeck {
                         work.PendingPackagePath = img.PackagePath;
                         work.LicenseError.clear();
                         work.LicenseBusy = true;
-                        work.LicenseCheckFuture = std::async(std::launch::async, [&context] {
-                            return CheckSdkLicenses(context.Host.Sdk);
+                        const SdkInfo sdk = context.Host.Sdk;
+                        work.LicenseCheckFuture = std::async(std::launch::async, [sdk] {
+                            return QuerySdkLicenses(sdk);
                         });
                     }
 

@@ -54,6 +54,12 @@ namespace CoreDeck {
         const std::vector<SystemImage> &installedImages
     );
 
+    // sdkmanager draws progress in a fixed 80-column line and deletes the rest,
+    // so a long archive name arrives clipped ("Downloading arm64-v8a-playstore-ps").
+    // A clipped download or unzip label is replaced with the package being installed.
+    // Byte counts, "Downloading <file>...", and other short messages are kept.
+    std::string DescribeInstallProgress(const std::string &packagePath, const std::string &sdkStatus);
+
     bool InstallSystemImage(
         const SdkInfo &sdk,
         const std::string &packagePath,

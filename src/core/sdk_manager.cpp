@@ -3,6 +3,7 @@
 //
 
 #include <cstdlib>
+#include <sstream>
 
 #include "sdk_manager.h"
 #include "process.h"
@@ -74,6 +75,31 @@ namespace CoreDeck {
                 --start;
             }
             return start != pctPos && pctPos - start <= 3;
+        }
+
+        std::string LicenseFailureDetail(const std::string &output) {
+            std::istringstream stream(output);
+            std::string line;
+            while (std::getline(stream, line)) {
+                if (!line.empty() && line.back() == '\r') {
+                    line.pop_back();
+                }
+                const auto start = line.find_first_not_of(" \t");
+                if (start == std::string::npos) {
+                    continue;
+                }
+                line = line.substr(start);
+                if (line.find("SDK Manager CLI tool") != std::string::npos ||
+                    line.find("android' binary") != std::string::npos ||
+                    line.find("d.android.com/tools/agents") != std::string::npos) {
+                    continue;
+                }
+                if (line.size() > 180) {
+                    line.resize(180);
+                }
+                return line;
+            }
+            return {};
         }
     }
 
@@ -156,18 +182,32 @@ namespace CoreDeck {
         if (output.find("The --licenses option is no longer needed") != std::string::npos) {
             return LicenseStatus::AllAccepted;
         }
-        if (output.find("licenses not accepted") != std::string::npos) {
+        // "2 of 7 SDK package licenses not accepted" and, for a single license,
+        // "1 of 1 SDK package license not accepted". The plural form does not
+        // contain the singular phrase.
+        if (output.find("licenses not accepted") != std::string::npos ||
+            output.find("license not accepted") != std::string::npos) {
             return LicenseStatus::SomeUnaccepted;
         }
         return LicenseStatus::CheckFailed;
     }
 
-    LicenseStatus CheckSdkLicenses(const SdkInfo &sdk) {
+    SdkLicenseQuery QuerySdkLicenses(const SdkInfo &sdk) {
+        SdkLicenseQuery query;
         const auto output = RunSdkManager(sdk, {"--licenses"}, "N\n");
         if (!output) {
-            return LicenseStatus::CheckFailed;
+            query.FailureDetail = "The SDK Manager could not be started.";
+            return query;
         }
-        return InterpretSdkLicenseOutput(*output);
+        query.Status = InterpretSdkLicenseOutput(*output);
+        if (query.Status == LicenseStatus::CheckFailed) {
+            query.FailureDetail = LicenseFailureDetail(*output);
+        }
+        return query;
+    }
+
+    LicenseStatus CheckSdkLicenses(const SdkInfo &sdk) {
+        return QuerySdkLicenses(sdk).Status;
     }
 
     bool AcceptSdkLicenses(const SdkInfo &sdk) {

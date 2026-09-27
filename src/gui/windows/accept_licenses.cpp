@@ -53,8 +53,9 @@ namespace CoreDeck {
             if (PositiveButton("Agree", !busy, ImVec2(halfWidth, 0))) {
                 work.Error.clear();
                 work.Busy = true;
-                work.Future = std::async(std::launch::async, [&context] {
-                    return AcceptSdkLicenses(context.Host.Sdk);
+                const SdkInfo sdk = context.Host.Sdk;
+                work.Future = std::async(std::launch::async, [sdk] {
+                    return AcceptSdkLicenses(sdk);
                 });
             }
             ImGui::SameLine();

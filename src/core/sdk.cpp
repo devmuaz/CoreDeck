@@ -92,9 +92,14 @@ namespace CoreDeck {
     }
 
     void RefreshAndroidSdk(SdkInfo &sdk) {
+        // Copy ToolEnv before probing so a background sdkmanager call still sees
+        // the JDK environment while the filesystem walk runs. JDK feature
+        // releases such as 27 otherwise fail the Windows command-line tools'
+        // own version check.
         const std::string sdkPath = sdk.SdkPath;
-        EnvVars toolEnv = std::move(sdk.ToolEnv);
-        sdk = sdkPath.empty() ? DetectAndroidSdk() : ProbeAndroidSdk(sdkPath);
-        sdk.ToolEnv = std::move(toolEnv);
+        const EnvVars toolEnv = sdk.ToolEnv;
+        SdkInfo probed = sdkPath.empty() ? DetectAndroidSdk() : ProbeAndroidSdk(sdkPath);
+        probed.ToolEnv = toolEnv;
+        sdk = std::move(probed);
     }
 }

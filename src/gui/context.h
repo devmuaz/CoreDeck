@@ -187,7 +187,7 @@ namespace CoreDeck {
             std::future<bool> InstallFuture;
             bool AwaitingLicenseConsent = false;
             std::atomic<bool> LicenseBusy{false};
-            std::future<LicenseStatus> LicenseCheckFuture;
+            std::future<SdkLicenseQuery> LicenseCheckFuture;
             std::future<bool> LicenseAcceptFuture;
             std::string PendingPackagePath;
             std::string LicenseError;

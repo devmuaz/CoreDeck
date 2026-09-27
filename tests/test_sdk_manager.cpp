@@ -18,6 +18,11 @@ TEST_CASE("InterpretSdkLicenseOutput keeps the legacy sdkmanager results", "[sdk
         InterpretSdkLicenseOutput("2 licenses not accepted\nReview licenses that have not been accepted (y/N)?\n") ==
         LicenseStatus::SomeUnaccepted
     );
+    REQUIRE(
+        InterpretSdkLicenseOutput(
+            "1 of 7 SDK package license not accepted.\nReview license that has not been accepted (y/N)? \n"
+        ) == LicenseStatus::SomeUnaccepted
+    );
     REQUIRE(InterpretSdkLicenseOutput("Error: Could not determine SDK root.\n") == LicenseStatus::CheckFailed);
     REQUIRE(InterpretSdkLicenseOutput("") == LicenseStatus::CheckFailed);
 }
@@ -72,13 +77,13 @@ TEST_CASE("SdkManagerInstallEnvironment forces a wide COLUMNS", "[sdk-manager]")
     const EnvVars installEnv = SdkManagerInstallEnvironment(std::move(env));
 
     REQUIRE(installEnv.size() == 2);
-    REQUIRE(installEnv[1].Name == "COLUMNS");
-    REQUIRE(installEnv[1].Value == "16384");
+    REQUIRE(installEnv.at(1).Name == "COLUMNS");
+    REQUIRE(installEnv.at(1).Value == "16384");
 
     const EnvVars added = SdkManagerInstallEnvironment({});
     REQUIRE(added.size() == 1);
-    REQUIRE(added[0].Name == "COLUMNS");
-    REQUIRE(added[0].Value == "16384");
+    REQUIRE(added.at(0).Name == "COLUMNS");
+    REQUIRE(added.at(0).Value == "16384");
 }
 
 TEST_CASE("RunSdkManagerInstall refuses to run without a sdkmanager binary", "[sdk-manager]") {

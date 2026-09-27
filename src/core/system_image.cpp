@@ -23,7 +23,21 @@ namespace CoreDeck {
             return packagePath;
         }
 
+        bool InstallStatusNeedsPackageName(const std::string &sdkStatus) {
+            if (sdkStatus == "Downloading..." || sdkStatus == "Unzipping..." || sdkStatus == "Starting download...") {
+                return true;
+            }
+            const bool namedTransfer = sdkStatus.starts_with("Downloading ") || sdkStatus.starts_with("Unzipping ");
+            if (!namedTransfer || sdkStatus.find(" / ") != std::string::npos) {
+                return false;
+            }
+            // LegacyDownloader prints "Downloading <archive>.zip...". The ellipsis
+            // is the last thing cut when the 80-column line overflows.
+            return !sdkStatus.ends_with("...");
+        }
+
         void ApplyProgressLine(
+            const std::string &packagePath,
             const SdkManagerProgressLine &parsed,
             const std::string &raw,
             const std::shared_ptr<InstallProgressData> &progress
@@ -36,9 +50,9 @@ namespace CoreDeck {
             if (parsed.HasPercent) {
                 progress->Percent = static_cast<float>(parsed.Percent) / 100.0F;
                 if (!parsed.Status.empty()) {
-                    progress->StatusText = parsed.Status;
+                    progress->StatusText = DescribeInstallProgress(packagePath, parsed.Status);
                 }
-                progress->DetailText = parsed.Status.empty() ? raw : parsed.Status;
+                progress->DetailText = parsed.Status.empty() ? raw : progress->StatusText;
                 return;
             }
 
@@ -197,6 +211,21 @@ namespace CoreDeck {
         return results;
     }
 
+    std::string DescribeInstallProgress(const std::string &packagePath, const std::string &sdkStatus) {
+        if (!InstallStatusNeedsPackageName(sdkStatus)) {
+            return sdkStatus;
+        }
+
+        const std::string phase = sdkStatus.starts_with("Unzipping") ? "Unzipping " : "Downloading ";
+        if (const auto image = ParseRemoteSystemImageLine(packagePath)) {
+            return phase + image->DisplayName;
+        }
+        if (!packagePath.empty()) {
+            return phase + packagePath;
+        }
+        return sdkStatus;
+    }
+
     bool InstallSystemImage(
         const SdkInfo &sdk,
         const std::string &packagePath,
@@ -208,7 +237,7 @@ namespace CoreDeck {
 
         if (progress) {
             std::scoped_lock lock(progress->Mutex);
-            progress->StatusText = "Starting download...";
+            progress->StatusText = DescribeInstallProgress(packagePath, "Starting download...");
             progress->Percent = 0.0F;
         }
 
@@ -218,8 +247,8 @@ namespace CoreDeck {
                 sdk,
                 {"--install", packagePath},
                 "",
-                [&progress](const SdkManagerProgressLine &parsed, const std::string &raw) {
-                    ApplyProgressLine(parsed, raw, progress);
+                [&progress, &packagePath](const SdkManagerProgressLine &parsed, const std::string &raw) {
+                    ApplyProgressLine(packagePath, parsed, raw, progress);
                 }
             )) {
             if (progress) {

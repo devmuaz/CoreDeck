@@ -59,6 +59,13 @@ namespace CoreDeck {
 
     LicenseStatus InterpretSdkLicenseOutput(const std::string &output);
 
+    struct SdkLicenseQuery {
+        LicenseStatus Status = LicenseStatus::CheckFailed;
+        std::string FailureDetail;
+    };
+
+    SdkLicenseQuery QuerySdkLicenses(const SdkInfo &sdk);
+
     LicenseStatus CheckSdkLicenses(const SdkInfo &sdk);
 
     bool AcceptSdkLicenses(const SdkInfo &sdk);
