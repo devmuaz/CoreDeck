@@ -7,6 +7,7 @@
 #include "imgui.h"
 
 #include "preferences_android_sdk.h"
+#include "preferences.h"
 #include "../application.h"
 #include "../widgets.h"
 #include "../../core/jdk.h"

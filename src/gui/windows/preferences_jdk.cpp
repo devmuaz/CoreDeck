@@ -16,6 +16,7 @@
 #include "imgui.h"
 
 #include "preferences_jdk.h"
+#include "preferences.h"
 #include "../application.h"
 #include "../theme.h"
 #include "../widgets.h"
