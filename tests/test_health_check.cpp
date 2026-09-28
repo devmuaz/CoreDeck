@@ -32,6 +32,7 @@ namespace {
         deps.CheckLicenses = [](const SdkInfo &) { return LicenseStatus::AllAccepted; };
         deps.SdkManagerVersion = [](const SdkInfo &) { return std::string("16.0\n"); };
         deps.CountSystemImages = [](const SdkInfo &) { return static_cast<std::size_t>(2); };
+        deps.FindAapt2 = [](const std::string &) { return std::optional<std::string>("/sdk/build-tools/37.0.0/aapt2"); };
         deps.FreeDiskSpace = [](const std::string &) {
             return std::optional<std::uint64_t>(10ULL * 1024ULL * 1024ULL * 1024ULL);
         };
@@ -62,7 +63,7 @@ namespace {
 TEST_CASE("RunHealthChecks reports all green for a complete setup", "[health-check]") {
     const auto items = Run(FullSdk(), ValidJdk(), AllGoodDeps());
 
-    REQUIRE(items.size() == 9);
+    REQUIRE(items.size() == 10);
     for (const auto &item: items) {
         INFO(HealthCheckLabel(item.Id));
         REQUIRE(item.Status == HealthStatus::Passed);
@@ -71,13 +72,15 @@ TEST_CASE("RunHealthChecks reports all green for a complete setup", "[health-che
 }
 
 TEST_CASE("RunHealthChecks fails the SDK root and skips dependent checks when no SDK is configured", "[health-check]") {
-    const auto items = Run(SdkInfo{}, ValidJdk(), AllGoodDeps());
+    const auto items = Run(SdkInfo(), ValidJdk(), AllGoodDeps());
 
     const auto &root = Find(items, HealthCheckId::SdkRoot);
     REQUIRE(root.Status == HealthStatus::Failed);
     REQUIRE(root.Fix == HealthFix::InstallSdk);
 
     REQUIRE(Find(items, HealthCheckId::EmulatorBinary).Status == HealthStatus::Skipped);
+    REQUIRE(Find(items, HealthCheckId::PlatformTools).Status == HealthStatus::Skipped);
+    REQUIRE(Find(items, HealthCheckId::BuildTools).Status == HealthStatus::Skipped);
     REQUIRE(Find(items, HealthCheckId::CmdlineTools).Status == HealthStatus::Skipped);
     REQUIRE(Find(items, HealthCheckId::ToolsRun).Status == HealthStatus::Skipped);
     REQUIRE(Find(items, HealthCheckId::Licenses).Status == HealthStatus::Skipped);
@@ -126,7 +129,7 @@ TEST_CASE("RunHealthChecks fails an outdated JDK with a configure fix", "[health
 }
 
 TEST_CASE("RunHealthChecks warns when no JDK is found", "[health-check]") {
-    const auto items = Run(FullSdk(), JdkInfo{}, AllGoodDeps());
+    const auto items = Run(FullSdk(), JdkInfo(), AllGoodDeps());
 
     const auto &java = Find(items, HealthCheckId::JdkRuntime);
     REQUIRE(java.Status == HealthStatus::Warning);
@@ -172,6 +175,18 @@ TEST_CASE("RunHealthChecks flags a missing apkanalyzer", "[health-check]") {
     const auto &tools = Find(items, HealthCheckId::CmdlineTools);
     REQUIRE(tools.Status == HealthStatus::Failed);
     REQUIRE(tools.Fix == HealthFix::InstallCmdlineTools);
+}
+
+TEST_CASE("RunHealthChecks fails when build-tools are missing", "[health-check]") {
+    HealthCheckDeps deps = AllGoodDeps();
+    deps.FindAapt2 = [](const std::string &) { return std::optional<std::string>{}; };
+
+    const auto items = Run(FullSdk(), ValidJdk(), deps);
+
+    const auto &tools = Find(items, HealthCheckId::BuildTools);
+    REQUIRE(tools.Status == HealthStatus::Failed);
+    REQUIRE(tools.Fix == HealthFix::InstallBuildTools);
+    REQUIRE(OverallHealth(items) == HealthStatus::Failed);
 }
 
 TEST_CASE("RunHealthChecks warns about missing system images and low disk space", "[health-check]") {

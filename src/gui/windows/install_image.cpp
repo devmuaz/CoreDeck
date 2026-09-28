@@ -327,6 +327,7 @@ namespace CoreDeck {
                 }
                 ImGui::Spacing();
 
+                int visibleCount = 0;
                 {
                     PickerTableStyle pts;
                     const bool tableOpen = BeginPickerTable("##RemoteImageTableFrame", "##RemoteImageTable", 6, Eh(14.0F));
@@ -339,15 +340,7 @@ namespace CoreDeck {
                         ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthStretch, 1.2F);
                         ImGui::TableHeadersRow();
 
-                        int visibleCount = 0;
-                        if (!isLoading && work.RemoteImages.empty()) {
-                            ImGui::TableNextRow();
-                            ImGui::TableNextColumn();
-                            ImGui::TextColored(
-                                HexColor(Colors::NEGATIVE),
-                                "No remote system images found. Check your SDK and internet connection."
-                            );
-                        } else {
+                        if (isLoading || !work.RemoteImages.empty()) {
                             for (int i = 0; i < static_cast<int>(work.RemoteImages.size()); i++) {
                                 const auto &img = work.RemoteImages.at(static_cast<std::size_t>(i));
                                 if (!MatchesImageFilters(img, work.SearchFilter, work.SelectedCategory)) {
@@ -394,14 +387,19 @@ namespace CoreDeck {
                                 }
                             }
                         }
-
-                        if (!isLoading && !work.RemoteImages.empty() && visibleCount == 0) {
-                            ImGui::TableNextRow();
-                            ImGui::TableNextColumn();
-                            ImGui::TextDisabled(" No system images available!");
-                        }
                     }
                     EndPickerTable(tableOpen);
+                }
+
+                if (!isLoading && work.RemoteImages.empty()) {
+                    ImGui::Spacing();
+                    StatusMessage(
+                        StatusMessageTone::Error,
+                        "No remote system images found. Check your SDK and internet connection."
+                    );
+                } else if (!isLoading && !work.RemoteImages.empty() && visibleCount == 0) {
+                    ImGui::Spacing();
+                    StatusMessage(StatusMessageTone::Info, "No system images available.");
                 }
 
                 if (isInstalling || removalBusy) {
@@ -440,17 +438,12 @@ namespace CoreDeck {
                         statusText = work.Progress->StatusText;
                     }
 
-                    if (finished) {
+                    if (finished && !statusText.empty()) {
                         ImGui::Spacing();
-                        const float textWidth = ImGui::CalcTextSize(statusText.c_str()).x;
-                        ImGui::SetCursorPosX(
-                            ((ImGui::GetContentRegionAvail().x - textWidth) * 0.5F) + ImGui::GetCursorStartPos().x
+                        StatusMessage(
+                            succeeded ? StatusMessageTone::Positive : StatusMessageTone::Error,
+                            statusText.c_str()
                         );
-                        if (succeeded) {
-                            ImGui::TextColored(HexColor(Colors::POSITIVE), "%s", statusText.c_str());
-                        } else {
-                            ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s", statusText.c_str());
-                        }
                     }
                 }
 
@@ -474,9 +467,7 @@ namespace CoreDeck {
                 const bool licenseBusy = work.LicenseBusy.load();
 
                 if (!work.LicenseError.empty()) {
-                    ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::NEGATIVE));
-                    ImGui::TextWrapped("%s", work.LicenseError.c_str());
-                    ImGui::PopStyleColor();
+                    StatusMessage(StatusMessageTone::Error, work.LicenseError.c_str());
                     ImGui::Spacing();
                 }
 

@@ -31,6 +31,7 @@ namespace CoreDeck {
         SdkRoot,
         EmulatorBinary,
         PlatformTools,
+        BuildTools,
         CmdlineTools,
         JdkRuntime,
         ToolsRun,
@@ -43,6 +44,7 @@ namespace CoreDeck {
         None,
         InstallSdk,
         InstallCmdlineTools,
+        InstallBuildTools,
         ConfigureJdk,
         AcceptLicenses,
         InstallSystemImage,
@@ -66,13 +68,12 @@ namespace CoreDeck {
 
         std::function<LicenseStatus(const SdkInfo &sdk)> CheckLicenses;
 
-        // Raw "sdkmanager --version" output; interpreted by
-        // InterpretSdkManagerVersionOutput.
         std::function<std::string(const SdkInfo &sdk)> SdkManagerVersion;
 
         std::function<std::size_t(const SdkInfo &sdk)> CountSystemImages;
 
-        // Free bytes at the given directory, or nullopt when it cannot be read.
+        std::function<std::optional<std::string>(const std::string &sdkPath)> FindAapt2;
+
         std::function<std::optional<std::uint64_t>(const std::string &root)> FreeDiskSpace;
     };
 

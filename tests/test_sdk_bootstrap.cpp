@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -36,7 +37,7 @@ namespace {
     // Mirrors what extracting the real cmdline-tools archive leaves behind.
     void CreateFakeCmdlineTools(const std::filesystem::path &destDir) {
         const std::filesystem::path bin = destDir / "bin";
-#if defined(_WIN32)
+#ifdef _WIN32
         WriteExecutable(bin / "avdmanager.bat");
         WriteExecutable(bin / "sdkmanager.bat");
         WriteExecutable(bin / "apkanalyzer.bat");
@@ -172,7 +173,7 @@ TEST_CASE("BootstrapErrorMessage covers every error", "[bootstrap][errors]") {
     };
 
     for (const BootstrapError error: ALL) {
-        REQUIRE(std::string(BootstrapErrorMessage(error)).size() > 0);
+        REQUIRE(!std::string(BootstrapErrorMessage(error)).empty());
     }
 }
 
@@ -313,6 +314,12 @@ TEST_CASE("BootstrapAndroidSdk advances stages in order with a monotonic percent
                         });
 
     std::filesystem::remove_all(root);
+}
+
+TEST_CASE("A full SDK install includes build-tools", "[bootstrap]") {
+    const BootstrapPlan plan;
+    const auto found = std::ranges::find(plan.Packages, std::string(BOOTSTRAP_BUILD_TOOLS_PACKAGE));
+    REQUIRE(found != plan.Packages.end());
 }
 
 TEST_CASE("BootstrapAndroidSdk requires a JDK 17 or newer before downloading", "[bootstrap][jdk]") {
@@ -548,6 +555,47 @@ TEST_CASE("BootstrapAndroidSdk can retry into a clean state after a failure", "[
     const auto retried = std::make_shared<BootstrapProgressData>();
     REQUIRE(BootstrapAndroidSdk(plan, ValidJdk(), retried, MakeFakeDeps(root.string())));
     REQUIRE(ProbeAndroidSdk(root.string()).IsFound);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("BootstrapAndroidSdk installs build-tools into an SDK that already has sdkmanager", "[bootstrap][pipeline]") {
+    const std::filesystem::path root = MakeScratchDir("build_tools_only");
+    CreateFakeCmdlineTools((root / "cmdline-tools" / "latest").string());
+
+    BootstrapPlan plan{.InstallRoot = root.string()};
+    plan.Packages = {BOOTSTRAP_BUILD_TOOLS_PACKAGE};
+    plan.UseExistingCmdlineTools = true;
+
+    bool downloaded = false;
+    std::vector<std::string> installed;
+    BootstrapDeps deps = MakeFakeDeps(root.string());
+    deps.Download = [&downloaded](auto &&, auto &&, auto &&, std::string &) {
+        downloaded = true;
+        return false;
+    };
+    deps.InstallPackages = [&installed, root = root.string()](
+                               const SdkInfo &sdk,
+                               const std::string &sdkRoot,
+                               const std::vector<std::string> &packages,
+                               const std::shared_ptr<BootstrapProgressData> &
+                           ) {
+        REQUIRE(sdk.SdkManagerPath.find("sdkmanager") != std::string::npos);
+        REQUIRE(sdkRoot == root);
+        installed = packages;
+        WriteExecutable(
+            std::filesystem::path(sdkRoot) / "build-tools" / "37.0.0" / ("aapt2" + Paths::GetExecutableExtension())
+        );
+        return true;
+    };
+
+    const auto progress = std::make_shared<BootstrapProgressData>();
+    REQUIRE(BootstrapAndroidSdk(plan, ValidJdk(), progress, deps));
+    REQUIRE_FALSE(downloaded);
+    REQUIRE(installed.size() == 1);
+    REQUIRE(installed.front() == BOOTSTRAP_BUILD_TOOLS_PACKAGE);
+    REQUIRE(StageOf(progress) == BootstrapStage::Succeeded);
+    REQUIRE_FALSE(FindInstalledAapt2(root.string()).empty());
 
     std::filesystem::remove_all(root);
 }

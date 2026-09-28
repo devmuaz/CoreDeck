@@ -149,7 +149,7 @@ namespace CoreDeck {
             }
         }
 
-        std::string PlatformArchiveSha256() {
+        std::string_view PlatformArchiveSha256() {
             switch (Paths::GetCurrentPlatform()) {
                 case Paths::Platform::Windows:
                     return "90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a";
@@ -340,6 +340,55 @@ namespace CoreDeck {
         return deps;
     }
 
+    namespace {
+        bool InstallPlannedPackages(
+            const BootstrapPlan &plan,
+            const SdkInfo &sdk,
+            const std::shared_ptr<BootstrapProgressData> &progress,
+            const BootstrapDeps &deps
+        ) {
+            if (plan.AcceptLicenses) {
+                SetStage(progress, BootstrapStage::AcceptingLicenses, RESOLVE_END, "Accepting SDK licenses...");
+                const LicenseStatus status = deps.CheckLicenses(sdk);
+                if (status == LicenseStatus::CheckFailed) {
+                    return Finish(progress, BootstrapError::LicenseCheckFailed, "");
+                }
+                if (status == LicenseStatus::SomeUnaccepted && !deps.AcceptLicenses(sdk)) {
+                    return Finish(progress, BootstrapError::LicenseAcceptFailed, "");
+                }
+            }
+            SetPercent(progress, LICENSE_END);
+
+            if (IsCancelled(progress)) {
+                return Finish(progress, BootstrapError::Cancelled, "");
+            }
+
+            if (!plan.Packages.empty()) {
+                const char *status = plan.UseExistingCmdlineTools
+                                         ? "Installing build-tools..."
+                                         : "Installing platform-tools, build-tools, and emulator...";
+                SetStage(progress, BootstrapStage::InstallingPackages, LICENSE_END, status);
+                if (!deps.InstallPackages(sdk, plan.InstallRoot, plan.Packages, progress)) {
+                    return Finish(progress, BootstrapError::PackageInstallFailed, "");
+                }
+            }
+
+            SetStage(progress, BootstrapStage::VerifyingInstall, PACKAGES_END, "Verifying installation...");
+            if (plan.UseExistingCmdlineTools) {
+                if (FindInstalledAapt2(plan.InstallRoot).empty()) {
+                    return Finish(progress, BootstrapError::PackageInstallFailed, "aapt2 was not found under build-tools.");
+                }
+                return Finish(progress, BootstrapError::None, "");
+            }
+
+            const SdkInfo verified = deps.Probe(plan.InstallRoot);
+            if (!verified.IsFound) {
+                return Finish(progress, BootstrapError::EmulatorMissingAfterInstall, verified.EmulatorPath);
+            }
+            return Finish(progress, BootstrapError::None, "");
+        }
+    }
+
     // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
     bool BootstrapAndroidSdk(
         const BootstrapPlan &plan,
@@ -356,18 +405,15 @@ namespace CoreDeck {
             return Finish(progress, BootstrapError::JdkRequired, jdk.VersionString);
         }
 
-        const CmdlineToolsRelease release = GetBundledCmdlineToolsRelease();
-        if (release.DownloadUrl.empty()) {
-            return Finish(progress, BootstrapError::UnsupportedPlatform, Paths::GetPlatformName());
-        }
-
         std::error_code ec;
         std::filesystem::create_directories(plan.InstallRoot, ec);
         if (ec || !std::filesystem::is_directory(plan.InstallRoot)) {
             return Finish(progress, BootstrapError::InvalidInstallRoot, plan.InstallRoot);
         }
 
-        const std::uint64_t requiredBytes = plan.Packages.empty() ? BOOTSTRAP_TOOLS_REQUIRED_BYTES : BOOTSTRAP_REQUIRED_BYTES;
+        const std::uint64_t requiredBytes = plan.UseExistingCmdlineTools || plan.Packages.empty()
+                                                ? BOOTSTRAP_TOOLS_REQUIRED_BYTES
+                                                : BOOTSTRAP_REQUIRED_BYTES;
         if (const std::filesystem::space_info space = std::filesystem::space(plan.InstallRoot, ec);
             !ec && space.available > 0 && space.available < requiredBytes) {
             return Finish(
@@ -375,6 +421,21 @@ namespace CoreDeck {
                 BootstrapError::InsufficientDiskSpace,
                 StrConcat("About ", FormatFileSize(requiredBytes), " is needed, ", FormatFileSize(space.available), " is free.")
             );
+        }
+
+        if (plan.UseExistingCmdlineTools) {
+            SetStage(progress, BootstrapStage::ResolvingTools, RESOLVE_END, "Locating the SDK Manager...");
+            SdkInfo sdk = deps.Probe(plan.InstallRoot);
+            ApplyJdkToSdk(sdk, jdk);
+            if (sdk.SdkManagerPath.empty()) {
+                return Finish(progress, BootstrapError::SdkManagerMissing, plan.InstallRoot);
+            }
+            return InstallPlannedPackages(plan, sdk, progress, deps);
+        }
+
+        const CmdlineToolsRelease release = GetBundledCmdlineToolsRelease();
+        if (release.DownloadUrl.empty()) {
+            return Finish(progress, BootstrapError::UnsupportedPlatform, Paths::GetPlatformName());
         }
 
         const std::string staging = BootstrapStagingDirectory(plan.InstallRoot);
@@ -498,39 +559,7 @@ namespace CoreDeck {
         }
         SetPercent(progress, RESOLVE_END);
 
-        // Licenses
-        if (plan.AcceptLicenses) {
-            SetStage(progress, BootstrapStage::AcceptingLicenses, RESOLVE_END, "Accepting SDK licenses...");
-            const LicenseStatus status = deps.CheckLicenses(sdk);
-            if (status == LicenseStatus::CheckFailed) {
-                return Finish(progress, BootstrapError::LicenseCheckFailed, "");
-            }
-            if (status == LicenseStatus::SomeUnaccepted && !deps.AcceptLicenses(sdk)) {
-                return Finish(progress, BootstrapError::LicenseAcceptFailed, "");
-            }
-        }
-        SetPercent(progress, LICENSE_END);
-
-        if (IsCancelled(progress)) {
-            return Finish(progress, BootstrapError::Cancelled, "");
-        }
-
-        // Packages
-        if (!plan.Packages.empty()) {
-            SetStage(progress, BootstrapStage::InstallingPackages, LICENSE_END, "Installing platform tools and emulator...");
-            if (!deps.InstallPackages(sdk, plan.InstallRoot, plan.Packages, progress)) {
-                return Finish(progress, BootstrapError::PackageInstallFailed, "");
-            }
-        }
-
-        // Verify
-        SetStage(progress, BootstrapStage::VerifyingInstall, PACKAGES_END, "Verifying installation...");
-        const SdkInfo verified = deps.Probe(plan.InstallRoot);
-        if (!verified.IsFound) {
-            return Finish(progress, BootstrapError::EmulatorMissingAfterInstall, verified.EmulatorPath);
-        }
-
-        return Finish(progress, BootstrapError::None, "");
+        return InstallPlannedPackages(plan, sdk, progress, deps);
     }
 
     bool BootstrapAndroidSdk(

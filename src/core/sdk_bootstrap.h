@@ -58,10 +58,14 @@ namespace CoreDeck {
         std::uint64_t DownloadSize = 0;
     };
 
+    // apkanalyzer calls aapt2 from this build-tools package.
+    constexpr const char *BOOTSTRAP_BUILD_TOOLS_PACKAGE = "build-tools;37.0.0";
+
     struct BootstrapPlan {
         std::string InstallRoot;
-        std::vector<std::string> Packages{"platform-tools", "emulator"};
+        std::vector<std::string> Packages{"platform-tools", "emulator", BOOTSTRAP_BUILD_TOOLS_PACKAGE};
         bool AcceptLicenses = true;
+        bool UseExistingCmdlineTools = false;
     };
 
     struct BootstrapProgressData {

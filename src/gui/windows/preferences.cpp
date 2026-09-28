@@ -2,16 +2,18 @@
 // Created by AbdulMuaz Aqeel on 18/04/2026.
 //
 
+#include <cstdint>
+#include <cstring>
+
 #include "imgui.h"
 #include "imgui_internal.h"
 
 #include "preferences.h"
-#include "../widgets.h"
+#include "preferences_android_sdk.h"
+#include "preferences_general.h"
+#include "preferences_jdk.h"
 #include "../theme.h"
-#include "../application.h"
-#include "../../core/paths.h"
-#include "../../core/sdk.h"
-#include "../../core/jdk.h"
+#include "../widgets.h"
 
 namespace CoreDeck {
     namespace {
@@ -77,289 +79,25 @@ namespace CoreDeck {
             ImGui::PopID();
             return pressed;
         }
+    }
 
-        void SectionHeader(const char *title, const char *subtitle) {
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted(title);
-            ImGui::PopStyleColor();
-            if (subtitle && *subtitle) {
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-                ImGui::TextWrapped("%s", subtitle);
-                ImGui::PopStyleColor();
-            }
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-        }
-
-        void DrawAppearancePicker(Context &context) {
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted("Appearance");
-            ImGui::PopStyleColor();
+    void PreferencesSectionHeader(const char *title, const char *subtitle) {
+        ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+        ImGui::TextUnformatted(title);
+        ImGui::PopStyleColor();
+        if (subtitle != nullptr && subtitle[0] != '\0') {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextWrapped("Follow the system appearance, or keep CoreDeck dark or light.");
+            ImGui::TextWrapped("%s", subtitle);
             ImGui::PopStyleColor();
-            ImGui::Spacing();
-
-            static constexpr const char *LABELS[] = {"System", "Dark", "Light"};
-            const int current = static_cast<int>(context.Prefs.Theme);
-            const int selectedIndex = current >= 0 && current < IM_ARRAYSIZE(LABELS) ? current : 0;
-
-            ImGui::SetNextItemWidth(Em(18.0F));
-            ComboStyle comboStyle;
-            if (ImGui::BeginCombo("##Theme", LABELS[selectedIndex])) {
-                for (int i = 0; i < IM_ARRAYSIZE(LABELS); ++i) {
-                    const bool selected = selectedIndex == i;
-                    if (RoundedSelectable(LABELS[i], selected)) {
-                        const auto preference = static_cast<ThemePreference>(i);
-                        context.Prefs.Theme = preference;
-                        SetThemePreference(preference);
-                        RefreshThemeColors();
-                        ApplyWindowChrome(context.UI.MainWindow);
-                        PersistAppSettings(context);
-                    }
-                    if (selected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
-            }
         }
-
-        void DrawGeneralSection(Context &context) {
-            SectionHeader("General", "Appearance and behavior while you work with AVDs.");
-
-            DrawAppearancePicker(context);
-
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-
-            if (SubtitledCheckbox(
-                    "AutoScrollLogs",
-                    &context.Logs.AutoScroll,
-                    "Enable auto-scrolling of output logs",
-                    "Keep the log view pinned to the most recent line as new output arrives."
-                )) {
-                PersistAppSettings(context);
-            }
-
-            ImGui::Dummy(ImVec2(0, 4));
-
-            if (SubtitledCheckbox(
-                    "ConfirmDeleteAvd",
-                    &context.Prefs.ConfirmBeforeDeleteAvd,
-                    "Confirm before deleting an AVD",
-                    "Show a confirmation dialog when you delete a virtual device."
-                )) {
-                PersistAppSettings(context);
-            }
-
-            ImGui::Dummy(ImVec2(0, 4));
-
-            if (SubtitledCheckbox(
-                    "CrashReporting",
-                    &context.Prefs.CrashReportingEnabled,
-                    "Send crash reports and diagnostics to " COREDECK_TITLE,
-                    "Share anonymous crash reports and error diagnostics (Restart Required)."
-                )) {
-                PersistAppSettings(context);
-            }
-        }
-
-        void DrawAndroidSdkSection(Context &context, char *sdkPathBuffer, size_t bufferSize) {
-            SectionHeader("Android SDK", "Where CoreDeck looks for the emulator and command-line tools.");
-
-            const std::string pathStr = PathPicker(
-                "##SdkPrefs",
-                "SDK root",
-                "Path to Android SDK",
-                "Select Android SDK directory",
-                sdkPathBuffer,
-                bufferSize
-            );
-            const bool pathOk = Paths::Onboarding::ValidateSdkPath(pathStr);
-
-            if (!pathStr.empty()) {
-                if (pathOk) {
-                    ImGui::TextColored(HexColor(Colors::POSITIVE), "Valid Android SDK path.");
-                } else {
-                    ImGui::TextColored(
-                        HexColor(Colors::NEGATIVE),
-                        "Not a valid SDK (need emulator and cmdline-tools with avdmanager)."
-                    );
-                }
-            } else {
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-                ImGui::TextUnformatted("Leave empty to auto-detect from ANDROID_HOME or default install paths.");
-                ImGui::PopStyleColor();
-            }
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            if (PrimaryButton("Apply SDK Path", pathOk)) {
-                Paths::Onboarding::SaveSdkPathOverride(pathStr);
-                context.Host.Sdk = DetectAndroidSdk();
-                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
-                context.Host.Manager.SetSdk(context.Host.Sdk);
-                RefreshAvds(context);
-                context.UI.HideHealthCheckBanner = false;
-                PersistAppSettings(context);
-            }
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !pathOk) {
-                ImGui::SetTooltip("Fix the path or validation errors before applying.");
-            }
-
-            ImGui::SameLine();
-            if (PrimaryButton("Use Default Discovery", true)) {
-                Paths::Onboarding::ClearSdkPathOverride();
-                context.Host.Sdk = DetectAndroidSdk();
-                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
-                context.Host.Manager.SetSdk(context.Host.Sdk);
-                RefreshAvds(context);
-                context.UI.HideHealthCheckBanner = false;
-                const std::string &p = context.Host.Sdk.SdkPath;
-                strncpy(sdkPathBuffer, p.c_str(), bufferSize - 1);
-                sdkPathBuffer[bufferSize - 1] = '\0';
-                PersistAppSettings(context);
-            }
-            if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Forget the saved override and detect the SDK from ANDROID_HOME / default paths.");
-            }
-        }
-
-        const char *JdkSourceLabel(const JdkSource source) {
-            switch (source) {
-                case JdkSource::Override:
-                    return "Custom Path";
-                case JdkSource::JavaHomeEnv:
-                    return "JAVA_HOME";
-                case JdkSource::Detected:
-                    return "Auto-Detected";
-                case JdkSource::None:
-                default:
-                    return "none";
-            }
-        }
-
-        void DrawJdkStatus(const JdkInfo &jdk) {
-            if (!jdk.IsFound) {
-                ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s No JDK found at this location.", Icons::TIMES);
-                return;
-            }
-
-            const char *version = jdk.VersionString.empty() ? "Java" : jdk.VersionString.c_str();
-            if (jdk.IsValid) {
-                ImGui::TextColored(
-                    HexColor(Colors::POSITIVE),
-                    "%s %s (%s)",
-                    Icons::INFO,
-                    version,
-                    JdkSourceLabel(jdk.Source)
-                );
-            } else {
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    "%s %s (%s) - requires JDK %d or newer.",
-                    Icons::TIMES,
-                    version,
-                    JdkSourceLabel(jdk.Source),
-                    JDK_MINIMUM_MAJOR
-                );
-            }
-        }
-
-        void DrawJavaSection(Context &context, char *jdkPathBuffer, size_t bufferSize) {
-            SectionHeader(
-                "Java (JDK)",
-                "The Android command-line tools (avdmanager, sdkmanager) run on Java and require "
-                "JDK 17 or newer. Point CoreDeck at a compatible JDK if your system default is older."
-            );
-
-            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted("Currently used");
-            ImGui::PopStyleColor();
-            if (context.Host.Jdk.IsFound) {
-                DrawJdkStatus(context.Host.Jdk);
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-                ImGui::TextWrapped("%s", context.Host.Jdk.JavaHome.c_str());
-                ImGui::PopStyleColor();
-            } else {
-                ImGui::TextColored(
-                    HexColor(Colors::WARNING),
-                    "%s No JDK detected. The command-line tools will use whatever 'java' is on your PATH.",
-                    Icons::INFO
-                );
-            }
-
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-
-            const std::string pathStr = PathPicker(
-                "##JdkPrefs",
-                "JDK home",
-                "Path to a JDK home directory",
-                "Select JDK home directory",
-                jdkPathBuffer,
-                bufferSize
-            );
-            const bool binExists = !pathStr.empty() &&
-                                   (std::filesystem::exists(
-                                        Paths::JoinPaths({pathStr, "bin", "java" + Paths::GetExecutableExtension()})
-                                    ) ||
-                                    std::filesystem::exists(
-                                        Paths::JoinPaths({pathStr, "Contents", "Home", "bin", "java" + Paths::GetExecutableExtension()})
-                                    ));
-
-            if (pathStr.empty()) {
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-                ImGui::TextUnformatted("Leave empty to auto-detect from JAVA_HOME or standard install paths.");
-                ImGui::PopStyleColor();
-            } else if (!binExists) {
-                ImGui::TextColored(HexColor(Colors::NEGATIVE), "No 'bin/java' found in this directory.");
-            } else {
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-                ImGui::TextUnformatted("Click Apply to validate the Java version and use this JDK.");
-                ImGui::PopStyleColor();
-            }
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            if (PrimaryButton("Apply JDK Path", binExists)) {
-                Paths::Onboarding::SaveJdkPathOverride(pathStr);
-                context.Host.Jdk = DetectJdk();
-                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
-                context.Host.Manager.SetSdk(context.Host.Sdk);
-                RefreshAvds(context);
-                context.UI.HideHealthCheckBanner = false;
-                strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
-                jdkPathBuffer[bufferSize - 1] = '\0';
-            }
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !binExists) {
-                ImGui::SetTooltip("Choose a directory that contains bin/java before applying.");
-            }
-
-            ImGui::SameLine();
-            if (PrimaryButton("Use Default Discovery", true)) {
-                Paths::Onboarding::ClearJdkPathOverride();
-                context.Host.Jdk = DetectJdk();
-                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
-                context.Host.Manager.SetSdk(context.Host.Sdk);
-                RefreshAvds(context);
-                context.UI.HideHealthCheckBanner = false;
-                strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
-                jdkPathBuffer[bufferSize - 1] = '\0';
-            }
-            if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Forget the saved JDK and detect it from JAVA_HOME / standard paths.");
-            }
-        }
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
     }
 
     void BuildPreferencesWindow(Context &context) {
+        PollPreferencesJdkWork(context);
+
         static auto activeSection = PrefsSection::General;
         if (context.UI.OpenPreferencesToJava) {
             activeSection = PrefsSection::Java;
@@ -375,7 +113,7 @@ namespace CoreDeck {
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        if (BeginCenteredModal(TITLE, &context.UI.ShowPreferences, EmV(100.0F, 24.0F), WINDOW_NO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(TITLE, &context.UI.ShowPreferences, EmV(100.0F, 32.0F), WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::PopStyleVar();
 
             if (ImGui::IsWindowAppearing()) {
@@ -386,6 +124,7 @@ namespace CoreDeck {
                 const std::string &jp = context.Host.Jdk.JavaHome;
                 strncpy(jdkPathBuffer, jp.c_str(), sizeof(jdkPathBuffer) - 1);
                 jdkPathBuffer[sizeof(jdkPathBuffer) - 1] = '\0';
+                RequestPreferencesJdkScan();
             }
 
             const float sidebarWidth = Em(22.0F);
@@ -419,7 +158,6 @@ namespace CoreDeck {
             ImGui::PopStyleVar();
             ImGui::EndChild();
 
-            // Vertical divider
             const ImVec2 popupPos = ImGui::GetWindowPos();
             const ImVec2 popupSize = ImGui::GetWindowSize();
             const float dividerX = popupPos.x + sidebarWidth;
@@ -437,13 +175,13 @@ namespace CoreDeck {
             ImGui::PopStyleVar();
             switch (activeSection) {
                 case PrefsSection::General:
-                    DrawGeneralSection(context);
+                    DrawPreferencesGeneralSection(context);
                     break;
                 case PrefsSection::AndroidSdk:
-                    DrawAndroidSdkSection(context, sdkPathBuffer, sizeof(sdkPathBuffer));
+                    DrawPreferencesAndroidSdkSection(context, sdkPathBuffer, sizeof(sdkPathBuffer));
                     break;
                 case PrefsSection::Java:
-                    DrawJavaSection(context, jdkPathBuffer, sizeof(jdkPathBuffer));
+                    DrawPreferencesJdkSection(context, jdkPathBuffer, sizeof(jdkPathBuffer));
                     break;
             }
             ImGui::EndChild();

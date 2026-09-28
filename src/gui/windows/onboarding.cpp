@@ -41,6 +41,7 @@ namespace CoreDeck {
             Step CurrentStep = Step::Welcome;
             bool ReturnToMainOnCancel = false;
             bool CommandLineToolsOnly = false;
+            bool BuildToolsOnly = false;
             char SdkPathBuffer[1024] = {};
             char InstallRootBuffer[1024] = {};
             char JdkPathBuffer[1024] = {};
@@ -57,6 +58,10 @@ namespace CoreDeck {
         }
 
         void ReturnToMain(Context &context);
+
+        bool ExistingSdkInstall() {
+            return Wizard().CommandLineToolsOnly || Wizard().BuildToolsOnly;
+        }
 
         void CopyToBuffer(char *buffer, const size_t size, const std::string &value) {
             strncpy(buffer, value.c_str(), size - 1);
@@ -440,12 +445,12 @@ namespace CoreDeck {
 
             if (!anyValid) {
                 ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + width);
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    "%s  No JDK was found. Install JDK %d separately, then come back to this step.",
-                    Icons::TIMES,
-                    JDK_RECOMMENDED_MAJOR
+                const std::string message = StrConcat(
+                    "No JDK was found. Install JDK ",
+                    std::to_string(JDK_RECOMMENDED_MAJOR),
+                    " separately, then come back to this step."
                 );
+                StatusMessage(StatusMessageTone::Error, message.c_str());
                 ImGui::PopTextWrapPos();
                 if (ImGui::TextLink("Download Java...")) {
                     OpenUrl(JAVA_DOWNLOAD_URL);
@@ -474,7 +479,10 @@ namespace CoreDeck {
             auto &work = context.SdkBootstrapWork;
 
             work.Plan = BootstrapPlan{.InstallRoot = installRoot};
-            if (Wizard().CommandLineToolsOnly) {
+            if (Wizard().BuildToolsOnly) {
+                work.Plan.Packages = {BOOTSTRAP_BUILD_TOOLS_PACKAGE};
+                work.Plan.UseExistingCmdlineTools = true;
+            } else if (Wizard().CommandLineToolsOnly) {
                 work.Plan.Packages.clear();
             }
             work.Progress = std::make_shared<BootstrapProgressData>();
@@ -546,13 +554,14 @@ namespace CoreDeck {
                     "##install_sdk",
                     "Install Android SDK Automatically",
                     platformSupported
-                        ? "Downloads Google's official command-line tools, platform-tools, and emulator."
+                        ? "Downloads Google's official command-line tools, platform-tools, build-tools, and emulator."
                         : "Google does not publish command-line tools for this platform.",
                     width,
                     platformSupported,
                     platformSupported
                 )) {
                 Wizard().CommandLineToolsOnly = false;
+                Wizard().BuildToolsOnly = false;
                 Wizard().CurrentStep = Step::SdkJdkSelect;
             }
 
@@ -620,21 +629,18 @@ namespace CoreDeck {
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
             if (currentPath.empty()) {
-                ImGui::TextColored(
-                    WizardLabelColor(),
-                    "%s",
+                StatusMessage(
+                    StatusMessageTone::Info,
                     "Choose the folder containing your Android SDK (cmdline-tools, emulator, platform-tools, and so on)."
                 );
             } else if (isValid) {
-                ImGui::TextColored(
-                    HexColor(Colors::POSITIVE),
-                    "%s",
+                StatusMessage(
+                    StatusMessageTone::Positive,
                     "Looks good. Found the Android emulator at this location."
                 );
             } else {
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    "%s",
+                StatusMessage(
+                    StatusMessageTone::Error,
                     "Couldn't find the Android emulator here. Make sure this is your SDK root folder."
                 );
             }
@@ -824,22 +830,24 @@ namespace CoreDeck {
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
             if (javaHome.empty()) {
-                ImGui::TextColored(
-                    WizardLabelColor(),
-                    "%s",
+                StatusMessage(
+                    StatusMessageTone::Info,
                     "Pick the folder that contains bin/java. Android Studio ships one under its jbr folder."
                 );
             } else if (!candidate.IsFound) {
-                ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s", "No Java runtime was found in this folder.");
+                StatusMessage(StatusMessageTone::Error, "No Java runtime was found in this folder.");
             } else if (!candidate.IsValid) {
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    "Found %s, which is older than JDK %d.",
-                    candidate.VersionString.c_str(),
-                    JDK_MINIMUM_MAJOR
+                const std::string message = StrConcat(
+                    "Found ",
+                    candidate.VersionString,
+                    ", which is older than JDK ",
+                    std::to_string(JDK_MINIMUM_MAJOR),
+                    "."
                 );
+                StatusMessage(StatusMessageTone::Error, message.c_str());
             } else {
-                ImGui::TextColored(HexColor(Colors::POSITIVE), "Found %s.", candidate.VersionString.c_str());
+                const std::string message = StrConcat("Found ", candidate.VersionString, ".");
+                StatusMessage(StatusMessageTone::Positive, message.c_str());
             }
             ImGui::PopTextWrapPos();
 
@@ -851,7 +859,7 @@ namespace CoreDeck {
             const float useWidth = ImGui::CalcTextSize("Use this JDK").x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
             if (PrimaryButton("Back", true, ImVec2(backWidth, 0))) {
-                Wizard().CurrentStep = Wizard().CommandLineToolsOnly ? Step::SdkInstallTools : Step::SdkInstallRoot;
+                Wizard().CurrentStep = ExistingSdkInstall() ? Step::SdkInstallTools : Step::SdkInstallRoot;
             }
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - useWidth);
@@ -861,7 +869,7 @@ namespace CoreDeck {
                 context.Host.Jdk.Source = JdkSource::Override;
                 ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
-                Wizard().CurrentStep = Wizard().CommandLineToolsOnly ? Step::SdkInstallTools : Step::SdkInstallRoot;
+                Wizard().CurrentStep = ExistingSdkInstall() ? Step::SdkInstallTools : Step::SdkInstallRoot;
             }
 
             EndWizardPanel(panel);
@@ -911,8 +919,15 @@ namespace CoreDeck {
                 cancelRequested = work.Progress->CancelRequested;
             }
 
+            const char *installTitle = "Installing the Android SDK";
+            if (Wizard().BuildToolsOnly) {
+                installTitle = "Installing build-tools";
+            } else if (Wizard().CommandLineToolsOnly) {
+                installTitle = "Installing command-line tools";
+            }
+
             const TaskProgress task{
-                .Title = Wizard().CommandLineToolsOnly ? "Installing command-line tools" : "Installing the Android SDK",
+                .Title = installTitle,
                 .Subtitle = cancelRequested ? "Cancelling..." : BootstrapStageLabel(stage),
                 .Fraction = percent,
                 .Status = status.empty() ? nullptr : status.c_str(),
@@ -941,7 +956,7 @@ namespace CoreDeck {
 
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
-            ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s", BootstrapErrorMessage(work.LastError));
+            StatusMessage(StatusMessageTone::Error, BootstrapErrorMessage(work.LastError));
             if (!work.LastErrorDetail.empty()) {
                 ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
                 ImGui::TextColored(WizardLabelColor(), "%s", work.LastErrorDetail.c_str());
@@ -952,12 +967,12 @@ namespace CoreDeck {
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const char *leftLabel = Wizard().CommandLineToolsOnly ? "Close" : "Locate an SDK instead";
+            const char *leftLabel = ExistingSdkInstall() ? "Close" : "Locate an SDK instead";
             const float leftWidth = ImGui::CalcTextSize(leftLabel).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float tryWidth = ImGui::CalcTextSize("Try again").x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
             if (PrimaryButton(leftLabel, true, ImVec2(leftWidth, 0))) {
-                if (Wizard().CommandLineToolsOnly) {
+                if (ExistingSdkInstall()) {
                     ReturnToMain(context);
                 } else {
                     Wizard().CurrentStep = Step::SdkLocate;
@@ -967,12 +982,12 @@ namespace CoreDeck {
             ImGui::SetCursorPosX(rowStart + innerWidth - tryWidth);
             if (PositiveButton("Try again", true, ImVec2(tryWidth, 0))) {
                 if (work.LastError == BootstrapError::JdkRequired) {
-                    if (Wizard().CommandLineToolsOnly) {
+                    if (ExistingSdkInstall()) {
                         Wizard().CurrentStep = Step::SdkInstallJdk;
                     } else {
                         Wizard().CurrentStep = Step::SdkJdkSelect;
                     }
-                } else if (Wizard().CommandLineToolsOnly) {
+                } else if (ExistingSdkInstall()) {
                     Wizard().CurrentStep = Step::SdkInstallTools;
                 } else {
                     Wizard().CurrentStep = Step::SdkInstallRoot;
@@ -988,6 +1003,7 @@ namespace CoreDeck {
 
         void ReturnToMain(Context &context) {
             Wizard().CommandLineToolsOnly = false;
+            Wizard().BuildToolsOnly = false;
             Wizard().ReturnToMainOnCancel = false;
             Wizard().CurrentStep = Step::Welcome;
             context.Flow.CurrentScreen = Screen::Main;
@@ -997,15 +1013,20 @@ namespace CoreDeck {
             WizardPanel panel;
             BeginWizardPanel("##sdk_install_tools", panel, true);
 
+            const bool buildToolsOnly = Wizard().BuildToolsOnly;
             const CmdlineToolsRelease release = GetBundledCmdlineToolsRelease();
-            const bool platformSupported = !release.DownloadUrl.empty();
+            const bool platformSupported = buildToolsOnly
+                                               ? !context.Host.Sdk.SdkManagerPath.empty()
+                                               : !release.DownloadUrl.empty();
             const float dpi = GetDpiScale();
             const float innerWidth = WizardContentWidth();
             const JdkInfo &jdk = context.Host.Jdk;
 
             WizardHeading(
-                "Install command-line tools",
-                "avdmanager and sdkmanager are missing. CoreDeck will download Google's official tools into this SDK.",
+                buildToolsOnly ? "Install build-tools" : "Install command-line tools",
+                buildToolsOnly
+                    ? "aapt2 is missing. CoreDeck will install build-tools into this SDK so the APK Analyzer can read packages."
+                    : "avdmanager and sdkmanager are missing. CoreDeck will download Google's official tools into this SDK.",
                 innerWidth
             );
 
@@ -1014,19 +1035,21 @@ namespace CoreDeck {
             ImGui::Dummy(ImVec2(0.0F, 4.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
             if (context.Host.Sdk.SdkPath.empty()) {
-                ImGui::TextColored(HexColor(Colors::NEGATIVE), "%s", "No SDK folder is selected.");
+                StatusMessage(StatusMessageTone::Error, "No SDK folder is selected.");
             } else {
                 ImGui::TextColored(WizardHeadingColor(), "%s", context.Host.Sdk.SdkPath.c_str());
             }
             ImGui::PopTextWrapPos();
 
-            ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
-            const std::string diskLine = StrConcat(
-                Icons::HARD_DRIVE,
-                "  Download: ~",
-                FormatFileSize(release.DownloadSize)
-            );
-            DrawDiskRequirement(diskLine, innerWidth);
+            if (!buildToolsOnly) {
+                ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
+                const std::string diskLine = StrConcat(
+                    Icons::HARD_DRIVE,
+                    "  Download: ~",
+                    FormatFileSize(release.DownloadSize)
+                );
+                DrawDiskRequirement(diskLine, innerWidth);
+            }
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
@@ -1042,20 +1065,22 @@ namespace CoreDeck {
                     jdk.VersionString.empty() ? jdk.JavaHome : jdk.VersionString,
                     "."
                 );
-                ImGui::TextColored(HexColor(Colors::POSITIVE), "%s", javaLine.c_str());
+                StatusMessage(StatusMessageTone::Positive, javaLine.c_str());
             } else {
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    "A JDK %d or newer is required. You'll be asked for one next.",
-                    JDK_MINIMUM_MAJOR
+                const std::string message = StrConcat(
+                    "A JDK ",
+                    std::to_string(JDK_MINIMUM_MAJOR),
+                    " or newer is required. You'll be asked for one next."
                 );
+                StatusMessage(StatusMessageTone::Error, message.c_str());
             }
             if (!platformSupported) {
                 ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    "%s",
-                    "Google does not publish command-line tools for this platform."
+                StatusMessage(
+                    StatusMessageTone::Error,
+                    buildToolsOnly
+                        ? "sdkmanager is not in this SDK. Install the command-line tools first."
+                        : "Google does not publish command-line tools for this platform."
                 );
             }
             ImGui::PopTextWrapPos();
@@ -1123,6 +1148,7 @@ namespace CoreDeck {
     void OpenSdkSetupWizard(Context &context) {
         EnsureInitialized(context);
         Wizard().CommandLineToolsOnly = false;
+        Wizard().BuildToolsOnly = false;
         Wizard().AcceptSdkLicense = false;
         Wizard().CurrentStep = Step::SdkChoice;
         Wizard().ReturnToMainOnCancel = true;
@@ -1132,6 +1158,17 @@ namespace CoreDeck {
     void OpenCmdlineToolsInstall(Context &context) {
         EnsureInitialized(context);
         Wizard().CommandLineToolsOnly = true;
+        Wizard().BuildToolsOnly = false;
+        Wizard().AcceptSdkLicense = false;
+        Wizard().ReturnToMainOnCancel = true;
+        Wizard().CurrentStep = Step::SdkInstallTools;
+        context.Flow.CurrentScreen = Screen::Onboarding;
+    }
+
+    void OpenBuildToolsInstall(Context &context) {
+        EnsureInitialized(context);
+        Wizard().CommandLineToolsOnly = false;
+        Wizard().BuildToolsOnly = true;
         Wizard().AcceptSdkLicense = false;
         Wizard().ReturnToMainOnCancel = true;
         Wizard().CurrentStep = Step::SdkInstallTools;

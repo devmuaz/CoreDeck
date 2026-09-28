@@ -85,18 +85,8 @@ namespace CoreDeck {
 
         constexpr const char *SORT_MODE_LABELS[] = {"Name", "API Level", "Device"};
         constexpr int SORT_MODE_COUNT = 3;
-    }
 
-    // NOLINTNEXTLINE(readability-function-size)
-    void BuildAvdListWindow(Context &context) {
-        if (!context.UI.ShowAvdListPanel) {
-            return;
-        }
-
-        constexpr ImGuiWindowFlags FLAGS = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-        ImGui::Begin("Available AVDs (Android Virtual Device)###AVDs", nullptr, FLAGS);
-
-        auto openCreateAvdDialog = [&context] {
+        void OpenCreateAvdDialog(Context &context) {
             context.AvdCreationWork.CreationData = {};
             context.AvdCreationWork.SelectedSystemImage = 0;
             context.AvdCreationWork.SelectedDevice = 0;
@@ -124,7 +114,18 @@ namespace CoreDeck {
                 context.AvdCreationWork.Prefetch.Loading = false;
                 context.AvdCreationWork.Prefetch.Ready = true;
             });
-        };
+        }
+
+    }
+
+    // NOLINTNEXTLINE(readability-function-size)
+    void BuildAvdListWindow(Context &context) {
+        if (!context.UI.ShowAvdListPanel) {
+            return;
+        }
+
+        constexpr ImGuiWindowFlags FLAGS = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+        ImGui::Begin("Available AVDs (Android Virtual Device)###AVDs", nullptr, FLAGS);
 
         if (PrimaryButton(Icons::REFRESH)) {
             RefreshAvds(context);
@@ -136,7 +137,7 @@ namespace CoreDeck {
         ImGui::SameLine();
 
         if (PrimaryButton(Icons::PLUS)) {
-            openCreateAvdDialog();
+            OpenCreateAvdDialog(context);
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Create new AVD");
@@ -184,7 +185,15 @@ namespace CoreDeck {
         ImGui::Separator();
 
         if (context.Catalog.Avds.empty()) {
-            ImGui::TextDisabled("No AVDs found");
+            const std::string createLabel = IconWithLabel(Icons::PLUS, "Create AVD");
+            if (NoticeCard(
+                    NoticeCardTone::Default,
+                    "No AVDs Found",
+                    "Only devices with a system image installed in this SDK are listed.",
+                    createLabel.c_str()
+                )) {
+                OpenCreateAvdDialog(context);
+            }
             ImGui::End();
             return;
         }

@@ -2,8 +2,6 @@
 // Created by AbdulMuaz Aqeel on 22/09/2026.
 //
 
-#include <algorithm>
-#include <cctype>
 #include <filesystem>
 #include <sstream>
 
@@ -19,6 +17,7 @@ namespace CoreDeck {
             HealthCheckId::SdkRoot,
             HealthCheckId::EmulatorBinary,
             HealthCheckId::PlatformTools,
+            HealthCheckId::BuildTools,
             HealthCheckId::CmdlineTools,
             HealthCheckId::JdkRuntime,
             HealthCheckId::ToolsRun,
@@ -137,6 +136,20 @@ namespace CoreDeck {
             }
             result.Status = HealthStatus::Passed;
             result.Detail = adbPath;
+            return result;
+        }
+
+        HealthCheckResult CheckBuildTools(const SdkInfo &sdk, const HealthCheckDeps &deps) {
+            HealthCheckResult result{.Id = HealthCheckId::BuildTools};
+            const std::optional<std::string> aapt2 = deps.FindAapt2 ? deps.FindAapt2(sdk.SdkPath) : std::nullopt;
+            if (!aapt2.has_value() || aapt2->empty()) {
+                result.Status = HealthStatus::Failed;
+                result.Detail = "aapt2 was not found under build-tools. The APK Analyzer needs it.";
+                result.Fix = HealthFix::InstallBuildTools;
+                return result;
+            }
+            result.Status = HealthStatus::Passed;
+            result.Detail = *aapt2;
             return result;
         }
 
@@ -304,6 +317,8 @@ namespace CoreDeck {
                     return sdkAvailable ? CheckEmulatorBinary(sdk, deps) : SkippedResult(id);
                 case HealthCheckId::PlatformTools:
                     return sdkAvailable ? CheckPlatformTools(sdk, deps) : SkippedResult(id);
+                case HealthCheckId::BuildTools:
+                    return sdkAvailable ? CheckBuildTools(sdk, deps) : SkippedResult(id);
                 case HealthCheckId::CmdlineTools:
                     return sdkAvailable ? CheckCmdlineTools(sdk, deps) : SkippedResult(id);
                 case HealthCheckId::JdkRuntime:
@@ -338,6 +353,14 @@ namespace CoreDeck {
 
         deps.CountSystemImages = [](const SdkInfo &sdk) { return ListSystemImages(sdk).size(); };
 
+        deps.FindAapt2 = [](const std::string &sdkPath) {
+            const std::string found = FindInstalledAapt2(sdkPath);
+            if (found.empty()) {
+                return std::optional<std::string>{};
+            }
+            return std::optional<std::string>{found};
+        };
+
         deps.FreeDiskSpace = [](const std::string &root) -> std::optional<std::uint64_t> {
             std::error_code ec;
             const std::filesystem::space_info space = std::filesystem::space(root, ec);
@@ -358,6 +381,8 @@ namespace CoreDeck {
                 return "Emulator binary";
             case HealthCheckId::PlatformTools:
                 return "Platform tools (adb)";
+            case HealthCheckId::BuildTools:
+                return "Build tools (aapt2)";
             case HealthCheckId::CmdlineTools:
                 return "Command-line tools (avdmanager, sdkmanager, apkanalyzer)";
             case HealthCheckId::JdkRuntime:

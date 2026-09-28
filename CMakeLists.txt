@@ -229,6 +229,9 @@ add_executable(${PROJECT_NAME}
     src/gui/windows/main_menu_bar.cpp
     src/gui/windows/onboarding.cpp
     src/gui/windows/preferences.cpp
+    src/gui/windows/preferences_android_sdk.cpp
+    src/gui/windows/preferences_general.cpp
+    src/gui/windows/preferences_jdk.cpp
     src/gui/windows/health_check_banner.cpp
     src/gui/windows/skin.cpp
     src/gui/windows/storage.cpp

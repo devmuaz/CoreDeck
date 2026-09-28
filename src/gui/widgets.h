@@ -129,6 +129,25 @@ namespace CoreDeck {
 
     void StatusBadge(const char *label, bool isActive);
 
+    enum class StatusMessageTone : uint8_t {
+        Positive,
+        Error,
+        Warning,
+        Info,
+    };
+
+    void StatusMessage(StatusMessageTone tone, const char *message);
+
+    enum class NoticeCardTone : uint8_t {
+        Default,
+        Positive,
+        Error,
+        Warning,
+        Info,
+    };
+
+    bool NoticeCard(NoticeCardTone tone, const char *title, const char *body = nullptr, const char *buttonLabel = nullptr);
+
     bool SelectableItem(
         const char *label,
         bool isSelected,

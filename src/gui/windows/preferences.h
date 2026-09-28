@@ -8,6 +8,8 @@
 #include "../context.h"
 
 namespace CoreDeck {
+    void PreferencesSectionHeader(const char *title, const char *subtitle);
+
     void BuildPreferencesWindow(Context &context);
 }
 

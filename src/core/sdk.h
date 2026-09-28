@@ -15,6 +15,7 @@ namespace CoreDeck {
         std::string AvdManagerPath;
         std::string SdkManagerPath;
         std::string ApkAnalyzerPath;
+        std::string Aapt2Path;
         EnvVars ToolEnv;
         bool IsFound = false;
     };
@@ -25,6 +26,8 @@ namespace CoreDeck {
     // Tool paths are filled in when present, so a partially bootstrapped SDK
     // (cmdline-tools but no emulator yet) still reports its SdkManagerPath.
     SdkInfo ProbeAndroidSdk(const std::string &sdkPath);
+
+    std::string FindInstalledAapt2(const std::string &sdkPath);
 
     void RefreshAndroidSdk(SdkInfo &sdk);
 }

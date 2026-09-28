@@ -45,6 +45,8 @@ namespace CoreDeck {
                     return "Install SDK...";
                 case HealthFix::InstallCmdlineTools:
                     return "Install Tools...";
+                case HealthFix::InstallBuildTools:
+                    return "Install Build Tools...";
                 case HealthFix::ConfigureJdk:
                     return "Configure JDK...";
                 case HealthFix::AcceptLicenses:
@@ -71,6 +73,10 @@ namespace CoreDeck {
                 case HealthFix::InstallCmdlineTools:
                     CloseDialog(context);
                     OpenCmdlineToolsInstall(context);
+                    break;
+                case HealthFix::InstallBuildTools:
+                    CloseDialog(context);
+                    OpenBuildToolsInstall(context);
                     break;
                 case HealthFix::ConfigureJdk:
                     CloseDialog(context);
@@ -130,35 +136,6 @@ namespace CoreDeck {
             }
         }
 
-        void DrawSummary(const bool busy, const bool finished, const std::vector<HealthCheckResult> &items) {
-            if (busy || !finished) {
-                ImGui::TextColored(HexColor(Colors::TEXT_SUBTLE), "Checking your setup...");
-                return;
-            }
-
-            switch (OverallHealth(items)) {
-                case HealthStatus::Passed:
-                    ImGui::TextColored(
-                        HexColor(Colors::POSITIVE),
-                        "Everything looks good. Your setup is ready."
-                    );
-                    break;
-                case HealthStatus::Warning:
-                    ImGui::TextColored(
-                        HexColor(Colors::WARNING),
-                        "Your setup works, but some checks reported warnings."
-                    );
-                    break;
-                case HealthStatus::Failed:
-                default:
-                    ImGui::TextColored(
-                        HexColor(Colors::NEGATIVE),
-                        "Some checks failed. Use the Fix buttons to resolve them."
-                    );
-                    break;
-            }
-        }
-
         ImVec4 DescriptionColorFor(const HealthStatus status) {
             switch (status) {
                 case HealthStatus::Failed:
@@ -177,9 +154,6 @@ namespace CoreDeck {
         }
 
         void DrawChecks(Context &context, const std::vector<HealthCheckResult> &items, const bool actionsEnabled) {
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_PopupBg));
-            ImGui::BeginChild("##HealthChecks", ImVec2(0.0F, Eh(22.0F)), 0);
-
             for (const auto &item: items) {
                 const auto [icon, color] = StatusStyleFor(item.Status);
                 const bool showAction =
@@ -202,9 +176,6 @@ namespace CoreDeck {
                 }
                 ImGui::PopID();
             }
-
-            ImGui::EndChild();
-            ImGui::PopStyleColor();
         }
     }
 
@@ -244,7 +215,12 @@ namespace CoreDeck {
         constexpr auto TITLE = "Health Check###HealthCheckDialog";
         const bool licenseOpen = context.UI.ShowAcceptLicensesDialog || context.AcceptLicensesWork.Busy.load();
         bool *healthOpen = licenseOpen ? nullptr : &context.UI.ShowHealthCheckDialog;
-        if (BeginCenteredModal(TITLE, healthOpen, EmV(92.0F, 24.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(
+                TITLE,
+                healthOpen,
+                ImVec2(Em(92.0F), 0.0F),
+                WINDOW_AUTO_RESIZE_FLAGS | ImGuiWindowFlags_NoScrollbar
+            )) {
             auto &work = context.HealthCheckWork;
             const bool busy = work.Busy.load();
 
@@ -255,9 +231,6 @@ namespace CoreDeck {
                 items = work.Progress->Items;
                 finished = work.Progress->Finished;
             }
-
-            DrawSummary(busy, finished, items);
-            ImGui::Spacing();
 
             DrawChecks(context, items, !busy && !licenseOpen);
 

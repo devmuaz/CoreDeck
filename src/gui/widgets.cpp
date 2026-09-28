@@ -181,6 +181,220 @@ namespace CoreDeck {
         ImGui::Button(label);
     }
 
+    void StatusMessage(const StatusMessageTone tone, const char *message) {
+        if (message == nullptr || message[0] == '\0') {
+            return;
+        }
+
+        const char *icon = Icons::INFO;
+        const char *color = Colors::ACCENT_INFO;
+        switch (tone) {
+            case StatusMessageTone::Positive:
+                icon = Icons::CHECK_CIRCLE;
+                color = Colors::POSITIVE;
+                break;
+            case StatusMessageTone::Error:
+                icon = Icons::TIMES_CIRCLE;
+                color = Colors::NEGATIVE;
+                break;
+            case StatusMessageTone::Warning:
+                icon = Icons::WARNING_TRIANGLE;
+                color = Colors::WARNING;
+                break;
+            case StatusMessageTone::Info:
+                break;
+        }
+
+        const float dpi = GetDpiScale();
+        const float padX = 8.0F * dpi;
+        const float padY = 5.0F * dpi;
+        const float gap = 6.0F * dpi;
+        const float rounding = 5.5F * dpi;
+        float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
+        const ImGuiWindow *window = ImGui::GetCurrentWindow();
+        if (window->DC.TextWrapPos > 0.0F) {
+            const float wrapWidth = ImGui::CalcWrapWidthForPos(ImGui::GetCursorScreenPos(), window->DC.TextWrapPos);
+            avail = std::min(avail, std::max(1.0F, wrapWidth));
+        }
+        const ImVec2 iconSize = ImGui::CalcTextSize(icon);
+        const float textWrap = std::max(1.0F, avail - (padX * 2.0F) - iconSize.x - gap);
+        const ImVec2 textSize = ImGui::CalcTextSize(message, nullptr, false, textWrap);
+        const float height = std::max(iconSize.y, textSize.y) + (padY * 2.0F);
+        const float width = std::min(avail, (padX * 2.0F) + iconSize.x + gap + textSize.x);
+
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        ImGui::Dummy(ImVec2(width, height));
+
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+        const ImVec2 max(origin.x + width, origin.y + height);
+        const ImU32 ink = ImGui::GetColorU32(HexColor(color));
+        drawList->AddRectFilled(origin, max, ImGui::GetColorU32(HexColor(color, 0.08F)), rounding);
+        drawList->AddRect(origin, max, ImGui::GetColorU32(HexColor(color, 0.35F)), rounding, 0, 1.0F * dpi);
+
+        const float textY = origin.y + ((height - textSize.y) * 0.5F);
+        const float iconY = origin.y + ((height - iconSize.y) * 0.5F);
+        drawList->AddText(ImVec2(origin.x + padX, iconY), ink, icon);
+        drawList->AddText(
+            ImGui::GetFont(),
+            ImGui::GetFontSize(),
+            ImVec2(origin.x + padX + iconSize.x + gap, textY),
+            ink,
+            message,
+            nullptr,
+            textWrap
+        );
+    }
+
+    namespace {
+        const char *NoticeAccent(const NoticeCardTone tone) {
+            switch (tone) {
+                case NoticeCardTone::Positive:
+                    return Colors::POSITIVE;
+                case NoticeCardTone::Error:
+                    return Colors::NEGATIVE;
+                case NoticeCardTone::Warning:
+                    return Colors::WARNING;
+                case NoticeCardTone::Info:
+                    return Colors::ACCENT_INFO;
+                case NoticeCardTone::Default:
+                default:
+                    return nullptr;
+            }
+        }
+
+        float DrawCenteredWrapped(
+            ImDrawList *draw,
+            ImFont *font,
+            const float fontSize,
+            const ImU32 color,
+            const char *fullText,
+            const float left,
+            const float width,
+            float y
+        ) {
+            if (fullText == nullptr || fullText[0] == '\0') {
+                return 0.0F;
+            }
+            const float step = fontSize * (ImGui::GetTextLineHeight() / std::max(1.0F, ImGui::GetFontSize()));
+            const char *text = fullText;
+            const char *textEnd = fullText + std::strlen(fullText);
+            float height = 0.0F;
+            while (text < textEnd) {
+                const char *wrap = font->CalcWordWrapPosition(fontSize, text, textEnd, width);
+                if (wrap <= text) {
+                    wrap = textEnd;
+                }
+                const char *lineEnd = wrap;
+                while (lineEnd > text && (lineEnd[-1] == ' ' || lineEnd[-1] == '\t')) {
+                    --lineEnd;
+                }
+                if (draw != nullptr && lineEnd > text) {
+                    const ImVec2 size = font->CalcTextSizeA(fontSize, 10000.0F, 0.0F, text, lineEnd);
+                    const float x = left + std::max(0.0F, (width - size.x) * 0.5F);
+                    draw->AddText(font, fontSize, ImVec2(x, y), color, text, lineEnd);
+                }
+                height += step;
+                y += step;
+                text = wrap;
+                while (text < textEnd && (*text == ' ' || *text == '\t')) {
+                    ++text;
+                }
+            }
+            return height;
+        }
+    }
+
+    bool NoticeCard(const NoticeCardTone tone, const char *title, const char *body, const char *buttonLabel) {
+        if (title == nullptr || title[0] == '\0') {
+            return false;
+        }
+
+        const bool hasBody = body != nullptr && body[0] != '\0';
+        const bool hasButton = buttonLabel != nullptr && buttonLabel[0] != '\0';
+        const ImGuiStyle &style = ImGui::GetStyle();
+        const float availW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
+        const float availH = std::max(1.0F, ImGui::GetContentRegionAvail().y);
+        const float cardW = std::min(availW, Em(36.0F));
+        const float padX = style.FramePadding.x * 3.0F;
+        const float padY = style.FramePadding.y * 3.0F;
+        const float rounding = 8.0F * GetDpiScale();
+        const float innerW = std::max(1.0F, cardW - (padX * 2.0F));
+        const float gap = style.ItemSpacing.y * 1.5F;
+        const char *accent = NoticeAccent(tone);
+        const char *titleColor = accent != nullptr ? accent : static_cast<const char *>(Colors::TEXT_PRIMARY);
+        const char *borderColor = accent != nullptr ? accent : static_cast<const char *>(Colors::BORDER);
+
+        ImFont *font = ImGui::GetFont();
+        const float fontSize = ImGui::GetFontSize();
+        const float titleSize = fontSize * 1.2F;
+        const float titleH = DrawCenteredWrapped(nullptr, font, titleSize, 0, title, 0.0F, innerW, 0.0F);
+        const float bodyH = hasBody ? DrawCenteredWrapped(nullptr, font, fontSize, 0, body, 0.0F, innerW, 0.0F) : 0.0F;
+        const float buttonH = hasButton ? ImGui::GetFrameHeight() : 0.0F;
+        const float buttonW = hasButton
+                                  ? std::min(innerW, ImGui::CalcTextSize(buttonLabel).x + (style.FramePadding.x * 4.0F))
+                                  : 0.0F;
+
+        float cardH = padY + titleH + padY;
+        if (hasBody) {
+            cardH += gap + bodyH;
+        }
+        if (hasButton) {
+            cardH += (gap * 2.0F) + buttonH;
+        }
+
+        const float top = std::max(0.0F, (availH - cardH) * 0.5F);
+        if (top > 0.0F) {
+            ImGui::Dummy(ImVec2(0.0F, top));
+        }
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0F, (availW - cardW) * 0.5F));
+
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        ImGui::Dummy(ImVec2(cardW, cardH));
+
+        ImDrawList *draw = ImGui::GetWindowDrawList();
+        const ImVec2 cardMax(origin.x + cardW, origin.y + cardH);
+        // Stroke is centered on the path, so a clip tight to the card rect cuts the outer half.
+        // OpenGL's scissor truncates the top of that clip, which made the top edge look thinner.
+        const float border = std::max(1.0F, style.FrameBorderSize);
+        draw->AddRectFilled(origin, cardMax, ImGui::GetColorU32(HexColor(Colors::SURFACE1)), rounding);
+        draw->AddRect(origin, cardMax, ImGui::GetColorU32(HexColor(borderColor)), rounding, border);
+
+        const float textX = origin.x + padX;
+        float textY = origin.y + padY;
+        textY += DrawCenteredWrapped(
+            draw,
+            font,
+            titleSize,
+            ImGui::GetColorU32(HexColor(titleColor)),
+            title,
+            textX,
+            innerW,
+            textY
+        );
+        if (hasBody) {
+            textY += gap;
+            textY += DrawCenteredWrapped(
+                draw,
+                font,
+                fontSize,
+                ImGui::GetColorU32(HexColor(Colors::TEXT_MUTED)),
+                body,
+                textX,
+                innerW,
+                textY
+            );
+        }
+
+        if (!hasButton) {
+            return false;
+        }
+
+        const float buttonX = origin.x + ((cardW - buttonW) * 0.5F);
+        const float buttonY = textY + (gap * 2.0F);
+        ImGui::SetCursorScreenPos(ImVec2(buttonX, buttonY));
+        return PrimaryButton(buttonLabel, true, ImVec2(buttonW, 0.0F));
+    }
+
     bool SelectableItem(
         const char *label,
         const bool isSelected,

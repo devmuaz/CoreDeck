@@ -1,3 +1,13 @@
+## [v0.12.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.12.0) — 2026-09-28
+
+- Add compatibility support for JDK 27
+- SDK setup is now a few cards. It asks you to pick a JDK first, recommends JDK 21, and finds other installed JDKs on your machine
+- Install progress shows the package name, and a failed license check explains why
+- The folder picker opens even if the path you typed is not there yet
+- Health Check can install the Android build-tools the APK Analyzer needs. New SDK installs include them
+- Preferences → Java lists the JDKs on this computer. Choosing one applies right away
+- Hints, warnings, and errors share one status style. An empty AVD list and a failed APK section show a notice, and the APK notice opens Health Check
+
 ## [v0.11.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.11.0) — 2026-09-27
 
 - Add a light theme, and an Appearance setting in Preferences → General to follow the system, stay dark, or stay light

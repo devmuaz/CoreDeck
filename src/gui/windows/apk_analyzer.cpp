@@ -22,6 +22,7 @@
 #include "imgui.h"
 
 #include "apk_analyzer.h"
+#include "health_check.h"
 #include "onboarding.h"
 #include "../context.h"
 #include "../widgets.h"
@@ -741,27 +742,24 @@ namespace CoreDeck {
             }
         }
 
-        void DrawQueryMiss(const char *sentence, const std::string &output, const bool mayNeedAapt) {
-            ImGui::TextColored(HexColor(Colors::WARNING), "%s", sentence);
+        void DrawQueryMiss(Context &context, const char *sentence, const std::string &output, const bool mayNeedAapt) {
             const std::string line = FirstOutputLine(output);
             const bool exception = line.find("Exception in thread") != std::string::npos;
             const bool mentionsAapt = line.find("aapt") != std::string::npos;
+
+            const char *detail = nullptr;
             if (mayNeedAapt && (exception || mentionsAapt || line.empty())) {
-                ImGui::TextWrapped(
-                    "This command needs aapt from Android SDK build-tools. The rest of this APK is still shown."
-                );
-                return;
-            }
-            if (line.find("not a binary XML") != std::string::npos) {
-                ImGui::TextWrapped("This file is not a compiled Android XML resource.");
-                return;
-            }
-            if (!line.empty() && !exception) {
-                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + ImGui::GetContentRegionAvail().x);
-                ImGui::TextDisabled("%s", line.c_str());
-                ImGui::PopTextWrapPos();
+                detail = "This command needs aapt from Android SDK build-tools. The rest of this APK is still shown.";
+            } else if (line.find("not a binary XML") != std::string::npos) {
+                detail = "This file is not a compiled Android XML resource.";
+            } else if (!line.empty() && !exception) {
+                detail = line.c_str();
             } else if (exception) {
-                ImGui::TextWrapped("apkanalyzer did not return a result for this section.");
+                detail = "\'apkanalyzer\' did not return a result for this section.";
+            }
+
+            if (NoticeCard(NoticeCardTone::Error, sentence, detail, "Open Health Check")) {
+                OpenHealthCheckDialog(context);
             }
         }
 
@@ -951,7 +949,7 @@ namespace CoreDeck {
             DrawApkHeader(context);
 
             if (!report.Files.Ok) {
-                DrawQueryMiss("The file list could not be read.", report.Files.Output, false);
+                DrawQueryMiss(context, "The file list could not be read.", report.Files.Output, false);
                 return;
             }
 

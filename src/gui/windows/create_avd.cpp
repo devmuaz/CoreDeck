@@ -8,12 +8,9 @@
 #include "create_avd.h"
 #include "device_profile.h"
 #include "install_image.h"
-#include "onboarding.h"
 #include "skin.h"
 #include "../application.h"
-#include "../../core/sdk_bootstrap.h"
 #include "../widgets.h"
-#include "../theme.h"
 
 namespace CoreDeck {
     namespace {
@@ -49,22 +46,6 @@ namespace CoreDeck {
             const bool isLoading = context.AvdCreationWork.Prefetch.Loading.load();
             const bool isCreating = context.Jobs.AvdCreation.Busy.load();
             const bool formDisabled = isLoading || isCreating;
-            const bool missingCmdlineTools =
-                context.Host.Sdk.AvdManagerPath.empty() || context.Host.Sdk.SdkManagerPath.empty();
-
-            if (missingCmdlineTools && !GetBundledCmdlineToolsRelease().DownloadUrl.empty()) {
-                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + ImGui::GetContentRegionAvail().x);
-                ImGui::TextWrapped(
-                    "avdmanager and sdkmanager are not in this SDK, so device profiles and other system images cannot be loaded. CoreDeck can download Google's command-line tools into this SDK."
-                );
-                ImGui::PopTextWrapPos();
-                if (PositiveButton("Download command-line tools...", !isCreating, ImVec2(-1.0F, 0))) {
-                    context.UI.ShowCreateAvdDialog = false;
-                    ImGui::CloseCurrentPopup();
-                    OpenCmdlineToolsInstall(context);
-                }
-                ImGui::Spacing();
-            }
 
             if (formDisabled) {
                 ImGui::BeginDisabled();
@@ -101,9 +82,9 @@ namespace CoreDeck {
                     }
                 } else {
                     PickerButton("No system images installed", false, ImVec2(-1.0F, 0.0F));
-                    ImGui::TextColored(
-                        HexColor(Colors::NEGATIVE),
-                        "SDK Manager was not found, so CoreDeck cannot install images automatically."
+                    StatusMessage(
+                        StatusMessageTone::Error,
+                        "SDK Manager was not found. Run \'Tools > Health Check\' to fix this."
                     );
                 }
             } else if (!context.AvdCreationWork.SystemImages.empty()) {
@@ -124,8 +105,10 @@ namespace CoreDeck {
 
             ImGui::Text("Device");
             if (context.AvdCreationWork.Prefetch.Ready && context.AvdCreationWork.DeviceProfiles.empty()) {
-                ImGui::TextDisabled("No device profiles found.");
-                ImGui::TextWrapped("CoreDeck will use avdmanager's default hardware profile.");
+                StatusMessage(
+                    StatusMessageTone::Info,
+                    "No device profiles found. Using default hardware profile."
+                );
             } else if (!context.AvdCreationWork.DeviceProfiles.empty()) {
                 const auto &selectedDevice = context.AvdCreationWork.DeviceProfiles.at(context.AvdCreationWork.SelectedDevice);
                 const std::string devicePreview = DeviceProfilePreviewLabel(selectedDevice);
@@ -143,9 +126,10 @@ namespace CoreDeck {
             if (context.AvdCreationWork.Prefetch.Ready &&
                 context.AvdCreationWork.DeviceDefinitionsSkipped &&
                 !context.AvdCreationWork.DeviceProfiles.empty()) {
-                ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::WARNING));
-                ImGui::TextWrapped("Some system-image device definitions could not be loaded.");
-                ImGui::PopStyleColor();
+                StatusMessage(
+                    StatusMessageTone::Warning,
+                    "Some system-image device definitions could not be loaded."
+                );
             }
 
             if (context.AvdCreationWork.Prefetch.Ready && hasDeviceProfile) {
@@ -198,11 +182,12 @@ namespace CoreDeck {
             );
 
             if (nameConflict) {
-                ImGui::TextColored(
-                    HexColor(Colors::NEGATIVE),
-                    " An AVD named \"%s\" already exists.",
-                    context.AvdCreationWork.CreationData.Name.c_str()
+                const std::string message = StrConcat(
+                    "An AVD named \"",
+                    context.AvdCreationWork.CreationData.Name,
+                    "\" already exists."
                 );
+                StatusMessage(StatusMessageTone::Error, message.c_str());
             }
 
             ImGui::Spacing();

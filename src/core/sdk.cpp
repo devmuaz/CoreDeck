@@ -2,6 +2,8 @@
 // Created by AbdulMuaz Aqeel on 02/04/2026.
 //
 
+#include <algorithm>
+#include <cctype>
 #include <filesystem>
 #include <utility>
 #include <vector>
@@ -23,6 +25,77 @@ namespace CoreDeck {
             return std::filesystem::exists(candidate) ? candidate : "";
 #endif
         }
+
+        std::vector<int> BuildToolsVersionNumbers(const std::string &name) {
+            std::vector<int> parts;
+            int current = 0;
+            bool inNumber = false;
+            for (const char c: name) {
+                if (std::isdigit(static_cast<unsigned char>(c))) {
+                    inNumber = true;
+                    current = (current * 10) + (c - '0');
+                } else if (c == '.' && inNumber) {
+                    parts.push_back(current);
+                    current = 0;
+                    inNumber = false;
+                } else {
+                    break;
+                }
+            }
+            if (inNumber) {
+                parts.push_back(current);
+            }
+            return parts;
+        }
+
+        bool IsNewerBuildTools(const std::string &candidate, const std::string &current) {
+            const std::vector<int> left = BuildToolsVersionNumbers(candidate);
+            const std::vector<int> right = BuildToolsVersionNumbers(current);
+            const std::size_t count = std::max(left.size(), right.size());
+            for (std::size_t i = 0; i < count; ++i) {
+                const int leftPart = i < left.size() ? left.at(i) : 0;
+                const int rightPart = i < right.size() ? right.at(i) : 0;
+                if (leftPart != rightPart) {
+                    return leftPart > rightPart;
+                }
+            }
+            const bool leftPrerelease = candidate.find('-') != std::string::npos;
+            const bool rightPrerelease = current.find('-') != std::string::npos;
+            if (leftPrerelease != rightPrerelease) {
+                return !leftPrerelease;
+            }
+            return candidate > current;
+        }
+    }
+
+    std::string FindInstalledAapt2(const std::string &sdkPath) {
+        if (sdkPath.empty()) {
+            return {};
+        }
+        const std::filesystem::path root = std::filesystem::path(sdkPath) / "build-tools";
+        std::error_code ec;
+        if (!std::filesystem::is_directory(root, ec)) {
+            return {};
+        }
+
+        const std::string binaryName = "aapt2" + Paths::GetExecutableExtension();
+        std::string bestPath;
+        std::string bestVersion;
+        for (const auto &entry: std::filesystem::directory_iterator(root, ec)) {
+            if (ec || !entry.is_directory(ec)) {
+                continue;
+            }
+            const std::filesystem::path binary = entry.path() / binaryName;
+            if (!std::filesystem::exists(binary, ec)) {
+                continue;
+            }
+            const std::string version = entry.path().filename().string();
+            if (bestPath.empty() || IsNewerBuildTools(version, bestVersion)) {
+                bestPath = binary.string();
+                bestVersion = version;
+            }
+        }
+        return bestPath;
     }
 
     SdkInfo DetectAndroidSdk() {
@@ -84,6 +157,7 @@ namespace CoreDeck {
         sdk.AvdManagerPath = takeFirst("avdmanager");
         sdk.SdkManagerPath = takeFirst("sdkmanager");
         sdk.ApkAnalyzerPath = takeFirst("apkanalyzer");
+        sdk.Aapt2Path = FindInstalledAapt2(sdk.SdkPath);
 
         if (std::filesystem::exists(sdk.EmulatorPath)) {
             sdk.IsFound = true;

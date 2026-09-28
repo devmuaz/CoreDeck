@@ -33,7 +33,7 @@
 - **Per-AVD Options** — Configure GPU, RAM, CPU cores, camera, network, boot mode, and more
 - **Live Log Viewer** — Stream emulator output in real time with search and auto-scroll
 - **Storage Overview** — Inspect per-AVD disk usage and clear heavy or unused data
-- **Health Check** — Reviews the SDK, emulator, command-line tools, JDK, licenses, system images, and free disk space, and offers a fix for each problem
+- **Health Check** — Reviews the SDK, emulator, platform-tools, build-tools, command-line tools, JDK, licenses, system images, and free disk space, and offers a fix for each problem
 - **APK Analyzer** — Opens an APK with the official `apkanalyzer` and shows package info, download size, compression, and alignment
 - **SDK Auto-Detection** — Picks up your Android SDK from environment variables or standard paths
 - **SDK Installer** — Downloads Google's official command-line tools and installs the platform tools and emulator, without Android Studio
@@ -159,7 +159,7 @@ at the right location through the onboarding wizard or set the environment varia
 an SDK at all, choose **Install SDK...** and CoreDeck will download it for you.
 
 **Can CoreDeck install the Android SDK for me?**
-Yes. When no SDK is found, the onboarding wizard offers to install one. CoreDeck downloads Google's official command-line tools archive (verified against a pinned SHA-256), extracts it to a folder you choose, accepts the SDK licenses, and then installs `platform-tools` and `emulator` with `sdkmanager`. A **JDK 17 or newer** must already be present, since the command-line tools are Java programs — the wizard asks you to pick one if none is detected. The install is self-contained: CoreDeck remembers the location for itself and never modifies your `PATH`, `ANDROID_HOME`, or `JAVA_HOME`.
+Yes. When no SDK is found, the onboarding wizard offers to install one. CoreDeck downloads Google's official command-line tools archive (verified against a pinned SHA-256), extracts it to a folder you choose, accepts the SDK licenses, and then installs `platform-tools`, `emulator`, and `build-tools` with `sdkmanager`. A **JDK 17 or newer** must already be present, since the command-line tools are Java programs — the wizard asks you to pick one if none is detected. The install is self-contained: CoreDeck remembers the location for itself and never modifies your `PATH`, `ANDROID_HOME`, or `JAVA_HOME`.
 
 **Creating AVDs or installing system images fails, or nothing happens.**
 `avdmanager` and `sdkmanager` require **JDK 17 or newer**. If your default `java` is older (e.g. JDK 8/1.8), these tools fail even when the SDK is fine. CoreDeck warns you when it detects an incompatible JDK — open **Preferences → Java (JDK)** and point it at a compatible JDK (the one bundled with Android Studio works well). CoreDeck runs the tools with that JDK via `JAVA_HOME` without changing your global default.
