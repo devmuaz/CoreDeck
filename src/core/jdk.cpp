@@ -4,9 +4,11 @@
 
 #include "jdk.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cstdlib>
 #include <filesystem>
+#include <unordered_set>
 
 #include "paths.h"
 #include "process.h"
@@ -89,6 +91,63 @@ namespace CoreDeck {
             }
         }
 
+        bool IsHomebrewOpenJdkName(const std::string &name) {
+            return name == "openjdk" || name.rfind("openjdk@", 0) == 0;
+        }
+
+        // Homebrew's openjdk formula is not visible to /usr/libexec/java_home unless the user
+        // symlinks it into JavaVirtualMachines. The opt prefix still has the install.
+        void AddHomebrewOpenJdkHomes(std::vector<std::string> &homes, const std::string &optPrefix) {
+            std::error_code ec;
+            if (!std::filesystem::exists(optPrefix, ec) || !std::filesystem::is_directory(optPrefix, ec)) {
+                return;
+            }
+            for (const auto &entry: std::filesystem::directory_iterator(optPrefix, ec)) {
+                if (ec) {
+                    break;
+                }
+                if (!entry.is_directory(ec)) {
+                    continue;
+                }
+                const std::string name = entry.path().filename().string();
+                if (!IsHomebrewOpenJdkName(name)) {
+                    continue;
+                }
+                homes.push_back(Paths::JoinPaths({entry.path().string(), "libexec", "openjdk.jdk", "Contents", "Home"}));
+            }
+        }
+
+        void AddJavaHomeToolCandidates(std::vector<std::string> &homes) {
+            if (!std::filesystem::exists("/usr/libexec/java_home")) {
+                return;
+            }
+            const std::string out = RunCommandArgs("/usr/libexec/java_home", {"-V"});
+            std::size_t start = 0;
+            while (start < out.size()) {
+                const std::size_t end = out.find('\n', start);
+                std::string line = out.substr(start, end == std::string::npos ? std::string::npos : end - start);
+                start = end == std::string::npos ? out.size() : end + 1;
+                while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t')) {
+                    line.pop_back();
+                }
+                std::size_t begin = 0;
+                while (begin < line.size() && (line.at(begin) == ' ' || line.at(begin) == '\t')) {
+                    ++begin;
+                }
+                if (begin >= line.size()) {
+                    continue;
+                }
+                if (line.at(begin) == '/') {
+                    homes.push_back(line.substr(begin));
+                    continue;
+                }
+                const auto slash = line.rfind(" /");
+                if (slash != std::string::npos) {
+                    homes.push_back(line.substr(slash + 1));
+                }
+            }
+        }
+
         std::vector<std::string> CandidateJdkHomes() {
             std::vector<std::string> homes;
             const std::string home = Paths::GetHomeDirectory();
@@ -114,13 +173,9 @@ namespace CoreDeck {
                 AddSubdirCandidates(homes, Paths::JoinPaths({home, "Library", "Java", "JavaVirtualMachines"}), "Contents/Home");
             }
             homes.emplace_back("/Applications/Android Studio.app/Contents/jbr/Contents/Home");
-
-            if (std::filesystem::exists("/usr/libexec/java_home")) {
-                const std::string out = FirstLine(RunCommandArgs("/usr/libexec/java_home", {}));
-                if (!out.empty()) {
-                    homes.push_back(out);
-                }
-            }
+            AddHomebrewOpenJdkHomes(homes, "/opt/homebrew/opt");
+            AddHomebrewOpenJdkHomes(homes, "/usr/local/opt");
+            AddJavaHomeToolCandidates(homes);
 #else
             AddSubdirCandidates(homes, "/usr/lib/jvm", "");
             AddSubdirCandidates(homes, "/usr/lib64/jvm", "");
@@ -157,6 +212,15 @@ namespace CoreDeck {
             }
 
             return bestValid.IsFound ? bestValid : bestAny;
+        }
+
+        std::string CanonicalJdkHome(const std::string &home) {
+            std::error_code error;
+            const std::filesystem::path canonical = std::filesystem::weakly_canonical(home, error);
+            if (!error && !canonical.empty()) {
+                return canonical.string();
+            }
+            return home;
         }
     }
 
@@ -218,6 +282,44 @@ namespace CoreDeck {
         }
 
         return FindBestDetectedJdk();
+    }
+
+    std::vector<JdkInfo> ListInstalledJdks() {
+        std::vector<std::string> homes = CandidateJdkHomes();
+        if (const std::string overrideHome = Paths::Onboarding::LoadJdkPathOverride(); !overrideHome.empty()) {
+            homes.insert(homes.begin(), overrideHome);
+        }
+        if (const char *javaHomeEnv = std::getenv("JAVA_HOME"); javaHomeEnv != nullptr && javaHomeEnv[0] != '\0') { // NOLINT(concurrency-mt-unsafe)
+            homes.insert(homes.begin(), javaHomeEnv);
+        }
+
+        std::vector<JdkInfo> found;
+        std::unordered_set<std::string> seen;
+        for (const auto &candidate: homes) {
+            if (candidate.empty()) {
+                continue;
+            }
+            JdkInfo info = InspectJdk(candidate);
+            if (!info.IsFound) {
+                continue;
+            }
+            info.Source = JdkSource::Detected;
+            if (!seen.insert(CanonicalJdkHome(info.JavaHome)).second) {
+                continue;
+            }
+            found.push_back(std::move(info));
+        }
+
+        std::ranges::sort(found, [](const JdkInfo &a, const JdkInfo &b) {
+            if (a.IsValid != b.IsValid) {
+                return a.IsValid;
+            }
+            if (a.MajorVersion != b.MajorVersion) {
+                return a.MajorVersion > b.MajorVersion;
+            }
+            return a.JavaHome < b.JavaHome;
+        });
+        return found;
     }
 
     bool ShouldApplyJdk(const JdkInfo &jdk) {

@@ -7,12 +7,14 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "env.h"
 #include "sdk.h"
 
 namespace CoreDeck {
     constexpr int JDK_MINIMUM_MAJOR = 17;
+    constexpr int JDK_RECOMMENDED_MAJOR = 21;
 
     enum class JdkSource : uint8_t {
         None,
@@ -32,6 +34,10 @@ namespace CoreDeck {
     };
 
     JdkInfo DetectJdk();
+
+    // Every JDK found on this machine, newest usable install first.
+    // Homes that point at the same directory are listed once.
+    std::vector<JdkInfo> ListInstalledJdks();
 
     JdkInfo InspectJdk(const std::string &javaHome);
 

@@ -2,15 +2,43 @@
 // Created by AbdulMuaz Aqeel on 15/04/2026.
 //
 
+#include <filesystem>
+
 #include "tinyfiledialogs.h"
 
 #include "file_dialog.h"
 
 namespace CoreDeck::FileDialog {
+    namespace {
+        // macOS `choose folder` aborts the whole dialog when default location
+        // does not exist. Walk up to the nearest real directory so Browse still opens.
+        std::string ExistingDirectoryHint(const std::string &defaultPath) {
+            if (defaultPath.empty()) {
+                return {};
+            }
+
+            std::filesystem::path path(defaultPath);
+            std::error_code error;
+            while (!path.empty()) {
+                if (std::filesystem::is_directory(path, error)) {
+                    return path.string();
+                }
+                error.clear();
+                const std::filesystem::path parent = path.parent_path();
+                if (parent == path) {
+                    break;
+                }
+                path = parent;
+            }
+            return {};
+        }
+    }
+
     std::optional<std::string> PickDirectory(const std::string &title, const std::string &defaultPath) {
+        const std::string hint = ExistingDirectoryHint(defaultPath);
         const char *result = tinyfd_selectFolderDialog(
             title.c_str(),
-            defaultPath.empty() ? nullptr : defaultPath.c_str()
+            hint.empty() ? nullptr : hint.c_str()
         );
 
         if (result == nullptr) {
