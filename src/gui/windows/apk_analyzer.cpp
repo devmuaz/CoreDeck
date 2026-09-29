@@ -9,7 +9,6 @@
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
-#include <fstream>
 #include <future>
 #include <numbers>
 #include <sstream>
@@ -28,8 +27,8 @@
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/apk_analyzer.h"
+#include "../../core/app_settings.h"
 #include "../../core/file_dialog.h"
-#include "../../core/paths.h"
 #include "../../core/utilities.h"
 
 namespace CoreDeck {
@@ -232,46 +231,20 @@ namespace CoreDeck {
 
         constexpr int RECENT_APK_LIMIT = 4;
 
-        std::string RecentApkPath() {
-            return Paths::GetAppConfigPath("apk-analyzer-recent.txt");
-        }
-
         void LoadRecentApks(Context &context) {
             auto &work = context.ApkAnalyzerWork;
             if (work.RecentLoaded) {
                 return;
             }
             work.RecentLoaded = true;
-            const std::string path = RecentApkPath();
-            if (path.empty()) {
-                return;
-            }
-            std::ifstream file(path);
-            std::string line;
-            while (std::getline(file, line)) {
-                while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) {
-                    line.pop_back();
-                }
-                if (!line.empty()) {
-                    work.RecentApks.push_back(std::move(line));
-                }
-            }
+            work.RecentApks = LoadAppSettings().RecentApks;
         }
 
         void SaveRecentApks(const Context &context) {
-            const std::string path = RecentApkPath();
-            if (path.empty()) {
-                return;
-            }
-            std::error_code error;
-            std::filesystem::create_directories(std::filesystem::path(path).parent_path(), error);
-            std::ofstream file(path, std::ios::trunc);
-            if (!file.is_open()) {
-                return;
-            }
-            for (const auto &apk: context.ApkAnalyzerWork.RecentApks) {
-                file << apk << '\n';
-            }
+            const auto &recent = context.ApkAnalyzerWork.RecentApks;
+            UpdateAppSettings([&recent](AppSettings &settings) {
+                settings.RecentApks = recent;
+            });
         }
 
         void RememberApk(Context &context, const std::string &apkPath) {

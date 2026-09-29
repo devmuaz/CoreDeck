@@ -4,7 +4,8 @@
 
 #include "paths.h"
 #include <filesystem>
-#include <fstream>
+
+#include "app_settings.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -255,18 +256,14 @@ namespace CoreDeck::Paths {
     }
 
     namespace Onboarding {
-        static constexpr const char *FIRST_RUN_FLAG_FILE = "first_run_complete";
-        static constexpr const char *SDK_OVERRIDE_PATH = "sdk_path";
-        static constexpr const char *JDK_OVERRIDE_PATH = "jdk_path";
-
         bool IsFirstRunComplete() {
-            const std::string path = Paths::GetAppConfigPath(FIRST_RUN_FLAG_FILE);
-            return std::filesystem::exists(path);
+            return LoadAppSettings().FirstRunComplete;
         }
 
         void MarkFirstRunComplete() {
-            const std::string path = Paths::GetAppConfigPath(FIRST_RUN_FLAG_FILE);
-            std::ofstream out(path);
+            UpdateAppSettings([](AppSettings &settings) {
+                settings.FirstRunComplete = true;
+            });
         }
 
         bool ValidateSdkPath(const std::string &path) {
@@ -282,53 +279,35 @@ namespace CoreDeck::Paths {
         }
 
         std::string LoadSdkPathOverride() {
-            const std::string path = Paths::GetAppConfigPath(SDK_OVERRIDE_PATH);
-            if (!std::filesystem::exists(path)) {
-                return {};
-            }
-
-            std::ifstream in(path);
-            std::string value;
-            std::getline(in, value);
-            return value;
+            return LoadAppSettings().SdkPath;
         }
 
         void SaveSdkPathOverride(const std::string &path) {
-            const std::string file = Paths::GetAppConfigPath(SDK_OVERRIDE_PATH);
-            std::ofstream out(file);
-            out << path;
+            UpdateAppSettings([&path](AppSettings &settings) {
+                settings.SdkPath = path;
+            });
         }
 
         void ClearSdkPathOverride() {
-            const std::string file = Paths::GetAppConfigPath(SDK_OVERRIDE_PATH);
-            if (std::filesystem::exists(file)) {
-                std::filesystem::remove(file);
-            }
+            UpdateAppSettings([](AppSettings &settings) {
+                settings.SdkPath.clear();
+            });
         }
 
         std::string LoadJdkPathOverride() {
-            const std::string path = Paths::GetAppConfigPath(JDK_OVERRIDE_PATH);
-            if (!std::filesystem::exists(path)) {
-                return {};
-            }
-
-            std::ifstream in(path);
-            std::string value;
-            std::getline(in, value);
-            return value;
+            return LoadAppSettings().JdkPath;
         }
 
         void SaveJdkPathOverride(const std::string &path) {
-            const std::string file = Paths::GetAppConfigPath(JDK_OVERRIDE_PATH);
-            std::ofstream out(file);
-            out << path;
+            UpdateAppSettings([&path](AppSettings &settings) {
+                settings.JdkPath = path;
+            });
         }
 
         void ClearJdkPathOverride() {
-            const std::string file = Paths::GetAppConfigPath(JDK_OVERRIDE_PATH);
-            if (std::filesystem::exists(file)) {
-                std::filesystem::remove(file);
-            }
+            UpdateAppSettings([](AppSettings &settings) {
+                settings.JdkPath.clear();
+            });
         }
     }
 }

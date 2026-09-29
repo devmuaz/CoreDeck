@@ -6,6 +6,8 @@
 #define COREDECK_APP_SETTINGS_TYPES_H
 
 #include <cstdint>
+#include <string>
+#include <vector>
 
 namespace CoreDeck {
     enum class ThemePreference : uint8_t {
@@ -26,6 +28,10 @@ namespace CoreDeck {
         int AvdSortMode = 0;
         bool AvdSortAscending = true;
         int Theme = static_cast<int>(ThemePreference::System);
+        bool FirstRunComplete = false;
+        std::string SdkPath;
+        std::string JdkPath;
+        std::vector<std::string> RecentApks;
     };
 }
 

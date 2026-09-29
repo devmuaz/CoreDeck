@@ -520,7 +520,7 @@ namespace CoreDeck {
     }
 
     AppSettings CaptureAppSettingsFromContext(const Context &context) {
-        AppSettings s;
+        AppSettings s = LoadAppSettings();
         s.SchemaVersion = 1;
         s.AutoScroll = context.Logs.AutoScroll;
         s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
