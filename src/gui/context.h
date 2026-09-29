@@ -155,6 +155,7 @@ namespace CoreDeck {
             int SelectedGpuMode = 0;
             bool NameAutoFilled = true;
             bool DisplayNameAutoFilled = true;
+            bool DeviceAutoFilled = true;
             bool SkinAutoFilled = true;
             int LastDeviceForSkinAuto = -1;
 

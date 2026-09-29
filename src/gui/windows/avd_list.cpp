@@ -93,6 +93,8 @@ namespace CoreDeck {
             context.AvdCreationWork.SelectedGpuMode = 0;
             context.AvdCreationWork.NameAutoFilled = true;
             context.AvdCreationWork.DisplayNameAutoFilled = true;
+            context.AvdCreationWork.DeviceAutoFilled = true;
+            context.AvdCreationWork.PendingSelectedDevice = 0;
             context.AvdCreationWork.SkinAutoFilled = true;
             context.AvdCreationWork.SelectedSkin = 0;
             context.AvdCreationWork.PendingSelectedSkin = 0;

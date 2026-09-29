@@ -168,6 +168,7 @@ namespace CoreDeck {
             const float halfWidth = EqualButtonWidth(2);
             if (PositiveButton("Use Selected Device", !work.DeviceProfiles.empty(), ImVec2(halfWidth, 0))) {
                 work.SelectedDevice = work.PendingSelectedDevice;
+                work.DeviceAutoFilled = false;
                 context.UI.ShowDeviceProfileDialog = false;
             }
             ImGui::SameLine();

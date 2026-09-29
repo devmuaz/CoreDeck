@@ -338,6 +338,7 @@ namespace CoreDeck {
         if (std::filesystem::exists(configPath)) {
             std::ofstream file(configPath, std::ios::app);
             if (file.is_open()) {
+                file << "hw.keyboard=yes\n";
                 if (!data.DisplayName.empty()) {
                     file << "avd.ini.displayname=" << data.DisplayName << "\n";
                 }

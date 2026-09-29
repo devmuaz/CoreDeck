@@ -215,7 +215,17 @@ namespace CoreDeck {
         }
 
         ImGuiWindow *GetLogChildWindow() {
-            return ImGui::FindWindowByID(ImGui::GetID("##LogText"));
+            ImGuiWindow *parent = ImGui::GetCurrentWindow();
+            const ImGuiID childId = parent->GetID("##LogText");
+            const auto &children = parent->DC.ChildWindows;
+            for (const auto *it = children.end(); it != children.begin();) {
+                --it;
+                ImGuiWindow *child = *it;
+                if (child != nullptr && child->ChildId == childId) {
+                    return child;
+                }
+            }
+            return nullptr;
         }
 
         bool ApplyScrollToLine(const int lineIndex) {
@@ -229,16 +239,17 @@ namespace CoreDeck {
             const float lineHeight = ImGui::GetTextLineHeight();
             const float regionH = window->InnerRect.GetHeight();
             const float targetY = static_cast<float>(lineIndex) * lineHeight;
-            window->Scroll.y = std::max(0.0F, targetY - (regionH * 0.3F));
+            ImGui::SetScrollY(window, std::max(0.0F, targetY - (regionH * 0.3F)));
             return true;
         }
 
         bool ApplyScrollToBottom() {
-            ImGuiWindow *w = GetLogChildWindow();
-            if (!w) {
+            ImGuiWindow *window = GetLogChildWindow();
+            if (!window) {
                 return false;
             }
-            w->Scroll.y = w->ScrollMax.y;
+            constexpr float SCROLL_PAST_END = FLT_MAX * 0.5F;
+            ImGui::SetScrollY(window, SCROLL_PAST_END);
             return true;
         }
 
@@ -283,8 +294,9 @@ namespace CoreDeck {
                 return;
             }
 
-            ApplyScrollToBottom();
-            inputs.Log->ResetNewContentFlag();
+            if (ApplyScrollToBottom()) {
+                inputs.Log->ResetNewContentFlag();
+            }
         }
     }
 
@@ -345,6 +357,13 @@ namespace CoreDeck {
 
         const bool focusLog = context.Logs.PendingFocus && haveActiveMatch;
 
+        context.Logs.PendingFocus = false;
+        if (context.Logs.PendingSyncFrames > 0) {
+            --context.Logs.PendingSyncFrames;
+        }
+
+        RenderLogBody(view, sync, focusLog);
+
         bool scrollApplied = true;
         if (scrollLine >= 0) {
             scrollApplied = ApplyScrollToLine(scrollLine);
@@ -352,13 +371,6 @@ namespace CoreDeck {
         if (scrollApplied) {
             context.Logs.PendingScroll = false;
         }
-
-        context.Logs.PendingFocus = false;
-        if (context.Logs.PendingSyncFrames > 0) {
-            --context.Logs.PendingSyncFrames;
-        }
-
-        RenderLogBody(view, sync, focusLog);
         if (scrollLine < 0) {
             DriveAutoScroll(inputs, context, view, !state.Search.empty());
         }

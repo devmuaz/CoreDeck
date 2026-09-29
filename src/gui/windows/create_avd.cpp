@@ -33,6 +33,19 @@ namespace CoreDeck {
             const std::string needle = LowerCopy(candidate);
             return std::ranges::any_of(names, [&](const std::string &n) { return LowerCopy(n) == needle; });
         }
+
+        int DefaultPhoneProfileIndex(const std::vector<DeviceProfile> &profiles) {
+            int firstPhone = -1;
+            for (int i = 0; i < static_cast<int>(profiles.size()); ++i) {
+                if (profiles.at(i).Id == "medium_phone") {
+                    return i;
+                }
+                if (firstPhone < 0 && DeviceCategoryForProfile(profiles.at(i)) == DeviceCategory::Phone) {
+                    firstPhone = i;
+                }
+            }
+            return firstPhone;
+        }
     }
 
     // NOLINTNEXTLINE(readability-function-size)
@@ -52,6 +65,13 @@ namespace CoreDeck {
             }
 
             auto &work = context.AvdCreationWork;
+            if (work.Prefetch.Ready && work.DeviceAutoFilled && !work.DeviceProfiles.empty()) {
+                const int phoneIndex = DefaultPhoneProfileIndex(work.DeviceProfiles);
+                if (phoneIndex >= 0 && work.SelectedDevice != phoneIndex) {
+                    work.SelectedDevice = phoneIndex;
+                    work.PendingSelectedDevice = phoneIndex;
+                }
+            }
             const bool hasDeviceProfile = !work.DeviceProfiles.empty() && work.SelectedDevice >= 0 && work.SelectedDevice < static_cast<int>(work.DeviceProfiles.size());
             const bool hasImage = !work.SystemImages.empty() && work.SelectedSystemImage >= 0 && work.SelectedSystemImage < static_cast<int>(work.SystemImages.size());
             if (hasImage) {
