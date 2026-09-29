@@ -9,6 +9,8 @@
 #include <vector>
 #include <rfl.hpp>
 
+#include "i18n.h"
+
 namespace CoreDeck {
     enum class OptionType : uint8_t {
         Default = 0,
@@ -17,15 +19,15 @@ namespace CoreDeck {
     };
 
     namespace OptionCategory {
-        constexpr const char *DISPLAY = "Display";
-        constexpr const char *PERFORMANCE = "Performance";
-        constexpr const char *BOOT = "Boot";
-        constexpr const char *AUDIO = "Audio";
-        constexpr const char *NETWORK = "Network";
-        constexpr const char *ADVANCED = "Advanced";
-        constexpr const char *CAMERA = "Camera";
-        constexpr const char *SYSTEM = "System";
-        constexpr const char *LOCATION = "Location";
+        constexpr const char *DISPLAY = TrNoop("Display");
+        constexpr const char *PERFORMANCE = TrNoop("Performance");
+        constexpr const char *BOOT = TrNoop("Boot");
+        constexpr const char *AUDIO = TrNoop("Audio");
+        constexpr const char *NETWORK = TrNoop("Network");
+        constexpr const char *ADVANCED = TrNoop("Advanced");
+        constexpr const char *CAMERA = TrNoop("Camera");
+        constexpr const char *SYSTEM = TrNoop("System");
+        constexpr const char *LOCATION = TrNoop("Location");
     }
 
     struct EmulatorOption {

@@ -12,6 +12,7 @@
 #include "../theme.h"
 #include "../../core/jdk.h"
 #include "../../core/sdk_manager.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
@@ -79,37 +80,37 @@ namespace CoreDeck {
             return;
         }
 
-        const char *title = "Android SDK not found";
+        const char *title = Tr("Android SDK not found");
         std::string detail =
-            "No working Android SDK was found. The emulator binary is missing, or the path is invalid.";
+            Tr("No working Android SDK was found. The emulator binary is missing, or the path is invalid.");
         if (!sdkMissing && toolsMissing && jdkIncompatible) {
-            title = "SDK tools and Java need attention";
-            detail = "The command-line tools are missing, and the detected Java is too old to run them.";
+            title = Tr("SDK tools and Java need attention");
+            detail = Tr("The command-line tools are missing, and the detected Java is too old to run them.");
         } else if (!sdkMissing && managersMissing) {
-            title = "Command-line tools are missing";
-            detail = "avdmanager and sdkmanager are missing, so the AVD list, device profiles, and system images cannot be loaded.";
+            title = Tr("Command-line tools are missing");
+            detail = Tr("avdmanager and sdkmanager are missing, so the AVD list, device profiles, and system images cannot be loaded.");
         } else if (!sdkMissing && analyzerMissing) {
-            title = "APK Analyzer is missing";
-            detail = "apkanalyzer is missing from the command-line tools, so APK Analyzer cannot read packages.";
+            title = Tr("APK Analyzer is missing");
+            detail = Tr("apkanalyzer is missing from the command-line tools, so APK Analyzer cannot read packages.");
         } else if (buildToolsMissing) {
-            title = "Build tools are missing";
-            detail = "aapt2 was not found under build-tools, so the APK Analyzer cannot read packages.";
+            title = Tr("Build tools are missing");
+            detail = Tr("aapt2 was not found under build-tools, so the APK Analyzer cannot read packages.");
         } else if (!sdkMissing && jdkIncompatible) {
-            title = "Java is too old for the SDK tools";
-            detail =
-                "The detected Java (" +
-                (jdk.VersionString.empty() ? std::string("unknown version") : jdk.VersionString) +
-                ") is too old for avdmanager and sdkmanager, which need JDK " +
-                std::to_string(JDK_MINIMUM_MAJOR) +
-                " or newer.";
+            title = Tr("Java is too old for the SDK tools");
+            detail = TrFormat(
+                "The detected Java ({0}) is too old for avdmanager and sdkmanager, which need JDK {1} or newer.",
+                jdk.VersionString.empty() ? Tr("unknown version") : jdk.VersionString.c_str(),
+                std::to_string(JDK_MINIMUM_MAJOR)
+            );
         } else if (licensesUnaccepted) {
-            title = "SDK licenses are not accepted";
-            detail =
+            title = Tr("SDK licenses are not accepted");
+            detail = Tr(
                 "Some Android SDK package licenses have not been accepted. "
-                "Run a health check to review them and accept the terms.";
+                "Run a health check to review them and accept the terms."
+            );
         }
 
-        const std::string healthLabel = IconWithLabel(Icons::HEART_PULSE, "Run Health Check");
+        const std::string healthLabel = IconWithLabel(Icons::HEART_PULSE, Tr("Run Health Check"));
         const Banner banner{
             .Id = "##HealthCheckBanner",
             .Tone = BannerTone::Warning,

@@ -14,6 +14,7 @@
 #include "onboarding.h"
 #include "../widgets.h"
 #include "../theme.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
@@ -42,17 +43,17 @@ namespace CoreDeck {
         const char *FixButtonLabel(const HealthFix fix) {
             switch (fix) {
                 case HealthFix::InstallSdk:
-                    return "Install SDK...";
+                    return Tr("Install SDK...");
                 case HealthFix::InstallCmdlineTools:
-                    return "Install Tools...";
+                    return Tr("Install Tools...");
                 case HealthFix::InstallBuildTools:
-                    return "Install Build Tools...";
+                    return Tr("Install Build Tools...");
                 case HealthFix::ConfigureJdk:
-                    return "Configure JDK...";
+                    return Tr("Configure JDK...");
                 case HealthFix::AcceptLicenses:
-                    return "Accept Licenses...";
+                    return Tr("Accept Licenses...");
                 case HealthFix::InstallSystemImage:
-                    return "Install Image...";
+                    return Tr("Install Image...");
                 case HealthFix::None:
                 default:
                     return "";
@@ -212,11 +213,11 @@ namespace CoreDeck {
             OpenHealthCheckDialog(context);
         }
 
-        constexpr auto TITLE = "Health Check###HealthCheckDialog";
+        const std::string title = TrWindow("Health Check", "HealthCheckDialog");
         const bool licenseOpen = context.UI.ShowAcceptLicensesDialog || context.AcceptLicensesWork.Busy.load();
         bool *healthOpen = licenseOpen ? nullptr : &context.UI.ShowHealthCheckDialog;
         if (BeginCenteredModal(
-                TITLE,
+                title.c_str(),
                 healthOpen,
                 ImVec2(Em(92.0F), 0.0F),
                 WINDOW_AUTO_RESIZE_FLAGS | ImGuiWindowFlags_NoScrollbar
@@ -240,11 +241,11 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(busy ? "Checking..." : "Run Again", !busy && !licenseOpen, ImVec2(halfWidth, 0))) {
+            if (PositiveButton(busy ? Tr("Checking...") : Tr("Run Again"), !busy && !licenseOpen, ImVec2(halfWidth, 0))) {
                 OpenHealthCheckDialog(context);
             }
             ImGui::SameLine();
-            if (PrimaryButton("Close", !licenseOpen, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Tr("Close"), !licenseOpen, ImVec2(halfWidth, 0))) {
                 CloseDialog(context);
             }
 

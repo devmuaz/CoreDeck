@@ -28,6 +28,7 @@ namespace CoreDeck {
         int AvdSortMode = 0;
         bool AvdSortAscending = true;
         int Theme = static_cast<int>(ThemePreference::System);
+        std::string Language;
         bool FirstRunComplete = false;
         std::string SdkPath;
         std::string JdkPath;

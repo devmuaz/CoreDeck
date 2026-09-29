@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "sdk_bootstrap.h"
+#include "i18n.h"
 #include "archive.h"
 #include "http_download.h"
 #include "paths.h"
@@ -87,7 +88,7 @@ namespace CoreDeck {
                 progress->ErrorDetail = detail;
                 progress->Finished = true;
                 progress->Succeeded = succeeded;
-                progress->StatusText = succeeded ? "Android SDK ready." : BootstrapErrorMessage(error);
+                progress->StatusText = succeeded ? Tr("Android SDK ready.") : BootstrapErrorMessage(error);
                 if (succeeded) {
                     progress->Percent = 1.0F;
                 }
@@ -219,67 +220,67 @@ namespace CoreDeck {
     const char *BootstrapErrorMessage(const BootstrapError error) {
         switch (error) {
             case BootstrapError::None:
-                return "No error.";
+                return Tr("No error.");
             case BootstrapError::InvalidInstallRoot:
-                return "The chosen install location cannot be used.";
+                return Tr("The chosen install location cannot be used.");
             case BootstrapError::InsufficientDiskSpace:
-                return "Not enough free disk space for this install.";
+                return Tr("Not enough free disk space for this install.");
             case BootstrapError::UnsupportedPlatform:
-                return "Google does not publish command-line tools for this platform.";
+                return Tr("Google does not publish command-line tools for this platform.");
             case BootstrapError::NetworkFailed:
-                return "The download failed. Check your internet connection and try again.";
+                return Tr("The download failed. Check your internet connection and try again.");
             case BootstrapError::ChecksumMismatch:
-                return "The downloaded archive did not match its expected checksum.";
+                return Tr("The downloaded archive did not match its expected checksum.");
             case BootstrapError::ExtractFailed:
-                return "The downloaded archive could not be extracted.";
+                return Tr("The downloaded archive could not be extracted.");
             case BootstrapError::JdkRequired:
-                return "A JDK 17 or newer is required before the Android SDK can be installed.";
+                return Tr("A JDK 17 or newer is required before the Android SDK can be installed.");
             case BootstrapError::SdkManagerMissing:
-                return "The SDK Manager was not found after extracting the command-line tools.";
+                return Tr("The SDK Manager was not found after extracting the command-line tools.");
             case BootstrapError::LicenseCheckFailed:
-                return "The Android SDK license state could not be read.";
+                return Tr("The Android SDK license state could not be read.");
             case BootstrapError::LicenseAcceptFailed:
-                return "The Android SDK licenses were not accepted.";
+                return Tr("The Android SDK licenses were not accepted.");
             case BootstrapError::PackageInstallFailed:
-                return "The SDK Manager could not install the required packages.";
+                return Tr("The SDK Manager could not install the required packages.");
             case BootstrapError::EmulatorMissingAfterInstall:
-                return "The emulator is still missing after the installation finished.";
+                return Tr("The emulator is still missing after the installation finished.");
             case BootstrapError::Cancelled:
-                return "The installation was cancelled.";
+                return Tr("The installation was cancelled.");
             case BootstrapError::Unknown:
             default:
-                return "The Android SDK installation failed.";
+                return Tr("The Android SDK installation failed.");
         }
     }
 
     const char *BootstrapStageLabel(const BootstrapStage stage) {
         switch (stage) {
             case BootstrapStage::Idle:
-                return "Ready";
+                return Tr("Ready");
             case BootstrapStage::Preparing:
-                return "Preparing";
+                return Tr("Preparing");
             case BootstrapStage::DownloadingCmdlineTools:
-                return "Downloading command-line tools";
+                return Tr("Downloading command-line tools");
             case BootstrapStage::Verifying:
-                return "Verifying download";
+                return Tr("Verifying download");
             case BootstrapStage::Extracting:
-                return "Extracting";
+                return Tr("Extracting");
             case BootstrapStage::ResolvingTools:
-                return "Locating tools";
+                return Tr("Locating tools");
             case BootstrapStage::AcceptingLicenses:
-                return "Accepting licenses";
+                return Tr("Accepting licenses");
             case BootstrapStage::InstallingPackages:
-                return "Installing packages";
+                return Tr("Installing packages");
             case BootstrapStage::VerifyingInstall:
-                return "Verifying installation";
+                return Tr("Verifying installation");
             case BootstrapStage::Succeeded:
-                return "Done";
+                return Tr("Done");
             case BootstrapStage::Failed:
-                return "Failed";
+                return Tr("Failed");
             case BootstrapStage::Cancelled:
-                return "Cancelled";
+                return Tr("Cancelled");
             default:
-                return "Working";
+                return Tr("Working");
         }
     }
 
@@ -348,7 +349,7 @@ namespace CoreDeck {
             const BootstrapDeps &deps
         ) {
             if (plan.AcceptLicenses) {
-                SetStage(progress, BootstrapStage::AcceptingLicenses, RESOLVE_END, "Accepting SDK licenses...");
+                SetStage(progress, BootstrapStage::AcceptingLicenses, RESOLVE_END, Tr("Accepting SDK licenses..."));
                 const LicenseStatus status = deps.CheckLicenses(sdk);
                 if (status == LicenseStatus::CheckFailed) {
                     return Finish(progress, BootstrapError::LicenseCheckFailed, "");
@@ -365,18 +366,18 @@ namespace CoreDeck {
 
             if (!plan.Packages.empty()) {
                 const char *status = plan.UseExistingCmdlineTools
-                                         ? "Installing build-tools..."
-                                         : "Installing platform-tools, build-tools, and emulator...";
+                                         ? Tr("Installing build-tools...")
+                                         : Tr("Installing platform-tools, build-tools, and emulator...");
                 SetStage(progress, BootstrapStage::InstallingPackages, LICENSE_END, status);
                 if (!deps.InstallPackages(sdk, plan.InstallRoot, plan.Packages, progress)) {
                     return Finish(progress, BootstrapError::PackageInstallFailed, "");
                 }
             }
 
-            SetStage(progress, BootstrapStage::VerifyingInstall, PACKAGES_END, "Verifying installation...");
+            SetStage(progress, BootstrapStage::VerifyingInstall, PACKAGES_END, Tr("Verifying installation..."));
             if (plan.UseExistingCmdlineTools) {
                 if (FindInstalledAapt2(plan.InstallRoot).empty()) {
-                    return Finish(progress, BootstrapError::PackageInstallFailed, "aapt2 was not found under build-tools.");
+                    return Finish(progress, BootstrapError::PackageInstallFailed, Tr("aapt2 was not found under build-tools."));
                 }
                 return Finish(progress, BootstrapError::None, "");
             }
@@ -396,10 +397,10 @@ namespace CoreDeck {
         const std::shared_ptr<BootstrapProgressData> &progress,
         const BootstrapDeps &deps
     ) {
-        SetStage(progress, BootstrapStage::Preparing, 0.0F, "Preparing...");
+        SetStage(progress, BootstrapStage::Preparing, 0.0F, Tr("Preparing..."));
 
         if (plan.InstallRoot.empty()) {
-            return Finish(progress, BootstrapError::InvalidInstallRoot, "No install location was provided.");
+            return Finish(progress, BootstrapError::InvalidInstallRoot, Tr("No install location was provided."));
         }
         if (!jdk.IsFound || !jdk.IsValid) {
             return Finish(progress, BootstrapError::JdkRequired, jdk.VersionString);
@@ -419,12 +420,12 @@ namespace CoreDeck {
             return Finish(
                 progress,
                 BootstrapError::InsufficientDiskSpace,
-                StrConcat("About ", FormatFileSize(requiredBytes), " is needed, ", FormatFileSize(space.available), " is free.")
+                TrFormat("About {0} is needed, {1} is free.", FormatFileSize(requiredBytes), FormatFileSize(space.available))
             );
         }
 
         if (plan.UseExistingCmdlineTools) {
-            SetStage(progress, BootstrapStage::ResolvingTools, RESOLVE_END, "Locating the SDK Manager...");
+            SetStage(progress, BootstrapStage::ResolvingTools, RESOLVE_END, Tr("Locating the SDK Manager..."));
             SdkInfo sdk = deps.Probe(plan.InstallRoot);
             ApplyJdkToSdk(sdk, jdk);
             if (sdk.SdkManagerPath.empty()) {
@@ -451,7 +452,7 @@ namespace CoreDeck {
         }
 
         // Download
-        SetStage(progress, BootstrapStage::DownloadingCmdlineTools, DOWNLOAD_START, "Downloading command-line tools...");
+        SetStage(progress, BootstrapStage::DownloadingCmdlineTools, DOWNLOAD_START, Tr("Downloading command-line tools..."));
         const std::string archivePath = Paths::JoinPaths({staging, release.FileName});
         std::string error;
         const bool downloaded = deps.Download(
@@ -466,7 +467,7 @@ namespace CoreDeck {
                     const float ratio = static_cast<float>(received) / static_cast<float>(expected);
                     SetPercent(progress, Interpolate(DOWNLOAD_START, DOWNLOAD_END, ratio));
                 }
-                SetDetail(progress, StrConcat(FormatFileSize(received), " downloaded"));
+                SetDetail(progress, TrFormat("{0} downloaded", FormatFileSize(received)));
                 return true;
             },
             error
@@ -486,7 +487,7 @@ namespace CoreDeck {
         }
 
         // Checksum
-        SetStage(progress, BootstrapStage::Verifying, DOWNLOAD_END, "Verifying download...");
+        SetStage(progress, BootstrapStage::Verifying, DOWNLOAD_END, Tr("Verifying download..."));
         if (!release.Sha256.empty()) {
             const std::string actual = deps.FileSha256(archivePath);
             if (!EqualsIgnoreCaseHex(actual, release.Sha256)) {
@@ -494,14 +495,14 @@ namespace CoreDeck {
                 return Finish(
                     progress,
                     BootstrapError::ChecksumMismatch,
-                    StrConcat("expected ", release.Sha256, ", got ", actual.empty() ? "nothing" : actual)
+                    TrFormat("expected {0}, got {1}", release.Sha256, actual.empty() ? Tr("nothing") : actual.c_str())
                 );
             }
         }
         SetPercent(progress, CHECKSUM_END);
 
         // Extract
-        SetStage(progress, BootstrapStage::Extracting, CHECKSUM_END, "Extracting command-line tools...");
+        SetStage(progress, BootstrapStage::Extracting, CHECKSUM_END, Tr("Extracting command-line tools..."));
         const std::string extractDir = Paths::JoinPaths({staging, "extracted"});
         const bool extracted = deps.Extract(
             archivePath,
@@ -551,7 +552,7 @@ namespace CoreDeck {
         }
 
         // Resolve the freshly installed tools
-        SetStage(progress, BootstrapStage::ResolvingTools, EXTRACT_END, "Locating the SDK Manager...");
+        SetStage(progress, BootstrapStage::ResolvingTools, EXTRACT_END, Tr("Locating the SDK Manager..."));
         SdkInfo sdk = deps.Probe(plan.InstallRoot);
         ApplyJdkToSdk(sdk, jdk);
         if (sdk.SdkManagerPath.empty()) {

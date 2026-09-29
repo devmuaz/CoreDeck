@@ -12,6 +12,7 @@
 #include "../theme.h"
 #include "../../core/sdk_manager.h"
 #include "../../core/utilities.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
@@ -50,7 +51,7 @@ namespace CoreDeck {
         }
 
         const char *SystemImagePageSizeLabel(const std::string &variant) {
-            return variant.find("ps16k") != std::string::npos ? "16 KB" : "4 KB";
+            return variant.find("ps16k") != std::string::npos ? Tr("16 KB") : Tr("4 KB");
         }
 
         bool MatchesImageFilter(const RemoteSystemImage &img, const char *filter) {
@@ -133,15 +134,15 @@ namespace CoreDeck {
 
     LabeledIconStyle SystemImageTypeStyleForVariant(const std::string &variant) {
         if (variant.starts_with("google_apis_playstore")) {
-            return {.Icon = Icons::PLAY, .Label = "Google Play", .Color = Colors::POSITIVE};
+            return {.Icon = Icons::PLAY, .Label = Tr("Google Play"), .Color = Colors::POSITIVE};
         }
         if (variant.starts_with("google_apis")) {
-            return {.Icon = Icons::GEAR, .Label = "Google APIs", .Color = Colors::ACCENT_PHONE};
+            return {.Icon = Icons::GEAR, .Label = Tr("Google APIs"), .Color = Colors::ACCENT_PHONE};
         }
         if (variant.starts_with("aosp_atd") || variant.starts_with("google_atd")) {
             return {.Icon = Icons::MOBILE, .Label = "ATD", .Color = Colors::ACCENT_WEAR};
         }
-        return {.Icon = Icons::MOBILE, .Label = "Default", .Color = Colors::TEXT_SUBTLE};
+        return {.Icon = Icons::MOBILE, .Label = Tr("Default"), .Color = Colors::TEXT_SUBTLE};
     }
 
     LabeledIconStyle SystemImageTypeStyleFor(const SystemImage &img) {
@@ -154,7 +155,7 @@ namespace CoreDeck {
 
     std::string SystemImageDisplayName(const std::string &apiLevel, const std::string &fallback) {
         if (!apiLevel.empty()) {
-            return StrConcat("Android ", apiLevel);
+            return TrFormat("Android {0}", apiLevel);
         }
         return fallback;
     }
@@ -195,12 +196,12 @@ namespace CoreDeck {
     // NOLINTNEXTLINE(readability-function-size)
     void BuildInstallImageWindow(Context &context) {
         if (context.UI.ShowInstallImageDialog) {
-            constexpr auto TITLE = "Install System Image###InstallImageDialog";
+            const std::string title = TrWindow("Install System Image", "InstallImageDialog");
             const bool installing = context.ImageInstallationWork.Installing.load();
             const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
             bool *pOpen = (installing || removalBusy) ? nullptr : &context.UI.ShowInstallImageDialog;
 
-            if (BeginCenteredModal(TITLE, pOpen, EmV(100.0F, 28.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
+            if (BeginCenteredModal(title.c_str(), pOpen, EmV(100.0F, 28.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
                 auto &work = context.ImageInstallationWork;
                 auto &removal = context.AvdCreationWork.SystemImageRemoval;
                 const bool isLoading = work.Prefetch.Loading.load();
@@ -216,7 +217,7 @@ namespace CoreDeck {
                     } else if (query.Status == LicenseStatus::SomeUnaccepted) {
                         work.AwaitingLicenseConsent = true;
                     } else {
-                        work.LicenseError = "Could not query license state. Check that the SDK Manager is working.";
+                        work.LicenseError = Tr("Could not query license state. Check that the SDK Manager is working.");
                         if (!query.FailureDetail.empty()) {
                             work.LicenseError.push_back('\n');
                             work.LicenseError += query.FailureDetail;
@@ -234,7 +235,7 @@ namespace CoreDeck {
                         StartInstall(context, work.PendingPackagePath);
                         work.PendingPackagePath.clear();
                     } else {
-                        work.LicenseError = "License acceptance failed. Try again or accept via Android Studio.";
+                        work.LicenseError = Tr("License acceptance failed. Try again or accept via Android Studio.");
                         work.PendingPackagePath.clear();
                     }
                 }
@@ -242,13 +243,15 @@ namespace CoreDeck {
                 if (work.AwaitingLicenseConsent) {
                     const bool licenseBusy = work.LicenseBusy.load();
 
-                    ImGui::Text("Accept Android SDK License Terms");
+                    ImGui::Text("%s", Tr("Accept Android SDK License Terms"));
                     ImGui::Spacing();
                     LicenseConsentNotice(
-                        "Some Android SDK package licenses have not been accepted yet. "
-                        "To install this system image, you must agree to Google's Android "
-                        "SDK license terms. By clicking Agree, you confirm that you have "
-                        "read and accept the current terms.",
+                        Tr(
+                            "Some Android SDK package licenses have not been accepted yet. "
+                            "To install this system image, you must agree to Google's Android "
+                            "SDK license terms. By clicking Agree, you confirm that you have "
+                            "read and accept the current terms."
+                        ),
                         licenseBusy
                     );
 
@@ -258,7 +261,7 @@ namespace CoreDeck {
 
                     const float halfWidth2 = EqualButtonWidth(2);
 
-                    if (PositiveButton("Agree & Install", !licenseBusy, ImVec2(halfWidth2, 0))) {
+                    if (PositiveButton(Tr("Agree & Install"), !licenseBusy, ImVec2(halfWidth2, 0))) {
                         work.LicenseBusy = true;
                         const SdkInfo sdk = context.Host.Sdk;
                         work.LicenseAcceptFuture = std::async(std::launch::async, [sdk] {
@@ -266,7 +269,7 @@ namespace CoreDeck {
                         });
                     }
                     ImGui::SameLine();
-                    if (NegativeButton("Cancel", !licenseBusy, ImVec2(halfWidth2, 0))) {
+                    if (NegativeButton(Tr("Cancel"), !licenseBusy, ImVec2(halfWidth2, 0))) {
                         work.AwaitingLicenseConsent = false;
                         work.PendingPackagePath.clear();
                     }
@@ -297,33 +300,33 @@ namespace CoreDeck {
                     ImGui::BeginDisabled();
                 }
 
-                SearchField("##RemoteImageSearch", "Search for a system image by name", work.SearchFilter, sizeof(work.SearchFilter));
+                SearchField("##RemoteImageSearch", Tr("Search for a system image by name"), work.SearchFilter, sizeof(work.SearchFilter));
 
                 ImGui::Spacing();
-                ImGui::TextDisabled("Categories");
+                ImGui::TextDisabled("%s", Tr("Categories"));
 
-                static constexpr const char *CATEGORY_LABELS[] = {
-                    "All",
-                    "Phone / Tablet",
-                    "Wear OS",
-                    "TV",
-                    "Automotive",
-                    "Desktop",
-                    "XR",
-                    "Other",
+                const char *categoryLabels[] = {
+                    Tr("All"),
+                    Tr("Phone / Tablet"),
+                    Tr("Wear OS"),
+                    Tr("TV"),
+                    Tr("Automotive"),
+                    Tr("Desktop"),
+                    Tr("XR"),
+                    Tr("Other"),
                 };
-                static_assert(IM_ARRAYSIZE(CATEGORY_LABELS) == static_cast<int>(ImageCategory::Other) + 1);
+                static_assert(IM_ARRAYSIZE(categoryLabels) == static_cast<int>(ImageCategory::Other) + 1);
                 int selectedCategory = static_cast<int>(work.SelectedCategory);
-                if (CategoryChipRow(CATEGORY_LABELS, IM_ARRAYSIZE(CATEGORY_LABELS), selectedCategory)) {
+                if (CategoryChipRow(categoryLabels, IM_ARRAYSIZE(categoryLabels), selectedCategory)) {
                     work.SelectedCategory = static_cast<ImageCategory>(selectedCategory);
                     work.SelectedImage = -1;
                 }
 
                 ImGui::Spacing();
-                ImGui::Text("Available System Images");
+                ImGui::Text("%s", Tr("Available System Images"));
                 if (isLoading) {
                     ImGui::SameLine();
-                    ImGui::TextDisabled("Fetching available images from SDK manager...");
+                    ImGui::TextDisabled("%s", Tr("Fetching available images from SDK manager..."));
                 }
                 ImGui::Spacing();
 
@@ -332,12 +335,13 @@ namespace CoreDeck {
                     PickerTableStyle pts;
                     const bool tableOpen = BeginPickerTable("##RemoteImageTableFrame", "##RemoteImageTable", 6, Eh(14.0F));
                     if (tableOpen) {
-                        ImGui::TableSetupColumn(" Name", ImGuiTableColumnFlags_WidthStretch, 2.4F);
-                        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.5F);
-                        ImGui::TableSetupColumn("API", ImGuiTableColumnFlags_WidthStretch, 1.2F);
-                        ImGui::TableSetupColumn("ABI", ImGuiTableColumnFlags_WidthStretch, 1.3F);
-                        ImGui::TableSetupColumn("Page Size", ImGuiTableColumnFlags_WidthFixed, Em(10.0F));
-                        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthStretch, 1.2F);
+                        const std::string nameColumn = StrConcat(" ", Tr("Name"));
+                        ImGui::TableSetupColumn(nameColumn.c_str(), ImGuiTableColumnFlags_WidthStretch, 2.4F);
+                        ImGui::TableSetupColumn(Tr("Type"), ImGuiTableColumnFlags_WidthStretch, 1.5F);
+                        ImGui::TableSetupColumn(Tr("API"), ImGuiTableColumnFlags_WidthStretch, 1.2F);
+                        ImGui::TableSetupColumn(Tr("ABI"), ImGuiTableColumnFlags_WidthStretch, 1.3F);
+                        ImGui::TableSetupColumn(Tr("Page Size"), ImGuiTableColumnFlags_WidthFixed, Em(10.0F));
+                        ImGui::TableSetupColumn(Tr("Status"), ImGuiTableColumnFlags_WidthStretch, 1.2F);
                         ImGui::TableHeadersRow();
 
                         if (isLoading || !work.RemoteImages.empty()) {
@@ -381,9 +385,9 @@ namespace CoreDeck {
 
                                 ImGui::TableNextColumn();
                                 if (img.IsInstalled) {
-                                    ImGui::TextColored(HexColor(Colors::POSITIVE), "Installed");
+                                    ImGui::TextColored(HexColor(Colors::POSITIVE), "%s", Tr("Installed"));
                                 } else {
-                                    ImGui::TextDisabled("Available");
+                                    ImGui::TextDisabled("%s", Tr("Available"));
                                 }
                             }
                         }
@@ -395,11 +399,11 @@ namespace CoreDeck {
                     ImGui::Spacing();
                     StatusMessage(
                         StatusMessageTone::Error,
-                        "No remote system images found. Check your SDK and internet connection."
+                        Tr("No remote system images found. Check your SDK and internet connection.")
                     );
                 } else if (!isLoading && !work.RemoteImages.empty() && visibleCount == 0) {
                     ImGui::Spacing();
-                    StatusMessage(StatusMessageTone::Info, "No system images available.");
+                    StatusMessage(StatusMessageTone::Info, Tr("No system images available."));
                 }
 
                 if (isInstalling || removalBusy) {
@@ -474,9 +478,9 @@ namespace CoreDeck {
                 if (selectedInstalled || removalBusy) {
                     if (removalBusy) {
                         ImGui::BeginDisabled();
-                        PositiveButton("Use Selected Image", false, ImVec2(thirdWidth, 0));
+                        PositiveButton(Tr("Use Selected Image"), false, ImVec2(thirdWidth, 0));
                         ImGui::EndDisabled();
-                    } else if (PositiveButton("Use Selected Image", canUseSelected, ImVec2(thirdWidth, 0))) {
+                    } else if (PositiveButton(Tr("Use Selected Image"), canUseSelected, ImVec2(thirdWidth, 0))) {
                         const auto &img = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage));
                         if (SelectInstalledSystemImage(context, img.PackagePath)) {
                             work.Progress.reset();
@@ -487,9 +491,9 @@ namespace CoreDeck {
                     ImGui::SameLine();
                     if (removalBusy) {
                         ImGui::BeginDisabled();
-                        NegativeButton("Removing...", false, ImVec2(thirdWidth, 0));
+                        NegativeButton(Tr("Removing..."), false, ImVec2(thirdWidth, 0));
                         ImGui::EndDisabled();
-                    } else if (NegativeButton("Remove Image", canRemove, ImVec2(thirdWidth, 0))) {
+                    } else if (NegativeButton(Tr("Remove Image"), canRemove, ImVec2(thirdWidth, 0))) {
                         const std::string pkg = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)).PackagePath;
                         removal.Busy = true;
                         const SdkInfo sdk = context.Host.Sdk;
@@ -503,30 +507,30 @@ namespace CoreDeck {
                     }
 
                     ImGui::SameLine();
-                    if (PrimaryButton("Close", !isInstalling && !removalBusy, ImVec2(thirdWidth, 0))) {
+                    if (PrimaryButton(Tr("Close"), !isInstalling && !removalBusy, ImVec2(thirdWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else if (isInstalling) {
                     ImGui::BeginDisabled();
-                    PositiveButton("Installing...", false, ImVec2(halfWidth, 0));
+                    PositiveButton(Tr("Installing..."), false, ImVec2(halfWidth, 0));
                     ImGui::EndDisabled();
                     ImGui::SameLine();
-                    if (PrimaryButton("Close", false, ImVec2(halfWidth, 0))) {
+                    if (PrimaryButton(Tr("Close"), false, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else if (licenseBusy) {
                     ImGui::BeginDisabled();
-                    PositiveButton("Checking licenses...", false, ImVec2(halfWidth, 0));
+                    PositiveButton(Tr("Checking licenses..."), false, ImVec2(halfWidth, 0));
                     ImGui::EndDisabled();
                     ImGui::SameLine();
-                    if (PrimaryButton("Close", false, ImVec2(halfWidth, 0))) {
+                    if (PrimaryButton(Tr("Close"), false, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else {
-                    if (PositiveButton("Install", canInstall, ImVec2(halfWidth, 0))) {
+                    if (PositiveButton(Tr("Install"), canInstall, ImVec2(halfWidth, 0))) {
                         const auto &img = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage));
                         work.PendingPackagePath = img.PackagePath;
                         work.LicenseError.clear();
@@ -538,7 +542,7 @@ namespace CoreDeck {
                     }
 
                     ImGui::SameLine();
-                    if (PrimaryButton("Close", !isInstalling && !removalBusy, ImVec2(halfWidth, 0))) {
+                    if (PrimaryButton(Tr("Close"), !isInstalling && !removalBusy, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }

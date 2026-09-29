@@ -13,16 +13,17 @@
 #include "../../core/jdk.h"
 #include "../../core/paths.h"
 #include "../../core/sdk.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     void DrawPreferencesAndroidSdkSection(Context &context, char *sdkPathBuffer, const size_t bufferSize) {
-        PreferencesSectionHeader("Android SDK", "Where CoreDeck looks for the emulator and command-line tools.");
+        PreferencesSectionHeader(Tr("Android SDK"), Tr("Where CoreDeck looks for the emulator and command-line tools."));
 
         const std::string pathStr = PathPicker(
             "##SdkPrefs",
-            "SDK root",
-            "Path to Android SDK",
-            "Select Android SDK directory",
+            Tr("SDK root"),
+            Tr("Path to Android SDK"),
+            Tr("Select Android SDK directory"),
             sdkPathBuffer,
             bufferSize
         );
@@ -30,24 +31,24 @@ namespace CoreDeck {
 
         if (!pathStr.empty()) {
             if (pathOk) {
-                StatusMessage(StatusMessageTone::Positive, "Valid Android SDK path.");
+                StatusMessage(StatusMessageTone::Positive, Tr("Valid Android SDK path."));
             } else {
                 StatusMessage(
                     StatusMessageTone::Error,
-                    "Not a valid SDK (need emulator and cmdline-tools with avdmanager)."
+                    Tr("Not a valid SDK (need emulator and cmdline-tools with avdmanager).")
                 );
             }
         } else {
             StatusMessage(
                 StatusMessageTone::Info,
-                "Leave empty to auto-detect from ANDROID_HOME or default install paths."
+                Tr("Leave empty to auto-detect from ANDROID_HOME or default install paths.")
             );
         }
 
         ImGui::Spacing();
         ImGui::Spacing();
 
-        if (PrimaryButton("Apply SDK Path", pathOk)) {
+        if (PrimaryButton(Tr("Apply SDK Path"), pathOk)) {
             Paths::Onboarding::SaveSdkPathOverride(pathStr);
             context.Host.Sdk = DetectAndroidSdk();
             ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
@@ -57,11 +58,11 @@ namespace CoreDeck {
             PersistAppSettings(context);
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !pathOk) {
-            ImGui::SetTooltip("Fix the path or validation errors before applying.");
+            ImGui::SetTooltip("%s", Tr("Fix the path or validation errors before applying."));
         }
 
         ImGui::SameLine();
-        if (PrimaryButton("Use Default Discovery", true)) {
+        if (PrimaryButton(Tr("Use Default Discovery"), true)) {
             Paths::Onboarding::ClearSdkPathOverride();
             context.Host.Sdk = DetectAndroidSdk();
             ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
@@ -74,7 +75,7 @@ namespace CoreDeck {
             PersistAppSettings(context);
         }
         if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("Forget the saved override and detect the SDK from ANDROID_HOME / default paths.");
+            ImGui::SetTooltip("%s", Tr("Forget the saved override and detect the SDK from ANDROID_HOME / default paths."));
         }
     }
 }

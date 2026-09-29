@@ -1,0 +1,2738 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR CoreDeck contributors
+# This file is distributed under the same license as the CoreDeck package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: CoreDeck\n"
+"Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
+"template=translation.md\n"
+"POT-Creation-Date: 2026-09-29 21:13+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:100
+msgid "No Android SDK location is configured."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:106
+#, c++-format
+msgid "The configured SDK folder does not exist: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:119
+msgid "The emulator binary was not found in this SDK."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:135
+msgid "adb was not found under platform-tools."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:148
+msgid "aapt2 was not found under build-tools. The APK Analyzer needs it."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:168
+msgid "avdmanager, sdkmanager, and/or apkanalyzer are missing from this SDK."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:173
+msgid "avdmanager, sdkmanager, and apkanalyzer are available."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:181
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:378
+msgid ""
+"No JDK detected. The command-line tools will use whatever 'java' is on your "
+"PATH."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:187
+msgid "an unknown Java version"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:188
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:838
+#, c++-format
+msgid "Found {0}, which is older than JDK {1}."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:201
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:232
+msgid "sdkmanager is not installed."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:207
+msgid "sdkmanager is missing from this SDK."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:215
+#, c++-format
+msgid "sdkmanager {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:222
+msgid "sdkmanager did not produce any output. Check the Java setup."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:223
+#, c++-format
+msgid "sdkmanager did not run correctly: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:239
+msgid "All SDK package licenses are accepted."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:243
+msgid "Some SDK package licenses have not been accepted."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:249
+msgid "The SDK license state could not be read."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:260
+msgid "No system images are installed yet, so no AVD can boot."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:266
+#, c++-format
+msgid "{0} system image installed."
+msgid_plural "{0} system images installed."
+msgstr[0] ""
+msgstr[1] ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:279
+msgid "The free disk space could not be determined."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:285
+#, c++-format
+msgid "Only {0} is free. About {1} is recommended for downloads."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:292
+#, c++-format
+msgid "{0} free."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:300
+msgid "Needs a configured Android SDK."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:378
+msgid "Android SDK location"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:380
+msgid "Emulator binary"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:382
+msgid "Platform tools (adb)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:384
+msgid "Build tools (aapt2)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:386
+msgid "Command-line tools (avdmanager, sdkmanager, apkanalyzer)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:388
+msgid "Java runtime (JDK 17 or newer)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:390
+msgid "Command-line tools run"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:392
+msgid "SDK licenses"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:394
+msgid "System images"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:397
+msgid "Free disk space"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:404
+msgid "Pending"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:406
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:244
+msgid "Checking..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:408
+msgid "Passed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:410
+msgid "Warning"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:412
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:279
+msgid "Failed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:415
+msgid "Skipped"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:28
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:76
+msgid "Automatic"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:29
+msgid "Hardware Acceleration"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:30
+msgid "Software Rendering"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:31
+msgid "ANGLE Rendering"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:32
+msgid "Guest Rendering"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:43
+msgid "Touch Screen"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:44
+msgid "Multi-Touch Screen"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:45
+msgid "No Touch Input"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:53
+msgid "Full Speed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:54
+msgid "LTE"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:55
+msgid "HSDPA"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:56
+msgid "UMTS"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:57
+msgid "EDGE"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:58
+msgid "GPRS"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:59
+msgid "GSM"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:66
+msgid "No Delay"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:67
+msgid "GPRS Latency"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:68
+msgid "EDGE Latency"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:69
+msgid "UMTS Latency"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:77
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:86
+msgid "Disabled"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:78
+msgid "Enabled"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:85
+msgid "Permissive"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:93
+msgid "Virtual Scene"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:94
+msgid "Emulated"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:95
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:214
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:319
+msgid "None"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:131
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:212
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:256
+msgid "GPU Mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:132
+msgid "Set hardware OpenGLES emulation mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:140
+msgid "Screen Mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:141
+msgid "Set emulated screen mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:148
+msgid "Device DPI"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:149
+msgid "Override the device's screen density in dpi"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:152
+msgid "e.g., 420"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:156
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:214
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:176
+msgid "Skin"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:157
+msgid "Select a specific device skin by name"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:160
+msgid "e.g., pixel_7"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:164
+msgid "Disable Skin"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:165
+msgid "Run without any device skin"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:171
+msgid "Window Size"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:172
+msgid "Set the initial emulator window size (useful with no-skin)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:175
+msgid "e.g., 1080x1920"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:184
+msgid "Physical RAM (MBs)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:185
+msgid "Physical RAM size in MBs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:188
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:487
+msgid "e.g., 2048"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:192
+msgid "CPU Cores"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:193
+msgid "Set number of CPU cores for the emulator"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:196
+msgid "e.g., 4"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:200
+msgid "Cache Size (MBs)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:201
+msgid "Cache partition size in MBs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:204
+msgid "e.g., 512"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:213
+msgid "Full Boot"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:214
+msgid "Perform a full boot and do not auto-save on exit"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:220
+msgid "Cold Boot"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:221
+msgid "Perform a full boot without loading a snapshot (preserves user data)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:227
+msgid "Discard State on Exit"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:228
+msgid "Do not auto-save to snapshot on exit; changed state is abandoned"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:234
+msgid "Snapshot Name"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:235
+msgid "Name of the snapshot to auto-start from and auto-save to"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:238
+msgid "e.g., default-boot"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:242
+msgid "Read-Only (Multi-Instance)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:243
+msgid ""
+"Allow running multiple instances of this AVD (snapshots cannot be saved)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:249
+msgid "Factory Reset"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:250
+msgid "Reset AVD to factory defaults (clears user data)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:256
+msgid "Skip Boot Animation"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:257
+msgid "Disable boot animation for faster startup"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:268
+msgid "Disable Audio"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:269
+msgid "Disable audio support"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:275
+msgid "Allow Host Microphone"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:276
+msgid "Pass host audio input devices through to the guest (otherwise zeroed)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:287
+msgid "Network Speed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:288
+msgid "Simulate network download/upload speed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:295
+msgid "Network Delay"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:296
+msgid "Simulate network latency"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:303
+msgid "HTTP Proxy"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:304
+msgid ""
+"Route network traffic through a HTTP/HTTPS proxy (e.g., Charles, mitmproxy)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:307
+msgid "e.g., http://localhost:8888"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:311
+msgid "DNS Server"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:312
+msgid "Use custom DNS server(s) in the emulated system"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:315
+msgid "e.g., 8.8.8.8"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:319
+msgid "Packet Capture File"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:320
+msgid "Capture network packets to the given pcap file"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:323
+msgid "e.g., /tmp/emulator.pcap"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:327
+msgid "Console Port"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:328
+msgid "TCP port used for the emulator console (adb port is console + 1)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:331
+msgid "e.g., 5554"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:335
+msgid "Console + ADB Ports"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:336
+msgid "TCP ports used for the console and adb bridge"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:339
+msgid "e.g., 5554,5555"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:348
+msgid "Back Camera"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:349
+msgid "Set emulation mode for the back-facing camera"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:356
+msgid "Front Camera"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:357
+msgid "Set emulation mode for the front-facing camera"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:369
+msgid "Disable Passive GPS"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:370
+msgid "Disable passive GPS updates from the host"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:376
+msgid "GNSS Replay File"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:377
+msgid "Read GNSS data from the given file to replay a route"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:380
+msgid "e.g., /path/to/track.nmea"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:389
+msgid "Phone Number"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:390
+msgid "Set the phone number reported by the emulated device"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:393
+msgid "e.g., +15555550100"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:397
+msgid "Locale"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:398
+msgid "Override the device locale (restarts the framework)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:401
+msgid "e.g., en-US"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:405
+msgid "Writable System"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:406
+msgid "Make the system and vendor images writable after 'adb remount'"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:412
+msgid "Skip ADB Auth"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:413
+msgid "Skip the adb authentication dialog on connect"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:419
+msgid "Instance ID"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:420
+msgid ""
+"Assign a separate id to this virtual device (independent of the AVD name)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:423
+msgid "e.g., my-instance-1"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:427
+msgid "System Property"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:428
+msgid "Set a system property on boot (single name=value pair)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:431
+msgid "e.g., ro.debuggable=1"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:435
+msgid "Emulator Features"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:436
+msgid "Force-enable or disable (-name) emulator features"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:439
+msgid "e.g., GLESDynamicVersion,-Vulkan"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:448
+msgid "Headless Mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:449
+msgid "Run without graphical window display (useful for CI/testing)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:455
+msgid "Show Kernel Log"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:456
+msgid "Display kernel messages in the output log"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:462
+msgid "Verbose Logging"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:463
+msgid "Enable verbose emulator logging (same as -debug-init)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:469
+msgid "Wait for Debugger"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:470
+msgid "Pause on launch until a debugger process attaches"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:476
+msgid "Disable HiDPI"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:477
+msgid "Disable HiDPI scaling on macOS Retina displays"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:483
+msgid "Partition Size (MBs)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:484
+msgid "System/data partition size in MBs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:491
+msgid "Logcat Tags"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:492
+msgid "Enable logcat output with specific tags"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:495
+msgid "e.g., *:W or ActivityManager:I"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:499
+msgid "Timezone"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:500
+msgid "Use a specific timezone instead of the host's default"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:503
+msgid "e.g., America/New_York"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:507
+msgid "Acceleration Mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:508
+msgid "Configure emulation acceleration"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:515
+msgid "SELinux Mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:516
+msgid "Set SELinux to disabled or permissive mode"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:523
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/skin.cpp:173
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:98
+msgid "System Image"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:524
+msgid "Override the initial system image file"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:527
+msgid "e.g., /path/to/system.img"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:531
+msgid "Userdata Image"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:532
+msgid "Override the userdata image file"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:535
+msgid "e.g., /path/to/userdata-qemu.img"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:539
+msgid "SD Card Image"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:540
+msgid "Override the SD card image file"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:543
+msgid "e.g., /path/to/sdcard.img"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:547
+msgid "Restart When Stalled"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:548
+msgid "Automatically restart the guest if it becomes unresponsive"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:554
+msgid "Detect Image Hangs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:555
+msgid "Enable detection of system image hangs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:22
+msgid "Display"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:23
+msgid "Performance"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:24
+msgid "Boot"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:25
+msgid "Audio"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:26
+msgid "Network"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:27
+msgid "Advanced"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:28
+msgid "Camera"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:29
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:25
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:63
+msgid "System"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:30
+msgid "Location"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:91
+msgid "Android SDK ready."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:223
+msgid "No error."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:225
+msgid "The chosen install location cannot be used."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:227
+msgid "Not enough free disk space for this install."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:229
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:558
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1076
+msgid "Google does not publish command-line tools for this platform."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:231
+msgid "The download failed. Check your internet connection and try again."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:233
+msgid "The downloaded archive did not match its expected checksum."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:235
+msgid "The downloaded archive could not be extracted."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:237
+msgid "A JDK 17 or newer is required before the Android SDK can be installed."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:239
+msgid "The SDK Manager was not found after extracting the command-line tools."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:241
+msgid "The Android SDK license state could not be read."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:243
+msgid "The Android SDK licenses were not accepted."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:245
+msgid "The SDK Manager could not install the required packages."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:247
+msgid "The emulator is still missing after the installation finished."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:249
+msgid "The installation was cancelled."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:252
+msgid "The Android SDK installation failed."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:259
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:278
+msgid "Ready"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:261
+msgid "Preparing"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:263
+msgid "Downloading command-line tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:265
+msgid "Verifying download"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:267
+msgid "Extracting"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:269
+msgid "Locating tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:271
+msgid "Accepting licenses"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:273
+msgid "Installing packages"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:275
+msgid "Verifying installation"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:277
+msgid "Done"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:281
+msgid "Cancelled"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:283
+msgid "Working"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:352
+msgid "Accepting SDK licenses..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:369
+msgid "Installing build-tools..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:370
+msgid "Installing platform-tools, build-tools, and emulator..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:377
+msgid "Verifying installation..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:380
+msgid "aapt2 was not found under build-tools."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:400
+msgid "Preparing..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:403
+msgid "No install location was provided."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:423
+#, c++-format
+msgid "About {0} is needed, {1} is free."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:428
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:555
+msgid "Locating the SDK Manager..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:455
+msgid "Downloading command-line tools..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:470
+#, c++-format
+msgid "{0} downloaded"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:490
+msgid "Verifying download..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:498
+msgid "nothing"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:498
+#, c++-format
+msgid "expected {0}, got {1}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:505
+msgid "Extracting command-line tools..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/skin.cpp:171
+msgid "SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/skin.cpp:175
+msgid "Platform"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/system_image.cpp:229
+#, c++-format
+msgid "Unzipping {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/system_image.cpp:231
+#, c++-format
+msgid "Downloading {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/system_image.cpp:263
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/system_image.cpp:279
+msgid "Installation Failed!"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/system_image.cpp:279
+msgid "Installation Completed!"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:235
+msgid "Failed to initialize GLFW."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:258
+msgid ""
+"Failed to create window.\n"
+"Your system may not support OpenGL 3.3."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:952
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:355
+msgid "Browse..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:964
+msgid "Open license terms in browser"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:969
+msgid "Recording acceptance with the SDK Manager..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:15
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:65
+msgid "About CoreDeck"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:32
+#, c++-format
+msgid "Version {0} (Build {1})"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:47
+msgid "Author"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:50
+msgid "License"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:50
+msgid "MIT"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:51
+msgid "Website"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:54
+msgid "GitHub"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:57
+msgid "Built with"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:57
+msgid "C++20, Dear ImGui, GLFW, OpenGL"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:38
+msgid ""
+"Some Android SDK package licenses have not been accepted yet. By clicking "
+"Agree, you confirm that you have read and accept Google's current Android "
+"SDK license terms."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:56
+msgid "Agree"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:65
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1006
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:287
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:321
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:48
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:177
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:272
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:930
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1095
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1098
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:140
+msgid "Cancel"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:90
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:238
+msgid "License acceptance failed. Try again or accept via Android Studio."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:98
+msgid "Accept SDK Licenses"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:66
+msgid "Reading APK archive headers..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:68
+msgid "Building file tree structure..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:230
+msgid "Android packages"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:596
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:813
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:997
+msgid "APK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:726
+msgid ""
+"This command needs aapt from Android SDK build-tools. The rest of this APK "
+"is still shown."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:728
+msgid "This file is not a compiled Android XML resource."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:732
+msgid "'apkanalyzer' did not return a result for this section."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:735
+msgid "Open Health Check"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:760
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:765
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:907
+msgid "N/A"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:760
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:54
+msgid "16 KB"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:819
+#, c++-format
+msgid "Package Name: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:820
+#, c++-format
+msgid "Version Name: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:821
+#, c++-format
+msgid "Version Code: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:830
+#, c++-format
+msgid "APK Size: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:831
+#, c++-format
+msgid "Download Size: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:834
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:905
+msgid "Yes"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:834
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:909
+msgid "No"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:836
+#, c++-format
+msgid "Debuggable: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:855
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:20
+msgid "File"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:857
+msgid "Raw Size"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:858
+msgid "Download Size"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:859
+msgid "% of Download Size"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:860
+msgid "Compressed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:861
+msgid "Alignment"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:867
+msgid "No files match."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:927
+msgid "The file list could not be read."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:996
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:998
+#, c++-format
+msgid "Analyzing {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1003
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1006
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1007
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:926
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:930
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:931
+msgid "Cancelling..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1003
+msgid "In Progress... (This may take a while)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1043
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1059
+msgid "Drag & Drop .apk file here"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1060
+msgid "Or"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1077
+msgid "Browse File..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1078
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1198
+msgid "Open APK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1095
+msgid "Recent APKs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1100
+msgid "No recent APKs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1157
+msgid "apkanalyzer is not installed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1159
+msgid ""
+"APK Analyzer uses apkanalyzer from the Android command-line tools. Install "
+"those tools to add it. AVDs already in this SDK stay where they are."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1183
+msgid "Install command-line tools..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1197
+msgid "Reading..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1197
+msgid "Open APK..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1207
+msgid "Compare with previous APK..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1208
+msgid "Comparing..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1213
+msgid "Compare with previous APK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1223
+msgid "Filter files..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1227
+#, c++-format
+msgid "{0} file"
+msgid_plural "{0} files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1241
+#, c++-format
+msgid "Comparing with {0}..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1246
+msgid "The comparison could not be read."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1268
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:55
+msgid "APK Analyzer"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:20
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:137
+msgid "Google Play"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:23
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:140
+msgid "Google APIs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:28
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:145
+msgid "Default"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:83
+msgid "Live Resource Usage"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:93
+msgid "CPU Usage"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:107
+msgid "Current CPU"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:111
+msgid "Memory"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:126
+msgid "Current Memory"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:140
+msgid "Disk Read Rate"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:141
+msgid "Disk Write Rate"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:144
+msgid "Uptime"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:162
+msgid "Details"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:164
+msgid "Select an AVD to view details"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:182
+#, c++-format
+msgid "Details - {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:191
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:221
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:127
+msgid "Device"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:194
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:221
+msgid "API Level"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:197
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:342
+msgid "ABI"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:200
+msgid "Arch"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:203
+msgid "RAM"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:203
+#, c++-format
+msgid "{0} MB"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:206
+msgid "Resolution"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:209
+msgid "Storage"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:224
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:128
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:340
+msgid "Type"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:225
+msgid "16 KB Page Size"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:225
+msgid "Supported"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:225
+msgid "Not supported"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:229
+msgid "Tags"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:248
+msgid "Disk Usage"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:258
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:284
+msgid "Wipe User Data"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:265
+msgid "Stop the emulator before wiping data"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:269
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:58
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:102
+msgid "Storage Overview"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:285
+msgid ""
+"This will delete userdata, cache, SD card images, and snapshots for this "
+"AVD. This cannot be undone.\n"
+"\n"
+"Continue?"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:286
+msgid "Wipe"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:288
+msgid "Wiping..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:130
+msgid "Available AVDs (Android Virtual Device)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:137
+msgid "Refresh the AVD list"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:146
+msgid "Create new AVD"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:157
+msgid "Stopping..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:157
+msgid "Stop"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:166
+msgid "Run the selected AVD"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:169
+msgid "Wipe & Run"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:183
+msgid "Delete currently selected AVD"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:191
+msgid "Create AVD"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:194
+msgid "No AVDs Found"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:195
+msgid "Only devices with a system image installed in this SDK are listed."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:206
+msgid "Ascending"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:206
+msgid "Descending"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:221
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:126
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:338
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:70
+msgid "Name"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:240
+msgid "Search AVDs..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:266
+msgid "No matching AVDs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:278
+msgid "Running..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:58
+msgid "Select an AVD to view logs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:62
+#, c++-format
+msgid "Run the \"{0}\" AVD to view logs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:74
+msgid "No available logs to view"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:74
+msgid "No matching log entries found"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:142
+msgid "Regex"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:142
+msgid "Search logs..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:159
+#, c++-format
+msgid "Invalid regex: {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_logs.cpp:309
+msgid "Output Log"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_options.cpp:23
+#, c++-format
+msgid "Options - {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_options.cpp:24
+msgid "Options"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_options.cpp:29
+msgid "Select an AVD to configure options"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:54
+msgid "Create New AVD"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:81
+msgid "Android Device"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:94
+#, c++-format
+msgid "{0} API {1}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:101
+msgid "No system images available. Install one..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:105
+msgid "No system images installed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:108
+msgid "SDK Manager was not found. Run 'Tools > Health Check' to fix this."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:122
+msgid "Loading system images..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:131
+msgid "No device profiles found. Using default hardware profile."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:144
+msgid "Loading device profiles..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:152
+msgid "Some system-image device definitions could not be loaded."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:185
+msgid "Loading skins..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:190
+msgid "AVD Name"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:195
+msgid "e.g. MyPixel7"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:207
+#, c++-format
+msgid "An AVD named \"{0}\" already exists."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:215
+msgid "Display Name"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:220
+msgid "e.g. My Pixel 7"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:230
+msgid "RAM (MB)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:233
+msgid "SD Card Size"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:239
+msgid "e.g. 2048 (MB)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:250
+msgid "e.g. 512 (MB)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:288
+msgid "Creating..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:291
+msgid "Create"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:40
+#, c++-format
+msgid "Delete \"{0}\"?"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:46
+msgid ""
+"This will permanently remove the AVD and all its data. This action cannot be "
+"undone."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:47
+msgid "Delete"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:49
+msgid "Deleting..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:53
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:104
+msgid "Phone"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:55
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:105
+msgid "Tablet"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:57
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:106
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:311
+msgid "Wear OS"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:59
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:107
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:312
+msgid "TV"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:61
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:108
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:313
+msgid "Automotive"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:63
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:109
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:314
+msgid "Desktop"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:66
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:68
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:110
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:316
+msgid "Other"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:90
+msgid "Choose Device Profile"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:97
+msgid "Search device profiles..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:100
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:306
+msgid "Categories"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:103
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:309
+msgid "All"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:119
+msgid "Device Profiles"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:160
+msgid "No device profiles match the selected form factor and search."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:171
+msgid "Use Selected Device"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:46
+msgid "Install SDK..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:48
+msgid "Install Tools..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:50
+msgid "Install Build Tools..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:52
+msgid "Configure JDK..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:54
+msgid "Accept Licenses..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:56
+msgid "Install Image..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:216
+msgid "Health Check"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:244
+msgid "Run Again"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:248
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:510
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:519
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:528
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:545
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:965
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:159
+msgid "Close"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:83
+msgid "Android SDK not found"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:85
+msgid ""
+"No working Android SDK was found. The emulator binary is missing, or the "
+"path is invalid."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:87
+msgid "SDK tools and Java need attention"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:88
+msgid ""
+"The command-line tools are missing, and the detected Java is too old to run "
+"them."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:90
+msgid "Command-line tools are missing"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:91
+msgid ""
+"avdmanager and sdkmanager are missing, so the AVD list, device profiles, and "
+"system images cannot be loaded."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:93
+msgid "APK Analyzer is missing"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:94
+msgid ""
+"apkanalyzer is missing from the command-line tools, so APK Analyzer cannot "
+"read packages."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:96
+msgid "Build tools are missing"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:97
+msgid ""
+"aapt2 was not found under build-tools, so the APK Analyzer cannot read "
+"packages."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:99
+msgid "Java is too old for the SDK tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:102
+msgid "unknown version"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:101
+#, c++-format
+msgid ""
+"The detected Java ({0}) is too old for avdmanager and sdkmanager, which need "
+"JDK {1} or newer."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:106
+msgid "SDK licenses are not accepted"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:108
+msgid ""
+"Some Android SDK package licenses have not been accepted. Run a health check "
+"to review them and accept the terms."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:113
+msgid "Run Health Check"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:54
+msgid "4 KB"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:158
+#, c++-format
+msgid "Android {0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:199
+msgid "Install System Image"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:220
+msgid "Could not query license state. Check that the SDK Manager is working."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:246
+msgid "Accept Android SDK License Terms"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:250
+msgid ""
+"Some Android SDK package licenses have not been accepted yet. To install "
+"this system image, you must agree to Google's Android SDK license terms. By "
+"clicking Agree, you confirm that you have read and accept the current terms."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:264
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:782
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:791
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1096
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1104
+msgid "Agree & Install"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:303
+msgid "Search for a system image by name"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:310
+msgid "Phone / Tablet"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:315
+msgid "XR"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:326
+msgid "Available System Images"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:329
+msgid "Fetching available images from SDK manager..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:341
+msgid "API"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:343
+msgid "Page Size"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:344
+msgid "Status"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:388
+msgid "Installed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:390
+msgid "Available"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:402
+msgid "No remote system images found. Check your SDK and internet connection."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:406
+msgid "No system images available."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:481
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:483
+msgid "Use Selected Image"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:494
+msgid "Removing..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:496
+msgid "Remove Image"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:516
+msgid "Installing..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:525
+msgid "Checking licenses..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:533
+msgid "Install"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:21
+msgid "Preferences..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:25
+msgid "Quit"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:31
+msgid "View"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:32
+msgid "Hide AVD List"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:32
+msgid "Show AVD List"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:36
+msgid "Hide Options"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:36
+msgid "Show Options"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:40
+msgid "Hide Details"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:40
+msgid "Show Details"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:44
+msgid "Hide Output Log"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:44
+msgid "Show Output Log"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:51
+msgid "Tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:52
+msgid "Health Check..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:64
+msgid "Help"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:68
+msgid "Check for Updates..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:328
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:67
+msgid "OpenJDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:328
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:67
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:329
+msgid "Java"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:330
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:69
+#, c++-format
+msgid "{0} {1}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:425
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:275
+msgid "Looking for installed JDKs..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:439
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:301
+#, c++-format
+msgid "Older than JDK {0}. {1}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:450
+#, c++-format
+msgid ""
+"No JDK was found. Install JDK {0} separately, then come back to this step."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:455
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:283
+msgid "Download Java..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:509
+msgid "Welcome!"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:509
+msgid "Your Android emulator command center."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:516
+msgid ""
+"CoreDeck helps you manage Android emulators faster and cleaner than the "
+"default tooling."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:524
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:527
+msgid "Get Started"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:545
+msgid "Set up the Android SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:546
+msgid "CoreDeck runs the official emulator, avdmanager, and sdkmanager tools."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:555
+msgid "Install Android SDK Automatically"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:557
+msgid ""
+"Downloads Google's official command-line tools, platform-tools, build-tools, "
+"and emulator."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:572
+msgid "Use Existing Android SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:573
+msgid ""
+"Point CoreDeck to an existing SDK directory (e.g., Android Studio "
+"installation)."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:586
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:653
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:656
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:690
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:693
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:781
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:784
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:853
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:856
+msgid "Back"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:612
+msgid "Locate your Android SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:613
+msgid ""
+"Choose the folder that contains emulator, avdmanager, and your system images."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:620
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1029
+msgid "SDK location"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:621
+msgid "e.g. /Users/you/Library/Android/sdk"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:622
+msgid "Select your Android SDK folder"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:634
+msgid ""
+"Choose the folder containing your Android SDK (cmdline-tools, emulator, "
+"platform-tools, and so on)."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:639
+msgid "Looks good. Found the Android emulator at this location."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:644
+msgid ""
+"Couldn't find the Android emulator here. Make sure this is your SDK root "
+"folder."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:654
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:661
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:691
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:698
+msgid "Continue"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:679
+#, c++-format
+msgid "The Android command-line tools run on Java. JDK {0} is recommended."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:682
+msgid "Select a JDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:747
+msgid "Install Android SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:752
+msgid "Install Location"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:753
+msgid "SDK install folder"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:754
+msgid "Select where the Android SDK should be installed"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:763
+#, c++-format
+msgid "Download: ~{0}  |  Free Space Recommended: 2 GB"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:771
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1085
+msgid "I accept the Android SDK Terms and Conditions"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:773
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1087
+msgid "View License Terms..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:810
+#, c++-format
+msgid ""
+"Choose a JDK {0} or newer so CoreDeck can run sdkmanager and avdmanager."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:813
+msgid "Select a JDK folder"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:818
+msgid "JDK location"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:819
+msgid "Path to a JDK 17+ installation"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:820
+msgid "Select a JDK directory"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:832
+msgid ""
+"Pick the folder that contains bin/java. Android Studio ships one under its "
+"jbr folder."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:835
+msgid "No Java runtime was found in this folder."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:844
+#, c++-format
+msgid "Found {0}."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:854
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:861
+msgid "Use this JDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:917
+msgid "Installing the Android SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:919
+msgid "Installing build-tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:921
+msgid "Installing command-line tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:950
+msgid "The installation didn't finish"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:965
+msgid "Locate an SDK instead"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:967
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:978
+msgid "Try again"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1021
+msgid "Install build-tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1021
+msgid "Install command-line tools"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1023
+msgid ""
+"aapt2 is missing. CoreDeck will install build-tools into this SDK so the APK "
+"Analyzer can read packages."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1024
+msgid ""
+"avdmanager and sdkmanager are missing. CoreDeck will download Google's "
+"official tools into this SDK."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1033
+msgid "No SDK folder is selected."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1044
+#, c++-format
+msgid "Download: ~{0}"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1054
+msgid ""
+"The emulator and system images already in this folder are left in place."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1059
+#, c++-format
+msgid "Using {0}."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1065
+#, c++-format
+msgid "A JDK {0} or newer is required. You'll be asked for one next."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1075
+msgid "sdkmanager is not in this SDK. Install the command-line tools first."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:34
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:110
+msgid "General"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:35
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:20
+msgid "Android SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:36
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:363
+msgid "Java (JDK)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:111
+msgid "Preferences"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:20
+msgid "Where CoreDeck looks for the emulator and command-line tools."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:24
+msgid "SDK root"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:25
+msgid "Path to Android SDK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:26
+msgid "Select Android SDK directory"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:34
+msgid "Valid Android SDK path."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:38
+msgid "Not a valid SDK (need emulator and cmdline-tools with avdmanager)."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:44
+msgid "Leave empty to auto-detect from ANDROID_HOME or default install paths."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:51
+msgid "Apply SDK Path"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:61
+msgid "Fix the path or validation errors before applying."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:65
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:444
+msgid "Use Default Discovery"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:78
+msgid ""
+"Forget the saved override and detect the SDK from ANDROID_HOME / default "
+"paths."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:18
+msgid "Appearance"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:21
+msgid "Follow the system appearance, or keep CoreDeck dark or light."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:25
+msgid "Dark"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:25
+msgid "Light"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:52
+msgid "Language"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:55
+msgid "Follow the system language, or choose one for CoreDeck."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:110
+msgid "Appearance, language, and behavior while you work with AVDs."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:127
+msgid "Enable auto-scrolling of output logs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:128
+msgid "Keep the log view pinned to the most recent line as new output arrives."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:138
+msgid "Confirm before deleting an AVD"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:139
+msgid "Show a confirmation dialog when you delete a virtual device."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:149
+msgid "Send crash reports and diagnostics to CoreDeck"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:150
+msgid "Share anonymous crash reports and error diagnostics (Restart Required)."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:257
+msgid "Installed on this Windows"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:259
+msgid "Installed on this macOS"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:261
+msgid "Installed on this Linux"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:263
+msgid "Installed on this Unix-like system"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:267
+#, c++-format
+msgid "Select a JDK {0} or newer."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:279
+#, c++-format
+msgid "No JDK was found. Install JDK {0} separately, or choose a folder below."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:312
+msgid "Custom Path"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:316
+msgid "Auto-Detected"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:325
+msgid "No JDK found at this location."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:331
+#, c++-format
+msgid "{0} ({1})"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:335
+#, c++-format
+msgid "{0} ({1}) - requires JDK {2} or newer."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:364
+msgid ""
+"The Android command-line tools (avdmanager, sdkmanager) run on Java and "
+"require JDK 17 or newer. Point CoreDeck at a compatible JDK if your system "
+"default is older."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:368
+msgid "Currently used"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:394
+msgid "JDK home"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:395
+msgid "Path to a JDK home directory"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:396
+msgid "Select JDK home directory"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:412
+msgid "Leave empty to auto-detect from JAVA_HOME or standard install paths."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:415
+msgid "No 'bin/java' found in this directory."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:418
+msgid "This is the JDK CoreDeck is using."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:422
+msgid "Click Apply to validate the Java version and use this JDK."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:429
+msgid "Apply JDK Path"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:440
+msgid "Choose a directory that contains bin/java before applying."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:455
+msgid "Forget the saved JDK and detect it from JAVA_HOME / standard paths."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:41
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:79
+msgid "No skin (plain emulator window)"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:54
+msgid "Choose Skin"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:60
+msgid "Search skins..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:63
+msgid "Skins"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:71
+msgid "Source"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:117
+msgid "No skins match the search."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:125
+msgid ""
+"No skins were found in your SDK. Skins typically ship with system images and "
+"the SDK skins folder."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/skin.cpp:134
+msgid "Use Selected Skin"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:125
+msgid "Statistics"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:126
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:132
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:134
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:136
+msgid "Calculating..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:126
+msgid "Calculated from local SDK and AVD folders"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:132
+msgid "Total Storage"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:134
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:142
+msgid "AVDs"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:136
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:146
+msgid "System Images"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:139
+msgid "Breakdown"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:155
+msgid "Refreshing..."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:155
+msgid "Refresh"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:70
+msgid "Up to date"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:72
+msgid "You're running the latest CoreDeck release."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:74
+msgid "Current: "
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:80
+msgid "OK"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:96
+msgid "Update Available"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:99
+msgid "You're currently running on"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:112
+msgid "Download"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:118
+msgid "Later"
+msgstr ""

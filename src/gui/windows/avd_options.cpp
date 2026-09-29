@@ -8,6 +8,7 @@
 #include <cstddef>
 #include "../application.h"
 #include "../widgets.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     void BuildAvdOptionsWindow(Context &context) {
@@ -17,15 +18,15 @@ namespace CoreDeck {
 
         constexpr ImGuiWindowFlags FLAGS = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
-        std::string panelTitle = "Options";
-        if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
-            panelTitle = "Options - " + context.Catalog.Avds.at(context.Catalog.SelectedAvd).DisplayName;
-        }
+        const bool hasSelection = context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size();
+        const std::string panelTitle = hasSelection
+                                           ? StrConcat(TrFormat("Options - {0}", context.Catalog.Avds.at(context.Catalog.SelectedAvd).DisplayName), "###Options")
+                                           : TrWindow("Options", "Options");
 
-        ImGui::Begin((panelTitle + "###Options").c_str(), nullptr, FLAGS);
+        ImGui::Begin(panelTitle.c_str(), nullptr, FLAGS);
 
-        if (context.Catalog.SelectedAvd < 0) {
-            ImGui::TextDisabled("Select an AVD to configure options");
+        if (!hasSelection) {
+            ImGui::TextDisabled("%s", Tr("Select an AVD to configure options"));
             ImGui::End();
             return;
         }
@@ -41,7 +42,7 @@ namespace CoreDeck {
         }
 
         for (const auto &categoryItem: categories) {
-            if (CollapsingHeader(categoryItem.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (CollapsingHeader(Tr(categoryItem.c_str()), ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::Indent(20.0F);
 
                 for (auto &[flag, displayName, description, enabled, type, category, hint, textInput, items, selectedItem]: options) {
@@ -52,7 +53,7 @@ namespace CoreDeck {
                     ImGui::PushID(flag.c_str());
 
                     const bool wasEnabled = enabled;
-                    SubtitledCheckbox(flag.c_str(), &enabled, displayName.c_str(), nullptr, description.c_str());
+                    SubtitledCheckbox(flag.c_str(), &enabled, Tr(displayName.c_str()), nullptr, description.empty() ? nullptr : Tr(description.c_str()));
                     if (wasEnabled != enabled) {
                         optionsChanged = true;
                     }
@@ -64,7 +65,7 @@ namespace CoreDeck {
                                 char buffer[256];
                                 strncpy(buffer, textInput.c_str(), sizeof(buffer) - 1);
                                 buffer[sizeof(buffer) - 1] = '\0';
-                                if (ImGui::InputTextWithHint("##val", hint.c_str(), buffer, sizeof(buffer))) {
+                                if (ImGui::InputTextWithHint("##val", Tr(hint.c_str()), buffer, sizeof(buffer))) {
                                     textInput = buffer;
                                     optionsChanged = true;
                                 }

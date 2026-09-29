@@ -11,6 +11,7 @@
 #include "widgets.h"
 #include "theme.h"
 #include "../core/file_dialog.h"
+#include "../core/i18n.h"
 
 namespace CoreDeck {
 
@@ -941,14 +942,19 @@ namespace CoreDeck {
         const std::size_t bufferSize,
         const float fieldWidth
     ) {
-        const float browseWidth = Em(11.0F);
+        const char *browseText = Tr("Browse...");
+        const std::string browseLabel = StrConcat(browseText, "##", id);
+        const float browseWidth = std::max(
+            Em(11.0F),
+            ImGui::CalcTextSize(browseText).x + (ImGui::GetStyle().FramePadding.x * 2.0F)
+        );
         const float spacing = ImGui::GetStyle().ItemSpacing.x;
         ImGui::Text("%s", label);
         const float totalWidth = fieldWidth > 0.0F ? fieldWidth : ImGui::GetContentRegionAvail().x;
-        ImGui::SetNextItemWidth(totalWidth - browseWidth - spacing);
+        ImGui::SetNextItemWidth(std::max(1.0F, totalWidth - browseWidth - spacing));
         ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
         ImGui::SameLine();
-        if (PrimaryButton(StrConcat("Browse...##", id).c_str(), true, ImVec2(browseWidth, 0))) {
+        if (PrimaryButton(browseLabel.c_str(), true, ImVec2(browseWidth, 0))) {
             if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer)) {
                 std::strncpy(buffer, picked->c_str(), bufferSize - 1);
                 buffer[bufferSize - 1] = '\0';
@@ -960,12 +966,12 @@ namespace CoreDeck {
     void LicenseConsentNotice(const char *message, const bool busy) {
         ImGui::TextWrapped("%s", message);
         ImGui::Spacing();
-        if (PrimaryButton("Open license terms in browser")) {
+        if (PrimaryButton(Tr("Open license terms in browser"))) {
             OpenUrl("https://developer.android.com/studio/terms");
         }
         if (busy) {
             ImGui::Spacing();
-            ImGui::TextDisabled("Recording acceptance with the SDK Manager...");
+            ImGui::TextDisabled("%s", Tr("Recording acceptance with the SDK Manager..."));
         }
     }
 

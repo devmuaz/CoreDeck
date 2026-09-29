@@ -1,3 +1,12 @@
+## [v0.13.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.0) — 2026-09-29
+
+- Translate the interface. Preferences → General can follow the system language or stay on English, French, German, Simplified Chinese, or Traditional Chinese. Chinese, Japanese, and Korean text uses the bundled Noto Sans CJK font (thanks [@xqyveteyio](https://github.com/xqyveteyio), [#51](https://github.com/devmuaz/CoreDeck/issues/51))
+- Add a translation issue template, and a `tools/update_translations.sh` step for refreshing the catalogs after new interface text
+- Keep the first-run flag, SDK path, JDK path, and recent APKs in `settings.json`, and remove the old separate files
+- Fix the output log so it keeps following new lines
+- Enable the hardware keyboard on a new AVD so the emulator navigation buttons appear, and select a phone when creating one
+- Publish Linux checksums with a release and send them to the Homebrew tap along with the macOS ones
+
 ## [v0.12.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.12.0) — 2026-09-28
 
 - Add compatibility support for JDK 27

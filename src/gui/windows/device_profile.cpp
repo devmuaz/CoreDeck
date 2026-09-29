@@ -10,6 +10,7 @@
 #include "../theme.h"
 #include "../widgets.h"
 #include "../../core/utilities.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
 
@@ -49,22 +50,22 @@ namespace CoreDeck {
     LabeledIconStyle DeviceFormFactorStyle(const DeviceCategory category) {
         switch (category) {
             case DeviceCategory::Phone:
-                return {.Icon = Icons::MOBILE, .Label = "Phone", .Color = Colors::ACCENT_PHONE};
+                return {.Icon = Icons::MOBILE, .Label = Tr("Phone"), .Color = Colors::ACCENT_PHONE};
             case DeviceCategory::Tablet:
-                return {.Icon = Icons::TABLET, .Label = "Tablet", .Color = Colors::ACCENT_TABLET};
+                return {.Icon = Icons::TABLET, .Label = Tr("Tablet"), .Color = Colors::ACCENT_TABLET};
             case DeviceCategory::Wear:
-                return {.Icon = Icons::WATCH, .Label = "Wear OS", .Color = Colors::ACCENT_WEAR};
+                return {.Icon = Icons::WATCH, .Label = Tr("Wear OS"), .Color = Colors::ACCENT_WEAR};
             case DeviceCategory::Tv:
-                return {.Icon = Icons::TV, .Label = "TV", .Color = Colors::ACCENT_TV};
+                return {.Icon = Icons::TV, .Label = Tr("TV"), .Color = Colors::ACCENT_TV};
             case DeviceCategory::Automotive:
-                return {.Icon = Icons::CAR, .Label = "Automotive", .Color = Colors::NEGATIVE};
+                return {.Icon = Icons::CAR, .Label = Tr("Automotive"), .Color = Colors::NEGATIVE};
             case DeviceCategory::Desktop:
-                return {.Icon = Icons::DESKTOP, .Label = "Desktop", .Color = Colors::TEXT_SUBTLE};
+                return {.Icon = Icons::DESKTOP, .Label = Tr("Desktop"), .Color = Colors::TEXT_SUBTLE};
             case DeviceCategory::All:
             case DeviceCategory::Other:
-                return {.Icon = Icons::GEAR, .Label = "Other", .Color = Colors::TEXT_SUBTLE};
+                return {.Icon = Icons::GEAR, .Label = Tr("Other"), .Color = Colors::TEXT_SUBTLE};
         }
-        return {.Icon = Icons::GEAR, .Label = "Other", .Color = Colors::TEXT_SUBTLE};
+        return {.Icon = Icons::GEAR, .Label = Tr("Other"), .Color = Colors::TEXT_SUBTLE};
     }
 
     namespace {
@@ -86,44 +87,45 @@ namespace CoreDeck {
             return;
         }
 
-        constexpr auto TITLE = "Choose Device Profile###DeviceProfileDialog";
-        if (BeginCenteredModal(TITLE, &context.UI.ShowDeviceProfileDialog, EmV(84.0F, 26.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
+        const std::string title = TrWindow("Choose Device Profile", "DeviceProfileDialog");
+        if (BeginCenteredModal(title.c_str(), &context.UI.ShowDeviceProfileDialog, EmV(84.0F, 26.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
             if (!work.DeviceProfiles.empty()) {
                 work.PendingSelectedDevice = std::clamp(work.PendingSelectedDevice, 0, static_cast<int>(work.DeviceProfiles.size()) - 1);
             }
 
-            SearchField("##DeviceProfileSearch", "Search device profiles...", work.DeviceSearchFilter, sizeof(work.DeviceSearchFilter));
+            SearchField("##DeviceProfileSearch", Tr("Search device profiles..."), work.DeviceSearchFilter, sizeof(work.DeviceSearchFilter));
 
             ImGui::Spacing();
-            ImGui::TextDisabled("Categories");
+            ImGui::TextDisabled("%s", Tr("Categories"));
 
-            static constexpr const char *CATEGORY_LABELS[] = {
-                "All",
-                "Phone",
-                "Tablet",
-                "Wear OS",
-                "TV",
-                "Automotive",
-                "Desktop",
-                "Other",
+            const char *categoryLabels[] = {
+                Tr("All"),
+                Tr("Phone"),
+                Tr("Tablet"),
+                Tr("Wear OS"),
+                Tr("TV"),
+                Tr("Automotive"),
+                Tr("Desktop"),
+                Tr("Other"),
             };
-            static_assert(IM_ARRAYSIZE(CATEGORY_LABELS) == static_cast<int>(DeviceCategory::Other) + 1);
+            static_assert(IM_ARRAYSIZE(categoryLabels) == static_cast<int>(DeviceCategory::Other) + 1);
             int selectedCategory = static_cast<int>(work.SelectedDeviceCategory);
-            if (CategoryChipRow(CATEGORY_LABELS, IM_ARRAYSIZE(CATEGORY_LABELS), selectedCategory)) {
+            if (CategoryChipRow(categoryLabels, IM_ARRAYSIZE(categoryLabels), selectedCategory)) {
                 work.SelectedDeviceCategory = static_cast<DeviceCategory>(selectedCategory);
             }
 
             ImGui::Spacing();
-            ImGui::Text("Device Profiles");
+            ImGui::Text("%s", Tr("Device Profiles"));
             ImGui::Spacing();
 
             {
                 PickerTableStyle pts;
                 const bool tableOpen = BeginPickerTable("##DeviceProfileTableFrame", "##DeviceProfileTable", 2, Eh(14.0F));
                 if (tableOpen) {
-                    ImGui::TableSetupColumn("  Name", ImGuiTableColumnFlags_WidthStretch, 2.8F);
-                    ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, Em(14.0F));
+                    const std::string nameColumn = StrConcat("  ", Tr("Name"));
+                    ImGui::TableSetupColumn(nameColumn.c_str(), ImGuiTableColumnFlags_WidthStretch, 2.8F);
+                    ImGui::TableSetupColumn(Tr("Type"), ImGuiTableColumnFlags_WidthFixed, Em(14.0F));
                     ImGui::TableHeadersRow();
 
                     int visibleCount = 0;
@@ -155,7 +157,7 @@ namespace CoreDeck {
                     if (visibleCount == 0) {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::TextDisabled("No device profiles match the selected form factor and search.");
+                        ImGui::TextDisabled("%s", Tr("No device profiles match the selected form factor and search."));
                     }
                 }
                 EndPickerTable(tableOpen);
@@ -166,13 +168,13 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             const float halfWidth = EqualButtonWidth(2);
-            if (PositiveButton("Use Selected Device", !work.DeviceProfiles.empty(), ImVec2(halfWidth, 0))) {
+            if (PositiveButton(Tr("Use Selected Device"), !work.DeviceProfiles.empty(), ImVec2(halfWidth, 0))) {
                 work.SelectedDevice = work.PendingSelectedDevice;
                 work.DeviceAutoFilled = false;
                 context.UI.ShowDeviceProfileDialog = false;
             }
             ImGui::SameLine();
-            if (PrimaryButton("Cancel", true, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Tr("Cancel"), true, ImVec2(halfWidth, 0))) {
                 context.UI.ShowDeviceProfileDialog = false;
             }
 

@@ -11,6 +11,7 @@
 #include "health_check.h"
 #include "../theme.h"
 #include "../widgets.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
@@ -33,9 +34,11 @@ namespace CoreDeck {
             const bool busy = work.Busy.load();
 
             LicenseConsentNotice(
-                "Some Android SDK package licenses have not been accepted yet. "
-                "By clicking Agree, you confirm that you have read and accept "
-                "Google's current Android SDK license terms.",
+                Tr(
+                    "Some Android SDK package licenses have not been accepted yet. "
+                    "By clicking Agree, you confirm that you have read and accept "
+                    "Google's current Android SDK license terms."
+                ),
                 busy
             );
 
@@ -50,7 +53,7 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton("Agree", !busy, ImVec2(halfWidth, 0))) {
+            if (PositiveButton(Tr("Agree"), !busy, ImVec2(halfWidth, 0))) {
                 work.Error.clear();
                 work.Busy = true;
                 const SdkInfo sdk = context.Host.Sdk;
@@ -59,7 +62,7 @@ namespace CoreDeck {
                 });
             }
             ImGui::SameLine();
-            if (NegativeButton("Cancel", !busy, ImVec2(halfWidth, 0))) {
+            if (NegativeButton(Tr("Cancel"), !busy, ImVec2(halfWidth, 0))) {
                 context.UI.ShowAcceptLicensesDialog = false;
                 work.Error.clear();
                 ImGui::CloseCurrentPopup();
@@ -84,7 +87,7 @@ namespace CoreDeck {
             if (ok) {
                 work.Accepted = true;
             } else {
-                work.Error = "License acceptance failed. Try again or accept via Android Studio.";
+                work.Error = Tr("License acceptance failed. Try again or accept via Android Studio.");
             }
         }
 
@@ -92,10 +95,10 @@ namespace CoreDeck {
             return;
         }
 
-        constexpr auto TITLE = "Accept SDK Licenses###AcceptLicensesDialog";
+        const std::string title = TrWindow("Accept SDK Licenses", "AcceptLicensesDialog");
         const bool busy = work.Busy.load();
         bool *pOpen = busy ? nullptr : &context.UI.ShowAcceptLicensesDialog;
-        if (BeginCenteredModal(TITLE, pOpen, EmV(56.0F, 14.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(title.c_str(), pOpen, EmV(56.0F, 14.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             if (work.Accepted) {
                 work.Accepted = false;
                 context.UI.ShowAcceptLicensesDialog = false;

@@ -21,3 +21,5 @@ Which parts of the interface does this cover? (the whole app, a specific window,
 
 **Notes**
 Dialect, terminology you want to keep in English, or anything else we should know. Screenshots of awkward wording are welcome.
+
+Attach or link a `locales/<locale>.po` file filled in from `locales/coredeck.pot`. The workflow is in `docs/localization.md`.

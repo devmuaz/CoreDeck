@@ -149,6 +149,30 @@ if(NOT WIN32)
     find_package(CURL REQUIRED)
 endif()
 
+if(APPLE)
+    foreach(_gettext_prefix /opt/homebrew/opt/gettext /usr/local/opt/gettext)
+        if(EXISTS "${_gettext_prefix}")
+            list(APPEND CMAKE_PREFIX_PATH "${_gettext_prefix}")
+        endif()
+    endforeach()
+endif()
+find_package(Intl REQUIRED)
+set(_coredeck_msgfmt_hints
+    /opt/homebrew/bin
+    /opt/homebrew/opt/gettext/bin
+    /usr/local/bin
+    /usr/local/opt/gettext/bin
+)
+if(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
+    list(APPEND _coredeck_msgfmt_hints
+        "$ENV{VCPKG_INSTALLATION_ROOT}/installed/x64-windows/tools/gettext/bin"
+    )
+endif()
+foreach(_prefix IN LISTS CMAKE_PREFIX_PATH)
+    list(APPEND _coredeck_msgfmt_hints "${_prefix}/tools/gettext/bin" "${_prefix}/bin")
+endforeach()
+find_program(GETTEXT_MSGFMT_EXECUTABLE msgfmt HINTS ${_coredeck_msgfmt_hints} REQUIRED)
+
 add_library(coredeck_core STATIC
     src/core/app_settings.cpp
     src/core/apk_analyzer.cpp
@@ -160,6 +184,7 @@ add_library(coredeck_core STATIC
     src/core/file_dialog.cpp
     src/core/health_check.cpp
     src/core/http_download.cpp
+    src/core/i18n.cpp
     src/core/jdk.cpp
     src/core/log_buffer.cpp
     src/core/log_filter.cpp
@@ -179,7 +204,7 @@ add_library(coredeck_core STATIC
 
 target_include_directories(coredeck_core PUBLIC src)
 target_precompile_headers(coredeck_core PRIVATE src/pch.h)
-target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs miniz)
+target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs miniz Intl::Intl)
 
 target_compile_definitions(coredeck_core PUBLIC
     COREDECK_TITLE="CoreDeck"
@@ -205,7 +230,9 @@ endif()
 if(WIN32)
     target_compile_definitions(coredeck_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
     target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32 winhttp ws2_32)
-elseif(UNIX AND NOT APPLE)
+elseif(APPLE)
+    target_link_libraries(coredeck_core PUBLIC CURL::libcurl "-framework CoreFoundation")
+elseif(UNIX)
     target_link_libraries(coredeck_core PUBLIC ${CMAKE_DL_LIBS} Threads::Threads CURL::libcurl)
 else()
     target_link_libraries(coredeck_core PUBLIC CURL::libcurl)
@@ -264,11 +291,35 @@ if(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation")
 endif()
 
+set(COREDECK_LOCALE_DIR "${CMAKE_BINARY_DIR}/locales")
+file(MAKE_DIRECTORY "${COREDECK_LOCALE_DIR}")
+file(GLOB COREDECK_PO_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/locales/*.po")
+set(COREDECK_MO_FILES)
+foreach(_po_file IN LISTS COREDECK_PO_FILES)
+    get_filename_component(_tag "${_po_file}" NAME_WE)
+    set(_mo_file "${COREDECK_LOCALE_DIR}/${_tag}/LC_MESSAGES/coredeck.mo")
+    add_custom_command(
+        OUTPUT "${_mo_file}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${COREDECK_LOCALE_DIR}/${_tag}/LC_MESSAGES"
+        COMMAND "${GETTEXT_MSGFMT_EXECUTABLE}" -c -o "${_mo_file}" "${_po_file}"
+        DEPENDS "${_po_file}"
+        VERBATIM
+    )
+    list(APPEND COREDECK_MO_FILES "${_mo_file}")
+endforeach()
+add_custom_target(coredeck_locales ALL DEPENDS ${COREDECK_MO_FILES})
+add_dependencies(${PROJECT_NAME} coredeck_locales)
+
 if(APPLE)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets/fonts
         $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/fonts
+    )
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${COREDECK_LOCALE_DIR}
+        $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/locales
     )
 else()
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -276,6 +327,47 @@ else()
         ${CMAKE_SOURCE_DIR}/assets/fonts
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/fonts
     )
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${COREDECK_LOCALE_DIR}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/locales
+    )
+endif()
+
+if(APPLE AND NOT Intl_IS_BUILT_IN)
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY BUILD_RPATH "@executable_path/../Frameworks")
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY INSTALL_RPATH "@executable_path/../Frameworks")
+    get_filename_component(_intl_real "${Intl_LIBRARY}" REALPATH)
+    execute_process(
+        COMMAND otool -D "${_intl_real}"
+        OUTPUT_VARIABLE _intl_otool
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(REGEX REPLACE ".*\n" "" COREDECK_INTL_INSTALL_NAME "${_intl_otool}")
+    string(STRIP "${COREDECK_INTL_INSTALL_NAME}" COREDECK_INTL_INSTALL_NAME)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks"
+        COMMAND ${CMAKE_COMMAND} -E copy "${_intl_real}" "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks/libintl.8.dylib"
+        COMMAND install_name_tool -id "@rpath/libintl.8.dylib" "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks/libintl.8.dylib"
+        COMMAND install_name_tool -change "${COREDECK_INTL_INSTALL_NAME}" "@rpath/libintl.8.dylib" "$<TARGET_FILE:${PROJECT_NAME}>"
+        VERBATIM
+    )
+endif()
+
+if(WIN32 AND NOT Intl_IS_BUILT_IN AND Intl_LIBRARY)
+    get_filename_component(_intl_lib_dir "${Intl_LIBRARY}" DIRECTORY)
+    file(GLOB _intl_runtime_dlls
+        "${_intl_lib_dir}/../bin/*intl*.dll"
+        "${_intl_lib_dir}/../bin/*iconv*.dll"
+        "${_intl_lib_dir}/../bin/*charset*.dll"
+    )
+    foreach(_dll IN LISTS _intl_runtime_dlls)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_dll}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+            VERBATIM
+        )
+    endforeach()
+    set(COREDECK_INTL_RUNTIME_DLLS ${_intl_runtime_dlls})
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -399,6 +491,7 @@ endif()
 
 if(NOT APPLE)
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/fonts DESTINATION assets)
+    install(DIRECTORY ${COREDECK_LOCALE_DIR}/ DESTINATION assets/locales)
 endif()
 
 if(UNIX AND NOT APPLE)

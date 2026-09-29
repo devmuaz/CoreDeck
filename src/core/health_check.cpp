@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "health_check.h"
+#include "i18n.h"
 #include "paths.h"
 #include "sdk_bootstrap.h"
 #include "system_image.h"
@@ -96,13 +97,13 @@ namespace CoreDeck {
             HealthCheckResult result{.Id = HealthCheckId::SdkRoot};
             if (sdk.SdkPath.empty()) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = "No Android SDK location is configured.";
+                result.Detail = TrFormat("No Android SDK location is configured.");
                 result.Fix = HealthFix::InstallSdk;
                 return result;
             }
             if (!deps.PathExists(sdk.SdkPath)) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = StrConcat("The configured SDK folder does not exist: ", sdk.SdkPath);
+                result.Detail = TrFormat("The configured SDK folder does not exist: {0}", sdk.SdkPath);
                 result.Fix = HealthFix::InstallSdk;
                 return result;
             }
@@ -115,7 +116,7 @@ namespace CoreDeck {
             HealthCheckResult result{.Id = HealthCheckId::EmulatorBinary};
             if (sdk.EmulatorPath.empty() || !deps.PathExists(sdk.EmulatorPath)) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = "The emulator binary was not found in this SDK.";
+                result.Detail = TrFormat("The emulator binary was not found in this SDK.");
                 result.Fix = HealthFix::InstallSdk;
                 return result;
             }
@@ -131,7 +132,7 @@ namespace CoreDeck {
             );
             if (!deps.PathExists(adbPath)) {
                 result.Status = HealthStatus::Warning;
-                result.Detail = "adb was not found under platform-tools.";
+                result.Detail = TrFormat("adb was not found under platform-tools.");
                 return result;
             }
             result.Status = HealthStatus::Passed;
@@ -144,7 +145,7 @@ namespace CoreDeck {
             const std::optional<std::string> aapt2 = deps.FindAapt2 ? deps.FindAapt2(sdk.SdkPath) : std::nullopt;
             if (!aapt2.has_value() || aapt2->empty()) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = "aapt2 was not found under build-tools. The APK Analyzer needs it.";
+                result.Detail = TrFormat("aapt2 was not found under build-tools. The APK Analyzer needs it.");
                 result.Fix = HealthFix::InstallBuildTools;
                 return result;
             }
@@ -164,12 +165,12 @@ namespace CoreDeck {
             const bool analyzerMissing = CmdlineToolMissing(sdk.ApkAnalyzerPath, deps);
             if (avdMissing || sdkManagerMissing || analyzerMissing) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = "avdmanager, sdkmanager, and/or apkanalyzer are missing from this SDK.";
+                result.Detail = TrFormat("avdmanager, sdkmanager, and/or apkanalyzer are missing from this SDK.");
                 result.Fix = HealthFix::InstallCmdlineTools;
                 return result;
             }
             result.Status = HealthStatus::Passed;
-            result.Detail = "avdmanager, sdkmanager, and apkanalyzer are available.";
+            result.Detail = TrFormat("avdmanager, sdkmanager, and apkanalyzer are available.");
             return result;
         }
 
@@ -177,19 +178,14 @@ namespace CoreDeck {
             HealthCheckResult result{.Id = HealthCheckId::JdkRuntime};
             if (!jdk.IsFound) {
                 result.Status = HealthStatus::Warning;
-                result.Detail = "No JDK detected. The command-line tools will use whatever 'java' is on your PATH.";
+                result.Detail = TrFormat("No JDK detected. The command-line tools will use whatever 'java' is on your PATH.");
                 result.Fix = HealthFix::ConfigureJdk;
                 return result;
             }
             if (!jdk.IsValid) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = StrConcat(
-                    "Found ",
-                    jdk.VersionString.empty() ? "an unknown Java version" : jdk.VersionString,
-                    ", which is older than JDK ",
-                    std::to_string(JDK_MINIMUM_MAJOR),
-                    "."
-                );
+                const std::string version = jdk.VersionString.empty() ? TrFormat("an unknown Java version") : jdk.VersionString;
+                result.Detail = TrFormat("Found {0}, which is older than JDK {1}.", version, std::to_string(JDK_MINIMUM_MAJOR));
                 result.Fix = HealthFix::ConfigureJdk;
                 return result;
             }
@@ -202,13 +198,13 @@ namespace CoreDeck {
             HealthCheckResult result{.Id = HealthCheckId::ToolsRun};
             if (sdk.SdkManagerPath.empty()) {
                 result.Status = HealthStatus::Skipped;
-                result.Detail = "sdkmanager is not installed.";
+                result.Detail = TrFormat("sdkmanager is not installed.");
                 return result;
             }
 
             if (!deps.PathExists(sdk.SdkManagerPath)) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = "sdkmanager is missing from this SDK.";
+                result.Detail = TrFormat("sdkmanager is missing from this SDK.");
                 result.Fix = HealthFix::InstallCmdlineTools;
                 return result;
             }
@@ -216,15 +212,15 @@ namespace CoreDeck {
             const std::string output = deps.SdkManagerVersion(sdk);
             if (const std::optional<std::string> version = InterpretSdkManagerVersionOutput(output)) {
                 result.Status = HealthStatus::Passed;
-                result.Detail = StrConcat("sdkmanager ", *version);
+                result.Detail = TrFormat("sdkmanager {0}", *version);
                 return result;
             }
 
             result.Status = HealthStatus::Failed;
             const std::string firstLine = FirstDiagnosticLine(output);
             result.Detail = firstLine.empty()
-                                ? "sdkmanager did not produce any output. Check the Java setup."
-                                : StrConcat("sdkmanager did not run correctly: ", firstLine);
+                                ? TrFormat("sdkmanager did not produce any output. Check the Java setup.")
+                                : TrFormat("sdkmanager did not run correctly: {0}", firstLine);
             result.Fix = HealthFix::ConfigureJdk;
             return result;
         }
@@ -233,24 +229,24 @@ namespace CoreDeck {
             HealthCheckResult result{.Id = HealthCheckId::Licenses};
             if (sdk.SdkManagerPath.empty()) {
                 result.Status = HealthStatus::Skipped;
-                result.Detail = "sdkmanager is not installed.";
+                result.Detail = TrFormat("sdkmanager is not installed.");
                 return result;
             }
 
             switch (deps.CheckLicenses(sdk)) {
                 case LicenseStatus::AllAccepted:
                     result.Status = HealthStatus::Passed;
-                    result.Detail = "All SDK package licenses are accepted.";
+                    result.Detail = TrFormat("All SDK package licenses are accepted.");
                     break;
                 case LicenseStatus::SomeUnaccepted:
                     result.Status = HealthStatus::Failed;
-                    result.Detail = "Some SDK package licenses have not been accepted.";
+                    result.Detail = TrFormat("Some SDK package licenses have not been accepted.");
                     result.Fix = HealthFix::AcceptLicenses;
                     break;
                 case LicenseStatus::CheckFailed:
                 default:
                     result.Status = HealthStatus::Warning;
-                    result.Detail = "The SDK license state could not be read.";
+                    result.Detail = TrFormat("The SDK license state could not be read.");
                     break;
             }
             return result;
@@ -261,12 +257,17 @@ namespace CoreDeck {
             const std::size_t count = deps.CountSystemImages(sdk);
             if (count == 0) {
                 result.Status = HealthStatus::Warning;
-                result.Detail = "No system images are installed yet, so no AVD can boot.";
+                result.Detail = TrFormat("No system images are installed yet, so no AVD can boot.");
                 result.Fix = HealthFix::InstallSystemImage;
                 return result;
             }
             result.Status = HealthStatus::Passed;
-            result.Detail = StrConcat(std::to_string(count), count == 1 ? " system image" : " system images", " installed.");
+            result.Detail = TrFormatN(
+                "{0} system image installed.",
+                "{0} system images installed.",
+                static_cast<int>(count),
+                std::to_string(count)
+            );
             return result;
         }
 
@@ -275,22 +276,20 @@ namespace CoreDeck {
             const std::optional<std::uint64_t> freeBytes = deps.FreeDiskSpace(sdk.SdkPath);
             if (!freeBytes.has_value()) {
                 result.Status = HealthStatus::Skipped;
-                result.Detail = "The free disk space could not be determined.";
+                result.Detail = TrFormat("The free disk space could not be determined.");
                 return result;
             }
             if (*freeBytes < BOOTSTRAP_REQUIRED_BYTES) {
                 result.Status = HealthStatus::Warning;
-                result.Detail = StrConcat(
-                    "Only ",
+                result.Detail = TrFormat(
+                    "Only {0} is free. About {1} is recommended for downloads.",
                     FormatFileSize(*freeBytes),
-                    " is free. About ",
-                    FormatFileSize(BOOTSTRAP_REQUIRED_BYTES),
-                    " is recommended for downloads."
+                    FormatFileSize(BOOTSTRAP_REQUIRED_BYTES)
                 );
                 return result;
             }
             result.Status = HealthStatus::Passed;
-            result.Detail = StrConcat(FormatFileSize(*freeBytes), " free.");
+            result.Detail = TrFormat("{0} free.", FormatFileSize(*freeBytes));
             return result;
         }
 
@@ -298,7 +297,7 @@ namespace CoreDeck {
             return {
                 .Id = id,
                 .Status = HealthStatus::Skipped,
-                .Detail = "Needs a configured Android SDK.",
+                .Detail = TrFormat("Needs a configured Android SDK."),
                 .Fix = HealthFix::None,
             };
         }
@@ -376,44 +375,44 @@ namespace CoreDeck {
     const char *HealthCheckLabel(const HealthCheckId id) {
         switch (id) {
             case HealthCheckId::SdkRoot:
-                return "Android SDK location";
+                return Tr("Android SDK location");
             case HealthCheckId::EmulatorBinary:
-                return "Emulator binary";
+                return Tr("Emulator binary");
             case HealthCheckId::PlatformTools:
-                return "Platform tools (adb)";
+                return Tr("Platform tools (adb)");
             case HealthCheckId::BuildTools:
-                return "Build tools (aapt2)";
+                return Tr("Build tools (aapt2)");
             case HealthCheckId::CmdlineTools:
-                return "Command-line tools (avdmanager, sdkmanager, apkanalyzer)";
+                return Tr("Command-line tools (avdmanager, sdkmanager, apkanalyzer)");
             case HealthCheckId::JdkRuntime:
-                return "Java runtime (JDK 17 or newer)";
+                return Tr("Java runtime (JDK 17 or newer)");
             case HealthCheckId::ToolsRun:
-                return "Command-line tools run";
+                return Tr("Command-line tools run");
             case HealthCheckId::Licenses:
-                return "SDK licenses";
+                return Tr("SDK licenses");
             case HealthCheckId::SystemImages:
-                return "System images";
+                return Tr("System images");
             case HealthCheckId::DiskSpace:
             default:
-                return "Free disk space";
+                return Tr("Free disk space");
         }
     }
 
     const char *HealthStatusLabel(const HealthStatus status) {
         switch (status) {
             case HealthStatus::Pending:
-                return "Pending";
+                return Tr("Pending");
             case HealthStatus::Running:
-                return "Checking...";
+                return Tr("Checking...");
             case HealthStatus::Passed:
-                return "Passed";
+                return Tr("Passed");
             case HealthStatus::Warning:
-                return "Warning";
+                return Tr("Warning");
             case HealthStatus::Failed:
-                return "Failed";
+                return Tr("Failed");
             case HealthStatus::Skipped:
             default:
-                return "Skipped";
+                return Tr("Skipped");
         }
     }
 

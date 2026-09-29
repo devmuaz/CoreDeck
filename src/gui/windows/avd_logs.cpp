@@ -16,6 +16,7 @@
 #include "../theme.h"
 #include "../widgets.h"
 #include "../../core/log_filter.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
@@ -54,11 +55,11 @@ namespace CoreDeck {
         PanelView BuildView(const PanelInputs &inputs, const Context::LogViewState &state) {
             PanelView view;
             if (!inputs.HasSelection) {
-                view.Placeholder = "Select an AVD to view logs";
+                view.Placeholder = Tr("Select an AVD to view logs");
                 return view;
             }
             if (!inputs.Log) {
-                view.Placeholder = "Run the \"" + inputs.AvdName + "\" AVD to view logs";
+                view.Placeholder = TrFormat("Run the \"{0}\" AVD to view logs", inputs.AvdName);
                 return view;
             }
 
@@ -70,7 +71,7 @@ namespace CoreDeck {
             view.HasContent = !view.Filter.Joined.empty();
 
             if (!view.HasContent) {
-                view.Placeholder = lines.empty() ? "No available logs to view" : "No matching log entries found";
+                view.Placeholder = lines.empty() ? Tr("No available logs to view") : Tr("No matching log entries found");
             }
             return view;
         }
@@ -138,7 +139,7 @@ namespace CoreDeck {
             std::strncpy(searchBuffer, state.Search.c_str(), sizeof(searchBuffer) - 1);
             searchBuffer[sizeof(searchBuffer) - 1] = '\0';
 
-            const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? "Regex" : "Search logs...");
+            const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? Tr("Regex") : Tr("Search logs..."));
             ImGui::SetNextItemWidth(searchWidth);
             if (regexInvalid) {
                 ImGui::PushStyleColor(ImGuiCol_Border, HexColor(Colors::NEGATIVE));
@@ -155,7 +156,7 @@ namespace CoreDeck {
                 ImGui::PopStyleColor();
             }
             if (regexInvalid && ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Invalid regex: %s", view.Filter.RegexError.c_str());
+                ImGui::SetTooltip("%s", TrFormat("Invalid regex: {0}", view.Filter.RegexError).c_str());
             }
             if (edited) {
                 state.Search = searchBuffer;
@@ -305,7 +306,8 @@ namespace CoreDeck {
             return;
         }
 
-        ImGui::Begin("Output Log");
+        const std::string title = TrWindow("Output Log", "Output Log");
+        ImGui::Begin(title.c_str());
 
         const PanelInputs inputs = ResolveInputs(context);
         Context::LogViewState scratch{};

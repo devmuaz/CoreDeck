@@ -14,6 +14,7 @@
 #include "preferences_jdk.h"
 #include "../theme.h"
 #include "../widgets.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
@@ -30,9 +31,9 @@ namespace CoreDeck {
         };
 
         constexpr SidebarItem SIDEBAR_ITEMS[] = {
-            {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = "General"},
-            {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = "Android SDK"},
-            {.Section = PrefsSection::Java, .Icon = Icons::COFFEE, .Label = "Java (JDK)"},
+            {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = TrNoop("General")},
+            {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = TrNoop("Android SDK")},
+            {.Section = PrefsSection::Java, .Icon = Icons::COFFEE, .Label = TrNoop("Java (JDK)")},
         };
 
         bool SidebarRow(const SidebarItem &item, const bool selected) {
@@ -74,7 +75,7 @@ namespace CoreDeck {
             const ImU32 textColor = ImGui::GetColorU32(selected ? HexColor(Colors::TEXT_PRIMARY) : HexColor(Colors::TEXT_SUBTLE));
             const float textY = bb.Min.y + ((height - ImGui::GetTextLineHeight()) * 0.5F);
             window->DrawList->AddText(ImVec2(bb.Min.x + 14.0F, textY), textColor, item.Icon);
-            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0F, textY), textColor, item.Label);
+            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0F, textY), textColor, Tr(item.Label));
 
             ImGui::PopID();
             return pressed;
@@ -107,13 +108,13 @@ namespace CoreDeck {
         static char sdkPathBuffer[2048];
         static char jdkPathBuffer[2048];
 
-        constexpr auto TITLE = "Preferences###CoreDeckPrefs";
-        if (!context.UI.ShowPreferences && !ImGui::IsPopupOpen(TITLE)) {
+        const std::string title = TrWindow("Preferences", "CoreDeckPrefs");
+        if (!context.UI.ShowPreferences && !ImGui::IsPopupOpen(title.c_str())) {
             return;
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        if (BeginCenteredModal(TITLE, &context.UI.ShowPreferences, EmV(100.0F, 32.0F), WINDOW_NO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(title.c_str(), &context.UI.ShowPreferences, EmV(100.0F, 32.0F), WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::PopStyleVar();
 
             if (ImGui::IsWindowAppearing()) {

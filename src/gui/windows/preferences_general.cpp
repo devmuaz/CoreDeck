@@ -9,28 +9,29 @@
 #include "../application.h"
 #include "../theme.h"
 #include "../widgets.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
         void DrawAppearancePicker(Context &context) {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted("Appearance");
+            ImGui::TextUnformatted(Tr("Appearance"));
             ImGui::PopStyleColor();
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextWrapped("Follow the system appearance, or keep CoreDeck dark or light.");
+            ImGui::TextWrapped("%s", Tr("Follow the system appearance, or keep CoreDeck dark or light."));
             ImGui::PopStyleColor();
             ImGui::Spacing();
 
-            static constexpr const char *LABELS[] = {"System", "Dark", "Light"};
+            const char *labels[] = {Tr("System"), Tr("Dark"), Tr("Light")};
             const int current = static_cast<int>(context.Prefs.Theme);
-            const int selectedIndex = current >= 0 && current < IM_ARRAYSIZE(LABELS) ? current : 0;
+            const int selectedIndex = current >= 0 && current < IM_ARRAYSIZE(labels) ? current : 0;
 
             ImGui::SetNextItemWidth(Em(18.0F));
             ComboStyle comboStyle;
-            if (ImGui::BeginCombo("##Theme", LABELS[selectedIndex])) {
-                for (int i = 0; i < IM_ARRAYSIZE(LABELS); ++i) {
+            if (ImGui::BeginCombo("##Theme", labels[selectedIndex])) {
+                for (int i = 0; i < IM_ARRAYSIZE(labels); ++i) {
                     const bool selected = selectedIndex == i;
-                    if (RoundedSelectable(LABELS[i], selected)) {
+                    if (RoundedSelectable(labels[i], selected)) {
                         const auto preference = static_cast<ThemePreference>(i);
                         context.Prefs.Theme = preference;
                         SetThemePreference(preference);
@@ -45,12 +46,76 @@ namespace CoreDeck {
                 ImGui::EndCombo();
             }
         }
+
+        void DrawLanguagePicker(Context &context) {
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+            ImGui::TextUnformatted(Tr("Language"));
+            ImGui::PopStyleColor();
+            ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
+            ImGui::TextWrapped("%s", Tr("Follow the system language, or choose one for CoreDeck."));
+            ImGui::PopStyleColor();
+            ImGui::Spacing();
+
+            const std::vector<std::string> discovered = AvailableLanguages();
+            std::vector<std::string> tags;
+            std::vector<std::string> labels;
+            tags.emplace_back();
+            labels.emplace_back(Tr("System"));
+            tags.emplace_back("en");
+            labels.emplace_back(LanguageEndonym("en"));
+            for (const std::string &tag: discovered) {
+                if (tag == "en") {
+                    continue;
+                }
+                tags.push_back(tag);
+                labels.push_back(LanguageEndonym(tag));
+            }
+
+            const std::string &current = context.Prefs.Language;
+            int selectedIndex = 0;
+            bool found = false;
+            for (int i = 0; i < static_cast<int>(tags.size()); ++i) {
+                if (tags.at(static_cast<std::size_t>(i)) == current) {
+                    selectedIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found && !current.empty()) {
+                tags.push_back(current);
+                labels.push_back(LanguageEndonym(current));
+                selectedIndex = static_cast<int>(tags.size()) - 1;
+            }
+
+            ImGui::SetNextItemWidth(Em(18.0F));
+            ComboStyle comboStyle;
+            if (ImGui::BeginCombo("##Language", labels.at(static_cast<std::size_t>(selectedIndex)).c_str())) {
+                for (int i = 0; i < static_cast<int>(tags.size()); ++i) {
+                    const bool selected = selectedIndex == i;
+                    if (RoundedSelectable(labels.at(static_cast<std::size_t>(i)).c_str(), selected)) {
+                        context.Prefs.Language = tags.at(static_cast<std::size_t>(i));
+                        SetLanguage(context.Prefs.Language);
+                        PersistAppSettings(context);
+                    }
+                    if (selected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
     }
 
     void DrawPreferencesGeneralSection(Context &context) {
-        PreferencesSectionHeader("General", "Appearance and behavior while you work with AVDs.");
+        PreferencesSectionHeader(Tr("General"), Tr("Appearance, language, and behavior while you work with AVDs."));
 
         DrawAppearancePicker(context);
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        DrawLanguagePicker(context);
 
         ImGui::Spacing();
         ImGui::Separator();
@@ -59,8 +124,8 @@ namespace CoreDeck {
         if (SubtitledCheckbox(
                 "AutoScrollLogs",
                 &context.Logs.AutoScroll,
-                "Enable auto-scrolling of output logs",
-                "Keep the log view pinned to the most recent line as new output arrives."
+                Tr("Enable auto-scrolling of output logs"),
+                Tr("Keep the log view pinned to the most recent line as new output arrives.")
             )) {
             PersistAppSettings(context);
         }
@@ -70,8 +135,8 @@ namespace CoreDeck {
         if (SubtitledCheckbox(
                 "ConfirmDeleteAvd",
                 &context.Prefs.ConfirmBeforeDeleteAvd,
-                "Confirm before deleting an AVD",
-                "Show a confirmation dialog when you delete a virtual device."
+                Tr("Confirm before deleting an AVD"),
+                Tr("Show a confirmation dialog when you delete a virtual device.")
             )) {
             PersistAppSettings(context);
         }
@@ -81,8 +146,8 @@ namespace CoreDeck {
         if (SubtitledCheckbox(
                 "CrashReporting",
                 &context.Prefs.CrashReportingEnabled,
-                "Send crash reports and diagnostics to " COREDECK_TITLE,
-                "Share anonymous crash reports and error diagnostics (Restart Required)."
+                Tr("Send crash reports and diagnostics to CoreDeck"),
+                Tr("Share anonymous crash reports and error diagnostics (Restart Required).")
             )) {
             PersistAppSettings(context);
         }

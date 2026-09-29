@@ -8,15 +8,16 @@
 #include "../context.h"
 #include "../theme.h"
 #include "about.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     void BuildAboutWindow(Context &context) {
-        constexpr auto TITLE = "About CoreDeck";
-        if (!context.UI.ShowAboutDialog && !ImGui::IsPopupOpen(TITLE)) {
+        const std::string title = TrWindow("About CoreDeck", "About CoreDeck");
+        if (!context.UI.ShowAboutDialog && !ImGui::IsPopupOpen(title.c_str())) {
             return;
         }
 
-        if (BeginCenteredModal(TITLE, &context.UI.ShowAboutDialog, ImVec2(Em(65.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
+        if (BeginCenteredModal(title.c_str(), &context.UI.ShowAboutDialog, ImVec2(Em(65.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
             const auto centerCursor = [](const float textWidth) {
                 ImGui::SetCursorPosX(
                     ((ImGui::GetContentRegionAvail().x - textWidth) * 0.5F) + ImGui::GetCursorStartPos().x
@@ -28,7 +29,7 @@ namespace CoreDeck {
             ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), COREDECK_TITLE);
             ImGui::PopFont();
 
-            const std::string version = "Version " COREDECK_VERSION " (Build " COREDECK_BUILD_NUMBER ")";
+            const std::string version = TrFormat("Version {0} (Build {1})", COREDECK_VERSION, COREDECK_BUILD_NUMBER);
             centerCursor(ImGui::CalcTextSize(version.c_str()).x);
             ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", version.c_str());
 
@@ -43,17 +44,17 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            if (PropertyText("Author", COREDECK_VENDOR, true)) {
+            if (PropertyText(Tr("Author"), COREDECK_VENDOR, true)) {
                 OpenUrl(COREDECK_AUTHOR_WEBSITE);
             }
-            PropertyText("License", "MIT");
-            if (PropertyText("Website", "coredeck.dev", true)) {
+            PropertyText(Tr("License"), Tr("MIT"));
+            if (PropertyText(Tr("Website"), "coredeck.dev", true)) {
                 OpenUrl(COREDECK_WEBSITE);
             }
-            if (PropertyText("GitHub", "github.com/devmuaz/CoreDeck", true)) {
+            if (PropertyText(Tr("GitHub"), "github.com/devmuaz/CoreDeck", true)) {
                 OpenUrl(COREDECK_GITHUB);
             }
-            PropertyText("Built with", "C++20, Dear ImGui, GLFW, OpenGL");
+            PropertyText(Tr("Built with"), Tr("C++20, Dear ImGui, GLFW, OpenGL"));
 
             ImGui::Spacing();
             ImGui::Separator();

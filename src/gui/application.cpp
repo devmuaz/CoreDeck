@@ -34,6 +34,7 @@
 #include "application.h"
 #include "theme.h"
 #include "../core/app_settings.h"
+#include "../core/i18n.h"
 #include "../core/paths.h"
 #include "windows/about.h"
 #include "windows/apk_analyzer.h"
@@ -74,6 +75,8 @@ namespace CoreDeck {
     Application::Application() : m_Context(DetectAndroidSdk()) {
         EnsureOptionsConfigDirectoryExists();
         ApplyAppSettingsToContext(m_Context, LoadAppSettings());
+        SetLocalesDirectory(Paths::JoinPaths({Paths::GetResourcesDirectory(), "assets", "locales"}));
+        SetLanguage(m_Context.Prefs.Language);
 
         m_Context.Host.Jdk = DetectJdk();
         ApplyJdkToSdk(m_Context.Host.Sdk, m_Context.Host.Jdk);
@@ -229,7 +232,7 @@ namespace CoreDeck {
 
     bool Application::m_InitPlatform() {
         if (!glfwInit()) {
-            ShowFatalError(COREDECK_TITLE, "Failed to initialize GLFW.");
+            ShowFatalError(COREDECK_TITLE, Tr("Failed to initialize GLFW."));
             return false;
         }
         m_GlfwInitialized = true;
@@ -252,7 +255,7 @@ namespace CoreDeck {
     bool Application::m_CreateMainWindow() {
         m_Window = glfwCreateWindow(1200, 900, COREDECK_TITLE, nullptr, nullptr);
         if (!m_Window) {
-            ShowFatalError(COREDECK_TITLE, "Failed to create window.\nYour system may not support OpenGL 3.3.");
+            ShowFatalError(COREDECK_TITLE, Tr("Failed to create window.\nYour system may not support OpenGL 3.3."));
             return false;
         }
 
@@ -299,6 +302,9 @@ namespace CoreDeck {
         const std::string textFontPath = Paths::JoinPaths(
             {resourcesDir, "assets", "fonts", "JetBrainsMono-Regular.ttf"}
         );
+        const std::string cjkFontPath = Paths::JoinPaths(
+            {resourcesDir, "assets", "fonts", "NotoSansCJKsc-Regular.otf"}
+        );
         const std::string iconFontPath = Paths::JoinPaths(
             {resourcesDir, "assets", "fonts", "FontAwesome7Free-Solid-900.otf"}
         );
@@ -307,16 +313,17 @@ namespace CoreDeck {
         constexpr float BASE_TEXT_SIZE = 16.0F;
         constexpr float BASE_ICON_SIZE = 12.0F;
         constexpr float BASE_GLYPH_MIN_ADVANCE = 16.0F;
+        static constexpr ImWchar ICON_RANGES[] = {0xf000, 0xf8ff, 0};
 
         if (std::filesystem::exists(textFontPath)) {
-            static constexpr ImWchar TEXT_RANGES[] = {
-                0x0020,
-                0x00FF,
-                0x2000,
-                0x206F,
-                0,
-            };
-            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), BASE_TEXT_SIZE * dpi, nullptr, TEXT_RANGES);
+            io.Fonts->AddFontFromFileTTF(textFontPath.c_str(), BASE_TEXT_SIZE * dpi, nullptr, nullptr);
+        }
+
+        if (std::filesystem::exists(cjkFontPath)) {
+            ImFontConfig cjkConfig;
+            cjkConfig.MergeMode = true;
+            cjkConfig.GlyphExcludeRanges = ICON_RANGES;
+            io.Fonts->AddFontFromFileTTF(cjkFontPath.c_str(), BASE_TEXT_SIZE * dpi, &cjkConfig, nullptr);
         }
 
         if (std::filesystem::exists(iconFontPath)) {
@@ -325,7 +332,6 @@ namespace CoreDeck {
             iconConfig.PixelSnapH = true;
             iconConfig.GlyphMinAdvanceX = BASE_GLYPH_MIN_ADVANCE * dpi;
 
-            static constexpr ImWchar ICON_RANGES[] = {0xf000, 0xf8ff, 0};
             io.Fonts->AddFontFromFileTTF(iconFontPath.c_str(), BASE_ICON_SIZE * dpi, &iconConfig, ICON_RANGES);
         }
     }
@@ -532,6 +538,7 @@ namespace CoreDeck {
         s.AvdSortMode = static_cast<int>(context.Catalog.SortMode);
         s.AvdSortAscending = context.Catalog.SortAscending;
         s.Theme = static_cast<int>(context.Prefs.Theme);
+        s.Language = context.Prefs.Language;
         return s;
     }
 
@@ -555,6 +562,7 @@ namespace CoreDeck {
                                     ? static_cast<ThemePreference>(theme)
                                     : ThemePreference::System;
         context.Prefs.Theme = preference;
+        context.Prefs.Language = settings.Language;
         SetThemePreference(preference);
     }
 

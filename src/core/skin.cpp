@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "skin.h"
+#include "i18n.h"
 #include "utilities.h"
 
 #include <ranges>
@@ -167,11 +168,11 @@ namespace CoreDeck {
     const char *SkinSourceLabel(const SkinSource &source) {
         switch (source) {
             case SkinSource::Sdk:
-                return "SDK";
+                return Tr("SDK");
             case SkinSource::SystemImage:
-                return "System Image";
+                return Tr("System Image");
             case SkinSource::Platform:
-                return "Platform";
+                return Tr("Platform");
         }
         return "";
     }

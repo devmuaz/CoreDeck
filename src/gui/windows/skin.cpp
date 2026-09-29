@@ -11,6 +11,7 @@
 #include "../theme.h"
 #include "../widgets.h"
 #include "../../core/utilities.h"
+#include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
@@ -37,7 +38,7 @@ namespace CoreDeck {
     std::string SkinPreviewLabel(const Context &context) {
         const auto &work = context.AvdCreationWork;
         if (work.SelectedSkin <= 0 || work.Skins.empty()) {
-            return "No skin (plain emulator window)";
+            return Tr("No skin (plain emulator window)");
         }
         const int idx = std::clamp(work.SelectedSkin - 1, 0, static_cast<int>(work.Skins.size()) - 1);
         const auto &s = work.Skins.at(idx);
@@ -50,24 +51,24 @@ namespace CoreDeck {
             return;
         }
 
-        constexpr auto TITLE = "Choose Skin###SkinDialog";
-        if (BeginCenteredModal(TITLE, &context.UI.ShowSkinDialog, EmV(80.0F, 25.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
+        const std::string title = TrWindow("Choose Skin", "SkinDialog");
+        if (BeginCenteredModal(title.c_str(), &context.UI.ShowSkinDialog, EmV(80.0F, 25.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
             const int totalRows = static_cast<int>(work.Skins.size()) + 1; // +1 for "No skin"
             work.PendingSelectedSkin = std::clamp(work.PendingSelectedSkin, 0, totalRows - 1);
 
-            SearchField("##SkinSearch", "Search skins...", work.SkinSearchFilter, sizeof(work.SkinSearchFilter));
+            SearchField("##SkinSearch", Tr("Search skins..."), work.SkinSearchFilter, sizeof(work.SkinSearchFilter));
 
             ImGui::Spacing();
-            ImGui::Text("Skins");
+            ImGui::Text("%s", Tr("Skins"));
             ImGui::Spacing();
 
             {
                 PickerTableStyle pts;
                 const bool tableOpen = BeginPickerTable("##SkinTableFrame", "##SkinTable", 2, Eh(16.0F));
                 if (tableOpen) {
-                    ImGui::TableSetupColumn("  Name", ImGuiTableColumnFlags_WidthStretch, 2.8F);
-                    ImGui::TableSetupColumn("Source", ImGuiTableColumnFlags_WidthFixed, Em(15.0F));
+                    ImGui::TableSetupColumn(StrConcat("  ", Tr("Name")).c_str(), ImGuiTableColumnFlags_WidthStretch, 2.8F);
+                    ImGui::TableSetupColumn(Tr("Source"), ImGuiTableColumnFlags_WidthFixed, Em(15.0F));
                     ImGui::TableHeadersRow();
 
                     int visibleCount = 0;
@@ -75,7 +76,7 @@ namespace CoreDeck {
                     const bool noSkinSelected = work.PendingSelectedSkin == 0;
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    const std::string noSkinLabel = StrConcat("  ", Icons::GEAR, "  No skin (plain emulator window)##SkinNone");
+                    const std::string noSkinLabel = StrConcat("  ", Icons::GEAR, "  ", Tr("No skin (plain emulator window)"), "##SkinNone");
                     if (ImGui::Selectable(noSkinLabel.c_str(), noSkinSelected, ImGuiSelectableFlags_SpanAllColumns)) {
                         work.PendingSelectedSkin = 0;
                     }
@@ -113,7 +114,7 @@ namespace CoreDeck {
                     if (visibleCount == 0) {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::TextDisabled("No skins match the search.");
+                        ImGui::TextDisabled("%s", Tr("No skins match the search."));
                     }
                 }
                 EndPickerTable(tableOpen);
@@ -121,7 +122,7 @@ namespace CoreDeck {
 
             if (work.Skins.empty()) {
                 ImGui::Spacing();
-                ImGui::TextWrapped("No skins were found in your SDK. Skins typically ship with system images and the SDK skins folder.");
+                ImGui::TextWrapped("%s", Tr("No skins were found in your SDK. Skins typically ship with system images and the SDK skins folder."));
             }
 
             ImGui::Spacing();
@@ -130,13 +131,13 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton("Use Selected Skin", true, ImVec2(halfWidth, 0))) {
+            if (PositiveButton(Tr("Use Selected Skin"), true, ImVec2(halfWidth, 0))) {
                 work.SelectedSkin = work.PendingSelectedSkin;
                 work.SkinAutoFilled = false;
                 context.UI.ShowSkinDialog = false;
             }
             ImGui::SameLine();
-            if (PrimaryButton("Cancel", true, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Tr("Cancel"), true, ImVec2(halfWidth, 0))) {
                 context.UI.ShowSkinDialog = false;
             }
 

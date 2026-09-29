@@ -112,6 +112,7 @@ namespace CoreDeck {
             bool ConfirmBeforeDeleteAvd = true;
             bool CrashReportingEnabled = true;
             ThemePreference Theme = ThemePreference::System;
+            std::string Language;
         } Prefs;
 
         struct UI {

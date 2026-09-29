@@ -34,10 +34,25 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends build-essential libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+          sudo apt-get install -y --no-install-recommends build-essential gettext libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
+
+      - name: Install gettext (macOS)
+        if: runner.os == 'macOS'
+        run: brew install gettext
+
+      - name: Install gettext (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install "gettext[tools]:x64-windows"
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON
+        run: |
+          cmake_args=(-B build -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON)
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake_args+=(-DCMAKE_PREFIX_PATH="$VCPKG_INSTALLATION_ROOT/installed/x64-windows")
+          fi
+          cmake "${cmake_args[@]}"
         shell: bash
 
       - name: Build tests

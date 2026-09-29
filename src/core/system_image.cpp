@@ -10,6 +10,7 @@
 #include <sstream>
 
 #include "system_image.h"
+#include "i18n.h"
 #include "paths.h"
 #include "sdk_manager.h"
 #include "utilities.h"
@@ -216,14 +217,18 @@ namespace CoreDeck {
             return sdkStatus;
         }
 
-        const std::string phase = sdkStatus.starts_with("Unzipping") ? "Unzipping " : "Downloading ";
+        std::string name;
         if (const auto image = ParseRemoteSystemImageLine(packagePath)) {
-            return phase + image->DisplayName;
+            name = image->DisplayName;
+        } else if (!packagePath.empty()) {
+            name = packagePath;
+        } else {
+            return sdkStatus;
         }
-        if (!packagePath.empty()) {
-            return phase + packagePath;
+        if (sdkStatus.starts_with("Unzipping")) {
+            return TrFormat("Unzipping {0}", name);
         }
-        return sdkStatus;
+        return TrFormat("Downloading {0}", name);
     }
 
     bool InstallSystemImage(
@@ -255,7 +260,7 @@ namespace CoreDeck {
                 std::scoped_lock lock(progress->Mutex);
                 progress->Finished = true;
                 progress->Succeeded = false;
-                progress->StatusText = "Installation Failed!";
+                progress->StatusText = Tr("Installation Failed!");
             }
             return false;
         }
@@ -271,7 +276,7 @@ namespace CoreDeck {
             progress->Finished = true;
             progress->Succeeded = ok;
             progress->Percent = ok ? 1.0F : progress->Percent;
-            progress->StatusText = ok ? "Installation Completed!" : "Installation Failed!";
+            progress->StatusText = ok ? Tr("Installation Completed!") : Tr("Installation Failed!");
         }
 
         return ok;
