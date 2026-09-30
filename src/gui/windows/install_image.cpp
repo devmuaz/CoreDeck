@@ -10,6 +10,7 @@
 #include "install_image.h"
 #include "../widgets.h"
 #include "../theme.h"
+#include "../../core/constants.h"
 #include "../../core/sdk_manager.h"
 #include "../../core/utilities.h"
 #include "../../core/i18n.h"
@@ -245,15 +246,23 @@ namespace CoreDeck {
 
                     ImGui::Text("%s", Tr("Accept Android SDK License Terms"));
                     ImGui::Spacing();
-                    LicenseConsentNotice(
+                    ImGui::TextWrapped(
+                        "%s",
                         Tr(
                             "Some Android SDK package licenses have not been accepted yet. "
                             "To install this system image, you must agree to Google's Android "
                             "SDK license terms. By clicking Agree, you confirm that you have "
                             "read and accept the current terms."
-                        ),
-                        licenseBusy
+                        )
                     );
+                    ImGui::Spacing();
+                    if (ImGui::TextLink(Tr("View License Terms..."))) {
+                        OpenUrl(SDK_LICENSE_URL);
+                    }
+                    if (licenseBusy) {
+                        ImGui::Spacing();
+                        ImGui::TextDisabled("%s", Tr("Recording acceptance with the SDK Manager..."));
+                    }
 
                     ImGui::Spacing();
                     ImGui::Separator();
@@ -490,9 +499,7 @@ namespace CoreDeck {
 
                     ImGui::SameLine();
                     if (removalBusy) {
-                        ImGui::BeginDisabled();
-                        NegativeButton(Tr("Removing..."), false, ImVec2(thirdWidth, 0));
-                        ImGui::EndDisabled();
+                        NegativeButton(Tr("Removing..."), true, ImVec2(thirdWidth, 0), true);
                     } else if (NegativeButton(Tr("Remove Image"), canRemove, ImVec2(thirdWidth, 0))) {
                         const std::string pkg = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)).PackagePath;
                         removal.Busy = true;
@@ -512,18 +519,14 @@ namespace CoreDeck {
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else if (isInstalling) {
-                    ImGui::BeginDisabled();
-                    PositiveButton(Tr("Installing..."), false, ImVec2(halfWidth, 0));
-                    ImGui::EndDisabled();
+                    PositiveButton(Tr("Installing..."), true, ImVec2(halfWidth, 0), true);
                     ImGui::SameLine();
                     if (PrimaryButton(Tr("Close"), false, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else if (licenseBusy) {
-                    ImGui::BeginDisabled();
-                    PositiveButton(Tr("Checking licenses..."), false, ImVec2(halfWidth, 0));
-                    ImGui::EndDisabled();
+                    PositiveButton(Tr("Checking licenses..."), true, ImVec2(halfWidth, 0), true);
                     ImGui::SameLine();
                     if (PrimaryButton(Tr("Close"), false, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();

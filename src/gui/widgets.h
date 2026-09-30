@@ -115,15 +115,15 @@ namespace CoreDeck {
         return ImVec2(Em(w), Eh(h));
     }
 
-    bool PrimaryButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
+    bool PrimaryButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
 
-    bool NegativeButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
+    bool NegativeButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
 
-    bool PositiveButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
+    bool PositiveButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
 
-    bool WarningButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
+    bool WarningButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
 
-    bool PickerButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0));
+    bool PickerButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
 
     bool ToggleButton(const char *label, bool &isToggled, ImVec2 size = ImVec2(0, 0));
 
@@ -137,6 +137,9 @@ namespace CoreDeck {
     };
 
     void StatusMessage(StatusMessageTone tone, const char *message);
+
+    // Spinning arc. A diameter of 0 uses the current text line height.
+    void Spinner(const ImVec4 &color, float diameter = 0.0F);
 
     enum class NoticeCardTone : uint8_t {
         Default,
@@ -227,9 +230,7 @@ namespace CoreDeck {
         float fieldWidth = 0.0F
     );
 
-    void LicenseConsentNotice(const char *message, bool busy = false);
-
-    DialogResult SimpleDialog(const DialogData &data);
+    DialogResult SimpleDialog(const DialogData &data, bool hasSpinner = false);
 
     bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
 

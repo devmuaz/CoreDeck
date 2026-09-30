@@ -13,9 +13,6 @@
 #include "sdk.h"
 
 namespace CoreDeck {
-    constexpr int JDK_MINIMUM_MAJOR = 17;
-    constexpr int JDK_RECOMMENDED_MAJOR = 21;
-
     enum class JdkSource : uint8_t {
         None,
         Override,

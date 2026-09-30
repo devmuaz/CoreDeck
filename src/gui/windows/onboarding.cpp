@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <cstring>
-#include <filesystem>
 #include <future>
 #include <vector>
 
@@ -14,6 +12,7 @@
 
 #include "onboarding.h"
 #include "../application.h"
+#include "../utilities.h"
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/file_dialog.h"
@@ -21,6 +20,7 @@
 #include "../../core/paths.h"
 #include "../../core/sdk.h"
 #include "../../core/sdk_bootstrap.h"
+#include "../../core/constants.h"
 #include "../../core/utilities.h"
 #include "../../core/i18n.h"
 
@@ -64,16 +64,9 @@ namespace CoreDeck {
             return Wizard().CommandLineToolsOnly || Wizard().BuildToolsOnly;
         }
 
-        void CopyToBuffer(char *buffer, const size_t size, const std::string &value) {
-            strncpy(buffer, value.c_str(), size - 1);
-            buffer[size - 1] = '\0';
-        }
-
         constexpr float WIZARD_COLUMN_PX = 560.0F;
         constexpr float WIZARD_PAD_PX = 12.0F;
         constexpr float WIZARD_ROUND_PX = 8.0F;
-        constexpr const char *SDK_LICENSE_URL = "https://developer.android.com/studio/terms";
-        constexpr const char *JAVA_DOWNLOAD_URL = "https://www.oracle.com/java/technologies/downloads/#java21";
 
         ImVec4 WizardHeadingColor() {
             return IsLightColorScheme() ? HexColor(Colors::TEXT_PRIMARY) : HexColor(Colors::WHITE);
@@ -323,18 +316,6 @@ namespace CoreDeck {
             return enabled && pressed;
         }
 
-        std::string JavaRuntimeLabel(const JdkInfo &jdk) {
-            const std::string lower = LowerCopy(jdk.VersionString);
-            const char *vendor = lower.find("openjdk") != std::string::npos ? Tr("OpenJDK") : Tr("Java");
-            if (jdk.MajorVersion > 0) {
-                return TrFormat("{0} {1}", vendor, std::to_string(jdk.MajorVersion));
-            }
-            if (!jdk.VersionString.empty()) {
-                return jdk.VersionString;
-            }
-            return vendor;
-        }
-
         bool WizardPathField(
             const char *id,
             const char *label,
@@ -359,8 +340,7 @@ namespace CoreDeck {
             ImGui::SameLine();
             if (PrimaryButton(browseLabel.c_str(), true, ImVec2(browseWidth, 0))) {
                 if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer)) {
-                    strncpy(buffer, picked->c_str(), bufferSize - 1);
-                    buffer[bufferSize - 1] = '\0';
+                    CopyToBuffer(buffer, bufferSize, *picked);
                 }
             }
             return buffer[0] != '\0';
@@ -375,16 +355,6 @@ namespace CoreDeck {
             cachedPath = javaHome;
             cached = javaHome.empty() ? JdkInfo{} : InspectJdk(javaHome);
             return cached;
-        }
-
-        bool SameJdkHome(const std::string &left, const std::string &right) {
-            if (left == right) {
-                return true;
-            }
-            std::error_code error;
-            const std::filesystem::path canonicalLeft = std::filesystem::weakly_canonical(left, error);
-            const std::filesystem::path canonicalRight = std::filesystem::weakly_canonical(right, error);
-            return !canonicalLeft.empty() && canonicalLeft == canonicalRight;
         }
 
         void BeginJdkScan() {
@@ -458,7 +428,7 @@ namespace CoreDeck {
                 StatusMessage(StatusMessageTone::Error, message.c_str());
                 ImGui::PopTextWrapPos();
                 if (ImGui::TextLink(Tr("Download Java..."))) {
-                    OpenUrl(JAVA_DOWNLOAD_URL);
+                    OpenUrl(JAVA_JDK21_DOWNLOAD_URL);
                 }
                 ImGui::Dummy(ImVec2(0.0F, 8.0F * GetDpiScale()));
             }
@@ -765,7 +735,11 @@ namespace CoreDeck {
             const std::string diskLine = StrConcat(
                 Icons::HARD_DRIVE,
                 "  ",
-                TrFormat("Download: ~{0}  |  Free Space Recommended: 2 GB", FormatFileSize(release.DownloadSize))
+                TrFormat(
+                    "Download: ~{0}  |  Free Space Recommended: {1}",
+                    FormatFileSize(release.DownloadSize),
+                    FormatFileSize(BOOTSTRAP_REQUIRED_BYTES)
+                )
             );
             DrawDiskRequirement(diskLine, innerWidth);
 

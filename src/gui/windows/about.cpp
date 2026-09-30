@@ -8,6 +8,7 @@
 #include "../context.h"
 #include "../theme.h"
 #include "about.h"
+#include "../../core/constants.h"
 #include "../../core/i18n.h"
 
 namespace CoreDeck {
@@ -45,14 +46,14 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             if (PropertyText(Tr("Author"), COREDECK_VENDOR, true)) {
-                OpenUrl(COREDECK_AUTHOR_WEBSITE);
+                OpenUrl(AUTHOR_WEBSITE_URL);
             }
             PropertyText(Tr("License"), Tr("MIT"));
-            if (PropertyText(Tr("Website"), "coredeck.dev", true)) {
-                OpenUrl(COREDECK_WEBSITE);
+            if (PropertyText(Tr("Website"), WEBSITE_URL, true)) {
+                OpenUrl(WEBSITE_URL);
             }
-            if (PropertyText(Tr("GitHub"), "github.com/devmuaz/CoreDeck", true)) {
-                OpenUrl(COREDECK_GITHUB);
+            if (PropertyText(Tr("GitHub"), GITHUB_URL, true)) {
+                OpenUrl(GITHUB_URL);
             }
             PropertyText(Tr("Built with"), Tr("C++20, Dear ImGui, GLFW, OpenGL"));
 

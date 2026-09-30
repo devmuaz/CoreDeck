@@ -18,10 +18,12 @@
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <filesystem>
+#include <utility>
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
@@ -33,6 +35,8 @@
 
 #include "application.h"
 #include "theme.h"
+#include "utilities.h"
+#include "widgets.h"
 #include "../core/app_settings.h"
 #include "../core/i18n.h"
 #include "../core/paths.h"
@@ -132,6 +136,7 @@ namespace CoreDeck {
     }
 
     void Application::m_Build() {
+        PollAvdListRefresh(m_Context);
         m_Context.UI.NativeWindowPage.clear();
 
         if (m_Context.Flow.CurrentScreen == Screen::Onboarding) {
@@ -437,7 +442,8 @@ namespace CoreDeck {
         while (!glfwWindowShouldClose(m_Window)) {
             const bool focused = glfwGetWindowAttrib(m_Window, GLFW_FOCUSED) != 0;
             const bool hovered = glfwGetWindowAttrib(m_Window, GLFW_HOVERED) != 0;
-            const double timeout = focused && hovered ? 1.0 / 60.0 : 0.25;
+            const bool animate = ConsumeSpinnerFrameRequest();
+            const double timeout = focused && (hovered || animate) ? 1.0 / 60.0 : 0.25;
             glfwWaitEventsTimeout(timeout);
 
             ImGui_ImplOpenGL3_NewFrame();
@@ -599,12 +605,39 @@ namespace CoreDeck {
         SaveAppSettings(CaptureAppSettingsFromContext(context));
     }
 
-    void RefreshAvds(Context &context) {
-        context.Catalog.AvdNames = ListAvdNames(context.Host.Sdk);
-        context.Catalog.Avds = LoadAvds(context.Catalog.AvdNames);
+    namespace {
+        struct AvdListRefreshJob {
+            std::future<std::pair<int, AvdCatalogSnapshot>> Future;
+            bool Queued = false;
+        };
 
-        for (const auto &avdName: context.Catalog.AvdNames) {
-            LoadAvdOptions(context, avdName);
+        AvdListRefreshJob &ListRefreshJob() {
+            static AvdListRefreshJob job;
+            return job;
+        }
+
+        std::atomic<int> g_AvdCatalogEpoch{0};
+    }
+
+    AvdCatalogSnapshot LoadAvdCatalog(const SdkInfo &sdk) {
+        AvdCatalogSnapshot snapshot;
+        snapshot.Names = ListAvdNames(sdk);
+        snapshot.Avds = LoadAvds(snapshot.Names);
+        snapshot.Options.reserve(snapshot.Names.size());
+        for (const std::string &avdName: snapshot.Names) {
+            snapshot.Options.emplace(avdName, LoadOptionsFromFile(GetOptionsConfigPath(avdName)));
+        }
+        return snapshot;
+    }
+
+    void ApplyAvdCatalog(Context &context, AvdCatalogSnapshot snapshot) {
+        context.Catalog.AvdNames = std::move(snapshot.Names);
+        context.Catalog.Avds = std::move(snapshot.Avds);
+        for (const std::string &avdName: context.Catalog.AvdNames) {
+            const auto found = snapshot.Options.find(avdName);
+            if (found != snapshot.Options.end()) {
+                context.Catalog.PerAvdOptions[avdName] = std::move(found->second);
+            }
         }
 
         context.DiskUsage.PerAvdCache.clear();
@@ -619,6 +652,48 @@ namespace CoreDeck {
             context.Catalog.SelectedAvd = -1;
         }
         context.Catalog.PreviousSelectedAvd = -1;
+    }
+
+    void RefreshAvds(Context &context) {
+        ApplyAvdCatalog(context, LoadAvdCatalog(context.Host.Sdk));
+    }
+
+    void RequestAvdListRefresh(Context &context) {
+        AvdListRefreshJob &job = ListRefreshJob();
+        if (job.Future.valid()) {
+            job.Queued = true;
+            return;
+        }
+
+        const int epoch = ++g_AvdCatalogEpoch;
+        const SdkInfo sdk = context.Host.Sdk;
+        job.Future = std::async(std::launch::async, [sdk, epoch] {
+            return std::make_pair(epoch, LoadAvdCatalog(sdk));
+        });
+    }
+
+    void PollAvdListRefresh(Context &context) {
+        AvdListRefreshJob &job = ListRefreshJob();
+        if (!job.Future.valid()) {
+            return;
+        }
+        if (job.Future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+            return;
+        }
+
+        auto [epoch, snapshot] = job.Future.get();
+        if (epoch == g_AvdCatalogEpoch.load()) {
+            ApplyAvdCatalog(context, std::move(snapshot));
+        }
+        if (job.Queued) {
+            job.Queued = false;
+            RequestAvdListRefresh(context);
+        }
+    }
+
+    void SupersedeAvdListRefresh() {
+        ++g_AvdCatalogEpoch;
+        ListRefreshJob().Queued = false;
     }
 
     void LoadAvdOptions(Context &context, const std::string &avdName) {

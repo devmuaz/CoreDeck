@@ -11,7 +11,9 @@
 #include "health_check.h"
 #include "../theme.h"
 #include "../widgets.h"
+#include "../../core/constants.h"
 #include "../../core/i18n.h"
+#include "../../core/utilities.h"
 
 namespace CoreDeck {
     namespace {
@@ -33,14 +35,22 @@ namespace CoreDeck {
             auto &work = context.AcceptLicensesWork;
             const bool busy = work.Busy.load();
 
-            LicenseConsentNotice(
+            ImGui::TextWrapped(
+                "%s",
                 Tr(
                     "Some Android SDK package licenses have not been accepted yet. "
                     "By clicking Agree, you confirm that you have read and accept "
                     "Google's current Android SDK license terms."
-                ),
-                busy
+                )
             );
+            ImGui::Spacing();
+            if (ImGui::TextLink(Tr("View License Terms..."))) {
+                OpenUrl(SDK_LICENSE_URL);
+            }
+            if (busy) {
+                ImGui::Spacing();
+                ImGui::TextDisabled("%s", Tr("Recording acceptance with the SDK Manager..."));
+            }
 
             if (!work.Error.empty()) {
                 ImGui::Spacing();
@@ -53,7 +63,7 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(Tr("Agree"), !busy, ImVec2(halfWidth, 0))) {
+            if (PositiveButton(busy ? Tr("Accepting...") : Tr("Agree"), true, ImVec2(halfWidth, 0), busy)) {
                 work.Error.clear();
                 work.Busy = true;
                 const SdkInfo sdk = context.Host.Sdk;

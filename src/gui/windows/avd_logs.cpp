@@ -14,6 +14,7 @@
 #include "avd_logs.h"
 #include "../context.h"
 #include "../theme.h"
+#include "../utilities.h"
 #include "../widgets.h"
 #include "../../core/log_filter.h"
 #include "../../core/i18n.h"
@@ -136,8 +137,7 @@ namespace CoreDeck {
             // Search field
             const bool regexInvalid = state.UseRegex && !state.Search.empty() && !view.Filter.RegexValid;
             char searchBuffer[256];
-            std::strncpy(searchBuffer, state.Search.c_str(), sizeof(searchBuffer) - 1);
-            searchBuffer[sizeof(searchBuffer) - 1] = '\0';
+            CopyToBuffer(searchBuffer, sizeof(searchBuffer), state.Search);
 
             const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? Tr("Regex") : Tr("Search logs..."));
             ImGui::SetNextItemWidth(searchWidth);

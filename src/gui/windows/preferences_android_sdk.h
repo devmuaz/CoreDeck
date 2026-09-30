@@ -11,6 +11,8 @@
 
 namespace CoreDeck {
     void DrawPreferencesAndroidSdkSection(Context &context, char *sdkPathBuffer, size_t bufferSize);
+
+    void PollPreferencesSdkWork(Context &context);
 }
 
 #endif // COREDECK_PREFERENCES_ANDROID_SDK_H

@@ -4,11 +4,13 @@
 
 #include <algorithm>
 #include <cstring>
+#include <numbers>
 
 #include "imgui.h"
 #include "imgui_internal.h"
 
 #include "widgets.h"
+#include "utilities.h"
 #include "theme.h"
 #include "../core/file_dialog.h"
 #include "../core/i18n.h"
@@ -60,11 +62,11 @@ namespace CoreDeck {
         Vars.Push(ImGuiStyleVar_CellPadding, ImVec2(8.0F, 8.0F));
     }
 
-    bool PrimaryButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) {
-            ImGui::BeginDisabled();
-        }
+    namespace {
+        bool StyledButton(const char *label, bool isEnabled, ImVec2 size, bool hasSpinner);
+    }
 
+    bool PrimaryButton(const char *label, const bool isEnabled, const ImVec2 size, const bool hasSpinner) {
         StyleColor sc;
         sc.Push(ImGuiCol_Button, HexColor(Colors::SURFACE2));
         if (IsLightColorScheme()) {
@@ -77,18 +79,10 @@ namespace CoreDeck {
         sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
         sc.Push(ImGuiCol_Border, HexColor(Colors::BORDER_STRONG));
 
-        const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) {
-            ImGui::EndDisabled();
-        }
-        return clicked;
+        return StyledButton(label, isEnabled, size, hasSpinner);
     }
 
-    bool NegativeButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) {
-            ImGui::BeginDisabled();
-        }
-
+    bool NegativeButton(const char *label, const bool isEnabled, const ImVec2 size, const bool hasSpinner) {
         StyleColor sc;
         sc.Push(ImGuiCol_Button, HexColor(Colors::NEGATIVE_STRONG, 0.10F));
         sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::NEGATIVE_STRONG, 0.20F));
@@ -96,18 +90,10 @@ namespace CoreDeck {
         sc.Push(ImGuiCol_Text, HexColor(Colors::NEGATIVE));
         sc.Push(ImGuiCol_Border, HexColor(Colors::NEGATIVE));
 
-        const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) {
-            ImGui::EndDisabled();
-        }
-        return clicked;
+        return StyledButton(label, isEnabled, size, hasSpinner);
     }
 
-    bool WarningButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) {
-            ImGui::BeginDisabled();
-        }
-
+    bool WarningButton(const char *label, const bool isEnabled, const ImVec2 size, const bool hasSpinner) {
         StyleColor sc;
         sc.Push(ImGuiCol_Button, HexColor(Colors::WARNING, 0.10F));
         sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::WARNING, 0.20F));
@@ -115,18 +101,10 @@ namespace CoreDeck {
         sc.Push(ImGuiCol_Text, HexColor(Colors::WARNING_STRONG));
         sc.Push(ImGuiCol_Border, HexColor(Colors::WARNING_STRONG));
 
-        const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) {
-            ImGui::EndDisabled();
-        }
-        return clicked;
+        return StyledButton(label, isEnabled, size, hasSpinner);
     }
 
-    bool PositiveButton(const char *label, const bool isEnabled, const ImVec2 size) {
-        if (!isEnabled) {
-            ImGui::BeginDisabled();
-        }
-
+    bool PositiveButton(const char *label, const bool isEnabled, const ImVec2 size, const bool hasSpinner) {
         StyleColor sc;
         sc.Push(ImGuiCol_Button, HexColor(Colors::POSITIVE_FILL, 0.10F));
         sc.Push(ImGuiCol_ButtonHovered, HexColor(Colors::POSITIVE_FILL, 0.20F));
@@ -134,17 +112,13 @@ namespace CoreDeck {
         sc.Push(ImGuiCol_Text, HexColor(Colors::POSITIVE));
         sc.Push(ImGuiCol_Border, HexColor(Colors::POSITIVE));
 
-        const bool clicked = ImGui::Button(label, size);
-        if (!isEnabled) {
-            ImGui::EndDisabled();
-        }
-        return clicked;
+        return StyledButton(label, isEnabled, size, hasSpinner);
     }
 
-    bool PickerButton(const char *label, const bool isEnabled, const ImVec2 size) {
+    bool PickerButton(const char *label, const bool isEnabled, const ImVec2 size, const bool hasSpinner) {
         StyleVar sv;
         sv.Push(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0F, 0.5F));
-        return PrimaryButton(label, isEnabled, size);
+        return PrimaryButton(label, isEnabled, size, hasSpinner);
     }
 
     bool ToggleButton(const char *label, bool &isToggled, const ImVec2 size) {
@@ -244,6 +218,98 @@ namespace CoreDeck {
             nullptr,
             textWrap
         );
+    }
+
+    namespace {
+        ImVec2 PointOnCircle(const ImVec2 &center, const float radius, const float angle) {
+            return {center.x + (ImCos(angle) * radius), center.y + (ImSin(angle) * radius)};
+        }
+
+        void PaintSpinner(ImDrawList *draw, const ImVec2 &center, const float radius, const float thickness, const ImU32 color) {
+            RequestSpinnerFrame();
+            const auto time = static_cast<float>(ImGui::GetTime());
+            constexpr float K_TURN = std::numbers::pi_v<float> * 2.0F;
+            constexpr float K_SWEEP = std::numbers::pi_v<float> * 1.15F;
+            const float start = time * (K_TURN * 0.8F);
+            const float end = start + K_SWEEP;
+
+            ImVec4 trackColor = ImGui::ColorConvertU32ToFloat4(color);
+            trackColor.w *= 0.28F;
+            constexpr int K_TRACK_SEGMENTS = 32;
+            const float trackEnd = K_TURN * (static_cast<float>(K_TRACK_SEGMENTS - 1) / static_cast<float>(K_TRACK_SEGMENTS));
+            draw->PathArcTo(center, radius, 0.0F, trackEnd, K_TRACK_SEGMENTS - 1);
+            draw->PathStroke(ImGui::GetColorU32(trackColor), thickness, ImDrawFlags_Closed);
+
+            draw->PathArcTo(center, radius, start, end, 24);
+            draw->PathStroke(color, thickness);
+            const float cap = thickness * 0.5F;
+            draw->AddCircleFilled(PointOnCircle(center, radius, start), cap, color);
+            draw->AddCircleFilled(PointOnCircle(center, radius, end), cap, color);
+        }
+
+        bool StyledButton(const char *label, const bool isEnabled, const ImVec2 size, const bool hasSpinner) {
+            const char *text = label != nullptr ? label : "";
+            const bool dimmed = !isEnabled && !hasSpinner;
+            if (dimmed) {
+                ImGui::BeginDisabled();
+            }
+
+            bool clicked = false;
+            if (!hasSpinner) {
+                clicked = ImGui::Button(text, size);
+            } else {
+                const ImGuiStyle &style = ImGui::GetStyle();
+                const float diameter = ImGui::GetTextLineHeight();
+                const float gap = style.ItemInnerSpacing.x;
+                const ImVec2 textSize = ImGui::CalcTextSize(text, nullptr, true);
+                const float contentWidth = diameter + gap + textSize.x;
+                ImVec2 buttonSize = size;
+                if (buttonSize.x <= 0.0F) {
+                    buttonSize.x = contentWidth + (style.FramePadding.x * 2.0F);
+                }
+
+                ImGui::PushID(text);
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+                ImGui::Button("##busy", buttonSize);
+                ImGui::PopItemFlag();
+                ImGui::PopItemFlag();
+                ImGui::PopID();
+
+                const ImVec2 min = ImGui::GetItemRectMin();
+                const ImVec2 max = ImGui::GetItemRectMax();
+                const float innerWidth = std::max(0.0F, (max.x - min.x) - (style.FramePadding.x * 2.0F));
+                const float originX = contentWidth < innerWidth
+                                          ? min.x + (((max.x - min.x) - contentWidth) * 0.5F)
+                                          : min.x + style.FramePadding.x;
+                const float midY = (min.y + max.y) * 0.5F;
+                const ImU32 ink = ImGui::GetColorU32(ImGuiCol_Text);
+                const float thickness = std::max(2.0F * GetDpiScale(), diameter * 0.14F);
+                const float radius = std::max(1.0F, (diameter - thickness) * 0.5F);
+
+                ImDrawList *draw = ImGui::GetWindowDrawList();
+                draw->PushClipRect(min, max, true);
+                PaintSpinner(draw, ImVec2(originX + (diameter * 0.5F), midY), radius, thickness, ink);
+                draw->AddText(ImVec2(originX + diameter + gap, midY - (textSize.y * 0.5F)), ink, text);
+                draw->PopClipRect();
+            }
+
+            if (dimmed) {
+                ImGui::EndDisabled();
+            }
+            return clicked;
+        }
+    }
+
+    void Spinner(const ImVec4 &color, const float diameter) {
+        const float dpi = GetDpiScale();
+        const float size = diameter > 0.0F ? diameter : ImGui::GetTextLineHeight();
+        const float thickness = std::max(2.0F * dpi, size * 0.12F);
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        ImGui::Dummy(ImVec2(size, size));
+        const float radius = std::max(1.0F, (size - thickness) * 0.5F);
+        const ImVec2 center(origin.x + (size * 0.5F), origin.y + (size * 0.5F));
+        PaintSpinner(ImGui::GetWindowDrawList(), center, radius, thickness, ImGui::GetColorU32(color));
     }
 
     namespace {
@@ -578,7 +644,7 @@ namespace CoreDeck {
         return ImGui::CollapsingHeader(label, flags);
     }
 
-    DialogResult SimpleDialog(const DialogData &data) {
+    DialogResult SimpleDialog(const DialogData &data, const bool hasSpinner) {
         auto result = DialogResult::None;
         const std::string title = StrConcat(data.Title, "###", data.Id);
 
@@ -606,47 +672,32 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             const float halfWidth = EqualButtonWidth(2);
+            const bool busy = data.IsBusy;
+            const bool showSpinner = busy && hasSpinner;
+            const char *confirmLabel = busy && data.BusyButtonTitle != nullptr ? data.BusyButtonTitle : data.ConfirmButtonTitle;
+            const ImVec2 buttonSize(halfWidth, 0);
 
-            if (data.IsBusy) {
-                ImGui::BeginDisabled();
-                const char *busyLabel = data.BusyButtonTitle ? data.BusyButtonTitle : data.ConfirmButtonTitle;
-                switch (data.Type) {
-                    case DialogType::Negative:
-                        NegativeButton(busyLabel, false, ImVec2(halfWidth, 0));
-                        break;
-                    case DialogType::Positive:
-                        PositiveButton(busyLabel, false, ImVec2(halfWidth, 0));
-                        break;
-                    default:
-                        PrimaryButton(busyLabel, false, ImVec2(halfWidth, 0));
-                        break;
-                }
-                ImGui::SameLine();
-                PrimaryButton(data.CancelButtonTitle, false, ImVec2(halfWidth, 0));
-                ImGui::EndDisabled();
-            } else {
-                bool confirmed = false;
-                switch (data.Type) {
-                    case DialogType::Negative:
-                        confirmed = NegativeButton(data.ConfirmButtonTitle, true, ImVec2(halfWidth, 0));
-                        break;
-                    case DialogType::Positive:
-                        confirmed = PositiveButton(data.ConfirmButtonTitle, true, ImVec2(halfWidth, 0));
-                        break;
-                    default:
-                        confirmed = PrimaryButton(data.ConfirmButtonTitle, true, ImVec2(halfWidth, 0));
-                        break;
-                }
-                if (confirmed) {
-                    result = DialogResult::Confirmed;
-                }
+            bool confirmed = false;
+            switch (data.Type) {
+                case DialogType::Negative:
+                    confirmed = NegativeButton(confirmLabel, !busy || showSpinner, buttonSize, showSpinner);
+                    break;
+                case DialogType::Positive:
+                    confirmed = PositiveButton(confirmLabel, !busy || showSpinner, buttonSize, showSpinner);
+                    break;
+                default:
+                    confirmed = PrimaryButton(confirmLabel, !busy || showSpinner, buttonSize, showSpinner);
+                    break;
+            }
+            if (confirmed) {
+                result = DialogResult::Confirmed;
+            }
 
-                ImGui::SameLine();
-                if (PrimaryButton(data.CancelButtonTitle, true, ImVec2(halfWidth, 0))) {
-                    result = DialogResult::Cancelled;
-                    data.IsOpen = false;
-                    ImGui::CloseCurrentPopup();
-                }
+            ImGui::SameLine();
+            if (PrimaryButton(data.CancelButtonTitle, !busy, buttonSize)) {
+                result = DialogResult::Cancelled;
+                data.IsOpen = false;
+                ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
         }
@@ -956,23 +1007,10 @@ namespace CoreDeck {
         ImGui::SameLine();
         if (PrimaryButton(browseLabel.c_str(), true, ImVec2(browseWidth, 0))) {
             if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer)) {
-                std::strncpy(buffer, picked->c_str(), bufferSize - 1);
-                buffer[bufferSize - 1] = '\0';
+                CopyToBuffer(buffer, bufferSize, *picked);
             }
         }
         return buffer;
-    }
-
-    void LicenseConsentNotice(const char *message, const bool busy) {
-        ImGui::TextWrapped("%s", message);
-        ImGui::Spacing();
-        if (PrimaryButton(Tr("Open license terms in browser"))) {
-            OpenUrl("https://developer.android.com/studio/terms");
-        }
-        if (busy) {
-            ImGui::Spacing();
-            ImGui::TextDisabled("%s", Tr("Recording acceptance with the SDK Manager..."));
-        }
     }
 
     bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle, const char *tooltip, float boxSize) {

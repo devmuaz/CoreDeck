@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <unordered_set>
 
+#include "constants.h"
 #include "paths.h"
 #include "process.h"
 

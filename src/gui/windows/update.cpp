@@ -5,6 +5,7 @@
 #include "imgui.h"
 
 #include "update.h"
+#include "../../core/constants.h"
 #include "../../core/utilities.h"
 #include "../theme.h"
 #include "../widgets.h"
@@ -110,7 +111,7 @@ namespace CoreDeck {
             const float half = EqualButtonWidth(2);
 
             if (PositiveButton(Tr("Download"), true, ImVec2(half, 0))) {
-                OpenUrl(COREDECK_WEBSITE);
+                OpenUrl(WEBSITE_URL);
                 context.Updates.ShowNewVersionModal = false;
                 ImGui::CloseCurrentPopup();
             }

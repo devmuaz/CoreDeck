@@ -27,6 +27,7 @@
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/apk_analyzer.h"
+#include "../../core/constants.h"
 #include "../../core/app_settings.h"
 #include "../../core/file_dialog.h"
 #include "../../core/utilities.h"
@@ -229,8 +230,6 @@ namespace CoreDeck {
         std::optional<std::string> PickApk(const std::string &title, const std::string &defaultDirectory) {
             return FileDialog::PickFile(title, Tr("Android packages"), {"*.apk", "*.APK"}, defaultDirectory);
         }
-
-        constexpr int RECENT_APK_LIMIT = 4;
 
         void LoadRecentApks(Context &context) {
             auto &work = context.ApkAnalyzerWork;

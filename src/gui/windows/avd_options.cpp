@@ -7,6 +7,7 @@
 #include "avd_options.h"
 #include <cstddef>
 #include "../application.h"
+#include "../utilities.h"
 #include "../widgets.h"
 #include "../../core/i18n.h"
 
@@ -63,8 +64,7 @@ namespace CoreDeck {
                             case OptionType::TextInput: {
                                 ImGui::SetNextItemWidth(-1.0F);
                                 char buffer[256];
-                                strncpy(buffer, textInput.c_str(), sizeof(buffer) - 1);
-                                buffer[sizeof(buffer) - 1] = '\0';
+                                CopyToBuffer(buffer, sizeof(buffer), textInput);
                                 if (ImGui::InputTextWithHint("##val", Tr(hint.c_str()), buffer, sizeof(buffer))) {
                                     textInput = buffer;
                                     optionsChanged = true;

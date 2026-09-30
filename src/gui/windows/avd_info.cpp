@@ -289,7 +289,7 @@ namespace CoreDeck {
                 .Type = DialogType::Negative,
                 .IsBusy = isWiping,
             };
-            if (const auto result = SimpleDialog(wipeDialog); result == DialogResult::Confirmed) {
+            if (const auto result = SimpleDialog(wipeDialog, true); result == DialogResult::Confirmed) {
                 context.Jobs.AvdWipe.Busy = true;
                 const std::string wipePath = path;
                 const std::string wipeName = name;

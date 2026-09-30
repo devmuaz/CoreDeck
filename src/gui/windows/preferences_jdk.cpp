@@ -2,15 +2,12 @@
 // Created by AbdulMuaz Aqeel on 28/09/2026.
 //
 
-#include <algorithm>
 #include <chrono>
 #include <cstddef>
-#include <cstring>
 #include <filesystem>
 #include <future>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "imgui.h"
@@ -19,7 +16,9 @@
 #include "preferences.h"
 #include "../application.h"
 #include "../theme.h"
+#include "../utilities.h"
 #include "../widgets.h"
+#include "../../core/constants.h"
 #include "../../core/jdk.h"
 #include "../../core/paths.h"
 #include "../../core/sdk.h"
@@ -27,8 +26,6 @@
 
 namespace CoreDeck {
     namespace {
-        constexpr const char *JAVA_DOWNLOAD_URL = "https://www.oracle.com/java/technologies/downloads/#java21";
-
         struct InstalledJdkCatalog {
             std::future<std::vector<JdkInfo>> Scan;
             std::vector<JdkInfo> Items;
@@ -50,28 +47,6 @@ namespace CoreDeck {
             }
             catalog.Items = catalog.Scan.get();
             catalog.Loaded = true;
-        }
-
-        bool SameJdkHome(const std::string &left, const std::string &right) {
-            if (left == right) {
-                return true;
-            }
-            std::error_code error;
-            const std::filesystem::path canonicalLeft = std::filesystem::weakly_canonical(left, error);
-            const std::filesystem::path canonicalRight = std::filesystem::weakly_canonical(right, error);
-            return !canonicalLeft.empty() && canonicalLeft == canonicalRight;
-        }
-
-        std::string JavaRuntimeLabel(const JdkInfo &jdk) {
-            const std::string lower = LowerCopy(jdk.VersionString);
-            const char *vendor = lower.find("openjdk") != std::string::npos ? Tr("OpenJDK") : Tr("Java");
-            if (jdk.MajorVersion > 0) {
-                return TrFormat("{0} {1}", vendor, std::to_string(jdk.MajorVersion));
-            }
-            if (!jdk.VersionString.empty()) {
-                return jdk.VersionString;
-            }
-            return vendor;
         }
 
         bool JdkChoiceCard(
@@ -148,71 +123,48 @@ namespace CoreDeck {
             return enabled && pressed;
         }
 
-        struct AvdCatalogSnapshot {
-            std::vector<std::string> Names;
-            std::vector<AvdInfo> Avds;
-            std::unordered_map<std::string, std::vector<EmulatorOption>> Options;
+        enum class JdkPathAction : uint8_t {
+            Apply,
+            Discover,
         };
 
-        struct AvdCatalogRefresh {
-            std::future<AvdCatalogSnapshot> Future;
-            std::optional<SdkInfo> Pending;
+        struct JdkPathResult {
+            JdkInfo Jdk;
+            SdkInfo Sdk;
+            AvdCatalogSnapshot Catalog;
         };
 
-        AvdCatalogRefresh &CatalogRefresh() {
-            static AvdCatalogRefresh job;
+        struct JdkPathJob {
+            std::future<JdkPathResult> Future;
+            JdkPathAction Action = JdkPathAction::Apply;
+        };
+
+        JdkPathJob &PathJob() {
+            static JdkPathJob job;
             return job;
         }
 
-        AvdCatalogSnapshot LoadAvdCatalog(const SdkInfo &sdk) {
-            AvdCatalogSnapshot snapshot;
-            snapshot.Names = ListAvdNames(sdk);
-            snapshot.Avds = LoadAvds(snapshot.Names);
-            snapshot.Options.reserve(snapshot.Names.size());
-            for (const std::string &avdName: snapshot.Names) {
-                snapshot.Options.emplace(avdName, LoadOptionsFromFile(GetOptionsConfigPath(avdName)));
-            }
-            return snapshot;
+        std::optional<std::string> &PendingJdkPath() {
+            static std::optional<std::string> path;
+            return path;
         }
 
-        void StartAvdCatalogRefresh(AvdCatalogRefresh &job, const SdkInfo &sdk) {
+        void StartJdkPathJob(const JdkPathAction action, const SdkInfo &sdk) {
+            SupersedeAvdListRefresh();
+            JdkPathJob &job = PathJob();
+            job.Action = action;
             job.Future = std::async(std::launch::async, [sdk] {
-                return LoadAvdCatalog(sdk);
+                JdkPathResult result;
+                result.Jdk = DetectJdk();
+                result.Sdk = sdk;
+                ApplyJdkToSdk(result.Sdk, result.Jdk);
+                result.Catalog = LoadAvdCatalog(result.Sdk);
+                return result;
             });
         }
 
-        void BeginAvdCatalogRefresh(const SdkInfo &sdk) {
-            AvdCatalogRefresh &job = CatalogRefresh();
-            if (job.Future.valid()) {
-                job.Pending = sdk;
-                return;
-            }
-            StartAvdCatalogRefresh(job, sdk);
-        }
-
-        void ApplyAvdCatalogSnapshot(Context &context, AvdCatalogSnapshot snapshot) {
-            context.Catalog.AvdNames = std::move(snapshot.Names);
-            context.Catalog.Avds = std::move(snapshot.Avds);
-            for (const std::string &avdName: context.Catalog.AvdNames) {
-                context.Catalog.PerAvdOptions[avdName] = std::move(snapshot.Options[avdName]);
-            }
-
-            context.DiskUsage.PerAvdCache.clear();
-            if (!context.DiskUsage.Loading.load()) {
-                context.DiskUsage.LastScan = {};
-                context.DiskUsage.Ready = false;
-            }
-
-            if (!context.Catalog.Avds.empty()) {
-                context.Catalog.SelectedAvd = 0;
-            } else {
-                context.Catalog.SelectedAvd = -1;
-            }
-            context.Catalog.PreviousSelectedAvd = -1;
-        }
-
-        void PollAvdCatalogRefresh(Context &context) {
-            AvdCatalogRefresh &job = CatalogRefresh();
+        void PollJdkPathJob(Context &context) {
+            JdkPathJob &job = PathJob();
             if (!job.Future.valid()) {
                 return;
             }
@@ -220,14 +172,14 @@ namespace CoreDeck {
                 return;
             }
 
-            ApplyAvdCatalogSnapshot(context, job.Future.get());
-            if (!job.Pending.has_value()) {
-                return;
-            }
-
-            const SdkInfo sdk = std::move(*job.Pending);
-            job.Pending.reset();
-            StartAvdCatalogRefresh(job, sdk);
+            JdkPathResult result = job.Future.get();
+            SupersedeAvdListRefresh();
+            context.Host.Jdk = std::move(result.Jdk);
+            context.Host.Sdk = std::move(result.Sdk);
+            context.Host.Manager.SetSdk(context.Host.Sdk);
+            ApplyAvdCatalog(context, std::move(result.Catalog));
+            context.UI.HideHealthCheckBanner = false;
+            PendingJdkPath() = context.Host.Jdk.JavaHome;
         }
 
         void UseListedJdk(Context &context, const JdkInfo &jdk, char *jdkPathBuffer, const size_t bufferSize) {
@@ -236,8 +188,7 @@ namespace CoreDeck {
             }
             const bool alreadyApplied =
                 context.Host.Jdk.Source == JdkSource::Override && SameJdkHome(jdk.JavaHome, context.Host.Jdk.JavaHome);
-            strncpy(jdkPathBuffer, jdk.JavaHome.c_str(), bufferSize - 1);
-            jdkPathBuffer[bufferSize - 1] = '\0';
+            CopyToBuffer(jdkPathBuffer, bufferSize, jdk.JavaHome);
             if (alreadyApplied) {
                 return;
             }
@@ -247,7 +198,7 @@ namespace CoreDeck {
             context.Host.Jdk.Source = JdkSource::Override;
             ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
             context.Host.Manager.SetSdk(context.Host.Sdk);
-            BeginAvdCatalogRefresh(context.Host.Sdk);
+            RequestAvdListRefresh(context);
             context.UI.HideHealthCheckBanner = false;
         }
 
@@ -281,7 +232,7 @@ namespace CoreDeck {
                     );
                     StatusMessage(StatusMessageTone::Error, message.c_str());
                     if (ImGui::TextLink(Tr("Download Java..."))) {
-                        OpenUrl(JAVA_DOWNLOAD_URL);
+                        OpenUrl(JAVA_JDK21_DOWNLOAD_URL);
                     }
                 }
                 return;
@@ -355,10 +306,15 @@ namespace CoreDeck {
 
     void PollPreferencesJdkWork(Context &context) {
         PollInstalledJdkScan();
-        PollAvdCatalogRefresh(context);
+        PollJdkPathJob(context);
     }
 
     void DrawPreferencesJdkSection(Context &context, char *jdkPathBuffer, const size_t bufferSize) {
+        if (PendingJdkPath()) {
+            CopyToBuffer(jdkPathBuffer, bufferSize, *PendingJdkPath());
+            PendingJdkPath().reset();
+        }
+
         PreferencesSectionHeader(
             Tr("Java (JDK)"),
             Tr("The Android command-line tools (avdmanager, sdkmanager) run on Java and require JDK 17 or newer. Point CoreDeck at a compatible JDK if your system default is older.")
@@ -426,30 +382,23 @@ namespace CoreDeck {
         ImGui::Spacing();
         ImGui::Spacing();
 
-        if (PrimaryButton(Tr("Apply JDK Path"), binExists)) {
+        const JdkPathJob &pathJob = PathJob();
+        const bool pathBusy = pathJob.Future.valid();
+        const bool applyingPath = pathBusy && pathJob.Action == JdkPathAction::Apply;
+        const bool discoveringPath = pathBusy && pathJob.Action == JdkPathAction::Discover;
+
+        if (PrimaryButton(Tr("Apply JDK Path"), (!pathBusy && binExists) || applyingPath, ImVec2(0, 0), applyingPath)) {
             Paths::Onboarding::SaveJdkPathOverride(pathStr);
-            context.Host.Jdk = DetectJdk();
-            ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
-            context.Host.Manager.SetSdk(context.Host.Sdk);
-            RefreshAvds(context);
-            context.UI.HideHealthCheckBanner = false;
-            strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
-            jdkPathBuffer[bufferSize - 1] = '\0';
+            StartJdkPathJob(JdkPathAction::Apply, context.Host.Sdk);
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !binExists) {
             ImGui::SetTooltip("%s", Tr("Choose a directory that contains bin/java before applying."));
         }
 
         ImGui::SameLine();
-        if (PrimaryButton(Tr("Use Default Discovery"), true)) {
+        if (PrimaryButton(Tr("Use Default Discovery"), !pathBusy || discoveringPath, ImVec2(0, 0), discoveringPath)) {
             Paths::Onboarding::ClearJdkPathOverride();
-            context.Host.Jdk = DetectJdk();
-            ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
-            context.Host.Manager.SetSdk(context.Host.Sdk);
-            RefreshAvds(context);
-            context.UI.HideHealthCheckBanner = false;
-            strncpy(jdkPathBuffer, context.Host.Jdk.JavaHome.c_str(), bufferSize - 1);
-            jdkPathBuffer[bufferSize - 1] = '\0';
+            StartJdkPathJob(JdkPathAction::Discover, context.Host.Sdk);
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", Tr("Forget the saved JDK and detect it from JAVA_HOME / standard paths."));

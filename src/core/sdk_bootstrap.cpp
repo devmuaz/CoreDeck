@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "sdk_bootstrap.h"
+#include "constants.h"
 #include "i18n.h"
 #include "archive.h"
 #include "http_download.h"
@@ -15,8 +16,6 @@
 
 namespace CoreDeck {
     namespace {
-        constexpr const char *CMDLINE_TOOLS_VERSION = "15859902";
-        constexpr const char *CMDLINE_TOOLS_BASE_URL = "https://dl.google.com/android/repository/";
         constexpr const char *STAGING_DIR_NAME = ".coredeck-bootstrap";
 
         constexpr float DOWNLOAD_START = 0.02F;
@@ -194,7 +193,7 @@ namespace CoreDeck {
         if (release.FileName.empty()) {
             return release;
         }
-        release.DownloadUrl = StrConcat(CMDLINE_TOOLS_BASE_URL, release.FileName);
+        release.DownloadUrl = StrConcat(ANDROID_REPOSITORY_URL, release.FileName);
         release.Sha256 = PlatformArchiveSha256();
         release.DownloadSize = PlatformArchiveSize();
 
@@ -293,7 +292,7 @@ namespace CoreDeck {
                             const std::function<bool(std::uint64_t, std::uint64_t)> &onProgress,
                             std::string &error
                         ) {
-            const std::string userAgent = StrConcat("CoreDeck/", COREDECK_VERSION);
+            const std::string userAgent = StrConcat(USER_AGENT_PREFIX, COREDECK_VERSION);
             return HttpDownloadToFile(url, destPath, userAgent, onProgress, error);
         };
 

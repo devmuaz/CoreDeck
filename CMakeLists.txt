@@ -213,10 +213,6 @@ target_compile_definitions(coredeck_core PUBLIC
     COREDECK_VENDOR="${APP_VENDOR}"
     COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
     COREDECK_YEAR="${CURRENT_YEAR}"
-    COREDECK_WEBSITE="https://coredeck.dev"
-    COREDECK_AUTHOR_WEBSITE="https://devmuaz.com"
-    COREDECK_GITHUB="https://github.com/devmuaz/CoreDeck"
-    COREDECK_GITHUB_API="https://api.github.com/repos/devmuaz/${PROJECT_NAME}/releases/latest"
     COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
 )
 
@@ -265,6 +261,7 @@ add_executable(${PROJECT_NAME}
     src/gui/windows/update.cpp
     src/gui/application.cpp
     src/gui/theme.cpp
+    src/gui/utilities.cpp
     src/gui/widgets.cpp
 )
 

@@ -6,6 +6,7 @@
 #include <rfl/json.hpp>
 
 #include "version_check.h"
+#include "constants.h"
 #include "http_download.h"
 #include "utilities.h"
 
@@ -143,8 +144,8 @@ namespace CoreDeck {
     }
 
     std::optional<RemoteRelease> QueryRemoteNewerVersion() {
-        const std::string userAgent = StrConcat("CoreDeck/", COREDECK_VERSION);
-        auto fetched = HttpGetString(COREDECK_GITHUB_API, userAgent, "application/vnd.github+json");
+        const std::string userAgent = StrConcat(USER_AGENT_PREFIX, COREDECK_VERSION);
+        auto fetched = HttpGetString(GITHUB_LATEST_RELEASE_URL, userAgent, "application/vnd.github+json");
         if (!fetched) {
             return std::nullopt;
         }

@@ -12,6 +12,8 @@
 #include <future>
 #include <optional>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 struct GLFWwindow;
 
@@ -78,7 +80,24 @@ namespace CoreDeck {
 
     void PersistAppSettings(const Context &context);
 
+    struct AvdCatalogSnapshot {
+        std::vector<std::string> Names;
+        std::vector<AvdInfo> Avds;
+        std::unordered_map<std::string, std::vector<EmulatorOption>> Options;
+    };
+
+    AvdCatalogSnapshot LoadAvdCatalog(const SdkInfo &sdk);
+
+    void ApplyAvdCatalog(Context &context, AvdCatalogSnapshot snapshot);
+
     void RefreshAvds(Context &context);
+
+    void RequestAvdListRefresh(Context &context);
+
+    void PollAvdListRefresh(Context &context);
+
+    // Drops a list refresh that is already running so a newer catalog can replace it.
+    void SupersedeAvdListRefresh();
 
     void LoadAvdOptions(Context &context, const std::string &avdName);
 

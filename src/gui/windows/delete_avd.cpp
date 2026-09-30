@@ -49,7 +49,7 @@ namespace CoreDeck {
             .BusyButtonTitle = Tr("Deleting..."),
             .Type = DialogType::Negative,
             .IsBusy = isDeleting,
-        });
+        }, true);
 
         if (result == DialogResult::Confirmed) {
             StartDeleteAvdAsync(context, avdName);

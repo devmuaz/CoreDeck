@@ -9,13 +9,12 @@
 #include <vector>
 
 #include "app_settings.h"
+#include "constants.h"
 #include "paths.h"
 #include "log.h"
 
 namespace CoreDeck {
     namespace {
-        constexpr int RECENT_APK_LIMIT = 4;
-
         std::string GetAppSettingsFilePath() {
             return Paths::GetAppConfigPath("settings.json");
         }

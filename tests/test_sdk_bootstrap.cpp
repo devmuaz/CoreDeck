@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "core/constants.h"
 #include "core/paths.h"
 #include "core/sdk.h"
 #include "core/sdk_bootstrap.h"
@@ -147,7 +148,7 @@ TEST_CASE("GetBundledCmdlineToolsRelease pins an archive for this platform", "[b
     REQUIRE_FALSE(release.Version.empty());
     REQUIRE_FALSE(release.FileName.empty());
     REQUIRE_FALSE(release.DownloadUrl.empty());
-    REQUIRE(release.DownloadUrl.starts_with("https://dl.google.com/android/repository/"));
+    REQUIRE(release.DownloadUrl.starts_with(ANDROID_REPOSITORY_URL));
     REQUIRE(release.FileName.ends_with(".zip"));
     REQUIRE(release.Sha256.size() == 64);
     REQUIRE(release.DownloadSize > 0);

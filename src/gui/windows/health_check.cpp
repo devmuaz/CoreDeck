@@ -241,7 +241,7 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(busy ? Tr("Checking...") : Tr("Run Again"), !busy && !licenseOpen, ImVec2(halfWidth, 0))) {
+            if (PositiveButton(busy ? Tr("Checking...") : Tr("Run Again"), !busy && !licenseOpen, ImVec2(halfWidth, 0), busy)) {
                 OpenHealthCheckDialog(context);
             }
             ImGui::SameLine();

@@ -11,25 +11,11 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../theme.h"
+#include "../../core/utilities.h"
 #include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
-        bool ContainsCaseInsensitive(const std::string &haystack, const char *needle) {
-            if (needle[0] == '\0') {
-                return true;
-            }
-
-            const auto len = std::strlen(needle);
-            if (len > haystack.size()) {
-                return false;
-            }
-
-            return std::search(haystack.begin(), haystack.end(), needle, needle + len, [](const char a, const char b) {
-                       return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
-                   }) != haystack.end();
-        }
-
         void RebuildFilteredIndices(Context &context) {
             auto &catalog = context.Catalog;
             catalog.FilteredIndices.clear();
@@ -38,11 +24,11 @@ namespace CoreDeck {
             for (int i = 0; i < static_cast<int>(catalog.Avds.size()); i++) {
                 const auto &avd = catalog.Avds.at(i);
                 if (catalog.SearchFilter[0] != '\0') {
-                    if (!ContainsCaseInsensitive(avd.DisplayName, catalog.SearchFilter) &&
-                        !ContainsCaseInsensitive(avd.Name, catalog.SearchFilter) &&
-                        !ContainsCaseInsensitive(avd.Device, catalog.SearchFilter) &&
-                        !ContainsCaseInsensitive(avd.ApiLevel, catalog.SearchFilter) &&
-                        !ContainsCaseInsensitive(SystemImageKindLabel(avd), catalog.SearchFilter)) {
+                    if (!ContainsIgnoreCase(avd.DisplayName, catalog.SearchFilter) &&
+                        !ContainsIgnoreCase(avd.Name, catalog.SearchFilter) &&
+                        !ContainsIgnoreCase(avd.Device, catalog.SearchFilter) &&
+                        !ContainsIgnoreCase(avd.ApiLevel, catalog.SearchFilter) &&
+                        !ContainsIgnoreCase(SystemImageKindLabel(avd), catalog.SearchFilter)) {
                         continue;
                     }
                 }
@@ -131,7 +117,7 @@ namespace CoreDeck {
         ImGui::Begin(windowTitle.c_str(), nullptr, FLAGS);
 
         if (PrimaryButton(Icons::REFRESH)) {
-            RefreshAvds(context);
+            RequestAvdListRefresh(context);
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", Tr("Refresh the AVD list"));

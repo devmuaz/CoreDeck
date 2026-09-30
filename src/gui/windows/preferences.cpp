@@ -3,7 +3,6 @@
 //
 
 #include <cstdint>
-#include <cstring>
 
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -13,6 +12,7 @@
 #include "preferences_general.h"
 #include "preferences_jdk.h"
 #include "../theme.h"
+#include "../utilities.h"
 #include "../widgets.h"
 #include "../../core/i18n.h"
 
@@ -98,6 +98,7 @@ namespace CoreDeck {
 
     void BuildPreferencesWindow(Context &context) {
         PollPreferencesJdkWork(context);
+        PollPreferencesSdkWork(context);
 
         static auto activeSection = PrefsSection::General;
         if (context.UI.OpenPreferencesToJava) {
@@ -118,13 +119,8 @@ namespace CoreDeck {
             ImGui::PopStyleVar();
 
             if (ImGui::IsWindowAppearing()) {
-                const std::string &p = context.Host.Sdk.SdkPath;
-                strncpy(sdkPathBuffer, p.c_str(), sizeof(sdkPathBuffer) - 1);
-                sdkPathBuffer[sizeof(sdkPathBuffer) - 1] = '\0';
-
-                const std::string &jp = context.Host.Jdk.JavaHome;
-                strncpy(jdkPathBuffer, jp.c_str(), sizeof(jdkPathBuffer) - 1);
-                jdkPathBuffer[sizeof(jdkPathBuffer) - 1] = '\0';
+                CopyToBuffer(sdkPathBuffer, sizeof(sdkPathBuffer), context.Host.Sdk.SdkPath);
+                CopyToBuffer(jdkPathBuffer, sizeof(jdkPathBuffer), context.Host.Jdk.JavaHome);
                 RequestPreferencesJdkScan();
             }
 

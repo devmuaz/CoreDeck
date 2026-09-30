@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "constants.h"
 #include "jdk.h"
 #include "sdk.h"
 #include "sdk_manager.h"
@@ -57,9 +58,6 @@ namespace CoreDeck {
         std::string FileName;
         std::uint64_t DownloadSize = 0;
     };
-
-    // apkanalyzer calls aapt2 from this build-tools package.
-    constexpr const char *BOOTSTRAP_BUILD_TOOLS_PACKAGE = "build-tools;37.0.0";
 
     struct BootstrapPlan {
         std::string InstallRoot;
@@ -137,10 +135,6 @@ namespace CoreDeck {
     const char *BootstrapStageLabel(BootstrapStage stage);
 
     std::string BootstrapStagingDirectory(const std::string &installRoot);
-
-    constexpr std::uint64_t BOOTSTRAP_REQUIRED_BYTES = 2ULL * 1024ULL * 1024ULL * 1024ULL;
-
-    constexpr std::uint64_t BOOTSTRAP_TOOLS_REQUIRED_BYTES = 512ULL * 1024ULL * 1024ULL;
 }
 
 #endif // COREDECK_SDK_BOOTSTRAP_H

@@ -6,9 +6,9 @@
 #include <sstream>
 
 #include "health_check.h"
+#include "constants.h"
 #include "i18n.h"
 #include "paths.h"
-#include "sdk_bootstrap.h"
 #include "system_image.h"
 #include "utilities.h"
 

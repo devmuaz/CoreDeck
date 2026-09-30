@@ -227,14 +227,6 @@ namespace CoreDeck {
             return text.substr(begin, end - begin);
         }
 
-        std::string LowerCopy(const std::string &text) {
-            std::string lower = text;
-            for (char &c: lower) {
-                c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-            }
-            return lower;
-        }
-
         bool ContainsDark(const std::string &text) {
             return LowerCopy(text).find("dark") != std::string::npos;
         }
