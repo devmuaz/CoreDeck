@@ -1,3 +1,9 @@
+## [v0.13.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.1) — 2026-10-04
+
+- Show a spinner on busy actions and keep the window responsive while work runs
+- Refreshing the AVD list, and applying or discovering a JDK or Android SDK path, runs in the background now
+- Fix the update check so a beta build is offered its matching stable release, such as `v0.14.0` after `v0.14.0-beta.1`
+
 ## [v0.13.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.0) — 2026-09-29
 
 - Translate the interface. Preferences → General can follow the system language or stay on English, French, German, Simplified Chinese, or Traditional Chinese. Chinese, Japanese, and Korean text uses the bundled Noto Sans CJK font (thanks [@xqyveteyio](https://github.com/xqyveteyio), [#51](https://github.com/devmuaz/CoreDeck/issues/51))

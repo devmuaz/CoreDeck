@@ -25,6 +25,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#if !defined(_WIN32) && !defined(__APPLE__)
+#include "../core/utilities.h"
+#endif
+
 namespace CoreDeck {
     namespace {
         float g_DpiScale = 1.0F;

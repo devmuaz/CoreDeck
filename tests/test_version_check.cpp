@@ -40,9 +40,20 @@ TEST_CASE("CompareSemanticVersion pads missing components with zero", "[version_
 TEST_CASE("CompareSemanticVersion treats pre-release as lower than matching stable", "[version_check][semver]") {
     REQUIRE(CompareSemanticVersion("1.0.0-beta", "1.0.0") == -1);
     REQUIRE(CompareSemanticVersion("1.0.0", "1.0.0-beta") == 1);
-    REQUIRE(CompareSemanticVersion("1.0.0-rc1", "1.0.0-alpha") == 0);
+    REQUIRE(CompareSemanticVersion("v0.14.0", "v0.14.0-beta.1") == 1);
+    REQUIRE(CompareSemanticVersion("v0.14.0-beta.1", "v0.14.0") == -1);
+    REQUIRE(CompareSemanticVersion("v0.14.1", "v0.14.0-beta.1") == 1);
     REQUIRE(CompareSemanticVersion("2.0.0-beta", "1.9.9") == 1);
     REQUIRE(CompareSemanticVersion("1.0.0-beta", "2.0.0") == -1);
+}
+
+TEST_CASE("CompareSemanticVersion orders pre-release identifiers", "[version_check][semver]") {
+    REQUIRE(CompareSemanticVersion("1.0.0-beta.1", "v1.0.0-beta.1") == 0);
+    REQUIRE(CompareSemanticVersion("1.0.0-beta.2", "1.0.0-beta.1") == 1);
+    REQUIRE(CompareSemanticVersion("1.0.0-beta.1", "1.0.0-beta.2") == -1);
+    REQUIRE(CompareSemanticVersion("1.0.0-beta.10", "1.0.0-beta.2") == 1);
+    REQUIRE(CompareSemanticVersion("1.0.0-beta", "1.0.0-beta.1") == -1);
+    REQUIRE(CompareSemanticVersion("1.0.0-rc1", "1.0.0-alpha") == 1);
 }
 
 TEST_CASE("CompareSemanticVersion handles empty strings as 0.0.0", "[version_check][semver]") {
