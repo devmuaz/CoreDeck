@@ -33,6 +33,12 @@ find_gettext_tool() {
 XGETTEXT="$(find_gettext_tool xgettext)"
 MSGMERGE="$(find_gettext_tool msgmerge)"
 
+PACKAGE_NAME="CoreDeck"
+COPYRIGHT_HOLDER="CoreDeck contributors"
+BUGS_ADDRESS="https://github.com/devmuaz/CoreDeck/issues/new?template=translation.md"
+POT_AUTHOR="AbdulMuaz Aqeel <info@devmuaz.com>"
+YEAR="$(date +%Y)"
+
 SOURCES="$(mktemp)"
 trap 'rm -f "${SOURCES}"' EXIT
 
@@ -48,15 +54,19 @@ find "${REPO_ROOT}/src" \( -name '*.cpp' -o -name '*.h' \) | sort > "${SOURCES}"
     --keyword=TrFormat:1 \
     --keyword=TrFormatN:1,2 \
     --keyword=TrWindow:1 \
-    --package-name=CoreDeck \
-    --msgid-bugs-address='https://github.com/devmuaz/CoreDeck/issues/new?template=translation.md' \
-    --copyright-holder='CoreDeck contributors' \
+    --package-name="${PACKAGE_NAME}" \
+    --msgid-bugs-address="${BUGS_ADDRESS}" \
+    --copyright-holder="${COPYRIGHT_HOLDER}" \
     -o "${POT_FILE}" \
     -f "${SOURCES}"
 
-# xgettext leaves charset=CHARSET in the template header. Catalogs are UTF-8.
 FIXED="$(mktemp)"
-sed 's/\(Content-Type: text\/plain; charset=\)CHARSET/\1UTF-8/' "${POT_FILE}" > "${FIXED}"
+sed \
+    -e "s/^# Copyright (C) YEAR /# Copyright (C) ${YEAR} /" \
+    -e "s/^# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR\\./# ${POT_AUTHOR}, ${YEAR}./" \
+    -e "s/Last-Translator: FULL NAME <EMAIL@ADDRESS>/Last-Translator: ${POT_AUTHOR}/" \
+    -e 's/\(Content-Type: text\/plain; charset=\)CHARSET/\1UTF-8/' \
+    "${POT_FILE}" > "${FIXED}"
 mv "${FIXED}" "${POT_FILE}"
 
 shopt -s nullglob

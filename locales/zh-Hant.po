@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-09-30 07:15+0300\n"
+"POT-Creation-Date: 2026-10-08 05:58+0300\n"
 "PO-Revision-Date: 2026-09-29 19:30+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: Chinese (Traditional)\n"
@@ -43,7 +43,7 @@ msgid "avdmanager, sdkmanager, and apkanalyzer are available."
 msgstr "avdmanager、sdkmanager 和 apkanalyzer 皆可用。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:181
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:354
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:334
 msgid ""
 "No JDK detected. The command-line tools will use whatever 'java' is on your "
 "PATH."
@@ -288,7 +288,7 @@ msgstr "模擬"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.cpp:95
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:214
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:295
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:270
 msgid "None"
 msgstr "無"
 
@@ -1046,11 +1046,11 @@ msgstr "安裝失敗！"
 msgid "Installation Completed!"
 msgstr "安裝完成！"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:236
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:240
 msgid "Failed to initialize GLFW."
 msgstr "初始化 GLFW 失敗。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:259
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:263
 msgid ""
 "Failed to create window.\n"
 "Your system may not support OpenGL 3.3."
@@ -1058,21 +1058,21 @@ msgstr ""
 "建立視窗失敗。\n"
 "您的系統可能不支援 OpenGL 3.3。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/utilities.cpp:35
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/utilities.cpp:49
 msgid "OpenJDK"
 msgstr "OpenJDK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/utilities.cpp:35
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:305
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/utilities.cpp:49
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:280
 msgid "Java"
 msgstr "Java"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/utilities.cpp:37
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/utilities.cpp:51
 #, c++-format
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:1033
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:996
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:330
 msgid "Browse..."
 msgstr "瀏覽..."
@@ -2145,12 +2145,12 @@ msgid "Check for Updates..."
 msgstr "檢查更新..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:400
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:251
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:226
 msgid "Looking for installed JDKs..."
 msgstr "正在尋找已安裝的 JDK..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:414
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:277
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:252
 #, c++-format
 msgid "Older than JDK {0}. {1}"
 msgstr "低於 JDK {0}。{1}"
@@ -2162,7 +2162,7 @@ msgid ""
 msgstr "找不到 JDK。請另行安裝 JDK {0}，然後返回此步驟。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:430
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:259
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:234
 msgid "Download Java..."
 msgstr "下載 Java..."
 
@@ -2430,62 +2430,62 @@ msgid "General"
 msgstr "一般"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:35
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:19
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:92
 msgid "Android SDK"
 msgstr "Android SDK"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:36
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:339
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:319
 msgid "Java (JDK)"
 msgstr "Java (JDK)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:111
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences.cpp:112
 msgid "Preferences"
 msgstr "偏好設定"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:19
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:92
 msgid "Where CoreDeck looks for the emulator and command-line tools."
 msgstr "CoreDeck 尋找模擬器和指令列工具的位置。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:23
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:96
 msgid "SDK root"
 msgstr "SDK 根目錄"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:24
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:97
 msgid "Path to Android SDK"
 msgstr "Android SDK 路徑"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:25
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:98
 msgid "Select Android SDK directory"
 msgstr "選取 Android SDK 目錄"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:33
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:106
 msgid "Valid Android SDK path."
 msgstr "有效的 Android SDK 路徑。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:37
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:110
 msgid "Not a valid SDK (need emulator and cmdline-tools with avdmanager)."
 msgstr ""
 "不是有效的 SDK（需要 emulator，以及帶有 avdmanager 的 cmdline-tools）。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:43
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:116
 msgid "Leave empty to auto-detect from ANDROID_HOME or default install paths."
 msgstr "留空即可從 ANDROID_HOME 或預設安裝路徑自動偵測。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:50
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:128
 msgid "Apply SDK Path"
 msgstr "套用 SDK 路徑"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:60
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:133
 msgid "Fix the path or validation errors before applying."
 msgstr "套用前請修正路徑或驗證錯誤。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:64
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:419
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:137
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:399
 msgid "Use Default Discovery"
 msgstr "使用預設偵測"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:75
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_android_sdk.cpp:142
 msgid ""
 "Forget the saved override and detect the SDK from ANDROID_HOME / default "
 "paths."
@@ -2543,55 +2543,55 @@ msgstr "將當機報告與診斷資料傳送給 CoreDeck"
 msgid "Share anonymous crash reports and error diagnostics (Restart Required)."
 msgstr "分享匿名當機報告與錯誤診斷（需要重新啟動）。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:233
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:208
 msgid "Installed on this Windows"
 msgstr "此 Windows 上已安裝"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:235
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:210
 msgid "Installed on this macOS"
 msgstr "此 macOS 上已安裝"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:237
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:212
 msgid "Installed on this Linux"
 msgstr "此 Linux 上已安裝"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:239
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:214
 msgid "Installed on this Unix-like system"
 msgstr "此類 Unix 系統上已安裝"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:243
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:218
 #, c++-format
 msgid "Select a JDK {0} or newer."
 msgstr "選取 JDK {0} 或更新版本。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:255
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:230
 #, c++-format
 msgid "No JDK was found. Install JDK {0} separately, or choose a folder below."
 msgstr "找不到 JDK。請另行安裝 JDK {0}，或在下方選取資料夾。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:288
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:263
 msgid "Custom Path"
 msgstr "自訂路徑"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:292
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:267
 msgid "Auto-Detected"
 msgstr "自動偵測"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:301
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:276
 msgid "No JDK found at this location."
 msgstr "在此位置找不到 JDK。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:307
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:282
 #, c++-format
 msgid "{0} ({1})"
 msgstr "{0} ({1})"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:311
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:286
 #, c++-format
 msgid "{0} ({1}) - requires JDK {2} or newer."
 msgstr "{0}（{1}）- 需要 JDK {2} 或更新版本。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:340
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:320
 msgid ""
 "The Android command-line tools (avdmanager, sdkmanager) run on Java and "
 "require JDK 17 or newer. Point CoreDeck at a compatible JDK if your system "
@@ -2600,47 +2600,47 @@ msgstr ""
 "Android 指令列工具（avdmanager、sdkmanager）在 Java 上執行，需要 JDK 17 或更"
 "新版本。如果系統預設版本過舊，請為 CoreDeck 指定相容的 JDK。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:344
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:324
 msgid "Currently used"
 msgstr "目前使用"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:370
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:350
 msgid "JDK home"
 msgstr "JDK 主目錄"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:371
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:351
 msgid "Path to a JDK home directory"
 msgstr "JDK 主目錄路徑"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:372
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:352
 msgid "Select JDK home directory"
 msgstr "選取 JDK 主目錄"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:388
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:368
 msgid "Leave empty to auto-detect from JAVA_HOME or standard install paths."
 msgstr "留空即可從 JAVA_HOME 或標準安裝路徑自動偵測。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:391
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:371
 msgid "No 'bin/java' found in this directory."
 msgstr "在此目錄中找不到 bin/java。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:394
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:374
 msgid "This is the JDK CoreDeck is using."
 msgstr "這是 CoreDeck 正在使用的 JDK。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:398
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:378
 msgid "Click Apply to validate the Java version and use this JDK."
 msgstr "按一下「套用」以驗證 Java 版本並使用此 JDK。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:405
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:390
 msgid "Apply JDK Path"
 msgstr "套用 JDK 路徑"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:415
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:395
 msgid "Choose a directory that contains bin/java before applying."
 msgstr "套用前請選取包含 bin/java 的目錄。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:429
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:404
 msgid "Forget the saved JDK and detect it from JAVA_HOME / standard paths."
 msgstr "捨棄已儲存的 JDK，並從 JAVA_HOME 或標準路徑重新偵測。"
 
