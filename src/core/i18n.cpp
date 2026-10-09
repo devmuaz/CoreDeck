@@ -91,7 +91,7 @@ namespace CoreDeck {
             if (tag.empty()) {
                 return;
             }
-            if (std::find(candidates.begin(), candidates.end(), tag) == candidates.end()) {
+            if (std::ranges::find(candidates, tag) == candidates.end()) {
                 candidates.push_back(tag);
             }
         }
@@ -139,6 +139,56 @@ namespace CoreDeck {
             return {};
         }
 
+#ifdef _WIN32
+        using CrtPutEnvS = int(__cdecl *)(const char *, const char *);
+        using CrtGetEnv = char *(__cdecl *) (const char *);
+
+        struct UniversalCrt {
+            CrtPutEnvS PutEnv = nullptr;
+            CrtGetEnv GetEnv = nullptr;
+        };
+
+        // intl-8.dll is built against the Universal CRT. CoreDeck.exe links the
+        // static CRT, so _putenv_s here updates a different environment than the
+        // one libintl's getenv reads. Language switches then stay on English.
+        const UniversalCrt &GetUniversalCrt() {
+            static const UniversalCrt crt = []() {
+                UniversalCrt found;
+                const char *modules[] = {
+                    "ucrtbase.dll",
+                    "api-ms-win-crt-environment-l1-1-0.dll",
+                };
+                for (const char *module: modules) {
+                    const HMODULE handle = GetModuleHandleA(module);
+                    if (handle == nullptr) {
+                        continue;
+                    }
+                    found.PutEnv = reinterpret_cast<CrtPutEnvS>(GetProcAddress(handle, "_putenv_s"));
+                    found.GetEnv = reinterpret_cast<CrtGetEnv>(GetProcAddress(handle, "getenv"));
+                    if (found.PutEnv != nullptr) {
+                        break;
+                    }
+                }
+                return found;
+            }();
+            return crt;
+        }
+
+        void PublishEnvironment(const char *name, const char *value) {
+            _putenv_s(name, value);
+            if (const CrtPutEnvS put = GetUniversalCrt().PutEnv; put != nullptr) {
+                put(name, value);
+            }
+        }
+#endif
+
+        bool IsCLocaleName(const char *value) {
+            if (value == nullptr || value[0] == '\0') {
+                return false;
+            }
+            return std::strcmp(value, "C") == 0 || std::strcmp(value, "POSIX") == 0 || std::strncmp(value, "C.", 2) == 0;
+        }
+
         void PublishLanguage(const std::string &tag) {
             const std::string posix = PosixLanguageTag(tag);
             std::string languages = "en";
@@ -149,21 +199,21 @@ namespace CoreDeck {
                     languages += posix;
                 }
             }
+            const char *catalog = IsLanguageToken(tag) ? tag.c_str() : "en";
 #ifdef _WIN32
-            const std::string posixValue = IsLanguageToken(posix) ? posix : "en";
-            _putenv_s("LANGUAGE", languages.c_str());
-            _putenv_s("LANG", posixValue.c_str());
-            _putenv_s("LC_MESSAGES", posixValue.c_str());
+            if (const CrtGetEnv get = GetUniversalCrt().GetEnv; get != nullptr && IsCLocaleName(get("LC_ALL"))) {
+                // libintl ignores LANGUAGE while LC_ALL is the C locale.
+                PublishEnvironment("LC_ALL", "");
+            }
+            PublishEnvironment("LANGUAGE", languages.c_str());
+            // The catalog folder is the tag itself (zh-Hans, not zh_Hans). libintl
+            // uses this name when LANGUAGE is absent.
+            PublishEnvironment("LC_MESSAGES", catalog);
+            PublishEnvironment("LANG", catalog);
 #else
+            (void) catalog;
             setenv("LANGUAGE", languages.c_str(), 1); // NOLINT(concurrency-mt-unsafe)
 #endif
-        }
-
-        bool IsCLocaleName(const char *value) {
-            if (value == nullptr || value[0] == '\0') {
-                return false;
-            }
-            return std::strcmp(value, "C") == 0 || std::strcmp(value, "POSIX") == 0 || std::strncmp(value, "C.", 2) == 0;
         }
 
         void ActivateMessageLocale() {
@@ -442,8 +492,8 @@ namespace CoreDeck {
             }
             tags.push_back(NormalizeLanguageTag(entry.path().filename().string()));
         }
-        std::sort(tags.begin(), tags.end());
-        tags.erase(std::unique(tags.begin(), tags.end()), tags.end());
+        std::ranges::sort(tags);
+        tags.erase(std::ranges::unique(tags).begin(), tags.end());
         return tags;
     }
 
@@ -453,27 +503,27 @@ namespace CoreDeck {
             const char *Tag;
             const char *Name;
         } NAMES[] = {
-            {"en", "English"},
-            {"zh-CN", "简体中文"},
-            {"zh-Hans", "简体中文"},
-            {"zh-SG", "简体中文"},
-            {"zh-TW", "繁體中文"},
-            {"zh-Hant", "繁體中文"},
-            {"zh-HK", "繁體中文（香港）"},
-            {"zh-MO", "繁體中文"},
-            {"ja", "日本語"},
-            {"ko", "한국어"},
-            {"ar", "العربية"},
-            {"de", "Deutsch"},
-            {"es", "Español"},
-            {"fr", "Français"},
-            {"it", "Italiano"},
-            {"pl", "Polski"},
-            {"pt-BR", "Português (Brasil)"},
-            {"pt", "Português"},
-            {"ru", "Русский"},
-            {"tr", "Türkçe"},
-            {"uk", "Українська"},
+            {.Tag = "en", .Name = "English"},
+            {.Tag = "zh-CN", .Name = "简体中文"},
+            {.Tag = "zh-Hans", .Name = "简体中文"},
+            {.Tag = "zh-SG", .Name = "简体中文"},
+            {.Tag = "zh-TW", .Name = "繁體中文"},
+            {.Tag = "zh-Hant", .Name = "繁體中文"},
+            {.Tag = "zh-HK", .Name = "繁體中文（香港）"},
+            {.Tag = "zh-MO", .Name = "繁體中文"},
+            {.Tag = "ja", .Name = "日本語"},
+            {.Tag = "ko", .Name = "한국어"},
+            {.Tag = "ar", .Name = "العربية"},
+            {.Tag = "de", .Name = "Deutsch"},
+            {.Tag = "es", .Name = "Español"},
+            {.Tag = "fr", .Name = "Français"},
+            {.Tag = "it", .Name = "Italiano"},
+            {.Tag = "pl", .Name = "Polski"},
+            {.Tag = "pt-BR", .Name = "Português (Brasil)"},
+            {.Tag = "pt", .Name = "Português"},
+            {.Tag = "ru", .Name = "Русский"},
+            {.Tag = "tr", .Name = "Türkçe"},
+            {.Tag = "uk", .Name = "Українська"},
         };
         for (const auto &name: NAMES) {
             if (normalized == name.Tag) {
