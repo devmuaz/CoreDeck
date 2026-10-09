@@ -67,6 +67,22 @@ jobs:
       - name: Run tests
         run: ctest --test-dir build --build-config ${{ matrix.build_type }} --output-on-failure
 
+      - name: Verify Windows install includes libintl
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $stage = Join-Path $env:RUNNER_TEMP 'coredeck-stage'
+          cmake --install build --config ${{ matrix.build_type }} --prefix $stage
+          foreach ($pattern in @('*intl*.dll', '*iconv*.dll', '*charset*.dll')) {
+            $hit = @(Get-ChildItem $stage -File -Filter $pattern)
+            if ($hit.Count -eq 0) {
+              Write-Host "Staged files:"
+              Get-ChildItem $stage -Recurse -File | ForEach-Object { $_.FullName }
+              throw "Installed CoreDeck is missing a runtime DLL matching $pattern"
+            }
+            Write-Host "Staged $($hit.Name -join ', ')"
+          }
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:

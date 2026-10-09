@@ -1,3 +1,7 @@
+## [v0.13.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.2) — 2026-10-09
+
+- Fix Windows startup after install. The installer and zip omitted `intl-8.dll` (and the iconv and charset DLLs it loads), so Windows reported that `intl-8.dll` was not found (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#54](https://github.com/devmuaz/CoreDeck/issues/54))
+
 ## [v0.13.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.1) — 2026-10-04
 
 - Show a spinner on busy actions and keep the window responsive while work runs

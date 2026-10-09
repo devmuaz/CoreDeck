@@ -352,12 +352,72 @@ if(APPLE AND NOT Intl_IS_BUILT_IN)
 endif()
 
 if(WIN32 AND NOT Intl_IS_BUILT_IN AND Intl_LIBRARY)
-    get_filename_component(_intl_lib_dir "${Intl_LIBRARY}" DIRECTORY)
-    file(GLOB _intl_runtime_dlls
-        "${_intl_lib_dir}/../bin/*intl*.dll"
-        "${_intl_lib_dir}/../bin/*iconv*.dll"
-        "${_intl_lib_dir}/../bin/*charset*.dll"
-    )
+    # FindIntl may return a single path or an optimized/debug list. The runtime
+    # DLLs live in the sibling bin directory of the import library, not in lib/.
+    set(_intl_search_libs)
+    foreach(_intl_item IN ITEMS ${Intl_LIBRARY} ${Intl_LIBRARY_RELEASE} ${Intl_LIBRARY_DEBUG})
+        if(_intl_item STREQUAL "optimized" OR _intl_item STREQUAL "debug" OR _intl_item STREQUAL "general")
+            continue()
+        endif()
+        if(EXISTS "${_intl_item}")
+            list(APPEND _intl_search_libs "${_intl_item}")
+        endif()
+    endforeach()
+
+    set(_intl_release_bins)
+    set(_intl_debug_bins)
+    foreach(_intl_lib IN LISTS _intl_search_libs)
+        cmake_path(GET _intl_lib PARENT_PATH _intl_lib_dir)
+        cmake_path(GET _intl_lib_dir PARENT_PATH _intl_prefix)
+        set(_intl_bin "${_intl_prefix}/bin")
+        if(NOT EXISTS "${_intl_bin}")
+            continue()
+        endif()
+        cmake_path(NORMAL_PATH _intl_bin)
+        if(_intl_bin MATCHES "[/\\\\]debug[/\\\\]bin$")
+            list(APPEND _intl_debug_bins "${_intl_bin}")
+        else()
+            list(APPEND _intl_release_bins "${_intl_bin}")
+        endif()
+    endforeach()
+
+    set(_intl_bins "${_intl_release_bins}")
+    if(NOT _intl_bins)
+        set(_intl_bins "${_intl_debug_bins}")
+    endif()
+    if(_intl_bins)
+        list(REMOVE_DUPLICATES _intl_bins)
+    endif()
+
+    set(_intl_runtime_dlls)
+    foreach(_intl_bin IN LISTS _intl_bins)
+        file(GLOB _intl_found
+            "${_intl_bin}/*intl*.dll"
+            "${_intl_bin}/*iconv*.dll"
+            "${_intl_bin}/*charset*.dll"
+        )
+        list(APPEND _intl_runtime_dlls ${_intl_found})
+    endforeach()
+    if(_intl_runtime_dlls)
+        list(REMOVE_DUPLICATES _intl_runtime_dlls)
+    endif()
+
+    set(_intl_has_runtime FALSE)
+    foreach(_dll IN LISTS _intl_runtime_dlls)
+        cmake_path(GET _dll FILENAME _intl_dll_name)
+        if(_intl_dll_name MATCHES "[Ii]ntl")
+            set(_intl_has_runtime TRUE)
+        endif()
+    endforeach()
+    if(NOT _intl_has_runtime)
+        message(FATAL_ERROR
+            "CoreDeck links shared libintl (${Intl_LIBRARY}) but no intl runtime DLL "
+            "was found beside it. The Windows package would fail at startup because "
+            "intl-8.dll was not found. Install shared gettext and libiconv "
+            "(vcpkg triplet x64-windows).")
+    endif()
+    message(STATUS "Windows libintl runtime: ${_intl_runtime_dlls}")
+
     foreach(_dll IN LISTS _intl_runtime_dlls)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_dll}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
@@ -484,6 +544,13 @@ install(TARGETS ${PROJECT_NAME}
 
 if(COREDECK_SENTRY_ENABLED AND NOT APPLE)
     install(PROGRAMS $<TARGET_FILE:crashpad_handler> DESTINATION .)
+endif()
+
+# CPack packages install() rules only. Copying these DLLs next to the build
+# output is not enough: Windows loads intl-8.dll (and the iconv/charset DLLs
+# it imports) from the executable directory.
+if(WIN32 AND COREDECK_INTL_RUNTIME_DLLS)
+    install(FILES ${COREDECK_INTL_RUNTIME_DLLS} DESTINATION .)
 endif()
 
 if(NOT APPLE)
