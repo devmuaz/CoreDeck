@@ -36,9 +36,8 @@ namespace CoreDeck {
             const auto end = std::sregex_iterator{};
             for (auto it = std::sregex_iterator(line.begin(), line.end(), re); it != end; ++it) {
                 // empty() is true only when the match failed. A zero-width hit such as "^" still has one submatch.
-                if (it->length() == 0) {
-                    continue;
-                }
+                if (it->length() == 0) continue; // NOLINT(readability-container-size-empty)
+
                 LogMatch m;
                 m.StartOffset = lineStart + static_cast<std::size_t>(it->position());
                 m.EndOffset = m.StartOffset + static_cast<std::size_t>(it->length());

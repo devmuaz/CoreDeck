@@ -30,11 +30,11 @@ TEST_CASE("FilterLog with empty query returns joined text and no matches", "[log
 TEST_CASE("FilterLog substring match is case-insensitive by default", "[log_filter][substring]") {
     const auto result = FilterLog(Sample(), {.Query = "WARNING"});
     REQUIRE(result.Matches.size() == 1);
-    REQUIRE(Slice(result.Joined, result.Matches[0]) == "WARNING");
+    REQUIRE(Slice(result.Joined, result.Matches.at(0)) == "WARNING");
 
     const auto lowered = FilterLog(Sample(), {.Query = "warning"});
     REQUIRE(lowered.Matches.size() == 1);
-    REQUIRE(Slice(lowered.Joined, lowered.Matches[0]) == "WARNING");
+    REQUIRE(Slice(lowered.Joined, lowered.Matches.at(0)) == "WARNING");
 }
 
 TEST_CASE("FilterLog substring match honors case-sensitive flag", "[log_filter][substring]") {
@@ -51,7 +51,7 @@ TEST_CASE("FilterLog finds multiple substring occurrences across lines", "[log_f
     for (const auto &m: result.Matches) {
         REQUIRE(Slice(result.Joined, m) == "INFO");
     }
-    REQUIRE(result.Matches[0].StartOffset < result.Matches[1].StartOffset);
+    REQUIRE(result.Matches.at(0).StartOffset < result.Matches.at(1).StartOffset);
 }
 
 TEST_CASE("FilterLog regex compiles and matches", "[log_filter][regex]") {
@@ -61,8 +61,8 @@ TEST_CASE("FilterLog regex compiles and matches", "[log_filter][regex]") {
     const auto result = FilterLog(Sample(), opts);
     REQUIRE(result.RegexValid);
     REQUIRE(result.Matches.size() == 2);
-    REQUIRE(Slice(result.Joined, result.Matches[0]) == "WARNING");
-    REQUIRE(Slice(result.Joined, result.Matches[1]) == "ERROR");
+    REQUIRE(Slice(result.Joined, result.Matches.at(0)) == "WARNING");
+    REQUIRE(Slice(result.Joined, result.Matches.at(1)) == "ERROR");
 }
 
 TEST_CASE("FilterLog reports invalid regex without crashing", "[log_filter][regex]") {

@@ -95,7 +95,7 @@ TEST_CASE("QueryApkSummary does not launch when the apk path is empty", "[apk-an
 }
 
 TEST_CASE("LoadApkReport reports a missing apkanalyzer without running it", "[apk-analyzer]") {
-    const auto report = LoadApkReport(SdkInfo{}, "app.apk");
+    const auto report = LoadApkReport(SdkInfo(), "app.apk");
 
     REQUIRE(report.ToolMissing);
     REQUIRE(report.ApkPath == "app.apk");

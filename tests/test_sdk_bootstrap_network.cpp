@@ -55,7 +55,7 @@ TEST_CASE("The pinned cmdline-tools archive downloads and matches its checksum",
         error
     ));
 
-#if defined(_WIN32)
+#ifdef _WIN32
     REQUIRE(std::filesystem::exists(extracted / "bin" / "sdkmanager.bat"));
 #else
     REQUIRE(std::filesystem::exists(extracted / "bin" / "sdkmanager"));

@@ -22,6 +22,10 @@ namespace {
             SetLocalesDirectory(m_Directory.string());
         }
 
+        CatalogFixture(const CatalogFixture &) = default;
+        CatalogFixture(CatalogFixture &&) = delete;
+        CatalogFixture &operator=(const CatalogFixture &) = default;
+        CatalogFixture &operator=(CatalogFixture &&) = delete;
         ~CatalogFixture() {
             SetLanguage("en");
             SetLocalesDirectory({});
@@ -262,8 +266,8 @@ TEST_CASE("Available languages lists catalog files", "[i18n]") {
     fixture.Write("zh-CN", Header("nplurals=1; plural=0;"));
     const std::vector<std::string> tags = AvailableLanguages();
     REQUIRE(tags.size() == 2);
-    REQUIRE(tags[0] == "fr");
-    REQUIRE(tags[1] == "zh-CN");
+    REQUIRE(tags.at(0) == "fr");
+    REQUIRE(tags.at(1) == "zh-CN");
     REQUIRE(LanguageEndonym("zh-CN") == "简体中文");
     REQUIRE(LanguageEndonym("zh-TW") == "繁體中文");
     REQUIRE_FALSE(SystemLanguage().empty());
