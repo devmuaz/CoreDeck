@@ -35,7 +35,8 @@ namespace CoreDeck {
         void CollectRegexMatches(const std::string &line, const std::size_t lineStart, const std::regex &re, std::vector<LogMatch> &out) {
             const auto end = std::sregex_iterator{};
             for (auto it = std::sregex_iterator(line.begin(), line.end(), re); it != end; ++it) {
-                if (it->empty()) {
+                // empty() is true only when the match failed. A zero-width hit such as "^" still has one submatch.
+                if (it->length() == 0) {
                     continue;
                 }
                 LogMatch m;
