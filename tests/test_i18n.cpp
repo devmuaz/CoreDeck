@@ -22,6 +22,11 @@ namespace {
             SetLocalesDirectory(m_Directory.string());
         }
 
+        CatalogFixture(const CatalogFixture &) = delete;
+        CatalogFixture &operator=(const CatalogFixture &) = delete;
+        CatalogFixture(CatalogFixture &&) = delete;
+        CatalogFixture &operator=(CatalogFixture &&) = delete;
+
         ~CatalogFixture() {
             SetLanguage("en");
             SetLocalesDirectory({});
@@ -38,7 +43,13 @@ namespace {
             std::filesystem::create_directories(messages);
             const std::filesystem::path mo = messages / "coredeck.mo";
             const std::string command = Quote(COREDECK_MSGFMT) + " -c -o " + Quote(mo.string()) + " " + Quote(po.string());
-            REQUIRE(std::system(command.c_str()) == 0);
+#ifdef _WIN32
+            // cmd.exe /c strips the first and last quote when the line has more than one quoted path.
+            const std::string invocation = "\"" + command + "\"";
+#else
+            const std::string &invocation = command;
+#endif
+            REQUIRE(std::system(invocation.c_str()) == 0);
         }
 
         static std::string Quote(const std::string &value) {
@@ -262,8 +273,8 @@ TEST_CASE("Available languages lists catalog files", "[i18n]") {
     fixture.Write("zh-CN", Header("nplurals=1; plural=0;"));
     const std::vector<std::string> tags = AvailableLanguages();
     REQUIRE(tags.size() == 2);
-    REQUIRE(tags[0] == "fr");
-    REQUIRE(tags[1] == "zh-CN");
+    REQUIRE(tags.at(0) == "fr");
+    REQUIRE(tags.at(1) == "zh-CN");
     REQUIRE(LanguageEndonym("zh-CN") == "简体中文");
     REQUIRE(LanguageEndonym("zh-TW") == "繁體中文");
     REQUIRE_FALSE(SystemLanguage().empty());
