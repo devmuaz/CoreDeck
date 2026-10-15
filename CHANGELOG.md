@@ -1,3 +1,10 @@
+## [v0.14.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0-beta.1) — 2026-10-15
+
+- Add APK Signer (Tools → APK Signer) so a package can be verified and signed with the official `apksigner` and `zipalign`, without Android Studio. Signing writes a new APK and leaves the original unchanged. Use an existing keystore
+- Health Check now requires `aapt2`, `zipalign`, and `apksigner` from build-tools. A missing `apksigner` offers to install them
+- Add a Preferences → General option to check for updates when CoreDeck starts. It is on by default, and Help → Check for Updates still works when it is off
+- Fix log search so a regular expression that matches an empty string, such as `^`, is ignored instead of counting as a match on every line
+
 ## [v0.13.3](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.3) — 2026-10-09
 
 - Fix language selection on Windows. Choosing French, German, or Chinese in Preferences stayed in English because libintl never saw the change
