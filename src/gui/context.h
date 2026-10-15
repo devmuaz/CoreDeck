@@ -82,42 +82,6 @@ namespace CoreDeck {
         Sign,
     };
 
-    struct ApkSignerWork {
-        std::atomic<bool> Busy{false};
-        ApkSignerTask Task = ApkSignerTask::None;
-
-        std::future<ApkVerifyResult> VerifyFuture;
-        std::future<ApkAliasListResult> AliasFuture;
-        std::future<ApkSignResult> SignFuture;
-        bool AliasRefreshPending = false;
-        bool AliasListScheduled = false;
-        std::chrono::steady_clock::time_point AliasListDue;
-
-        std::string ApkPath;
-        std::string KeystorePath;
-        std::string OutputPath;
-        bool OutputCustomized = false;
-
-        char StorePassword[512] = {};
-        char KeyPassword[512] = {};
-        bool ShowStorePassword = false;
-        bool ShowKeyPassword = false;
-        std::uint32_t SecretEpoch = 0;
-        bool KeyPasswordMatches = true;
-        bool Align = true;
-
-        bool HasVerify = false;
-        ApkVerifyResult Verify;
-
-        bool HasAliasResult = false;
-        ApkAliasListResult AliasResult;
-        std::vector<std::string> Aliases;
-        std::string SelectedAlias;
-
-        bool HasSignResult = false;
-        ApkSignResult SignResult;
-    };
-
     struct Context {
         struct Host {
             SdkInfo Sdk;
@@ -322,7 +286,41 @@ namespace CoreDeck {
             std::vector<std::string> PendingDrops;
         } ApkAnalyzerWork;
 
-        ApkSignerWork ApkSignerWork;
+        struct ApkSignerState {
+            std::atomic<bool> Busy{false};
+            ApkSignerTask Task = ApkSignerTask::None;
+
+            std::future<ApkVerifyResult> VerifyFuture;
+            std::future<ApkAliasListResult> AliasFuture;
+            std::future<ApkSignResult> SignFuture;
+            bool AliasRefreshPending = false;
+            bool AliasListScheduled = false;
+            std::chrono::steady_clock::time_point AliasListDue;
+
+            std::string ApkPath;
+            std::string KeystorePath;
+            std::string OutputPath;
+            bool OutputCustomized = false;
+
+            char StorePassword[512] = {};
+            char KeyPassword[512] = {};
+            bool ShowStorePassword = false;
+            bool ShowKeyPassword = false;
+            std::uint32_t SecretEpoch = 0;
+            bool KeyPasswordMatches = true;
+            bool Align = true;
+
+            bool HasVerify = false;
+            ApkVerifyResult Verify;
+
+            bool HasAliasResult = false;
+            ApkAliasListResult AliasResult;
+            std::vector<std::string> Aliases;
+            std::string SelectedAlias;
+
+            bool HasSignResult = false;
+            ApkSignResult SignResult;
+        } ApkSignerWork;
 
         struct Updates {
             bool ShowNewVersionModal = false;
@@ -336,6 +334,8 @@ namespace CoreDeck {
         explicit Context(SdkInfo sdk) : Host(std::move(sdk)) {
         }
     };
+
+    using ApkSignerWork = Context::ApkSignerState;
 
     inline void SetNativeWindowPage(Context &context, const char *page) {
         context.UI.NativeWindowPage = page != nullptr ? page : "";
