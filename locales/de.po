@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-10-15 15:52+0300\n"
+"POT-Creation-Date: 2026-10-15 16:10+0300\n"
 "PO-Revision-Date: 2026-09-29 09:20+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: German\n"
@@ -33,7 +33,8 @@ msgstr "adb wurde unter platform-tools nicht gefunden."
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:154
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:382
 msgid "aapt2, zipalign, or apksigner were not found under build-tools."
-msgstr "aapt2, zipalign oder apksigner wurden unter build-tools nicht gefunden."
+msgstr ""
+"aapt2, zipalign oder apksigner wurden unter build-tools nicht gefunden."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:159
 msgid "aapt2, zipalign, and apksigner are available."
@@ -2230,8 +2231,8 @@ msgid ""
 "aapt2, zipalign, or apksigner were not found under build-tools, so APK "
 "Analyzer and APK Signer cannot use them."
 msgstr ""
-"aapt2, zipalign oder apksigner wurden unter build-tools nicht gefunden, daher "
-"können der APK-Analysator und der APK-Signierer sie nicht verwenden."
+"aapt2, zipalign oder apksigner wurden unter build-tools nicht gefunden, "
+"daher können der APK-Analysator und der APK-Signierer sie nicht verwenden."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:100
 msgid "Java is too old for the SDK tools"
@@ -2879,6 +2880,14 @@ msgstr "Absturzberichte und Diagnosedaten an CoreDeck senden"
 msgid "Share anonymous crash reports and error diagnostics (Restart Required)."
 msgstr ""
 "Anonyme Absturzberichte und Fehlerdiagnosen teilen (Neustart erforderlich)."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:160
+msgid "Check for updates on launch"
+msgstr "Beim Start nach Updates suchen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:161
+msgid "Look for a new CoreDeck release when the app starts."
+msgstr "Beim Start von CoreDeck nach einer neuen Version suchen."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:208
 msgid "Installed on this Windows"

@@ -151,5 +151,16 @@ namespace CoreDeck {
             )) {
             PersistAppSettings(context);
         }
+
+        ImGui::Dummy(ImVec2(0, 4));
+
+        if (SubtitledCheckbox(
+                "CheckForUpdatesOnLaunch",
+                &context.Prefs.CheckForUpdatesOnLaunch,
+                Tr("Check for updates on launch"),
+                Tr("Look for a new CoreDeck release when the app starts.")
+            )) {
+            PersistAppSettings(context);
+        }
     }
 }

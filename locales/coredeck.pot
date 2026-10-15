@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-10-15 15:52+0300\n"
+"POT-Creation-Date: 2026-10-15 16:11+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: AbdulMuaz Aqeel <info@devmuaz.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2763,6 +2763,14 @@ msgstr ""
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:150
 msgid "Share anonymous crash reports and error diagnostics (Restart Required)."
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:160
+msgid "Check for updates on launch"
+msgstr ""
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:161
+msgid "Look for a new CoreDeck release when the app starts."
 msgstr ""
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:208

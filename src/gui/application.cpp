@@ -513,7 +513,7 @@ namespace CoreDeck {
         if (!m_AutoUpdateCheckStarted) {
             m_AutoUpdateCheckStarted = true;
             m_UpdateCheckWasManual = false;
-            start = true;
+            start = m_Context.Prefs.CheckForUpdatesOnLaunch;
         } else if (m_Context.Updates.RequestManualUpdateCheck) {
             m_Context.Updates.RequestManualUpdateCheck = false;
             m_UpdateCheckWasManual = true;
@@ -538,6 +538,7 @@ namespace CoreDeck {
         s.AutoScroll = context.Logs.AutoScroll;
         s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
         s.CrashReportingEnabled = context.Prefs.CrashReportingEnabled;
+        s.CheckForUpdatesOnLaunch = context.Prefs.CheckForUpdatesOnLaunch;
         s.ShowAvdListPanel = context.UI.ShowAvdListPanel;
         s.ShowOptionsPanel = context.UI.ShowOptionsPanel;
         s.ShowDetailsPanel = context.UI.ShowDetailsPanel;
@@ -553,6 +554,7 @@ namespace CoreDeck {
         context.Logs.AutoScroll = settings.AutoScroll;
         context.Prefs.ConfirmBeforeDeleteAvd = settings.ConfirmBeforeDeleteAvd;
         context.Prefs.CrashReportingEnabled = settings.CrashReportingEnabled;
+        context.Prefs.CheckForUpdatesOnLaunch = settings.CheckForUpdatesOnLaunch;
         context.UI.ShowAvdListPanel = settings.ShowAvdListPanel;
         context.UI.ShowOptionsPanel = settings.ShowOptionsPanel;
         context.UI.ShowDetailsPanel = settings.ShowDetailsPanel;

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-10-15 15:52+0300\n"
+"POT-Creation-Date: 2026-10-15 16:10+0300\n"
 "PO-Revision-Date: 2026-09-29 09:20+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: French\n"
@@ -1882,8 +1882,8 @@ msgid ""
 "Only Android Virtual Devices (AVDs) with a system image installed in this "
 "SDK are listed."
 msgstr ""
-"Seuls les appareils virtuels Android (AVD) dont l'image système est installée "
-"dans ce SDK sont listés."
+"Seuls les appareils virtuels Android (AVD) dont l'image système est "
+"installée dans ce SDK sont listés."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:192
 msgid "Ascending"
@@ -2895,6 +2895,14 @@ msgid "Share anonymous crash reports and error diagnostics (Restart Required)."
 msgstr ""
 "Partager des rapports de plantage et des diagnostics d'erreur anonymes "
 "(redémarrage requis)."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:160
+msgid "Check for updates on launch"
+msgstr "Rechercher des mises à jour au lancement"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:161
+msgid "Look for a new CoreDeck release when the app starts."
+msgstr "Rechercher une nouvelle version de CoreDeck au démarrage de l'application."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:208
 msgid "Installed on this Windows"

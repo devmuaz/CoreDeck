@@ -21,6 +21,7 @@ namespace CoreDeck {
         bool AutoScroll = true;
         bool ConfirmBeforeDeleteAvd = true;
         bool CrashReportingEnabled = true;
+        bool CheckForUpdatesOnLaunch = true;
         bool ShowAvdListPanel = true;
         bool ShowOptionsPanel = true;
         bool ShowDetailsPanel = true;

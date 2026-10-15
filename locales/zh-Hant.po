@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-10-15 15:52+0300\n"
+"POT-Creation-Date: 2026-10-15 16:10+0300\n"
 "PO-Revision-Date: 2026-09-29 19:30+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: Chinese (Traditional)\n"
@@ -2176,7 +2176,9 @@ msgstr "缺少建構工具"
 msgid ""
 "aapt2, zipalign, or apksigner were not found under build-tools, so APK "
 "Analyzer and APK Signer cannot use them."
-msgstr "在 build-tools 下找不到 aapt2、zipalign 或 apksigner，因此 APK 分析器和 APK 簽署器無法使用它們。"
+msgstr ""
+"在 build-tools 下找不到 aapt2、zipalign 或 apksigner，因此 APK 分析器和 APK "
+"簽署器無法使用它們。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:100
 msgid "Java is too old for the SDK tools"
@@ -2623,8 +2625,8 @@ msgid ""
 "aapt2, zipalign, or apksigner are missing. CoreDeck will install build-tools "
 "into this SDK so APK Analyzer and APK Signer can use them."
 msgstr ""
-"缺少 aapt2、zipalign 或 apksigner。CoreDeck 會將 build-tools 安裝到此 SDK，以便 APK 分析器和 "
-"APK 簽署器使用它們。"
+"缺少 aapt2、zipalign 或 apksigner。CoreDeck 會將 build-tools 安裝到此 SDK，以"
+"便 APK 分析器和 APK 簽署器使用它們。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1003
 msgid ""
@@ -2779,6 +2781,14 @@ msgstr "將當機報告與診斷資料傳送給 CoreDeck"
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:150
 msgid "Share anonymous crash reports and error diagnostics (Restart Required)."
 msgstr "分享匿名當機報告與錯誤診斷（需要重新啟動）。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:160
+msgid "Check for updates on launch"
+msgstr "啟動時檢查更新"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_general.cpp:161
+msgid "Look for a new CoreDeck release when the app starts."
+msgstr "應用程式啟動時尋找新的 CoreDeck 版本。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:208
 msgid "Installed on this Windows"
