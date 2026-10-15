@@ -2,10 +2,10 @@
 // Created by AbdulMuaz Aqeel on 14/10/2026.
 //
 
-#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cstdint>
+#include <exception>
 #include <filesystem>
 #include <optional>
 #include <random>
@@ -16,18 +16,13 @@
 #include <vector>
 
 #if defined(_WIN32)
-#include <fcntl.h>
-#include <io.h>
-#include <sys/stat.h>
 #include <windows.h>
 #else
-#include <cerrno>
-#include <fcntl.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
 #include "apk_signer.h"
+#include "keytool.h"
 #include "paths.h"
 #include "process.h"
 #include "utilities.h"
@@ -76,13 +71,6 @@ namespace CoreDeck {
             return std::filesystem::is_regular_file(path, error);
         }
 
-        std::string KeytoolPath(const JdkInfo &jdk) {
-            if (jdk.JavaHome.empty()) {
-                return {};
-            }
-            return Paths::JoinPaths({jdk.JavaHome, "bin", "keytool" + Paths::GetExecutableExtension()});
-        }
-
         bool CommandFailed(const CommandResult &result) {
             return !result.Started || result.ExitCode != 0;
         }
@@ -112,101 +100,6 @@ namespace CoreDeck {
                 }
             }
         };
-
-        void CloseFd(const int fd) {
-            if (fd < 0) {
-                return;
-            }
-#ifdef _WIN32
-            _close(fd);
-#else
-            ::close(fd);
-#endif
-        }
-
-        bool WriteAll(const int fd, const char *data, const std::size_t size) {
-            std::size_t offset = 0;
-            while (offset < size) {
-                const std::size_t remaining = size - offset;
-#ifdef _WIN32
-                const unsigned chunk = static_cast<unsigned>(std::min<std::size_t>(remaining, 1u << 20));
-                const int wrote = _write(fd, data + offset, chunk);
-                if (wrote <= 0) {
-                    return false;
-                }
-#else
-                const ssize_t wrote = ::write(fd, data + offset, remaining);
-                if (wrote < 0) {
-                    if (errno == EINTR) {
-                        continue;
-                    }
-                    return false;
-                }
-                if (wrote == 0) {
-                    return false;
-                }
-#endif
-                offset += static_cast<std::size_t>(wrote);
-            }
-            return true;
-        }
-
-        bool SyncFd(const int fd) {
-#ifdef _WIN32
-            return _commit(fd) == 0;
-#else
-            return ::fsync(fd) == 0;
-#endif
-        }
-
-        int OpenExclusive(const std::filesystem::path &path) {
-            const std::string native = path.string();
-#ifdef _WIN32
-            return _open(native.c_str(), _O_CREAT | _O_EXCL | _O_WRONLY | _O_BINARY, _S_IREAD | _S_IWRITE);
-#else
-            const int fd = ::open(native.c_str(), O_CREAT | O_EXCL | O_WRONLY | O_CLOEXEC, 0600);
-            if (fd < 0) {
-                return -1;
-            }
-            if (::fchmod(fd, 0600) != 0) {
-                ::close(fd);
-                RemoveQuiet(path);
-                return -1;
-            }
-            return fd;
-#endif
-        }
-
-        int OpenForWipe(const std::filesystem::path &path) {
-            const std::string native = path.string();
-#ifdef _WIN32
-            return _open(native.c_str(), _O_WRONLY | _O_BINARY);
-#else
-            return ::open(native.c_str(), O_WRONLY | O_CLOEXEC);
-#endif
-        }
-
-        bool OverwriteWithZeros(const int fd, const std::size_t size) {
-#ifdef _WIN32
-            if (_lseek(fd, 0, SEEK_SET) < 0) {
-                return false;
-            }
-#else
-            if (::lseek(fd, 0, SEEK_SET) < 0) {
-                return false;
-            }
-#endif
-            std::array<char, 4096> zeros{};
-            std::size_t offset = 0;
-            while (offset < size) {
-                const std::size_t chunk = std::min(zeros.size(), size - offset);
-                if (!WriteAll(fd, zeros.data(), chunk)) {
-                    return false;
-                }
-                offset += chunk;
-            }
-            return true;
-        }
 
         std::string RandomToken() {
             std::array<unsigned char, 16> bytes{};
@@ -238,13 +131,6 @@ namespace CoreDeck {
             return token;
         }
 
-        std::filesystem::path TempDirectory() {
-            std::error_code error;
-            std::filesystem::path directory = std::filesystem::temp_directory_path(error);
-            if (error) return {};
-            return directory;
-        }
-
         struct SecretString {
             std::string Value;
 
@@ -272,71 +158,6 @@ namespace CoreDeck {
 
             ~SecretString() {
                 WipeSecret(Value);
-            }
-        };
-
-        struct SecretFile {
-            std::filesystem::path Path;
-            std::size_t Bytes = 0;
-
-            SecretFile() = default;
-
-            SecretFile(const SecretFile &) = delete;
-            SecretFile(SecretFile &&) = delete;
-            SecretFile &operator=(const SecretFile &) = delete;
-            SecretFile &operator=(SecretFile &&) = delete;
-
-            ~SecretFile() {
-                Destroy();
-            }
-
-            bool Write(const std::string &secret) {
-                Destroy();
-                const std::filesystem::path directory = TempDirectory();
-                if (directory.empty()) {
-                    return false;
-                }
-
-                int fd = -1;
-                for (int attempt = 0; attempt < 8 && fd < 0; ++attempt) {
-                    Path = directory / ("coredeck-ks-" + RandomToken());
-                    fd = OpenExclusive(Path);
-                }
-                if (fd < 0) {
-                    Path.clear();
-                    return false;
-                }
-
-                Bytes = secret.size() + 1;
-                bool ok = WriteAll(fd, secret.data(), secret.size());
-                if (ok) {
-                    constexpr char NEW_LINE = '\n';
-                    ok = WriteAll(fd, &NEW_LINE, 1);
-                }
-                if (ok) {
-                    ok = SyncFd(fd);
-                }
-                CloseFd(fd);
-                if (!ok) {
-                    Destroy();
-                    return false;
-                }
-                return true;
-            }
-
-            void Destroy() {
-                if (!Path.empty()) {
-                    const int fd = OpenForWipe(Path);
-                    if (fd >= 0) {
-                        if (OverwriteWithZeros(fd, Bytes)) {
-                            SyncFd(fd);
-                        }
-                        CloseFd(fd);
-                    }
-                    RemoveQuiet(Path);
-                }
-                Path.clear();
-                Bytes = 0;
             }
         };
 
@@ -433,7 +254,7 @@ namespace CoreDeck {
         }
 
         std::optional<ApkSignResult> PrepareKeyPassFile(
-            SecretFile &keyPassFile,
+            KeystorePasswordFile &keyPassFile,
             const std::string &storePassword,
             const std::string &keyPassword,
             std::string &keyPassPath
@@ -446,7 +267,7 @@ namespace CoreDeck {
                 result.Status = ApkSignStatus::SignFailed;
                 return result;
             }
-            keyPassPath = keyPassFile.Path.string();
+            keyPassPath = keyPassFile.Path().string();
             return std::nullopt;
         }
 
@@ -526,78 +347,6 @@ namespace CoreDeck {
         return result;
     }
 
-    std::vector<std::string> ParseKeystoreAliases(const std::string &output) {
-        std::vector<std::string> aliases;
-        std::istringstream stream(output);
-        std::string line;
-        while (std::getline(stream, line)) {
-            line = TrimCopy(std::move(line));
-            if (line.find("trustedCertEntry") != std::string::npos) {
-                continue;
-            }
-            if (line.find("PrivateKeyEntry") == std::string::npos) {
-                continue;
-            }
-            const auto comma = line.find(',');
-            if (comma == std::string::npos || comma == 0) {
-                continue;
-            }
-            std::string alias = TrimCopy(line.substr(0, comma));
-            if (!alias.empty()) {
-                aliases.push_back(std::move(alias));
-            }
-        }
-        return aliases;
-    }
-
-    ApkAliasListResult ListKeystoreAliases(
-        const JdkInfo &jdk,
-        const std::string &keystorePath,
-        std::string storePassword,
-        const EnvVars &toolEnv
-    ) {
-        SecretString password{std::move(storePassword)};
-        WipeSecret(storePassword);
-
-        ApkAliasListResult result;
-        const std::string keytool = KeytoolPath(jdk);
-        if (jdk.JavaHome.empty() || !IsRegularFile(keytool)) {
-            result.Status = ApkAliasStatus::Refused;
-            result.ToolMissing = true;
-            return result;
-        }
-        if (keystorePath.empty()) {
-            result.Status = ApkAliasStatus::Refused;
-            return result;
-        }
-
-        SecretFile passFile;
-        if (!passFile.Write(password.Value)) {
-            result.Status = ApkAliasStatus::Failed;
-            return result;
-        }
-
-        const CommandResult command = RunCommandArgsResult(
-            keytool,
-            {"-list", "-keystore", keystorePath, "-storepass:file", passFile.Path.string()},
-            "",
-            toolEnv
-        );
-        passFile.Destroy();
-        WipeSecret(password.Value);
-
-        result.Started = command.Started;
-        result.ExitCode = command.ExitCode;
-        result.Output = command.Output;
-        if (CommandFailed(command)) {
-            result.Status = ApkAliasStatus::Failed;
-            return result;
-        }
-        result.Status = ApkAliasStatus::Ok;
-        result.Aliases = ParseKeystoreAliases(command.Output);
-        return result;
-    }
-
     std::vector<std::string> BuildApkSignArguments(
         const std::string &keystorePath,
         const std::string &keyAlias,
@@ -667,7 +416,7 @@ namespace CoreDeck {
             return std::move(*aligned);
         }
 
-        SecretFile keyPassFile;
+        KeystorePasswordFile keyPassFile;
         std::string keyPassPath;
         if (std::optional<ApkSignResult> keyPass = PrepareKeyPassFile(
                 keyPassFile,

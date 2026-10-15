@@ -187,6 +187,7 @@ add_library(coredeck_core STATIC
     src/core/http_download.cpp
     src/core/i18n.cpp
     src/core/jdk.cpp
+    src/core/keytool.cpp
     src/core/log_buffer.cpp
     src/core/log_filter.cpp
     src/core/options.cpp

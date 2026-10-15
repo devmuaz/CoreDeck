@@ -31,23 +31,6 @@ namespace CoreDeck {
         ApkVerifyReport Report;
     };
 
-
-    enum class ApkAliasStatus : uint8_t {
-        Ok,
-        Refused,
-        Failed,
-    };
-
-    struct ApkAliasListResult {
-        ApkAliasStatus Status = ApkAliasStatus::Failed;
-        bool ToolMissing = false;
-        bool Started = false;
-        int ExitCode = -1;
-        std::string Output;
-        std::vector<std::string> Aliases;
-    };
-
-
     enum class ApkSignStatus : uint8_t {
         Signed,
         Refused,
@@ -92,15 +75,6 @@ namespace CoreDeck {
     ApkVerifyResult VerifyApk(
         const std::string &apksignerPath,
         const std::string &apkPath,
-        const EnvVars &toolEnv
-    );
-
-    std::vector<std::string> ParseKeystoreAliases(const std::string &output);
-
-    ApkAliasListResult ListKeystoreAliases(
-        const JdkInfo &jdk,
-        const std::string &keystorePath,
-        std::string storePassword,
         const EnvVars &toolEnv
     );
 

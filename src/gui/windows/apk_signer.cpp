@@ -20,6 +20,7 @@
 #include "../utilities.h"
 #include "../widgets.h"
 #include "../../core/apk_signer.h"
+#include "../../core/keytool.h"
 #include "../../core/file_dialog.h"
 #include "../../core/i18n.h"
 
@@ -88,7 +89,7 @@ namespace CoreDeck {
 
         struct RetiredJobs {
             std::vector<std::future<ApkVerifyResult>> Verify;
-            std::vector<std::future<ApkAliasListResult>> Aliases;
+            std::vector<std::future<KeytoolAliasListResult>> Aliases;
             std::vector<std::future<ApkSignResult>> Sign;
         };
 
@@ -296,11 +297,11 @@ namespace CoreDeck {
             work.HasVerify = true;
         }
 
-        void ApplyAlias(ApkSignerWork &work, ApkAliasListResult result) {
+        void ApplyAlias(ApkSignerWork &work, KeytoolAliasListResult result) {
             work.AliasResult = std::move(result);
             work.HasAliasResult = true;
             work.Aliases.clear();
-            if (work.AliasResult.Status != ApkAliasStatus::Ok) {
+            if (work.AliasResult.Status != KeytoolAliasStatus::Ok) {
                 work.SelectedAlias.clear();
                 return;
             }
@@ -336,15 +337,15 @@ namespace CoreDeck {
                     }
                 } else if (work.AliasFuture.valid() && work.AliasFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                     try {
-                        ApkAliasListResult result = work.AliasFuture.get();
+                        KeytoolAliasListResult result = work.AliasFuture.get();
                         work.Busy = false;
                         work.Task = ApkSignerTask::None;
                         ApplyAlias(work, std::move(result));
                     } catch (...) {
                         work.Busy = false;
                         work.Task = ApkSignerTask::None;
-                        ApkAliasListResult failed;
-                        failed.Status = ApkAliasStatus::Failed;
+                        KeytoolAliasListResult failed;
+                        failed.Status = KeytoolAliasStatus::Failed;
                         ApplyAlias(work, std::move(failed));
                     }
                 } else if (work.SignFuture.valid() && work.SignFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
@@ -419,7 +420,7 @@ namespace CoreDeck {
             work.AliasFuture = std::async(
                 std::launch::async,
                 [secret = std::move(secret), jdk, keystore, toolEnv]() mutable {
-                    ApkAliasListResult result = ListKeystoreAliases(jdk, keystore, std::move(secret.Value), toolEnv);
+                    KeytoolAliasListResult result = ListKeystoreAliases(jdk, keystore, std::move(secret.Value), toolEnv);
                     WipeSecret(secret.Value);
                     return result;
                 }
@@ -727,7 +728,7 @@ namespace CoreDeck {
                     if (!javaMissing) {
                         StatusMessage(StatusMessageTone::Error, Tr("keytool was not found in the JDK."));
                     }
-                } else if (work.AliasResult.Status != ApkAliasStatus::Ok) {
+                } else if (work.AliasResult.Status != KeytoolAliasStatus::Ok) {
                     StatusMessage(StatusMessageTone::Error, Tr("The keystore aliases could not be read."));
                 } else if (work.Aliases.empty()) {
                     StatusMessage(StatusMessageTone::Warning, Tr("No private-key aliases were found in this keystore."));

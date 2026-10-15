@@ -22,6 +22,7 @@
 #include "../core/options.h"
 #include "../core/apk_analyzer.h"
 #include "../core/apk_signer.h"
+#include "../core/keytool.h"
 #include "../core/sdk.h"
 #include "../core/sdk_bootstrap.h"
 #include "../core/sdk_manager.h"
@@ -291,7 +292,7 @@ namespace CoreDeck {
             ApkSignerTask Task = ApkSignerTask::None;
 
             std::future<ApkVerifyResult> VerifyFuture;
-            std::future<ApkAliasListResult> AliasFuture;
+            std::future<KeytoolAliasListResult> AliasFuture;
             std::future<ApkSignResult> SignFuture;
             bool AliasRefreshPending = false;
             bool AliasListScheduled = false;
@@ -314,7 +315,7 @@ namespace CoreDeck {
             ApkVerifyResult Verify;
 
             bool HasAliasResult = false;
-            ApkAliasListResult AliasResult;
+            KeytoolAliasListResult AliasResult;
             std::vector<std::string> Aliases;
             std::string SelectedAlias;
 
