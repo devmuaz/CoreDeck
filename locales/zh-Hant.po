@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-10-08 05:58+0300\n"
+"POT-Creation-Date: 2026-10-15 15:52+0300\n"
 "PO-Revision-Date: 2026-09-29 19:30+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: Chinese (Traditional)\n"
@@ -30,161 +30,166 @@ msgstr "在此 SDK 中找不到模擬器程式。"
 msgid "adb was not found under platform-tools."
 msgstr "在 platform-tools 下找不到 adb。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:148
-msgid "aapt2 was not found under build-tools. The APK Analyzer needs it."
-msgstr "在 build-tools 下找不到 aapt2。APK 分析器需要它。"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:154
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:382
+msgid "aapt2, zipalign, or apksigner were not found under build-tools."
+msgstr "在 build-tools 下找不到 aapt2、zipalign 或 apksigner。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:168
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:159
+msgid "aapt2, zipalign, and apksigner are available."
+msgstr "aapt2、zipalign 和 apksigner 皆可用。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:170
 msgid "avdmanager, sdkmanager, and/or apkanalyzer are missing from this SDK."
 msgstr "此 SDK 缺少 avdmanager、sdkmanager 和/或 apkanalyzer。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:173
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:175
 msgid "avdmanager, sdkmanager, and apkanalyzer are available."
 msgstr "avdmanager、sdkmanager 和 apkanalyzer 皆可用。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:181
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:183
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences_jdk.cpp:334
 msgid ""
 "No JDK detected. The command-line tools will use whatever 'java' is on your "
 "PATH."
 msgstr "未偵測到 JDK。指令列工具將使用 PATH 中的 java。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:187
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:189
 msgid "an unknown Java version"
 msgstr "未知的 Java 版本"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:188
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:190
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:817
 #, c++-format
 msgid "Found {0}, which is older than JDK {1}."
 msgstr "找到 {0}，低於 JDK {1}。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:201
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:232
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:203
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:234
 msgid "sdkmanager is not installed."
 msgstr "未安裝 sdkmanager。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:207
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:209
 msgid "sdkmanager is missing from this SDK."
 msgstr "此 SDK 缺少 sdkmanager。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:215
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:217
 #, c++-format
 msgid "sdkmanager {0}"
 msgstr "sdkmanager {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:222
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:224
 msgid "sdkmanager did not produce any output. Check the Java setup."
 msgstr "sdkmanager 沒有產生任何輸出。請檢查 Java 設定。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:223
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:225
 #, c++-format
 msgid "sdkmanager did not run correctly: {0}"
 msgstr "sdkmanager 未能正確執行：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:239
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:241
 msgid "All SDK package licenses are accepted."
 msgstr "所有 SDK 套件授權均已接受。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:243
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:245
 msgid "Some SDK package licenses have not been accepted."
 msgstr "部分 SDK 套件授權尚未接受。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:249
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:251
 msgid "The SDK license state could not be read."
 msgstr "無法讀取 SDK 授權狀態。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:260
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:262
 msgid "No system images are installed yet, so no AVD can boot."
 msgstr "尚未安裝系統映像，因此無法啟動任何 AVD。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:266
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:268
 #, c++-format
 msgid "{0} system image installed."
 msgid_plural "{0} system images installed."
 msgstr[0] "已安裝 {0} 個系統映像。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:279
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:281
 msgid "The free disk space could not be determined."
 msgstr "無法判斷可用磁碟空間。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:285
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:287
 #, c++-format
 msgid "Only {0} is free. About {1} is recommended for downloads."
 msgstr "僅剩 {0} 可用。下載建議預留約 {1}。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:292
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:294
 #, c++-format
 msgid "{0} free."
 msgstr "可用空間 {0}。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:300
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:302
 msgid "Needs a configured Android SDK."
 msgstr "需要已設定的 Android SDK。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:378
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:372
 msgid "Android SDK location"
 msgstr "Android SDK 位置"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:380
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:374
 msgid "Emulator binary"
 msgstr "模擬器程式"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:382
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:376
 msgid "Platform tools (adb)"
 msgstr "平台工具 (adb)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:384
-msgid "Build tools (aapt2)"
-msgstr "建構工具 (aapt2)"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:378
+msgid "Build tools (aapt2, zipalign, apksigner)"
+msgstr "建構工具 (aapt2、zipalign、apksigner)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:386
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:380
 msgid "Command-line tools (avdmanager, sdkmanager, apkanalyzer)"
 msgstr "指令列工具 (avdmanager、sdkmanager、apkanalyzer)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:388
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:382
 msgid "Java runtime (JDK 17 or newer)"
 msgstr "Java 執行環境（JDK 17 或更新版本）"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:390
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:384
 msgid "Command-line tools run"
 msgstr "指令列工具執行"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:392
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:386
 msgid "SDK licenses"
 msgstr "SDK 授權"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:394
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:388
 msgid "System images"
 msgstr "系統映像"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:397
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:391
 msgid "Free disk space"
 msgstr "可用磁碟空間"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:404
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:398
 msgid "Pending"
 msgstr "待檢查"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:406
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:244
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:400
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:249
 msgid "Checking..."
 msgstr "正在檢查..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:408
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:402
 msgid "Passed"
 msgstr "通過"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:410
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:404
 msgid "Warning"
 msgstr "警告"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:412
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:406
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:278
 msgid "Failed"
 msgstr "失敗"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:415
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:409
 msgid "Skipped"
 msgstr "已略過"
 
@@ -971,51 +976,47 @@ msgstr "正在安裝 platform-tools、build-tools 和模擬器..."
 msgid "Verifying installation..."
 msgstr "正在驗證安裝..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:379
-msgid "aapt2 was not found under build-tools."
-msgstr "在 build-tools 下找不到 aapt2。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:399
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:402
 msgid "Preparing..."
 msgstr "正在準備..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:402
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:405
 msgid "No install location was provided."
 msgstr "未提供安裝位置。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:422
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:425
 #, c++-format
 msgid "About {0} is needed, {1} is free."
 msgstr "大約需要 {0}，可用空間為 {1}。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:427
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:554
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:430
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:557
 msgid "Locating the SDK Manager..."
 msgstr "正在尋找 SDK Manager..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:454
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:457
 msgid "Downloading command-line tools..."
 msgstr "正在下載指令列工具..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:469
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:472
 #, c++-format
 msgid "{0} downloaded"
 msgstr "已下載 {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:489
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:492
 msgid "Verifying download..."
 msgstr "正在驗證下載..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:497
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:500
 msgid "nothing"
 msgstr "無"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:497
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:500
 #, c++-format
 msgid "expected {0}, got {1}"
 msgstr "預期 {0}，得到 {1}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:504
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/sdk_bootstrap.cpp:507
 msgid "Extracting command-line tools..."
 msgstr "正在解壓縮指令列工具..."
 
@@ -1046,11 +1047,11 @@ msgstr "安裝失敗！"
 msgid "Installation Completed!"
 msgstr "安裝完成！"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:240
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:241
 msgid "Failed to initialize GLFW."
 msgstr "初始化 GLFW 失敗。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:263
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:264
 msgid ""
 "Failed to create window.\n"
 "Your system may not support OpenGL 3.3."
@@ -1072,13 +1073,15 @@ msgstr "Java"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:996
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:1003
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:703
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:771
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:330
 msgid "Browse..."
 msgstr "瀏覽..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:16
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:65
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:70
 msgid "About CoreDeck"
 msgstr "關於 CoreDeck"
 
@@ -1137,16 +1140,15 @@ msgid "Recording acceptance with the SDK Manager..."
 msgstr "正在透過 SDK Manager 記錄接受狀態..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:66
-#, fuzzy
 msgid "Accepting..."
-msgstr "接受授權..."
+msgstr "正在接受..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:66
 msgid "Agree"
 msgstr "同意"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:75
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1005
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1004
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:287
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:316
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:48
@@ -1168,177 +1170,182 @@ msgstr "授權接受失敗。請再試一次，或透過 Android Studio 接受�
 msgid "Accept SDK Licenses"
 msgstr "接受 SDK 授權"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:67
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:66
 msgid "Reading APK archive headers..."
 msgstr "正在讀取 APK 封存標頭..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:69
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:68
 msgid "Building file tree structure..."
 msgstr "正在建立檔案樹結構..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:231
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:230
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:705
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:850
 msgid "Android packages"
 msgstr "Android 套件"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:595
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:812
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:996
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:594
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:811
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:995
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:702
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:908
 msgid "APK"
 msgstr "APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:725
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:724
 msgid ""
 "This command needs aapt from Android SDK build-tools. The rest of this APK "
 "is still shown."
 msgstr ""
 "此指令需要 Android SDK build-tools 中的 aapt。此 APK 的其餘內容仍會顯示。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:727
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:726
 msgid "This file is not a compiled Android XML resource."
 msgstr "此檔案不是已編譯的 Android XML 資源。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:731
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:730
 msgid "'apkanalyzer' did not return a result for this section."
 msgstr "apkanalyzer 沒有傳回此部分的結果。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:734
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:733
 msgid "Open Health Check"
 msgstr "開啟健康檢查"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:759
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:764
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:906
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:758
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:763
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:905
 msgid "N/A"
 msgstr "不適用"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:759
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:758
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:55
 msgid "16 KB"
 msgstr "16 KB"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:818
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:817
 #, c++-format
 msgid "Package Name: {0}"
 msgstr "套件名稱：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:819
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:818
 #, c++-format
 msgid "Version Name: {0}"
 msgstr "版本名稱：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:820
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:819
 #, c++-format
 msgid "Version Code: {0}"
 msgstr "版本號碼：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:829
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:828
 #, c++-format
 msgid "APK Size: {0}"
 msgstr "APK 大小：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:830
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:829
 #, c++-format
 msgid "Download Size: {0}"
 msgstr "下載大小：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:833
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:904
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:903
 msgid "Yes"
 msgstr "是"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:833
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:908
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:907
 msgid "No"
 msgstr "否"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:835
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:834
 #, c++-format
 msgid "Debuggable: {0}"
 msgstr "可偵錯：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:854
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:853
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:20
 msgid "File"
 msgstr "檔案"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:856
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:855
 msgid "Raw Size"
 msgstr "原始大小"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:857
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:856
 msgid "Download Size"
 msgstr "下載大小"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:858
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:857
 msgid "% of Download Size"
 msgstr "佔下載大小的百分比"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:859
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:858
 msgid "Compressed"
 msgstr "已壓縮"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:860
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:859
 msgid "Alignment"
 msgstr "對齊"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:866
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:865
 msgid "No files match."
 msgstr "沒有相符的檔案。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:926
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:925
 msgid "The file list could not be read."
 msgstr "無法讀取檔案清單。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:995
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:997
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:994
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:996
 #, c++-format
 msgid "Analyzing {0}"
 msgstr "正在分析 {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1002
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1001
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1004
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1005
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1006
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:905
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:909
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:910
 msgid "Cancelling..."
 msgstr "正在取消..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1002
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1001
 msgid "In Progress... (This may take a while)"
 msgstr "正在進行...（可能需要一些時間）"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1042
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1058
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1041
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1057
 msgid "Drag & Drop .apk file here"
 msgstr "將 .apk 檔案拖放到這裡"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1059
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1058
 msgid "Or"
 msgstr "或"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1076
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1075
 msgid "Browse File..."
 msgstr "瀏覽檔案..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1077
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1197
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1076
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1140
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:705
 msgid "Open APK"
 msgstr "開啟 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1094
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1093
 msgid "Recent APKs"
 msgstr "最近的 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1099
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1098
 msgid "No recent APKs"
 msgstr "沒有最近的 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1156
-msgid "apkanalyzer is not installed"
-msgstr "未安裝 apkanalyzer"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1119
+msgid "Missing Command-line Tools (apkanalyzer)"
+msgstr "缺少指令列工具 (apkanalyzer)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1158
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1121
 msgid ""
 "APK Analyzer uses apkanalyzer from the Android command-line tools. Install "
 "those tools to add it. AVDs already in this SDK stay where they are."
@@ -1346,53 +1353,280 @@ msgstr ""
 "APK 分析器使用 Android 指令列工具中的 apkanalyzer。安裝這些工具即可加入它。"
 "此 SDK 中已有的 AVD 會留在原處。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1182
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1124
 msgid "Install command-line tools..."
 msgstr "安裝指令列工具..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1196
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1139
 msgid "Reading..."
 msgstr "正在讀取..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1196
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1139
 msgid "Open APK..."
 msgstr "開啟 APK..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1206
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1149
 msgid "Compare with previous APK..."
 msgstr "與上一個 APK 比較..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1207
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1150
 msgid "Comparing..."
 msgstr "正在比較..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1212
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1155
 msgid "Compare with previous APK"
 msgstr "與上一個 APK 比較"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1222
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1165
 msgid "Filter files..."
 msgstr "篩選檔案..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1226
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1169
 #, c++-format
 msgid "{0} file"
 msgid_plural "{0} files"
 msgstr[0] "{0} 個檔案"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1240
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1183
 #, c++-format
 msgid "Comparing with {0}..."
 msgstr "正在與 {0} 比較..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1245
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1188
 msgid "The comparison could not be read."
 msgstr "無法讀取比較結果。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1267
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:55
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1210
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:56
 msgid "APK Analyzer"
 msgstr "APK 分析器"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:220
+msgid "apksigner is not installed."
+msgstr "未安裝 apksigner。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:222
+msgid "A JDK is required."
+msgstr "需要 JDK。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:224
+msgid "zipalign was not found under build-tools."
+msgstr "在 build-tools 下找不到 zipalign。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:226
+msgid "Choose an output path for the signed APK."
+msgstr "請選擇已簽署 APK 的輸出路徑。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:228
+msgid ""
+"The output path is the same as the APK. The original APK is left unchanged."
+msgstr "輸出路徑與 APK 相同。原始 APK 會保持不變。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:490
+msgid "Hide password"
+msgstr "隱藏密碼"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:490
+msgid "Show password"
+msgstr "顯示密碼"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:564
+msgid "v1"
+msgstr "v1"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:565
+msgid "v2"
+msgstr "v2"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:566
+msgid "v3"
+msgstr "v3"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:567
+msgid "v3.1"
+msgstr "v3.1"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:568
+msgid "v4"
+msgstr "v4"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:655
+msgid "Copy SHA-256"
+msgstr "複製 SHA-256"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:662
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:917
+msgid "The signature could not be checked."
+msgstr "無法檢查簽章。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:669
+msgid ""
+"This APK is already signed. The new file carries a different signature, and "
+"the original APK is left unchanged."
+msgstr "此 APK 已簽署。新檔案將使用不同的簽章，原始 APK 保持不變。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:677
+msgid "Certificate DN"
+msgstr "憑證 DN"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:679
+msgid "Certificate SHA-256"
+msgstr "憑證 SHA-256"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:688
+msgid "Verified"
+msgstr "已驗證"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:688
+msgid "Not Verified"
+msgstr "未驗證"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:703
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:904
+msgid "No APK Selected"
+msgstr "未選擇 APK"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:720
+msgid "Alias"
+msgstr "別名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:724
+msgid "Reading keystore aliases..."
+msgstr "正在讀取金鑰庫別名..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:728
+msgid "keytool was not found in the JDK."
+msgstr "在 JDK 中找不到 keytool。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:731
+msgid "The keystore aliases could not be read."
+msgstr "無法讀取金鑰庫別名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:733
+msgid "No private-key aliases were found in this keystore."
+msgstr "此金鑰庫中找不到私鑰別名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:737
+msgid "Select an alias"
+msgstr "選擇別名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:765
+msgid "Keystore"
+msgstr "金鑰庫"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:769
+msgid "No keystore selected"
+msgstr "未選擇金鑰庫"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:775
+msgid "Open Keystore"
+msgstr "開啟金鑰庫"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:776
+msgid "Keystores"
+msgstr "金鑰庫"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:787
+msgid "Keystore Password"
+msgstr "金鑰庫密碼"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:814
+msgid "Key password matches keystore password"
+msgstr "金鑰密碼與金鑰庫密碼相同"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:815
+msgid "Turn this off if the key entry has a different password."
+msgstr "如果金鑰項目使用不同的密碼，請關閉此項。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:825
+msgid "Key Password"
+msgstr "金鑰密碼"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:837
+msgid "Align before signing"
+msgstr "簽署前對齊"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:838
+msgid "Zip-align the APK before the signature is written."
+msgstr "在寫入簽章之前對 APK 進行 zip 對齊。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:844
+msgid "Output"
+msgstr "輸出"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:845
+msgid "No output path"
+msgstr "無輸出路徑"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:845
+msgid "Save As..."
+msgstr "另存為..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:848
+msgid "Save signed APK"
+msgstr "儲存已簽署的 APK"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:866
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:934
+msgid "Signing..."
+msgstr "正在簽署..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:867
+msgid "Sign"
+msgstr "簽署"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:904
+msgid "Choose an APK to see its signature."
+msgstr "選擇一個 APK 以查看其簽章。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:915
+msgid "Checking the signature..."
+msgstr "正在檢查簽章..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:924
+msgid "No Signed APK"
+msgstr "沒有已簽署的 APK"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:924
+msgid "Sign an APK to see the result here."
+msgstr "簽署一個 APK 即可在此查看結果。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:929
+msgid "Signed APK"
+msgstr "已簽署的 APK"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:940
+msgid "Sign the APK to see its signature here."
+msgstr "簽署此 APK 即可在此查看其簽章。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:952
+msgid "Alignment failed."
+msgstr "對齊失敗。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:955
+msgid "Signing failed."
+msgstr "簽署失敗。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1072
+msgid "Missing Build Tools (apksigner & zipalign)"
+msgstr "缺少建構工具 (apksigner 與 zipalign)"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1074
+msgid ""
+"APK Signer uses apksigner from the Android build-tools. Install those tools "
+"to add it. AVDs already in this SDK stay where they are."
+msgstr ""
+"APK 簽署器使用 Android build-tools 中的 apksigner。安裝這些工具即可加入它。"
+"此 SDK 中已有的 AVD 會留在原處。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1077
+msgid "Install build-tools..."
+msgstr "安裝 build-tools..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1099
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:59
+msgid "APK Signer"
+msgstr "APK 簽署器"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:20
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:138
@@ -1527,7 +1761,7 @@ msgid "Stop the emulator before wiping data"
 msgstr "清除資料前請停止模擬器"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:269
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:58
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:63
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:102
 msgid "Storage Overview"
 msgstr "儲存概覽"
@@ -1588,12 +1822,14 @@ msgid "Create AVD"
 msgstr "建立 AVD"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:180
-msgid "No AVDs Found"
-msgstr "找不到 AVD"
+msgid "No Android Virtual Devices Found"
+msgstr "找不到 Android 虛擬裝置"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:181
-msgid "Only devices with a system image installed in this SDK are listed."
-msgstr "僅列出此 SDK 中已安裝系統映像的裝置。"
+msgid ""
+"Only Android Virtual Devices (AVDs) with a system image installed in this "
+"SDK are listed."
+msgstr "僅列出此 SDK 中已安裝系統映像的 Android 虛擬裝置 (AVD)。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_list.cpp:192
 msgid "Ascending"
@@ -1873,15 +2109,15 @@ msgstr "接受授權..."
 msgid "Install Image..."
 msgstr "安裝映像..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:216
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:221
 msgid "Health Check"
 msgstr "健康檢查"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:244
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:249
 msgid "Run Again"
 msgstr "重新檢查"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:248
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check.cpp:253
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:517
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:524
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:531
@@ -1891,66 +2127,66 @@ msgstr "重新檢查"
 msgid "Close"
 msgstr "關閉"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:83
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:84
 msgid "Android SDK not found"
 msgstr "找不到 Android SDK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:85
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:86
 msgid ""
 "No working Android SDK was found. The emulator binary is missing, or the "
 "path is invalid."
 msgstr "找不到可用的 Android SDK。模擬器程式缺失，或路徑無效。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:87
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:88
 msgid "SDK tools and Java need attention"
 msgstr "SDK 工具和 Java 需要處理"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:88
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:89
 msgid ""
 "The command-line tools are missing, and the detected Java is too old to run "
 "them."
 msgstr "缺少指令列工具，且偵測到的 Java 版本過舊，無法執行這些工具。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:90
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:91
 msgid "Command-line tools are missing"
 msgstr "缺少指令列工具"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:91
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:92
 msgid ""
 "avdmanager and sdkmanager are missing, so the AVD list, device profiles, and "
 "system images cannot be loaded."
 msgstr ""
 "缺少 avdmanager 和 sdkmanager，因此無法載入 AVD 清單、裝置設定檔和系統映像。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:93
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:94
 msgid "APK Analyzer is missing"
 msgstr "缺少 APK 分析器"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:94
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:95
 msgid ""
 "apkanalyzer is missing from the command-line tools, so APK Analyzer cannot "
 "read packages."
 msgstr "指令列工具中缺少 apkanalyzer，因此 APK 分析器無法讀取套件。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:96
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:97
 msgid "Build tools are missing"
 msgstr "缺少建構工具"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:97
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:98
 msgid ""
-"aapt2 was not found under build-tools, so the APK Analyzer cannot read "
-"packages."
-msgstr "在 build-tools 下找不到 aapt2，因此 APK 分析器無法讀取套件。"
+"aapt2, zipalign, or apksigner were not found under build-tools, so APK "
+"Analyzer and APK Signer cannot use them."
+msgstr "在 build-tools 下找不到 aapt2、zipalign 或 apksigner，因此 APK 分析器和 APK 簽署器無法使用它們。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:99
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:100
 msgid "Java is too old for the SDK tools"
 msgstr "Java 版本過舊，無法執行 SDK 工具"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:102
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:103
 msgid "unknown version"
 msgstr "未知版本"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:101
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:102
 #, c++-format
 msgid ""
 "The detected Java ({0}) is too old for avdmanager and sdkmanager, which need "
@@ -1959,17 +2195,17 @@ msgstr ""
 "偵測到的 Java（{0}）版本過舊，無法執行 avdmanager 和 sdkmanager，它們需要 "
 "JDK {1} 或更新版本。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:106
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:107
 msgid "SDK licenses are not accepted"
 msgstr "未接受 SDK 授權"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:108
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:109
 msgid ""
 "Some Android SDK package licenses have not been accepted. Run a health check "
 "to review them and accept the terms."
 msgstr "部分 Android SDK 套件授權尚未接受。請執行健康檢查以查看並接受條款。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:113
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/health_check_banner.cpp:114
 msgid "Run Health Check"
 msgstr "執行健康檢查"
 
@@ -2136,11 +2372,11 @@ msgstr "工具"
 msgid "Health Check..."
 msgstr "健康檢查..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:64
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:69
 msgid "Help"
 msgstr "說明"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:68
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:73
 msgid "Check for Updates..."
 msgstr "檢查更新..."
 
@@ -2297,9 +2533,9 @@ msgid "Select where the Android SDK should be installed"
 msgstr "選取 Android SDK 的安裝位置"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:739
-#, fuzzy, c++-format
+#, c++-format
 msgid "Download: ~{0}  |  Free Space Recommended: {1}"
-msgstr "下載：約 {0}  |  建議可用空間：2 GB"
+msgstr "下載：約 {0}  |  建議可用空間：{1}"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:750
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1064
@@ -2384,10 +2620,11 @@ msgstr "安裝指令列工具"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1002
 msgid ""
-"aapt2 is missing. CoreDeck will install build-tools into this SDK so the APK "
-"Analyzer can read packages."
+"aapt2, zipalign, or apksigner are missing. CoreDeck will install build-tools "
+"into this SDK so APK Analyzer and APK Signer can use them."
 msgstr ""
-"缺少 aapt2。CoreDeck 會將 build-tools 安裝到此 SDK，以便 APK 分析器讀取套件。"
+"缺少 aapt2、zipalign 或 apksigner。CoreDeck 會將 build-tools 安裝到此 SDK，以便 APK 分析器和 "
+"APK 簽署器使用它們。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:1003
 msgid ""
@@ -2752,6 +2989,3 @@ msgstr "下載"
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/update.cpp:119
 msgid "Later"
 msgstr "稍後"
-
-#~ msgid "Open license terms in browser"
-#~ msgstr "在瀏覽器中開啟授權條款"

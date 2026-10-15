@@ -381,11 +381,9 @@ namespace CoreDeck {
         const ImGuiStyle &style = ImGui::GetStyle();
         const float availW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
         const float availH = std::max(1.0F, ImGui::GetContentRegionAvail().y);
-        const float cardW = std::min(availW, Em(36.0F));
         const float padX = style.FramePadding.x * 3.0F;
         const float padY = style.FramePadding.y * 3.0F;
         const float rounding = 8.0F * GetDpiScale();
-        const float innerW = std::max(1.0F, cardW - (padX * 2.0F));
         const float gap = style.ItemSpacing.y * 1.5F;
         const char *accent = NoticeAccent(tone);
         const char *titleColor = accent != nullptr ? accent : static_cast<const char *>(Colors::TEXT_PRIMARY);
@@ -394,12 +392,25 @@ namespace CoreDeck {
         ImFont *font = ImGui::GetFont();
         const float fontSize = ImGui::GetFontSize();
         const float titleSize = fontSize * 1.2F;
-        const float titleH = DrawCenteredWrapped(nullptr, font, titleSize, 0, title, 0.0F, innerW, 0.0F);
-        const float bodyH = hasBody ? DrawCenteredWrapped(nullptr, font, fontSize, 0, body, 0.0F, innerW, 0.0F) : 0.0F;
+        const float titleLineH = titleSize * (ImGui::GetTextLineHeight() / std::max(1.0F, fontSize));
+        const float titleW = std::max(1.0F, font->CalcTextSizeA(titleSize, 10000.0F, 0.0F, title).x);
+        const float buttonNatural = hasButton
+                                        ? std::max(
+                                              Em(16.0F),
+                                              ImGui::CalcTextSize(buttonLabel).x + (style.FramePadding.x * 6.0F)
+                                          )
+                                        : 0.0F;
+        const float maxInner = std::max(1.0F, availW - (padX * 2.0F));
+        const float innerW = std::min(maxInner, std::max(titleW, buttonNatural));
+        const float bodyWrap = std::min(innerW, titleW);
+        const float cardW = innerW + (padX * 2.0F);
+        const bool titleFits = titleW <= innerW + 0.5F;
+        const float titleH = titleFits
+                                 ? titleLineH
+                                 : DrawCenteredWrapped(nullptr, font, titleSize, 0, title, 0.0F, innerW, 0.0F);
+        const float bodyH = hasBody ? DrawCenteredWrapped(nullptr, font, fontSize, 0, body, 0.0F, bodyWrap, 0.0F) : 0.0F;
         const float buttonH = hasButton ? ImGui::GetFrameHeight() : 0.0F;
-        const float buttonW = hasButton
-                                  ? std::min(innerW, ImGui::CalcTextSize(buttonLabel).x + (style.FramePadding.x * 4.0F))
-                                  : 0.0F;
+        const float buttonW = hasButton ? std::min(innerW, buttonNatural) : 0.0F;
 
         float cardH = padY + titleH + padY;
         if (hasBody) {
@@ -420,34 +431,30 @@ namespace CoreDeck {
 
         ImDrawList *draw = ImGui::GetWindowDrawList();
         const ImVec2 cardMax(origin.x + cardW, origin.y + cardH);
-        // Stroke is centered on the path, so a clip tight to the card rect cuts the outer half.
-        // OpenGL's scissor truncates the top of that clip, which made the top edge look thinner.
-        const float border = std::max(1.0F, style.FrameBorderSize);
         draw->AddRectFilled(origin, cardMax, ImGui::GetColorU32(HexColor(Colors::SURFACE1)), rounding);
-        draw->AddRect(origin, cardMax, ImGui::GetColorU32(HexColor(borderColor)), rounding, border);
+        draw->AddRect(origin, cardMax, ImGui::GetColorU32(HexColor(borderColor)), rounding, 0.5F);
 
         const float textX = origin.x + padX;
         float textY = origin.y + padY;
-        textY += DrawCenteredWrapped(
-            draw,
-            font,
-            titleSize,
-            ImGui::GetColorU32(HexColor(titleColor)),
-            title,
-            textX,
-            innerW,
-            textY
-        );
+        const ImU32 titleInk = ImGui::GetColorU32(HexColor(titleColor));
+        if (titleFits) {
+            const float titleX = textX + std::max(0.0F, (innerW - titleW) * 0.5F);
+            draw->AddText(font, titleSize, ImVec2(titleX, textY), titleInk, title);
+            textY += titleLineH;
+        } else {
+            textY += DrawCenteredWrapped(draw, font, titleSize, titleInk, title, textX, innerW, textY);
+        }
         if (hasBody) {
             textY += gap;
+            const float bodyX = textX + std::max(0.0F, (innerW - bodyWrap) * 0.5F);
             textY += DrawCenteredWrapped(
                 draw,
                 font,
                 fontSize,
                 ImGui::GetColorU32(HexColor(Colors::TEXT_MUTED)),
                 body,
-                textX,
-                innerW,
+                bodyX,
+                bodyWrap,
                 textY
             );
         }

@@ -177,8 +177,8 @@ namespace CoreDeck {
             const std::string createLabel = IconWithLabel(Icons::PLUS, Tr("Create AVD"));
             if (NoticeCard(
                     NoticeCardTone::Default,
-                    Tr("No AVDs Found"),
-                    Tr("Only devices with a system image installed in this SDK are listed."),
+                    Tr("No Android Virtual Devices Found"),
+                    Tr("Only Android Virtual Devices (AVDs) with a system image installed in this SDK are listed."),
                     createLabel.c_str()
                 )) {
                 OpenCreateAvdDialog(context);

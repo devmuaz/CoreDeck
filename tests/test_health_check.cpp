@@ -12,6 +12,9 @@ namespace {
         sdk.AvdManagerPath = "/sdk/cmdline-tools/latest/bin/avdmanager";
         sdk.SdkManagerPath = "/sdk/cmdline-tools/latest/bin/sdkmanager";
         sdk.ApkAnalyzerPath = "/sdk/cmdline-tools/latest/bin/apkanalyzer";
+        sdk.Aapt2Path = "/sdk/build-tools/37.0.0/aapt2";
+        sdk.ZipalignPath = "/sdk/build-tools/37.0.0/zipalign";
+        sdk.ApksignerPath = "/sdk/build-tools/37.0.0/apksigner";
         sdk.IsFound = true;
         return sdk;
     }
@@ -32,7 +35,6 @@ namespace {
         deps.CheckLicenses = [](const SdkInfo &) { return LicenseStatus::AllAccepted; };
         deps.SdkManagerVersion = [](const SdkInfo &) { return std::string("16.0\n"); };
         deps.CountSystemImages = [](const SdkInfo &) { return static_cast<std::size_t>(2); };
-        deps.FindAapt2 = [](const std::string &) { return std::optional<std::string>("/sdk/build-tools/37.0.0/aapt2"); };
         deps.FreeDiskSpace = [](const std::string &) {
             return std::optional<std::uint64_t>(10ULL * 1024ULL * 1024ULL * 1024ULL);
         };
@@ -177,11 +179,13 @@ TEST_CASE("RunHealthChecks flags a missing apkanalyzer", "[health-check]") {
     REQUIRE(tools.Fix == HealthFix::InstallCmdlineTools);
 }
 
-TEST_CASE("RunHealthChecks fails when build-tools are missing", "[health-check]") {
-    HealthCheckDeps deps = AllGoodDeps();
-    deps.FindAapt2 = [](const std::string &) { return std::optional<std::string>{}; };
+TEST_CASE("RunHealthChecks fails when a build tool is missing", "[health-check]") {
+    SdkInfo sdk = FullSdk();
+    SECTION("aapt2") { sdk.Aapt2Path.clear(); }
+    SECTION("zipalign") { sdk.ZipalignPath.clear(); }
+    SECTION("apksigner") { sdk.ApksignerPath.clear(); }
 
-    const auto items = Run(FullSdk(), ValidJdk(), deps);
+    const auto items = Run(sdk, ValidJdk(), AllGoodDeps());
 
     const auto &tools = Find(items, HealthCheckId::BuildTools);
     REQUIRE(tools.Status == HealthStatus::Failed);

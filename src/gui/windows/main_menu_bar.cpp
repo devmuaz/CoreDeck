@@ -52,9 +52,14 @@ namespace CoreDeck {
                 if (RoundedMenuItem(IconWithLabel(Icons::HEART_PULSE, Tr("Health Check...")).c_str())) {
                     OpenHealthCheckDialog(context);
                 }
+                ImGui::Separator();
                 if (RoundedMenuItem(IconWithLabel(Icons::FILE_LINES, Tr("APK Analyzer")).c_str())) {
-                    context.UI.ShowApkAnalyzerWindow = true;
+                    context.UI.Workspace = WorkspacePage::ApkAnalyzer;
                 }
+                if (RoundedMenuItem(IconWithLabel(Icons::SIGNATURE, Tr("APK Signer")).c_str())) {
+                    context.UI.Workspace = WorkspacePage::ApkSigner;
+                }
+                ImGui::Separator();
                 if (RoundedMenuItem(IconWithLabel(Icons::HARD_DRIVE, Tr("Storage Overview")).c_str())) {
                     context.UI.ShowStorageDialog = true;
                 }

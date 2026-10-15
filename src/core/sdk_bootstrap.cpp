@@ -375,8 +375,11 @@ namespace CoreDeck {
 
             SetStage(progress, BootstrapStage::VerifyingInstall, PACKAGES_END, Tr("Verifying installation..."));
             if (plan.UseExistingCmdlineTools) {
-                if (FindInstalledAapt2(plan.InstallRoot).empty()) {
-                    return Finish(progress, BootstrapError::PackageInstallFailed, Tr("aapt2 was not found under build-tools."));
+                const bool ready = !FindInstalledBuildTool(plan.InstallRoot, "aapt2").empty() &&
+                                   !FindInstalledBuildTool(plan.InstallRoot, "zipalign").empty() &&
+                                   !FindInstalledBuildTool(plan.InstallRoot, "apksigner").empty();
+                if (!ready) {
+                    return Finish(progress, BootstrapError::PackageInstallFailed, Tr("aapt2, zipalign, or apksigner were not found under build-tools."));
                 }
                 return Finish(progress, BootstrapError::None, "");
             }

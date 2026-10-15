@@ -999,7 +999,7 @@ namespace CoreDeck {
             WizardHeading(
                 buildToolsOnly ? Tr("Install build-tools") : Tr("Install command-line tools"),
                 buildToolsOnly
-                    ? Tr("aapt2 is missing. CoreDeck will install build-tools into this SDK so the APK Analyzer can read packages.")
+                    ? Tr("aapt2, zipalign, or apksigner are missing. CoreDeck will install build-tools into this SDK so APK Analyzer and APK Signer can use them.")
                     : Tr("avdmanager and sdkmanager are missing. CoreDeck will download Google's official tools into this SDK."),
                 innerWidth
             );

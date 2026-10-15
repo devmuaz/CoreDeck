@@ -20,7 +20,20 @@ using ProcessId = pid_t;
 #endif
 
 namespace CoreDeck {
+    struct CommandResult {
+        bool Started = false;
+        int ExitCode = -1;
+        std::string Output;
+    };
+
     std::string RunCommandArgs(
+        const std::string &path,
+        const std::vector<std::string> &args,
+        const std::string &stdinData = "",
+        const EnvVars &extraEnv = {}
+    );
+
+    CommandResult RunCommandArgsResult(
         const std::string &path,
         const std::vector<std::string> &args,
         const std::string &stdinData = "",

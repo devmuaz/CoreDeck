@@ -4,6 +4,7 @@
 
 #ifndef COREDECK_UTILITIES_H
 #define COREDECK_UTILITIES_H
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -15,6 +16,10 @@ namespace CoreDeck {
     std::string FormatFileSize(std::uintmax_t bytes);
 
     bool WipeAvdUserData(const std::string &avdPath);
+
+    void WipeSecret(void *data, std::size_t size);
+
+    void WipeSecret(std::string &secret);
 
     std::string LowerCopy(std::string value);
 

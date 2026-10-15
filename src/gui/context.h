@@ -6,6 +6,7 @@
 #define COREDECK_CONTEXT_H
 
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <future>
 #include <memory>
@@ -20,6 +21,7 @@
 #include "../core/jdk.h"
 #include "../core/options.h"
 #include "../core/apk_analyzer.h"
+#include "../core/apk_signer.h"
 #include "../core/sdk.h"
 #include "../core/sdk_bootstrap.h"
 #include "../core/sdk_manager.h"
@@ -32,6 +34,12 @@ namespace CoreDeck {
     enum class Screen : uint8_t {
         Onboarding,
         Main,
+    };
+
+    enum class WorkspacePage : uint8_t {
+        Home,
+        ApkAnalyzer,
+        ApkSigner,
     };
 
     enum class AvdSortMode : uint8_t {
@@ -65,6 +73,49 @@ namespace CoreDeck {
     struct StorageScanResult {
         std::uintmax_t TotalAvdSize = 0;
         std::uintmax_t SystemImagesSize = 0;
+    };
+
+    enum class ApkSignerTask : uint8_t {
+        None,
+        Verify,
+        Aliases,
+        Sign,
+    };
+
+    struct ApkSignerWork {
+        std::atomic<bool> Busy{false};
+        ApkSignerTask Task = ApkSignerTask::None;
+
+        std::future<ApkVerifyResult> VerifyFuture;
+        std::future<ApkAliasListResult> AliasFuture;
+        std::future<ApkSignResult> SignFuture;
+        bool AliasRefreshPending = false;
+        bool AliasListScheduled = false;
+        std::chrono::steady_clock::time_point AliasListDue;
+
+        std::string ApkPath;
+        std::string KeystorePath;
+        std::string OutputPath;
+        bool OutputCustomized = false;
+
+        char StorePassword[512] = {};
+        char KeyPassword[512] = {};
+        bool ShowStorePassword = false;
+        bool ShowKeyPassword = false;
+        std::uint32_t SecretEpoch = 0;
+        bool KeyPasswordMatches = true;
+        bool Align = true;
+
+        bool HasVerify = false;
+        ApkVerifyResult Verify;
+
+        bool HasAliasResult = false;
+        ApkAliasListResult AliasResult;
+        std::vector<std::string> Aliases;
+        std::string SelectedAlias;
+
+        bool HasSignResult = false;
+        ApkSignResult SignResult;
     };
 
     struct Context {
@@ -125,7 +176,7 @@ namespace CoreDeck {
             bool ReopenCreateAvdOnInstallClose = false;
             bool ShowPreferences = false;
             bool ShowStorageDialog = false;
-            bool ShowApkAnalyzerWindow = false;
+            WorkspacePage Workspace = WorkspacePage::Home;
             bool ShowWipeDataDialog = false;
             bool ShowHealthCheckDialog = false;
             bool ShowAcceptLicensesDialog = false;
@@ -269,6 +320,8 @@ namespace CoreDeck {
             bool RecentLoaded = false;
             std::vector<std::string> PendingDrops;
         } ApkAnalyzerWork;
+
+        ApkSignerWork ApkSignerWork;
 
         struct Updates {
             bool ShowNewVersionModal = false;

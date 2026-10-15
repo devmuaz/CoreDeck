@@ -23,7 +23,6 @@
 #include "apk_analyzer.h"
 #include "health_check.h"
 #include "onboarding.h"
-#include "../context.h"
 #include "../widgets.h"
 #include "../theme.h"
 #include "../../core/apk_analyzer.h"
@@ -360,7 +359,7 @@ namespace CoreDeck {
             work.Progress.store(0.0F);
             work.Stage.store(1);
             ClearInspection(context);
-            context.UI.ShowApkAnalyzerWindow = false;
+            context.UI.Workspace = WorkspacePage::Home;
         }
 
         void StartAnalysis(Context &context, std::string apkPath) {
@@ -1114,72 +1113,16 @@ namespace CoreDeck {
             }
         }
 
-        const char *AdvanceWrappedLine(const char *cursor, const char *end, const float wrapW, const char *&lineEnd) {
-            const char *wrap = ImGui::GetFont()->CalcWordWrapPositionA(1.0F, cursor, end, wrapW);
-            if (wrap == cursor && cursor + 1 < end) {
-                wrap += 1;
-            }
-            lineEnd = wrap;
-            while (lineEnd > cursor && (*(lineEnd - 1) == ' ' || *(lineEnd - 1) == '\n')) {
-                lineEnd -= 1;
-            }
-            while (wrap < end && *wrap == ' ') {
-                wrap += 1;
-            }
-            return wrap;
-        }
-
-        int CountWrappedLines(const char *text, const char *end, const float wrapW) {
-            int lines = 0;
-            for (const char *cursor = text; cursor < end;) {
-                lines += 1;
-                const char *lineEnd = nullptr;
-                cursor = AdvanceWrappedLine(cursor, end, wrapW, lineEnd);
-            }
-            return lines;
-        }
-
-        void DrawCenteredWrappedText(const char *text, const char *end, const float columnX, const float wrapW, float &cursorY) {
-            const float textH = ImGui::GetTextLineHeight();
-            for (const char *cursor = text; cursor < end;) {
-                const char *lineEnd = nullptr;
-                const char *next = AdvanceWrappedLine(cursor, end, wrapW, lineEnd);
-                const float lineW = ImGui::CalcTextSize(cursor, lineEnd).x;
-                ImGui::SetCursorPos(ImVec2(columnX + std::max(0.0F, (wrapW - lineW) * 0.5F), cursorY));
-                ImGui::TextUnformatted(cursor, lineEnd);
-                cursorY += textH;
-                cursor = next;
-            }
-        }
-
         void DrawMissingAnalyzer(Context &context) {
-            const char *title = Tr("apkanalyzer is not installed");
-            const char *body = Tr(
-                "APK Analyzer uses apkanalyzer from the Android command-line tools. Install those tools to add it. "
-                "AVDs already in this SDK stay where they are."
-            );
-            const char *bodyEnd = body + std::char_traits<char>::length(body);
-            const float availW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const float availH = std::max(1.0F, ImGui::GetContentRegionAvail().y);
-            const float wrapW = std::min(Em(46.0F), availW);
-            const float gap = Eh(0.85F);
-            const float textH = ImGui::GetTextLineHeight();
-            const float bodyH = textH * static_cast<float>(CountWrappedLines(body, bodyEnd, wrapW));
-            const float buttonW = std::min(Em(28.0F), wrapW);
-            const float blockH = textH + gap + bodyH + gap + ImGui::GetFrameHeight();
-            const float originX = ImGui::GetCursorPosX();
-            const float originY = ImGui::GetCursorPosY();
-            ImGui::SetCursorPos(ImVec2(originX + std::max(0.0F, (availW - wrapW) * 0.5F), originY + std::max(0.0F, (availH - blockH) * 0.5F)));
-            const float columnX = ImGui::GetCursorPosX();
-            float cursorY = ImGui::GetCursorPosY();
-            const float titleW = ImGui::CalcTextSize(title).x;
-            ImGui::SetCursorPos(ImVec2(columnX + std::max(0.0F, (wrapW - titleW) * 0.5F), cursorY));
-            ImGui::TextColored(HexColor(Colors::WARNING), "%s", title);
-            cursorY += textH + gap;
-            DrawCenteredWrappedText(body, bodyEnd, columnX, wrapW, cursorY);
-            cursorY += gap;
-            ImGui::SetCursorPos(ImVec2(columnX + std::max(0.0F, (wrapW - buttonW) * 0.5F), cursorY));
-            if (PositiveButton(Tr("Install command-line tools..."), true, ImVec2(buttonW, 0.0F))) {
+            if (NoticeCard(
+                    NoticeCardTone::Error,
+                    Tr("Missing Command-line Tools (apkanalyzer)"),
+                    Tr(
+                        "APK Analyzer uses apkanalyzer from the Android command-line tools. Install those tools to add it. "
+                        "AVDs already in this SDK stay where they are."
+                    ),
+                    Tr("Install command-line tools...")
+                )) {
                 LeaveApkAnalyzer(context);
                 OpenCmdlineToolsInstall(context);
             }
@@ -1252,7 +1195,7 @@ namespace CoreDeck {
             }
             const std::string dropped = context.ApkAnalyzerWork.PendingDrops.front();
             context.ApkAnalyzerWork.PendingDrops.clear();
-            context.UI.ShowApkAnalyzerWindow = true;
+            context.UI.Workspace = WorkspacePage::ApkAnalyzer;
             StartAnalysis(context, dropped);
         }
     }
@@ -1261,7 +1204,7 @@ namespace CoreDeck {
         PollApkAnalyzer(context);
         LoadRecentApks(context);
         AcceptPendingApkDrop(context);
-        if (!context.UI.ShowApkAnalyzerWindow) {
+        if (context.UI.Workspace != WorkspacePage::ApkAnalyzer) {
             return;
         }
         SetNativeWindowPage(context, Tr("APK Analyzer"));

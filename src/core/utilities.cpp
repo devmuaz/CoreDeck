@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <atomic>
 #include <cctype>
 #include <cstdio>
 #include <filesystem>
@@ -65,20 +66,6 @@ namespace CoreDeck {
         return buf;
     }
 
-    std::string LowerCopy(std::string value) {
-        std::ranges::transform(value, value.begin(), [](const unsigned char ch) {
-            return static_cast<char>(std::tolower(ch));
-        });
-        return value;
-    }
-
-    bool ContainsIgnoreCase(const std::string &text, const std::string &needle) {
-        if (needle.empty()) {
-            return true;
-        }
-        return LowerCopy(text).find(LowerCopy(needle)) != std::string::npos;
-    }
-
     bool WipeAvdUserData(const std::string &avdPath) {
         if (!std::filesystem::exists(avdPath)) {
             return false;
@@ -106,5 +93,43 @@ namespace CoreDeck {
             }
         }
         return wiped;
+    }
+
+    void WipeSecret(void *data, const std::size_t size) {
+        if (data == nullptr || size == 0) {
+            return;
+        }
+#ifdef _WIN32
+        SecureZeroMemory(data, size);
+#else
+        auto *bytes = static_cast<volatile unsigned char *>(data);
+        for (std::size_t index = 0; index < size; ++index) {
+            bytes[index] = 0;
+        }
+        std::atomic_signal_fence(std::memory_order_seq_cst);
+#endif
+    }
+
+    void WipeSecret(std::string &secret) {
+        const std::size_t bytes = secret.capacity();
+        if (bytes > 0) {
+            secret.resize(bytes);
+            WipeSecret(static_cast<void *>(secret.data()), secret.size());
+        }
+        secret.clear();
+    }
+
+    std::string LowerCopy(std::string value) {
+        std::ranges::transform(value, value.begin(), [](const unsigned char ch) {
+            return static_cast<char>(std::tolower(ch));
+        });
+        return value;
+    }
+
+    bool ContainsIgnoreCase(const std::string &text, const std::string &needle) {
+        if (needle.empty()) {
+            return true;
+        }
+        return LowerCopy(text).find(LowerCopy(needle)) != std::string::npos;
     }
 }

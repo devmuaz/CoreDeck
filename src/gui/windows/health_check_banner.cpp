@@ -68,7 +68,8 @@ namespace CoreDeck {
         const bool analyzerMissing = sdk.IsFound && sdk.ApkAnalyzerPath.empty();
         const bool toolsMissing = managersMissing || analyzerMissing;
         const bool jdkIncompatible = sdk.IsFound && jdk.IsFound && !jdk.IsValid;
-        const bool buildToolsMissing = sdk.IsFound && !toolsMissing && !jdkIncompatible && sdk.Aapt2Path.empty();
+        const bool buildToolsMissing = sdk.IsFound && !toolsMissing && !jdkIncompatible &&
+                                       (sdk.Aapt2Path.empty() || sdk.ZipalignPath.empty() || sdk.ApksignerPath.empty());
         const bool licensesUnaccepted =
             notice.Known && notice.Status == LicenseStatus::SomeUnaccepted && !toolsMissing && !buildToolsMissing;
 
@@ -94,7 +95,7 @@ namespace CoreDeck {
             detail = Tr("apkanalyzer is missing from the command-line tools, so APK Analyzer cannot read packages.");
         } else if (buildToolsMissing) {
             title = Tr("Build tools are missing");
-            detail = Tr("aapt2 was not found under build-tools, so the APK Analyzer cannot read packages.");
+            detail = Tr("aapt2, zipalign, or apksigner were not found under build-tools, so APK Analyzer and APK Signer cannot use them.");
         } else if (!sdkMissing && jdkIncompatible) {
             title = Tr("Java is too old for the SDK tools");
             detail = TrFormat(

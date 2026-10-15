@@ -36,12 +36,12 @@
 #include "application.h"
 #include "theme.h"
 #include "utilities.h"
-#include "widgets.h"
 #include "../core/app_settings.h"
 #include "../core/i18n.h"
 #include "../core/paths.h"
 #include "windows/about.h"
 #include "windows/apk_analyzer.h"
+#include "windows/apk_signer.h"
 #include "windows/avd_info.h"
 #include "windows/avd_list.h"
 #include "windows/avd_logs.h"
@@ -211,7 +211,7 @@ namespace CoreDeck {
         }
 
         BuildMainMenuBar(m_Context);
-        if (!m_Context.UI.ShowApkAnalyzerWindow) {
+        if (m_Context.UI.Workspace == WorkspacePage::Home) {
             BuildHealthCheckBanner(m_Context);
             BuildAvdOptionsWindow(m_Context);
             BuildAvdListWindow(m_Context);
@@ -228,6 +228,7 @@ namespace CoreDeck {
         }
         BuildHealthCheckWindow(m_Context);
         BuildApkAnalyzerWindow(m_Context);
+        BuildApkSignerWindow(m_Context);
         BuildStorageWindow(m_Context);
 
         m_Context.Host.Manager.Update();
@@ -412,7 +413,7 @@ namespace CoreDeck {
                 pending.push_back(path);
             }
             if (!pending.empty()) {
-                self->m_Context.UI.ShowApkAnalyzerWindow = true;
+                self->m_Context.UI.Workspace = WorkspacePage::ApkAnalyzer;
             }
         });
 

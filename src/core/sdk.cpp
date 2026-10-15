@@ -66,10 +66,28 @@ namespace CoreDeck {
             }
             return candidate > current;
         }
+
+        std::filesystem::path FindBuildToolBinary(
+            const std::filesystem::path &versionDir, const std::string &name, std::error_code &ec
+        ) {
+#ifdef _WIN32
+            if (name == "apksigner") {
+                for (const auto *ext: {".bat", ".exe"}) {
+                    const std::filesystem::path candidate = versionDir / (name + ext);
+                    std::error_code probeEc;
+                    if (std::filesystem::exists(candidate, probeEc)) return candidate;
+                }
+                return {};
+            }
+#endif
+            std::filesystem::path candidate = versionDir / (name + Paths::GetExecutableExtension());
+            if (!std::filesystem::exists(candidate, ec)) return {};
+            return candidate;
+        }
     }
 
-    std::string FindInstalledAapt2(const std::string &sdkPath) {
-        if (sdkPath.empty()) {
+    std::string FindInstalledBuildTool(const std::string &sdkPath, const std::string &name) {
+        if (sdkPath.empty() || name.empty()) {
             return {};
         }
         const std::filesystem::path root = std::filesystem::path(sdkPath) / "build-tools";
@@ -78,15 +96,14 @@ namespace CoreDeck {
             return {};
         }
 
-        const std::string binaryName = "aapt2" + Paths::GetExecutableExtension();
         std::string bestPath;
         std::string bestVersion;
         for (const auto &entry: std::filesystem::directory_iterator(root, ec)) {
             if (ec || !entry.is_directory(ec)) {
                 continue;
             }
-            const std::filesystem::path binary = entry.path() / binaryName;
-            if (!std::filesystem::exists(binary, ec)) {
+            const std::filesystem::path binary = FindBuildToolBinary(entry.path(), name, ec);
+            if (binary.empty()) {
                 continue;
             }
             const std::string version = entry.path().filename().string();
@@ -96,6 +113,10 @@ namespace CoreDeck {
             }
         }
         return bestPath;
+    }
+
+    std::string FindInstalledAapt2(const std::string &sdkPath) {
+        return FindInstalledBuildTool(sdkPath, "aapt2");
     }
 
     SdkInfo DetectAndroidSdk() {
@@ -157,7 +178,9 @@ namespace CoreDeck {
         sdk.AvdManagerPath = takeFirst("avdmanager");
         sdk.SdkManagerPath = takeFirst("sdkmanager");
         sdk.ApkAnalyzerPath = takeFirst("apkanalyzer");
-        sdk.Aapt2Path = FindInstalledAapt2(sdk.SdkPath);
+        sdk.Aapt2Path = FindInstalledBuildTool(sdk.SdkPath, "aapt2");
+        sdk.ZipalignPath = FindInstalledBuildTool(sdk.SdkPath, "zipalign");
+        sdk.ApksignerPath = FindInstalledBuildTool(sdk.SdkPath, "apksigner");
 
         if (std::filesystem::exists(sdk.EmulatorPath)) {
             sdk.IsFound = true;

@@ -176,6 +176,7 @@ find_program(GETTEXT_MSGFMT_EXECUTABLE msgfmt HINTS ${_coredeck_msgfmt_hints} RE
 add_library(coredeck_core STATIC
     src/core/app_settings.cpp
     src/core/apk_analyzer.cpp
+    src/core/apk_signer.cpp
     src/core/archive.cpp
     src/core/avd_manager.cpp
     src/core/crash_reporter.cpp
@@ -239,6 +240,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/gui/windows/about.cpp
     src/gui/windows/apk_analyzer.cpp
+    src/gui/windows/apk_signer.cpp
     src/gui/windows/avd_info.cpp
     src/gui/windows/avd_list.cpp
     src/gui/windows/avd_logs.cpp

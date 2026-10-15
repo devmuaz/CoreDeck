@@ -5,9 +5,9 @@
 #ifndef COREDECK_APK_ANALYZER_WINDOW_H
 #define COREDECK_APK_ANALYZER_WINDOW_H
 
-namespace CoreDeck {
-    struct Context;
+#include "../context.h"
 
+namespace CoreDeck {
     void BuildApkAnalyzerWindow(Context &context);
 }
 

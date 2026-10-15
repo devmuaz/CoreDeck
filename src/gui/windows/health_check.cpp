@@ -178,6 +178,11 @@ namespace CoreDeck {
                 ImGui::PopID();
             }
         }
+
+        std::string ObservedSdkTools(const SdkInfo &sdk) {
+            return sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath + "\n" + sdk.Aapt2Path +
+                   "\n" + sdk.ZipalignPath + "\n" + sdk.ApksignerPath;
+        }
     }
 
     void OpenHealthCheckDialog(Context &context) {
@@ -185,7 +190,7 @@ namespace CoreDeck {
         context.UI.ShowHealthCheckDialog = true;
         RefreshAndroidSdk(context.Host.Sdk);
         const SdkInfo &sdk = context.Host.Sdk;
-        work.ObservedTools = sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath;
+        work.ObservedTools = ObservedSdkTools(sdk);
         if (work.Busy.load()) {
             return;
         }
@@ -208,7 +213,7 @@ namespace CoreDeck {
         }
 
         const SdkInfo &sdk = context.Host.Sdk;
-        const std::string toolsNow = sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath;
+        const std::string toolsNow = ObservedSdkTools(sdk);
         if (!context.HealthCheckWork.Busy.load() && context.HealthCheckWork.ObservedTools != toolsNow) {
             OpenHealthCheckDialog(context);
         }

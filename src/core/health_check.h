@@ -72,8 +72,6 @@ namespace CoreDeck {
 
         std::function<std::size_t(const SdkInfo &sdk)> CountSystemImages;
 
-        std::function<std::optional<std::string>(const std::string &sdkPath)> FindAapt2;
-
         std::function<std::optional<std::uint64_t>(const std::string &root)> FreeDiskSpace;
     };
 

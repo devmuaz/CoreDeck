@@ -9,7 +9,7 @@ Feature background: [issue #28](https://github.com/devmuaz/CoreDeck/issues/28).
 command-line tools, verifies the SHA-256, extracts with miniz, accepts the SDK
 licenses, then installs `platform-tools`, `emulator`, and `build-tools;37.0.0` via `sdkmanager`.
 `build-tools` is pinned because sdkmanager will not install that package without a revision.
-apkanalyzer needs `aapt2` from it.
+apkanalyzer needs `aapt2` from it. APK Signer needs `apksigner` and `zipalign`.
 
 Work happens in `<installRoot>/.coredeck-bootstrap/`, and only moves to
 `<installRoot>/cmdline-tools/latest/` after a verified extract. Same filesystem, so the

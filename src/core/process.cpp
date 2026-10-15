@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <process.h>
 #else
+#include <cerrno>
 #include <csignal>
 #include <unistd.h>
 #include <sys/fcntl.h>
@@ -158,9 +159,196 @@ namespace CoreDeck {
             return merged;
         }
 #endif
+
+        struct CommandSpawnStatus {
+            bool Started = false;
+            int ExitCode = -1;
+        };
+
+        // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
+        CommandSpawnStatus CaptureCommand(
+            const std::string &path,
+            const std::vector<std::string> &args,
+            const std::string &stdinData,
+            const std::function<void(const std::string &)> &onLine,
+            const EnvVars &extraEnv
+        ) {
+            CommandSpawnStatus spawn;
+#ifdef _WIN32
+            SECURITY_ATTRIBUTES sa = {};
+            sa.nLength = sizeof(sa);
+            sa.bInheritHandle = TRUE;
+
+            HANDLE hOutR = nullptr, hOutW = nullptr;
+            HANDLE hInR = nullptr, hInW = nullptr;
+            if (!CreatePipe(&hOutR, &hOutW, &sa, 0)) return {};
+            SetHandleInformation(hOutR, HANDLE_FLAG_INHERIT, 0);
+            if (!CreatePipe(&hInR, &hInW, &sa, 0)) {
+                CloseHandle(hOutR);
+                CloseHandle(hOutW);
+                return {};
+            }
+            SetHandleInformation(hInW, HANDLE_FLAG_INHERIT, 0);
+
+            std::string cmdLine = BuildCommandLine(path, args);
+
+            std::vector<char> envBlock;
+            LPVOID envPtr = nullptr;
+            if (!extraEnv.empty()) {
+                envBlock = BuildEnvironmentBlock(extraEnv);
+                envPtr = envBlock.data();
+            }
+
+            STARTUPINFOA si = {};
+            si.cb = sizeof(si);
+            si.dwFlags = STARTF_USESTDHANDLES;
+            si.hStdInput = hInR;
+            si.hStdOutput = hOutW;
+            si.hStdError = hOutW;
+
+            PROCESS_INFORMATION pi = {};
+            if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, envPtr, nullptr, &si, &pi)) {
+                CloseHandle(hOutR);
+                CloseHandle(hOutW);
+                CloseHandle(hInR);
+                CloseHandle(hInW);
+                return {};
+            }
+            spawn.Started = true;
+
+            CloseHandle(hOutW);
+            CloseHandle(hInR);
+
+            if (!stdinData.empty()) {
+                DWORD written = 0;
+                WriteFile(hInW, stdinData.data(), static_cast<DWORD>(stdinData.size()), &written, nullptr);
+            }
+            CloseHandle(hInW);
+
+            std::string partial;
+            std::array<char, 512> buf{};
+            DWORD read = 0;
+            while (ReadFile(hOutR, buf.data(), static_cast<DWORD>(buf.size()), &read, nullptr) && read > 0) {
+                partial.append(buf.data(), read);
+                std::size_t pos;
+                while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
+                    if (auto line = partial.substr(0, pos); !line.empty() && onLine) onLine(line);
+                    auto next = partial.find_first_not_of("\n\r", pos);
+                    partial = (next == std::string::npos) ? std::string() : partial.substr(next);
+                }
+            }
+            if (!partial.empty() && onLine) onLine(partial);
+
+            if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_OBJECT_0) {
+                DWORD code = 0;
+                if (GetExitCodeProcess(pi.hProcess, &code)) {
+                    spawn.ExitCode = static_cast<int>(code);
+                }
+            }
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            CloseHandle(hOutR);
+#else
+            int outPipe[2];
+            int inPipe[2];
+            if (pipe(outPipe) == -1) {
+                return {};
+            }
+            if (pipe(inPipe) == -1) {
+                close(outPipe[0]);
+                close(outPipe[1]);
+                return {};
+            }
+
+            const bool useEnv = !extraEnv.empty();
+            std::vector<std::string> mergedEnv;
+            std::vector<char *> envp;
+            if (useEnv) {
+                mergedEnv = BuildMergedEnv(extraEnv);
+                envp.reserve(mergedEnv.size() + 1);
+                for (auto &entry: mergedEnv) {
+                    envp.push_back(entry.data());
+                }
+                envp.push_back(nullptr);
+            }
+
+            const pid_t pid = fork();
+            if (pid < 0) {
+                close(outPipe[0]);
+                close(outPipe[1]);
+                close(inPipe[0]);
+                close(inPipe[1]);
+                return {};
+            }
+
+            if (pid == 0) {
+                close(outPipe[0]);
+                close(inPipe[1]);
+                dup2(outPipe[1], STDOUT_FILENO);
+                dup2(outPipe[1], STDERR_FILENO);
+                dup2(inPipe[0], STDIN_FILENO);
+                close(outPipe[1]);
+                close(inPipe[0]);
+
+                std::vector<const char *> argv;
+                argv.push_back(path.c_str());
+                for (const auto &a: args) {
+                    argv.push_back(a.c_str());
+                }
+                argv.push_back(nullptr);
+                if (useEnv) {
+                    execve(path.c_str(), const_cast<char *const *>(argv.data()), envp.data());
+                } else {
+                    execvp(path.c_str(), const_cast<char *const *>(argv.data()));
+                }
+                _exit(127);
+            }
+            spawn.Started = true;
+
+            close(outPipe[1]);
+            close(inPipe[0]);
+
+            if (!stdinData.empty()) {
+                [[maybe_unused]] ssize_t w = write(inPipe[1], stdinData.data(), stdinData.size());
+            }
+            close(inPipe[1]);
+
+            std::string partial;
+            std::array<char, 512> buf{};
+            ssize_t r = 0;
+            while ((r = read(outPipe[0], buf.data(), buf.size())) > 0) {
+                partial.append(buf.data(), r);
+                std::size_t pos = 0;
+                while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
+                    if (auto line = partial.substr(0, pos); !line.empty() && onLine) {
+                        onLine(line);
+                    }
+                    auto next = partial.find_first_not_of("\n\r", pos);
+                    partial = (next == std::string::npos) ? std::string() : partial.substr(next);
+                }
+            }
+            if (!partial.empty() && onLine) {
+                onLine(partial);
+            }
+
+            close(outPipe[0]);
+            int waitStatus = 0;
+            pid_t waited = waitpid(pid, &waitStatus, 0);
+            while (waited < 0 && errno == EINTR) {
+                waited = waitpid(pid, &waitStatus, 0);
+            }
+            if (waited == pid) {
+                if (WIFEXITED(waitStatus)) {
+                    spawn.ExitCode = WEXITSTATUS(waitStatus);
+                } else if (WIFSIGNALED(waitStatus)) {
+                    spawn.ExitCode = 128 + WTERMSIG(waitStatus);
+                }
+            }
+#endif
+            return spawn;
+        }
     }
 
-    // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
     void StreamCommandArgs(
         const std::string &path,
         const std::vector<std::string> &args,
@@ -168,168 +356,21 @@ namespace CoreDeck {
         const std::function<void(const std::string &)> &onLine,
         const EnvVars &extraEnv
     ) {
-#ifdef _WIN32
-        SECURITY_ATTRIBUTES sa = {};
-        sa.nLength = sizeof(sa);
-        sa.bInheritHandle = TRUE;
+        CaptureCommand(path, args, stdinData, onLine, extraEnv);
+    }
 
-        HANDLE hOutR = nullptr, hOutW = nullptr;
-        HANDLE hInR = nullptr, hInW = nullptr;
-        if (!CreatePipe(&hOutR, &hOutW, &sa, 0)) return;
-        SetHandleInformation(hOutR, HANDLE_FLAG_INHERIT, 0);
-        if (!CreatePipe(&hInR, &hInW, &sa, 0)) {
-            CloseHandle(hOutR);
-            CloseHandle(hOutW);
-            return;
-        }
-        SetHandleInformation(hInW, HANDLE_FLAG_INHERIT, 0);
-
-        std::string cmdLine = BuildCommandLine(path, args);
-
-        std::vector<char> envBlock;
-        LPVOID envPtr = nullptr;
-        if (!extraEnv.empty()) {
-            envBlock = BuildEnvironmentBlock(extraEnv);
-            envPtr = envBlock.data();
-        }
-
-        STARTUPINFOA si = {};
-        si.cb = sizeof(si);
-        si.dwFlags = STARTF_USESTDHANDLES;
-        si.hStdInput = hInR;
-        si.hStdOutput = hOutW;
-        si.hStdError = hOutW;
-
-        PROCESS_INFORMATION pi = {};
-        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, envPtr, nullptr, &si, &pi)) {
-            CloseHandle(hOutR);
-            CloseHandle(hOutW);
-            CloseHandle(hInR);
-            CloseHandle(hInW);
-            return;
-        }
-
-        CloseHandle(hOutW);
-        CloseHandle(hInR);
-
-        if (!stdinData.empty()) {
-            DWORD written = 0;
-            WriteFile(hInW, stdinData.data(), static_cast<DWORD>(stdinData.size()), &written, nullptr);
-        }
-        CloseHandle(hInW);
-
-        std::string partial;
-        std::array<char, 512> buf{};
-        DWORD read = 0;
-        while (ReadFile(hOutR, buf.data(), static_cast<DWORD>(buf.size()), &read, nullptr) && read > 0) {
-            partial.append(buf.data(), read);
-            std::size_t pos;
-            while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
-                if (auto line = partial.substr(0, pos); !line.empty() && onLine) onLine(line);
-                auto next = partial.find_first_not_of("\n\r", pos);
-                partial = (next == std::string::npos) ? std::string() : partial.substr(next);
-            }
-        }
-        if (!partial.empty() && onLine) onLine(partial);
-
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        CloseHandle(hOutR);
-#else
-        int outPipe[2];
-        int inPipe[2];
-        if (pipe(outPipe) == -1) {
-            return;
-        }
-        if (pipe(inPipe) == -1) {
-            close(outPipe[0]);
-            close(outPipe[1]);
-            return;
-        }
-
-        const bool useEnv = !extraEnv.empty();
-        std::vector<std::string> mergedEnv;
-        std::vector<char *> envp;
-        if (useEnv) {
-            mergedEnv = BuildMergedEnv(extraEnv);
-            envp.reserve(mergedEnv.size() + 1);
-            for (auto &entry: mergedEnv) {
-                envp.push_back(entry.data());
-            }
-            envp.push_back(nullptr);
-        }
-
-        const pid_t pid = fork();
-        if (pid < 0) {
-            close(outPipe[0]);
-            close(outPipe[1]);
-            close(inPipe[0]);
-            close(inPipe[1]);
-            return;
-        }
-
-        if (pid == 0) {
-            close(outPipe[0]);
-            close(inPipe[1]);
-            dup2(outPipe[1], STDOUT_FILENO);
-            dup2(outPipe[1], STDERR_FILENO);
-            dup2(inPipe[0], STDIN_FILENO);
-            close(outPipe[1]);
-            close(inPipe[0]);
-
-            std::vector<const char *> argv;
-            argv.push_back(path.c_str());
-            for (const auto &a: args) {
-                argv.push_back(a.c_str());
-            }
-            argv.push_back(nullptr);
-            if (useEnv) {
-                execve(path.c_str(), const_cast<char *const *>(argv.data()), envp.data());
-            } else {
-                execvp(path.c_str(), const_cast<char *const *>(argv.data()));
-            }
-            _exit(127);
-        }
-
-        close(outPipe[1]);
-        close(inPipe[0]);
-
-        if (!stdinData.empty()) {
-            [[maybe_unused]] ssize_t w = write(inPipe[1], stdinData.data(), stdinData.size());
-        }
-        close(inPipe[1]);
-
-        std::string partial;
-        std::array<char, 512> buf{};
-        ssize_t r = 0;
-        while ((r = read(outPipe[0], buf.data(), buf.size())) > 0) {
-            partial.append(buf.data(), r);
-            std::size_t pos = 0;
-            while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
-                if (auto line = partial.substr(0, pos); !line.empty() && onLine) {
-                    onLine(line);
-                }
-                auto next = partial.find_first_not_of("\n\r", pos);
-                partial = (next == std::string::npos) ? std::string() : partial.substr(next);
-            }
-        }
-        if (!partial.empty() && onLine) {
-            onLine(partial);
-        }
-
-        close(outPipe[0]);
-        int status = 0;
-        waitpid(pid, &status, 0);
-#endif
+    CommandResult RunCommandArgsResult(const std::string &path, const std::vector<std::string> &args, const std::string &stdinData, const EnvVars &extraEnv) {
+        CommandResult result;
+        const CommandSpawnStatus spawn = CaptureCommand(path, args, stdinData, [&result](const std::string &line) {
+            result.Output += line;
+            result.Output.push_back('\n'); }, extraEnv);
+        result.Started = spawn.Started;
+        result.ExitCode = spawn.ExitCode;
+        return result;
     }
 
     std::string RunCommandArgs(const std::string &path, const std::vector<std::string> &args, const std::string &stdinData, const EnvVars &extraEnv) {
-        std::string out;
-        StreamCommandArgs(path, args, stdinData, [&out](const std::string &line) {
-            out += line;
-            out.push_back('\n'); }, extraEnv);
-        return out;
+        return RunCommandArgsResult(path, args, stdinData, extraEnv).Output;
     }
 
     ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {

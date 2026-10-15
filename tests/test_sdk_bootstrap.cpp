@@ -584,9 +584,10 @@ TEST_CASE("BootstrapAndroidSdk installs build-tools into an SDK that already has
         REQUIRE(sdk.SdkManagerPath.find("sdkmanager") != std::string::npos);
         REQUIRE(sdkRoot == root);
         installed = packages;
-        WriteExecutable(
-            std::filesystem::path(sdkRoot) / "build-tools" / "37.0.0" / ("aapt2" + Paths::GetExecutableExtension())
-        );
+        const std::filesystem::path buildTools = std::filesystem::path(sdkRoot) / "build-tools" / "37.0.0";
+        for (const char *name: {"aapt2", "zipalign", "apksigner"}) {
+            WriteExecutable(buildTools / (std::string(name) + Paths::GetExecutableExtension()));
+        }
         return true;
     };
 
@@ -596,7 +597,10 @@ TEST_CASE("BootstrapAndroidSdk installs build-tools into an SDK that already has
     REQUIRE(installed.size() == 1);
     REQUIRE(installed.front() == BOOTSTRAP_BUILD_TOOLS_PACKAGE);
     REQUIRE(StageOf(progress) == BootstrapStage::Succeeded);
-    REQUIRE_FALSE(FindInstalledAapt2(root.string()).empty());
+    const SdkInfo probed = ProbeAndroidSdk(root.string());
+    REQUIRE_FALSE(probed.Aapt2Path.empty());
+    REQUIRE_FALSE(probed.ZipalignPath.empty());
+    REQUIRE_FALSE(probed.ApksignerPath.empty());
 
     std::filesystem::remove_all(root);
 }

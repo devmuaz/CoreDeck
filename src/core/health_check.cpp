@@ -140,22 +140,24 @@ namespace CoreDeck {
             return result;
         }
 
+        bool CmdlineToolMissing(const std::string &path, const HealthCheckDeps &deps) {
+            return path.empty() || !deps.PathExists(path);
+        }
+
         HealthCheckResult CheckBuildTools(const SdkInfo &sdk, const HealthCheckDeps &deps) {
             HealthCheckResult result{.Id = HealthCheckId::BuildTools};
-            const std::optional<std::string> aapt2 = deps.FindAapt2 ? deps.FindAapt2(sdk.SdkPath) : std::nullopt;
-            if (!aapt2.has_value() || aapt2->empty()) {
+            const bool aapt2Missing = CmdlineToolMissing(sdk.Aapt2Path, deps);
+            const bool zipalignMissing = CmdlineToolMissing(sdk.ZipalignPath, deps);
+            const bool apksignerMissing = CmdlineToolMissing(sdk.ApksignerPath, deps);
+            if (aapt2Missing || zipalignMissing || apksignerMissing) {
                 result.Status = HealthStatus::Failed;
-                result.Detail = TrFormat("aapt2 was not found under build-tools. The APK Analyzer needs it.");
+                result.Detail = TrFormat("aapt2, zipalign, or apksigner were not found under build-tools.");
                 result.Fix = HealthFix::InstallBuildTools;
                 return result;
             }
             result.Status = HealthStatus::Passed;
-            result.Detail = *aapt2;
+            result.Detail = TrFormat("aapt2, zipalign, and apksigner are available.");
             return result;
-        }
-
-        bool CmdlineToolMissing(const std::string &path, const HealthCheckDeps &deps) {
-            return path.empty() || !deps.PathExists(path);
         }
 
         HealthCheckResult CheckCmdlineTools(const SdkInfo &sdk, const HealthCheckDeps &deps) {
@@ -352,14 +354,6 @@ namespace CoreDeck {
 
         deps.CountSystemImages = [](const SdkInfo &sdk) { return ListSystemImages(sdk).size(); };
 
-        deps.FindAapt2 = [](const std::string &sdkPath) {
-            const std::string found = FindInstalledAapt2(sdkPath);
-            if (found.empty()) {
-                return std::optional<std::string>{};
-            }
-            return std::optional<std::string>{found};
-        };
-
         deps.FreeDiskSpace = [](const std::string &root) -> std::optional<std::uint64_t> {
             std::error_code ec;
             const std::filesystem::space_info space = std::filesystem::space(root, ec);
@@ -381,7 +375,7 @@ namespace CoreDeck {
             case HealthCheckId::PlatformTools:
                 return Tr("Platform tools (adb)");
             case HealthCheckId::BuildTools:
-                return Tr("Build tools (aapt2)");
+                return Tr("Build tools (aapt2, zipalign, apksigner)");
             case HealthCheckId::CmdlineTools:
                 return Tr("Command-line tools (avdmanager, sdkmanager, apkanalyzer)");
             case HealthCheckId::JdkRuntime:
