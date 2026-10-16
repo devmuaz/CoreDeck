@@ -42,6 +42,7 @@
 #include "windows/about.h"
 #include "windows/apk_analyzer.h"
 #include "windows/apk_signer.h"
+#include "windows/keytool.h"
 #include "windows/avd_info.h"
 #include "windows/avd_list.h"
 #include "windows/avd_logs.h"
@@ -228,6 +229,7 @@ namespace CoreDeck {
         }
         BuildHealthCheckWindow(m_Context);
         BuildApkAnalyzerWindow(m_Context);
+        BuildKeytoolWindow(m_Context);
         BuildApkSignerWindow(m_Context);
         BuildStorageWindow(m_Context);
 

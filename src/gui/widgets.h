@@ -5,9 +5,14 @@
 #ifndef COREDECK_WIDGETS_H
 #define COREDECK_WIDGETS_H
 
+#include <future>
+#include <span>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "imgui.h"
+#include "theme.h"
 #include "../core/utilities.h"
 
 namespace CoreDeck {
@@ -138,6 +143,18 @@ namespace CoreDeck {
 
     void StatusMessage(StatusMessageTone tone, const char *message);
 
+    enum class StatusBarTone : uint8_t {
+        Idle,
+        Busy,
+        Success,
+        Warning,
+        Error,
+    };
+
+    float StatusBarHeight();
+
+    void StatusBar(StatusBarTone tone, const char *message);
+
     // Spinning arc. A diameter of 0 uses the current text line height.
     void Spinner(const ImVec4 &color, float diameter = 0.0F);
 
@@ -150,6 +167,114 @@ namespace CoreDeck {
     };
 
     bool NoticeCard(NoticeCardTone tone, const char *title, const char *body = nullptr, const char *buttonLabel = nullptr);
+
+    template<typename Draw>
+    void DetailCard(const char *id, const float height, const Draw &draw, const float width = 0.0F) {
+        StyleColor sc;
+        StyleVar sv;
+        sc.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
+        sv.Push(ImGuiStyleVar_ChildRounding, 8.0F);
+        sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0F);
+        sv.Push(ImGuiStyleVar_WindowPadding, ImGui::GetStyle().WindowPadding);
+        ImGui::BeginChild(id, ImVec2(width, height), ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding);
+        draw();
+        ImGui::EndChild();
+    }
+
+    void EmptyReport(const char *title, const char *subtitle = nullptr, const char *titleColor = nullptr);
+
+    enum class SplitDetailKind : uint8_t {
+        Text,
+        Chip,
+        Section,
+    };
+
+    struct SplitDetail {
+        std::string Label;
+        std::string Value;
+        const char *Accent = nullptr;
+        SplitDetailKind Kind = SplitDetailKind::Text;
+    };
+
+    struct CopyableValue {
+        std::string Label;
+        std::string Value;
+        std::string Section;
+    };
+
+    // First half of the details on the left, the rest on the right, then full-width copyable values.
+    void SplitDetailReport(std::span<const SplitDetail> details, std::span<const CopyableValue> copies = {});
+
+    void CopyableField(const char *label, const std::string &value);
+
+    struct FormDisabled {
+        bool Active = false;
+
+        explicit FormDisabled(const bool active) : Active(active) {
+            if (Active) {
+                ImGui::BeginDisabled();
+            }
+        }
+
+        FormDisabled(const FormDisabled &) = delete;
+        FormDisabled(FormDisabled &&) = delete;
+        FormDisabled &operator=(const FormDisabled &) = delete;
+        FormDisabled &operator=(FormDisabled &&) = delete;
+
+        ~FormDisabled() {
+            if (Active) {
+                ImGui::EndDisabled();
+            }
+        }
+    };
+
+    void HoverTooltip(const char *text);
+
+    std::string DirectoryOf(const std::string &path);
+
+    std::string FileNameOf(const std::string &path);
+
+    struct SecretEdit {
+        bool Edited = false;
+        bool Submitted = false;
+    };
+
+    SecretEdit DrawSecretField(
+        const char *id,
+        char *buffer,
+        std::size_t size,
+        bool &revealed,
+        const char *hint = nullptr,
+        float rowWidth = -1.0F,
+        const char *tooltip = nullptr
+    );
+
+    bool DrawBrowseRow(
+        const char *fieldId,
+        const std::string &path,
+        const char *placeholder,
+        const char *browseId,
+        const char *browseLabel,
+        float rowWidth = -1.0F,
+        const char *tooltip = nullptr
+    );
+
+    float BusyActionWidth(const char *idleLabel, const char *busyLabel);
+
+    template<typename T>
+    void Retire(std::future<T> &job, std::vector<std::future<T>> &retired) {
+        if (job.valid()) {
+            retired.push_back(std::move(job));
+        }
+    }
+
+    template<typename T>
+    void DropFinished(std::vector<std::future<T>> &retired) {
+        std::erase_if(retired, [](std::future<T> &job) {
+            return job.valid() && job.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        });
+    }
 
     bool SelectableItem(
         const char *label,

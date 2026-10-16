@@ -8,6 +8,8 @@
 #include "../context.h"
 
 namespace CoreDeck {
+    void CloseApkSigner(Context &context);
+
     void BuildApkSignerWindow(Context &context);
 }
 

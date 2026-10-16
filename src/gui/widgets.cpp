@@ -4,7 +4,9 @@
 
 #include <algorithm>
 #include <cstring>
+#include <filesystem>
 #include <numbers>
+#include <vector>
 
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -220,6 +222,81 @@ namespace CoreDeck {
         );
     }
 
+    float StatusBarHeight() {
+        const float padY = 6.0F * GetDpiScale();
+        return ImGui::GetTextLineHeight() + (padY * 2.0F);
+    }
+
+    void StatusBar(const StatusBarTone tone, const char *message) {
+        const char *shown = message != nullptr ? message : "";
+        const char *icon = Icons::INFO;
+        const char *color = Colors::TEXT_MUTED;
+        const char *fill = Colors::SURFACE2;
+        const char *border = Colors::SURFACE4;
+        float fillAlpha = 1.0F;
+        float borderAlpha = 1.0F;
+        switch (tone) {
+            case StatusBarTone::Success:
+                icon = Icons::CHECK_CIRCLE;
+                color = Colors::POSITIVE;
+                fill = Colors::POSITIVE;
+                border = Colors::POSITIVE;
+                fillAlpha = 0.12F;
+                borderAlpha = 0.35F;
+                break;
+            case StatusBarTone::Warning:
+                icon = Icons::WARNING_TRIANGLE;
+                color = Colors::WARNING;
+                fill = Colors::WARNING;
+                border = Colors::WARNING;
+                fillAlpha = 0.12F;
+                borderAlpha = 0.35F;
+                break;
+            case StatusBarTone::Error:
+                icon = Icons::TIMES_CIRCLE;
+                color = Colors::NEGATIVE;
+                fill = Colors::NEGATIVE;
+                border = Colors::NEGATIVE;
+                fillAlpha = 0.12F;
+                borderAlpha = 0.35F;
+                break;
+            case StatusBarTone::Busy:
+                icon = Icons::INFO;
+                color = Colors::ACCENT_INFO;
+                fill = Colors::ACCENT_INFO;
+                border = Colors::ACCENT_INFO;
+                fillAlpha = 0.12F;
+                borderAlpha = 0.35F;
+                break;
+            case StatusBarTone::Idle:
+                break;
+        }
+
+        const float dpi = GetDpiScale();
+        const float padX = 10.0F * dpi;
+        const float gap = 8.0F * dpi;
+        const float height = StatusBarHeight();
+        const float width = std::max(1.0F, ImGui::GetContentRegionAvail().x);
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        ImGui::Dummy(ImVec2(width, height));
+
+        ImDrawList *draw = ImGui::GetWindowDrawList();
+        const ImVec2 max(origin.x + width, origin.y + height);
+        const float rounding = 6.0F * dpi;
+        draw->AddRectFilled(origin, max, ImGui::GetColorU32(HexColor(fill, fillAlpha)), rounding);
+        draw->AddRect(origin, max, ImGui::GetColorU32(HexColor(border, borderAlpha)), rounding, 0, 1.0F * dpi);
+
+        const ImU32 ink = ImGui::GetColorU32(HexColor(color));
+        const ImVec2 iconSize = ImGui::CalcTextSize(icon);
+        const float iconY = origin.y + ((height - iconSize.y) * 0.5F);
+        const float textX = origin.x + padX + iconSize.x + gap;
+        const float textWrap = std::max(1.0F, width - (textX - origin.x) - padX);
+        draw->AddText(ImVec2(origin.x + padX, iconY), ink, icon);
+        draw->PushClipRect(origin, max, true);
+        draw->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(textX, origin.y + ((height - ImGui::GetTextLineHeight()) * 0.5F)), ink, shown, nullptr, textWrap);
+        draw->PopClipRect();
+    }
+
     namespace {
         ImVec2 PointOnCircle(const ImVec2 &center, const float radius, const float angle) {
             return {center.x + (ImCos(angle) * radius), center.y + (ImSin(angle) * radius)};
@@ -261,7 +338,8 @@ namespace CoreDeck {
                 const ImGuiStyle &style = ImGui::GetStyle();
                 const float diameter = ImGui::GetTextLineHeight();
                 const float gap = style.ItemInnerSpacing.x;
-                const ImVec2 textSize = ImGui::CalcTextSize(text, nullptr, true);
+                const char *textEnd = ImGui::FindRenderedTextEnd(text);
+                const ImVec2 textSize = ImGui::CalcTextSize(text, textEnd);
                 const float contentWidth = diameter + gap + textSize.x;
                 ImVec2 buttonSize = size;
                 if (buttonSize.x <= 0.0F) {
@@ -290,7 +368,7 @@ namespace CoreDeck {
                 ImDrawList *draw = ImGui::GetWindowDrawList();
                 draw->PushClipRect(min, max, true);
                 PaintSpinner(draw, ImVec2(originX + (diameter * 0.5F), midY), radius, thickness, ink);
-                draw->AddText(ImVec2(originX + diameter + gap, midY - (textSize.y * 0.5F)), ink, text);
+                draw->AddText(ImVec2(originX + diameter + gap, midY - (textSize.y * 0.5F)), ink, text, textEnd);
                 draw->PopClipRect();
             }
 
@@ -467,6 +545,285 @@ namespace CoreDeck {
         const float buttonY = textY + (gap * 2.0F);
         ImGui::SetCursorScreenPos(ImVec2(buttonX, buttonY));
         return PrimaryButton(buttonLabel, true, ImVec2(buttonW, 0.0F));
+    }
+
+    void EmptyReport(const char *title, const char *subtitle, const char *titleColor) {
+        if (title == nullptr || title[0] == '\0') {
+            return;
+        }
+        const bool hasSubtitle = subtitle != nullptr && subtitle[0] != '\0';
+        const char *ink = titleColor != nullptr && titleColor[0] != '\0' ? titleColor : static_cast<const char *>(Colors::TEXT_PRIMARY);
+        const float availW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
+        const float availH = std::max(1.0F, ImGui::GetContentRegionAvail().y);
+        ImGui::SetWindowFontScale(1.35F);
+        const ImVec2 titleSize = ImGui::CalcTextSize(title, nullptr, false, availW);
+        ImGui::SetWindowFontScale(1.0F);
+        const ImVec2 subtitleSize = hasSubtitle ? ImGui::CalcTextSize(subtitle, nullptr, false, availW) : ImVec2(0.0F, 0.0F);
+        const float gap = hasSubtitle ? ImGui::GetStyle().ItemSpacing.y : 0.0F;
+        const float blockH = titleSize.y + gap + subtitleSize.y;
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + std::max(0.0F, (availH - blockH) * 0.5F));
+
+        ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + availW);
+        ImGui::SetWindowFontScale(1.35F);
+        {
+            StyleColor sc;
+            sc.Push(ImGuiCol_Text, HexColor(ink));
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0F, (availW - titleSize.x) * 0.5F));
+            ImGui::TextWrapped("%s", title);
+        }
+        ImGui::SetWindowFontScale(1.0F);
+        if (hasSubtitle) {
+            StyleColor sc;
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_MUTED));
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + std::max(0.0F, (availW - subtitleSize.x) * 0.5F));
+            ImGui::TextWrapped("%s", subtitle);
+        }
+        ImGui::PopTextWrapPos();
+    }
+
+    namespace {
+        constexpr const char *UNAVAILABLE = "\u2014";
+
+        void DrawTextDetail(const SplitDetail &detail, const float width, const float labelColumn) {
+            const char *shown = detail.Value.empty() ? UNAVAILABLE : detail.Value.c_str();
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float valueWidth = std::max(1.0F, width - labelColumn - spacing);
+            const ImVec2 valueSize = ImGui::CalcTextSize(shown, nullptr, false, valueWidth);
+            const float rowHeight = std::max(ImGui::GetTextLineHeight(), valueSize.y);
+            const ImVec2 origin = ImGui::GetCursorScreenPos();
+            ImGui::Dummy(ImVec2(width, rowHeight));
+
+            ImDrawList *draw = ImGui::GetWindowDrawList();
+            draw->PushClipRect(origin, ImVec2(origin.x + labelColumn, origin.y + rowHeight), true);
+            draw->AddText(origin, ImGui::GetColorU32(ImGuiCol_TextDisabled), detail.Label.c_str());
+            draw->PopClipRect();
+            draw->AddText(
+                ImGui::GetFont(),
+                ImGui::GetFontSize(),
+                ImVec2(origin.x + labelColumn + spacing, origin.y),
+                ImGui::GetColorU32(ImGuiCol_Text),
+                shown,
+                nullptr,
+                valueWidth
+            );
+        }
+
+        void DrawChipDetail(const SplitDetail &detail, const float width, const float labelColumn) {
+            const char *shown = detail.Value.empty() ? UNAVAILABLE : detail.Value.c_str();
+            const char *accent = detail.Accent != nullptr && detail.Accent[0] != '\0' ? detail.Accent : Colors::TEXT_MUTED;
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float padX = 10.0F;
+            const float padY = 4.0F;
+            const ImVec2 text = ImGui::CalcTextSize(shown);
+            const float chipW = text.x + (padX * 2.0F);
+            const float chipH = text.y + (padY * 2.0F);
+            const float rowH = std::max(ImGui::GetTextLineHeight(), chipH);
+            const ImVec2 origin = ImGui::GetCursorScreenPos();
+            ImGui::Dummy(ImVec2(width, rowH));
+
+            ImDrawList *draw = ImGui::GetWindowDrawList();
+            const float labelY = origin.y + ((rowH - ImGui::GetTextLineHeight()) * 0.5F);
+            draw->PushClipRect(origin, ImVec2(origin.x + labelColumn, origin.y + rowH), true);
+            draw->AddText(ImVec2(origin.x, labelY), ImGui::GetColorU32(ImGuiCol_TextDisabled), detail.Label.c_str());
+            draw->PopClipRect();
+
+            const float chipX = origin.x + labelColumn + spacing;
+            const float chipY = origin.y + ((rowH - chipH) * 0.5F);
+            const ImVec2 chipMin(chipX, chipY);
+            const ImVec2 chipMax(chipX + chipW, chipY + chipH);
+            const float rounding = chipH * 0.5F;
+            const ImU32 ink = ImGui::GetColorU32(HexColor(accent));
+            draw->AddRectFilled(chipMin, chipMax, ImGui::GetColorU32(HexColor(accent, 0.16F)), rounding);
+            draw->AddRect(chipMin, chipMax, ImGui::GetColorU32(HexColor(accent, 0.35F)), rounding, 0, 1.0F);
+            draw->AddText(ImVec2(chipX + padX, chipY + ((chipH - text.y) * 0.5F)), ink, shown);
+        }
+
+        void DrawSectionDetail(const SplitDetail &detail, const float width) {
+            if (detail.Label.empty()) {
+                return;
+            }
+            ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + width);
+            ImGui::Spacing();
+            ImGui::TextDisabled("%s", detail.Label.c_str());
+            ImGui::PopTextWrapPos();
+        }
+
+    }
+
+    void CopyableField(const char *label, const std::string &value) {
+        const char *title = label != nullptr ? label : "";
+        {
+            StyleColor sc;
+            sc.Push(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
+            ImGui::TextUnformatted(title);
+        }
+        const float spacing = ImGui::GetStyle().ItemSpacing.x;
+        const float buttonSide = ImGui::GetFrameHeight();
+        const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
+        const float fieldWidth = std::max(1.0F, avail - buttonSide - spacing);
+        std::vector<char> buffer(std::max<std::size_t>(value.size() + 1, 1), '\0');
+        std::copy(value.begin(), value.end(), buffer.begin());
+        ImGui::SetNextItemWidth(fieldWidth);
+        ImGui::InputText("##Value", buffer.data(), buffer.size(), ImGuiInputTextFlags_ReadOnly);
+        ImGui::SameLine(0.0F, spacing);
+        ImGui::BeginDisabled(value.empty());
+        const std::string tip = TrFormat("Copy {0}", title);
+        if (PrimaryButton(Icons::COPY, !value.empty(), ImVec2(buttonSide, 0.0F))) {
+            ImGui::SetClipboardText(value.c_str());
+        }
+        if (!value.empty() && ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+            ImGui::SetTooltip("%s", tip.c_str());
+        }
+        ImGui::EndDisabled();
+    }
+
+    void HoverTooltip(const char *text) {
+        if (text == nullptr || text[0] == '\0' || !ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+            return;
+        }
+        ImGui::SetTooltip("%s", text);
+    }
+
+    std::string DirectoryOf(const std::string &path) {
+        if (path.empty()) {
+            return {};
+        }
+        return std::filesystem::path(path).parent_path().string();
+    }
+
+    std::string FileNameOf(const std::string &path) {
+        if (path.empty()) {
+            return {};
+        }
+        const std::string name = std::filesystem::path(path).filename().string();
+        return name.empty() ? path : name;
+    }
+
+    SecretEdit DrawSecretField(
+        const char *id,
+        char *buffer,
+        const std::size_t size,
+        bool &revealed,
+        const char *hint,
+        const float rowWidth,
+        const char *tooltip
+    ) {
+        const float spacing = ImGui::GetStyle().ItemSpacing.x;
+        const float buttonSide = ImGui::GetFrameHeight();
+        const float avail = rowWidth > 0.0F ? rowWidth : ImGui::GetContentRegionAvail().x;
+        const float fieldWidth = std::max(1.0F, avail - buttonSide - spacing);
+        ImGuiInputTextFlags flags = ImGuiInputTextFlags_NoUndoRedo;
+        if (!revealed) {
+            flags |= ImGuiInputTextFlags_Password;
+        }
+        ImGui::SetNextItemWidth(fieldWidth);
+        SecretEdit edit;
+        edit.Edited = hint == nullptr
+                          ? ImGui::InputText(id, buffer, size, flags)
+                          : ImGui::InputTextWithHint(id, hint, buffer, size, flags);
+        edit.Submitted = ImGui::IsItemDeactivated() && ImGui::IsKeyDown(ImGuiKey_Enter);
+        HoverTooltip(tooltip != nullptr ? tooltip : hint);
+        ImGui::SameLine(0.0F, spacing);
+        ImGui::PushID(id);
+        if (PrimaryButton(revealed ? Icons::EYE_SLASH : Icons::EYE, true, ImVec2(buttonSide, 0.0F))) {
+            revealed = !revealed;
+        }
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+            ImGui::SetTooltip("%s", revealed ? Tr("Hide Password") : Tr("Show Password"));
+        }
+        ImGui::PopID();
+        return edit;
+    }
+
+    bool DrawBrowseRow(
+        const char *fieldId,
+        const std::string &path,
+        const char *placeholder,
+        const char *browseId,
+        const char *browseLabel,
+        const float rowWidth,
+        const char *tooltip
+    ) {
+        const float spacing = ImGui::GetStyle().ItemSpacing.x;
+        const float buttonWidth = std::max(
+            Em(12.0F),
+            ImGui::CalcTextSize(browseLabel).x + (ImGui::GetStyle().FramePadding.x * 2.0F)
+        );
+        const float avail = rowWidth > 0.0F ? rowWidth : ImGui::GetContentRegionAvail().x;
+        const float fieldWidth = std::max(1.0F, avail - buttonWidth - spacing);
+        std::vector<char> buffer(std::max<std::size_t>(path.size() + 1, 1));
+        std::ranges::copy(path, buffer.begin());
+        ImGui::SetNextItemWidth(fieldWidth);
+        ImGui::InputTextWithHint(fieldId, placeholder, buffer.data(), buffer.size(), ImGuiInputTextFlags_ReadOnly);
+        HoverTooltip(tooltip);
+        ImGui::SameLine();
+        const std::string button = StrConcat(browseLabel, "##", browseId);
+        return PrimaryButton(button.c_str(), true, ImVec2(buttonWidth, 0.0F));
+    }
+
+    float BusyActionWidth(const char *idleLabel, const char *busyLabel) {
+        const ImGuiStyle &style = ImGui::GetStyle();
+        const float textPad = style.FramePadding.x * 2.0F;
+        const float idleW = ImGui::CalcTextSize(idleLabel).x + textPad;
+        const float busyW = ImGui::GetTextLineHeight() + style.ItemInnerSpacing.x + ImGui::CalcTextSize(busyLabel).x + textPad;
+        return std::max(idleW, busyW) + Em(2.0F);
+    }
+
+    void SplitDetailReport(const std::span<const SplitDetail> details, const std::span<const CopyableValue> copies) {
+        if (!details.empty()) {
+            const int total = static_cast<int>(details.size());
+            const int leftCount = (total + 1) / 2;
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float column = std::max(1.0F, (ImGui::GetContentRegionAvail().x - spacing) * 0.5F);
+            float labelWidth = 0.0F;
+            for (const SplitDetail &detail: details) {
+                if (detail.Kind == SplitDetailKind::Section || detail.Label.empty()) {
+                    continue;
+                }
+                labelWidth = std::max(labelWidth, ImGui::CalcTextSize(detail.Label.c_str()).x);
+            }
+            const float labelColumn = std::min(labelWidth, std::max(Em(8.0F), column * 0.45F));
+            const auto drawRange = [&](const int begin, const int end) {
+                for (int index = begin; index < end; ++index) {
+                    const SplitDetail &detail = details[static_cast<std::size_t>(index)];
+                    switch (detail.Kind) {
+                        case SplitDetailKind::Text:
+                            DrawTextDetail(detail, column, labelColumn);
+                            break;
+                        case SplitDetailKind::Chip:
+                            DrawChipDetail(detail, column, labelColumn);
+                            break;
+                        case SplitDetailKind::Section:
+                            DrawSectionDetail(detail, column);
+                            break;
+                    }
+                }
+            };
+            ImGui::BeginGroup();
+            drawRange(0, leftCount);
+            ImGui::EndGroup();
+            ImGui::SameLine(0.0F, spacing);
+            ImGui::BeginGroup();
+            drawRange(leftCount, total);
+            ImGui::EndGroup();
+        }
+        if (copies.empty()) {
+            return;
+        }
+        ImGui::Spacing();
+        std::string section;
+        for (int index = 0; index < static_cast<int>(copies.size()); ++index) {
+            const CopyableValue &copy = copies[static_cast<std::size_t>(index)];
+            if (!copy.Section.empty() && copy.Section != section) {
+                ImGui::Spacing();
+                ImGui::TextDisabled("%s", copy.Section.c_str());
+                section = copy.Section;
+            }
+            ImGui::PushID(index);
+            ImGui::Spacing();
+            CopyableField(copy.Label.c_str(), copy.Value);
+            ImGui::PopID();
+        }
     }
 
     bool SelectableItem(

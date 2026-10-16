@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-10-16 01:45+0300\n"
+"POT-Creation-Date: 2026-10-16 15:18+0300\n"
 "PO-Revision-Date: 2026-09-29 19:30+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: Chinese (Simplified)\n"
@@ -1047,11 +1047,11 @@ msgstr "安装失败！"
 msgid "Installation Completed!"
 msgstr "安装完成！"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:241
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:243
 msgid "Failed to initialize GLFW."
 msgstr "初始化 GLFW 失败。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:264
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:266
 msgid ""
 "Failed to create window.\n"
 "Your system may not support OpenGL 3.3."
@@ -1073,15 +1073,29 @@ msgstr "Java"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:1003
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:704
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:772
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:670
+#, c++-format
+msgid "Copy {0}"
+msgstr "复制{0}"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:732
+msgid "Hide Password"
+msgstr "隐藏密码"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:732
+msgid "Show Password"
+msgstr "显示密码"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:1360
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:716
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:735
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:971
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:330
 msgid "Browse..."
 msgstr "浏览..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:16
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:70
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:137
 msgid "About CoreDeck"
 msgstr "关于 CoreDeck"
 
@@ -1148,7 +1162,7 @@ msgid "Agree"
 msgstr "同意"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:75
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1004
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:983
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:287
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:316
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:48
@@ -1178,174 +1192,174 @@ msgstr "正在读取 APK 归档头..."
 msgid "Building file tree structure..."
 msgstr "正在构建文件树结构..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:230
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:706
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:851
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:209
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:718
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:830
 msgid "Android packages"
 msgstr "Android 软件包"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:594
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:811
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:995
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:703
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:909
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:573
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:790
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:974
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:716
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:935
 msgid "APK"
 msgstr "APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:724
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:703
 msgid ""
 "This command needs aapt from Android SDK build-tools. The rest of this APK "
 "is still shown."
 msgstr ""
 "此命令需要 Android SDK build-tools 中的 aapt。此 APK 的其余内容仍会显示。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:726
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:705
 msgid "This file is not a compiled Android XML resource."
 msgstr "此文件不是已编译的 Android XML 资源。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:730
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:709
 msgid "'apkanalyzer' did not return a result for this section."
 msgstr "apkanalyzer 没有返回此部分的结果。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:733
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:712
 msgid "Open Health Check"
 msgstr "打开健康检查"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:758
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:763
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:905
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:737
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:742
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:884
 msgid "N/A"
 msgstr "不适用"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:758
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:737
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:55
 msgid "16 KB"
 msgstr "16 KB"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:817
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:796
 #, c++-format
 msgid "Package Name: {0}"
 msgstr "包名：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:818
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:797
 #, c++-format
 msgid "Version Name: {0}"
 msgstr "版本名：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:819
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:798
 #, c++-format
 msgid "Version Code: {0}"
 msgstr "版本号：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:828
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:807
 #, c++-format
 msgid "APK Size: {0}"
 msgstr "APK 大小：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:829
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:808
 #, c++-format
 msgid "Download Size: {0}"
 msgstr "下载大小：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:903
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:811
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:882
 msgid "Yes"
 msgstr "是"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:907
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:811
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:886
 msgid "No"
 msgstr "否"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:834
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:813
 #, c++-format
 msgid "Debuggable: {0}"
 msgstr "可调试：{0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:853
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:20
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:83
 msgid "File"
 msgstr "文件"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:855
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:834
 msgid "Raw Size"
 msgstr "原始大小"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:856
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:835
 msgid "Download Size"
 msgstr "下载大小"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:857
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:836
 msgid "% of Download Size"
 msgstr "占下载大小的百分比"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:858
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:837
 msgid "Compressed"
 msgstr "已压缩"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:859
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:838
 msgid "Alignment"
 msgstr "对齐"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:865
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:844
 msgid "No files match."
 msgstr "没有匹配的文件。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:925
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:904
 msgid "The file list could not be read."
 msgstr "无法读取文件列表。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:994
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:996
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:973
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:975
 #, c++-format
 msgid "Analyzing {0}"
 msgstr "正在分析 {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1001
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1004
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1005
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:980
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:983
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:984
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:905
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:909
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:910
 msgid "Cancelling..."
 msgstr "正在取消..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1001
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:980
 msgid "In Progress... (This may take a while)"
 msgstr "正在进行...（可能需要一些时间）"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1041
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1057
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1020
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1036
 msgid "Drag & Drop .apk file here"
 msgstr "将 .apk 文件拖放到此处"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1058
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1037
 msgid "Or"
 msgstr "或"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1075
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1054
 msgid "Browse File..."
 msgstr "浏览文件..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1076
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1140
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:706
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1055
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1117
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:718
 msgid "Open APK"
 msgstr "打开 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1093
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1072
 msgid "Recent APKs"
 msgstr "最近的 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1098
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1077
 msgid "No recent APKs"
 msgstr "没有最近的 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1119
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1098
 msgid "Missing Command-line Tools (apkanalyzer)"
 msgstr "缺少命令行工具 (apkanalyzer)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1121
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1100
 msgid ""
 "APK Analyzer uses apkanalyzer from the Android command-line tools. Install "
 "those tools to add it. AVDs already in this SDK stay where they are."
@@ -1353,265 +1367,324 @@ msgstr ""
 "APK 分析器使用 Android 命令行工具中的 apkanalyzer。安装这些工具即可添加它。"
 "此 SDK 中已有的 AVD 会保留在原处。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1124
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1103
 msgid "Install command-line tools..."
 msgstr "安装命令行工具..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1139
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1116
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:958
 msgid "Reading..."
 msgstr "正在读取..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1139
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1116
 msgid "Open APK..."
 msgstr "打开 APK..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1149
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1126
 msgid "Compare with previous APK..."
 msgstr "与上一个 APK 比较..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1150
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1127
 msgid "Comparing..."
 msgstr "正在比较..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1155
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1135
 msgid "Compare with previous APK"
 msgstr "与上一个 APK 比较"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1165
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1145
 msgid "Filter files..."
 msgstr "筛选文件..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1169
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1149
 #, c++-format
 msgid "{0} file"
 msgid_plural "{0} files"
 msgstr[0] "{0} 个文件"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1183
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1163
 #, c++-format
 msgid "Comparing with {0}..."
 msgstr "正在与 {0} 比较..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1188
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1168
 msgid "The comparison could not be read."
 msgstr "无法读取比较结果。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1210
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:56
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1195
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:119
 msgid "APK Analyzer"
 msgstr "APK 分析器"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:221
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:198
 msgid "apksigner is not installed."
 msgstr "未安装 apksigner。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:223
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:200
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1299
 msgid "A JDK is required."
 msgstr "需要 JDK。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:225
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:202
 msgid "zipalign was not found under build-tools."
 msgstr "在 build-tools 下未找到 zipalign。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:227
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:204
 msgid "Choose an output path for the signed APK."
 msgstr "请选择已签名 APK 的输出路径。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:229
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:206
 msgid ""
 "The output path is the same as the APK. The original APK is left unchanged."
 msgstr "输出路径与 APK 相同。原始 APK 会保持不变。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:491
-msgid "Hide password"
-msgstr "隐藏密码"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:423
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:474
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:736
+msgid "File Name"
+msgstr "文件名"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:491
-msgid "Show password"
-msgstr "显示密码"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:424
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:475
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:737
+msgid "Full Path"
+msgstr "完整路径"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:565
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:425
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:557
+msgid "Schemes"
+msgstr "方案"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:426
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:595
+msgid "Certificate DN"
+msgstr "证书 DN"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:502
 msgid "v1"
 msgstr "v1"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:566
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:503
 msgid "v2"
 msgstr "v2"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:567
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:504
 msgid "v3"
 msgstr "v3"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:568
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:505
 msgid "v3.1"
 msgstr "v3.1"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:569
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:506
 msgid "v4"
 msgstr "v4"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:656
-msgid "Copy SHA-256"
-msgstr "复制 SHA-256"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:597
+msgid "Certificate SHA-256"
+msgstr "证书 SHA-256"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:663
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:918
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:606
+msgid "Verified"
+msgstr "已验证"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:606
+msgid "Not Verified"
+msgstr "未验证"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:629
+msgid "Select an Alias"
+msgstr "选择别名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:631
+msgid "Reading keystore aliases..."
+msgstr "正在读取密钥库别名..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:659
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:782
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:783
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:842
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:891
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1123
+msgid "Alias"
+msgstr "别名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:673
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:480
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:524
+msgid "keytool was not found in the JDK."
+msgstr "在 JDK 中未找到 keytool。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:677
+msgid "The keystore aliases could not be read."
+msgstr "无法读取密钥库别名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:681
+msgid "No private-key aliases were found in this keystore."
+msgstr "此密钥库中未找到私钥别名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:707
+msgid "Sign"
+msgstr "签名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:708
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:941
+msgid "Signing..."
+msgstr "正在签名..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:716
+msgid "Choose an APK file..."
+msgstr "选择 APK 文件..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:733
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:971
+msgid "Choose a keystore file..."
+msgstr "选择密钥库文件..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:737
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:809
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:971
+msgid "Keystore"
+msgstr "密钥库"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:740
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:973
+msgid "Open Keystore"
+msgstr "打开密钥库"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:740
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:973
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1051
+msgid "Keystores"
+msgstr "密钥库"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:772
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:985
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1184
+msgid "Keystore Password"
+msgstr "密钥库密码"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:793
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1213
+msgid "Key Password"
+msgstr "密钥密码"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:800
+msgid "Align before signing"
+msgstr "签名前对齐"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:801
+msgid "Zip-align the APK before the signature is written."
+msgstr "在写入签名之前对 APK 进行 zip 对齐。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:802
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1162
+msgid "Key password matches keystore password"
+msgstr "密钥密码与密钥库密码相同"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:803
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1163
+msgid "Turn this off if the key entry has a different password."
+msgstr "如果密钥条目使用不同的密码，请关闭此项。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:825
+msgid "No output path"
+msgstr "无输出路径"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:825
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1045
+msgid "Save As..."
+msgstr "另存为..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:825
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:953
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:961
+msgid "Signed APK"
+msgstr "已签名的 APK"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:828
+msgid "Save signed APK"
+msgstr "保存已签名的 APK"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:849
+msgid "Alignment failed."
+msgstr "对齐失败。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:851
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:855
+msgid "Signing failed."
+msgstr "签名失败。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:862
+msgid "Signing the APK."
+msgstr "正在签名 APK。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:866
+msgid "Checking the signature."
+msgstr "正在检查签名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:870
+msgid "Reading the keystore aliases."
+msgstr "正在读取密钥库别名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:879
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:886
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:932
 msgid "The signature could not be checked."
 msgstr "无法检查签名。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:670
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:882
+msgid "APK signed."
+msgstr "APK 已签名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:900
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:924
+msgid "Choose an APK to see its signature."
+msgstr "选择一个 APK 以查看其签名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:907
 msgid ""
 "This APK is already signed. The new file carries a different signature, and "
 "the original APK is left unchanged."
 msgstr "此 APK 已签名。新文件将使用不同的签名，原始 APK 保持不变。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:678
-msgid "Certificate DN"
-msgstr "证书 DN"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:913
+msgid "Ready to sign an APK."
+msgstr "可以签名 APK 了。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:680
-msgid "Certificate SHA-256"
-msgstr "证书 SHA-256"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:689
-msgid "Verified"
-msgstr "已验证"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:689
-msgid "Not Verified"
-msgstr "未验证"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:704
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:905
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:924
 msgid "No APK Selected"
 msgstr "未选择 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:721
-msgid "Alias"
-msgstr "别名"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:725
-msgid "Reading keystore aliases..."
-msgstr "正在读取密钥库别名..."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:729
-msgid "keytool was not found in the JDK."
-msgstr "在 JDK 中未找到 keytool。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:732
-msgid "The keystore aliases could not be read."
-msgstr "无法读取密钥库别名。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:734
-msgid "No private-key aliases were found in this keystore."
-msgstr "此密钥库中未找到私钥别名。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:738
-msgid "Select an alias"
-msgstr "选择别名"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:766
-msgid "Keystore"
-msgstr "密钥库"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:770
-msgid "No keystore selected"
-msgstr "未选择密钥库"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:776
-msgid "Open Keystore"
-msgstr "打开密钥库"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:777
-msgid "Keystores"
-msgstr "密钥库"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:788
-msgid "Keystore Password"
-msgstr "密钥库密码"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:815
-msgid "Key password matches keystore password"
-msgstr "密钥密码与密钥库密码相同"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:816
-msgid "Turn this off if the key entry has a different password."
-msgstr "如果密钥条目使用不同的密码，请关闭此项。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:826
-msgid "Key Password"
-msgstr "密钥密码"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:838
-msgid "Align before signing"
-msgstr "签名前对齐"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:839
-msgid "Zip-align the APK before the signature is written."
-msgstr "在写入签名之前对 APK 进行 zip 对齐。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:845
-msgid "Output"
-msgstr "输出"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:846
-msgid "No output path"
-msgstr "无输出路径"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:846
-msgid "Save As..."
-msgstr "另存为..."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:849
-msgid "Save signed APK"
-msgstr "保存已签名的 APK"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:867
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:935
-msgid "Signing..."
-msgstr "正在签名..."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:868
-msgid "Sign"
-msgstr "签名"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:905
-msgid "Choose an APK to see its signature."
-msgstr "选择一个 APK 以查看其签名。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:916
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:928
 msgid "Checking the signature..."
 msgstr "正在检查签名..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:925
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:932
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:949
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:868
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:909
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:914
+msgid "Something Went Wrong!"
+msgstr "出了点问题！"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:945
 msgid "No Signed APK"
 msgstr "没有已签名的 APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:925
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:945
 msgid "Sign an APK to see the result here."
 msgstr "签名一个 APK 即可在此查看结果。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:930
-msgid "Signed APK"
-msgstr "已签名的 APK"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:941
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:957
 msgid "Sign the APK to see its signature here."
 msgstr "签名此 APK 即可在此查看其签名。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:953
-msgid "Alignment failed."
-msgstr "对齐失败。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:956
-msgid "Signing failed."
-msgstr "签名失败。"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1073
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:977
 msgid "Missing Build Tools (apksigner & zipalign)"
 msgstr "缺少构建工具 (apksigner 和 zipalign)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1075
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:979
 msgid ""
 "APK Signer uses apksigner from the Android build-tools. Install those tools "
 "to add it. AVDs already in this SDK stay where they are."
@@ -1619,12 +1692,12 @@ msgstr ""
 "APK 签名器使用 Android build-tools 中的 apksigner。安装这些工具即可添加它。"
 "此 SDK 中已有的 AVD 会保留在原处。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1078
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:982
 msgid "Install build-tools..."
 msgstr "安装 build-tools..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1100
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:59
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:996
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:122
 msgid "APK Signer"
 msgstr "APK 签名器"
 
@@ -1728,6 +1801,7 @@ msgstr "存储"
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:224
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:128
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:349
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:841
 msgid "Type"
 msgstr "类型"
 
@@ -1761,7 +1835,7 @@ msgid "Stop the emulator before wiping data"
 msgstr "清除数据前请停止模拟器"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:269
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:63
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:130
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:102
 msgid "Storage Overview"
 msgstr "存储概览"
@@ -1988,10 +2062,12 @@ msgid "e.g. 512 (MB)"
 msgstr "例如 512（MB）"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:286
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1027
 msgid "Creating..."
 msgstr "正在创建..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:287
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1310
 msgid "Create"
 msgstr "创建"
 
@@ -2323,63 +2399,365 @@ msgstr "正在检查许可..."
 msgid "Install"
 msgstr "安装"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:21
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:482
+msgid "Choose a destination file."
+msgstr "请选择目标文件。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:484
+msgid "The keystore file could not be found."
+msgstr "找不到密钥库文件。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:486
+msgid "A keystore already exists at this path."
+msgstr "此路径已存在密钥库。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:488
+msgid "The destination folder does not exist."
+msgstr "目标文件夹不存在。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:490
+msgid "Enter an alias."
+msgstr "请输入别名。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:493
+msgid "The password must be at least 6 characters."
+msgstr "密码至少需要 6 个字符。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:495
+msgid "PKCS12 uses the keystore password for the key."
+msgstr "PKCS12 使用密钥库密码作为密钥密码。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:497
+msgid "Enter a validity of at least one day."
+msgstr "请输入至少一天的有效期。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:499
+msgid "Choose a key size for this algorithm."
+msgstr "请为此算法选择密钥长度。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:501
+msgid "Enter a two-letter country code."
+msgstr "请输入两字母国家/地区代码。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:503
+msgid "Enter a name for the certificate."
+msgstr "请输入证书名称。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:505
+msgid "The password could not be passed to keytool."
+msgstr "无法将密码传递给 keytool。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:514
+msgid "The passwords do not match."
+msgstr "两次输入的密码不一致。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:530
+msgid "The keystore password was incorrect."
+msgstr "密钥库密码不正确。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:536
+msgid "The keystore could not be read."
+msgstr "无法读取密钥库。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:540
+msgid "The keystore could not be created."
+msgstr "无法创建密钥库。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:698
+msgid "Private Key"
+msgstr "私钥"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:701
+msgid "Trusted certificate"
+msgstr "受信任的证书"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:704
+msgid "Secret key"
+msgstr "密钥"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:746
+#, c++-format
+msgid "Certificate {0}"
+msgstr "证书 {0}"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:749
+msgid "Owner"
+msgstr "所有者"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:750
+msgid "Issuer"
+msgstr "颁发者"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:751
+msgid "Serial Number"
+msgstr "序列号"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:752
+msgid "Valid From"
+msgstr "生效时间"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:753
+msgid "Valid Until"
+msgstr "失效时间"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:754
+msgid "Signature"
+msgstr "签名算法"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:755
+msgid "Public Key"
+msgstr "公钥"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:781
+msgid "Select an alias"
+msgstr "选择别名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:788
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:799
+msgid "Use in APK Signer"
+msgstr "在 APK 签名器中使用"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:835
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:890
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1105
+msgid "Store Type"
+msgstr "密钥库类型"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:836
+msgid "Provider"
+msgstr "提供程序"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:838
+msgid "Entries"
+msgstr "条目"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:838
+#, c++-format
+msgid "{0} Entry"
+msgid_plural "{0} Entries"
+msgstr[0] "{0} 个条目"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:843
+msgid "Created"
+msgstr "创建时间"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:849
+msgid "No entries were found in this keystore."
+msgstr "此密钥库中未找到条目。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:852
+msgid "This entry has no certificate."
+msgstr "此条目没有证书。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:860
+msgid "Reading Keystore..."
+msgstr "正在读取密钥库..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:860
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1247
+msgid "Keytool is listing the entries."
+msgstr "Keytool 正在列出条目。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:864
+msgid "No Keystore Inspected"
+msgstr "尚未检查密钥库"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:864
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1251
+msgid "Choose a keystore and read its entries."
+msgstr "选择密钥库并读取其中的条目。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:886
+msgid "New Keystore"
+msgstr "新密钥库"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:892
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1126
+msgid "Key Algorithm"
+msgstr "密钥算法"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:893
+msgid "Validity"
+msgstr "有效期"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:893
+#, c++-format
+msgid "{0} Days"
+msgstr "{0} 天"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:894
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1222
+msgid "Distinguished Name"
+msgstr "专有名称"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:901
+msgid "Creating keystore..."
+msgstr "正在创建密钥库..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:901
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1264
+msgid "Keytool is generating the key pair."
+msgstr "Keytool 正在生成密钥对。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:915
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1276
+msgid "The keystore was created, but its entries could not be read."
+msgstr "密钥库已创建，但无法读取其中的条目。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:957
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1310
+msgid "Inspect"
+msgstr "检查"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1026
+msgid "Create keystore"
+msgstr "创建密钥库"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1041
+msgid "Template"
+msgstr "模板"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1045
+msgid "Choose a destination file..."
+msgstr "选择目标文件..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1045
+msgid "Destination"
+msgstr "目标位置"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1049
+msgid "Save Keystore"
+msgstr "保存密钥库"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1117
+msgid "File Extension"
+msgstr "文件扩展名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1144
+msgid "Key Size"
+msgstr "密钥长度"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1155
+msgid "Validity (days)"
+msgstr "有效期（天）"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1198
+msgid "Confirm Password"
+msgstr "确认密码"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1225
+msgid "Common Name"
+msgstr "公用名"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1227
+msgid "Organizational Unit"
+msgstr "组织单位"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1229
+msgid "Organization"
+msgstr "组织"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1231
+msgid "City"
+msgstr "城市"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1233
+msgid "State"
+msgstr "州/省"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1235
+msgid "Country"
+msgstr "国家/地区"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1258
+msgid "Keystore read."
+msgstr "密钥库已读取。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1268
+msgid "Keystore created."
+msgstr "密钥库已创建。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1288
+msgid "Ready to create a keystore."
+msgstr "可以创建密钥库了。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1300
+msgid "Keytool creates and reads keystores with the JDK's keytool."
+msgstr "Keytool 使用 JDK 的 keytool 创建和读取密钥库。"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1301
+msgid "Choose a JDK..."
+msgstr "选择 JDK..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1347
+msgid "Keytool"
+msgstr "Keytool"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:47
+msgid "Close Workspace"
+msgstr "关闭工作区"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:84
 msgid "Preferences..."
 msgstr "偏好设置..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:25
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:88
 msgid "Quit"
 msgstr "退出"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:31
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:94
 msgid "View"
 msgstr "视图"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:32
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:95
 msgid "Hide AVD List"
 msgstr "隐藏 AVD 列表"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:32
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:95
 msgid "Show AVD List"
 msgstr "显示 AVD 列表"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:36
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:99
 msgid "Hide Options"
 msgstr "隐藏选项"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:36
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:99
 msgid "Show Options"
 msgstr "显示选项"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:40
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:103
 msgid "Hide Details"
 msgstr "隐藏详细信息"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:40
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:103
 msgid "Show Details"
 msgstr "显示详细信息"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:44
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:107
 msgid "Hide Output Log"
 msgstr "隐藏输出日志"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:44
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:107
 msgid "Show Output Log"
 msgstr "显示输出日志"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:51
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:114
 msgid "Tools"
 msgstr "工具"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:52
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:115
 msgid "Health Check..."
 msgstr "健康检查..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:69
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:126
+msgid "Java Keytool"
+msgstr "Java Keytool"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:136
 msgid "Help"
 msgstr "帮助"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:73
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:140
 msgid "Check for Updates..."
 msgstr "检查更新..."
 

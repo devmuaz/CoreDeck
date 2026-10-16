@@ -48,6 +48,7 @@ namespace CoreDeck {
         constexpr const char *WARNING_TRIANGLE = "\xef\x81\xb1";
         constexpr const char *HEART_PULSE = "\xef\x88\x9e";
         constexpr const char *SIGNATURE = "\xef\x96\xb7";
+        constexpr const char *KEY = "\xef\x82\x84";
     }
 
     struct ColorToken {

@@ -120,20 +120,6 @@ namespace CoreDeck {
         }
 
 
-        template<typename T>
-        void Retire(std::future<T> &job, std::vector<std::future<T>> &retired) {
-            if (job.valid()) {
-                retired.push_back(std::move(job));
-            }
-        }
-
-        template<typename T>
-        void DropFinished(std::vector<std::future<T>> &retired) {
-            std::erase_if(retired, [](std::future<T> &job) {
-                return job.valid() && job.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-            });
-        }
-
         void PollRetired() {
             auto &grave = Graveyard();
             DropFinished(grave.Reports);
@@ -145,13 +131,6 @@ namespace CoreDeck {
                 return {};
             }
             return std::filesystem::path(path).filename().string();
-        }
-
-        std::string DirectoryOf(const std::string &path) {
-            if (path.empty()) {
-                return {};
-            }
-            return std::filesystem::path(path).parent_path().string();
         }
 
         bool EndsWithIgnoreCase(const std::string &text, const std::string &suffix) {
@@ -1128,14 +1107,12 @@ namespace CoreDeck {
             }
         }
 
-        void DrawAnalyzerToolbar(Context &context, const bool reportBusy, const bool toolMissing, const bool showReport) {
+        bool DrawAnalyzerToolbar(Context &context, const bool reportBusy, const bool toolMissing, const bool showReport) {
             auto &work = context.ApkAnalyzerWork;
-            if (PrimaryButton(Icons::CHEVRON_LEFT)) {
-                LeaveApkAnalyzer(context);
-            }
+            bool drew = false;
             if (!toolMissing && (reportBusy || showReport)) {
                 const std::string defaultDirectory = DirectoryOf(work.HasReport ? work.Report.ApkPath : work.PendingPath);
-                ImGui::SameLine();
+                drew = true;
                 if (PositiveButton(reportBusy ? Tr("Reading...") : Tr("Open APK..."), !reportBusy, ImVec2(Em(16.0F), 0.0F))) {
                     if (const auto picked = PickApk(Tr("Open APK"), defaultDirectory)) {
                         StartAnalysis(context, *picked);
@@ -1143,21 +1120,24 @@ namespace CoreDeck {
                 }
             }
             if (!showReport) {
-                return;
+                return drew;
             }
 
             const char *idleLabel = Tr("Compare with previous APK...");
             const char *busyLabel = Tr("Comparing...");
             const char *compareLabel = work.CompareBusy.load() ? busyLabel : idleLabel;
             const float compareW = std::max(ImGui::CalcTextSize(idleLabel).x, ImGui::CalcTextSize(busyLabel).x) + (ImGui::GetStyle().FramePadding.x * 2.0F);
-            ImGui::SameLine();
+            if (drew) {
+                ImGui::SameLine();
+            }
+            drew = true;
             if (PrimaryButton(compareLabel, !work.CompareBusy.load(), ImVec2(compareW, 0.0F))) {
                 if (const auto picked = PickApk(Tr("Compare with previous APK"), DirectoryOf(work.Report.ApkPath))) {
                     StartCompare(context, *picked);
                 }
             }
             if (!work.Report.Files.Ok) {
-                return;
+                return drew;
             }
 
             ImGui::SameLine();
@@ -1187,6 +1167,7 @@ namespace CoreDeck {
                 ImGui::AlignTextToFramePadding();
                 ImGui::TextColored(HexColor(Colors::WARNING), "%s", Tr("The comparison could not be read."));
             }
+            return drew;
         }
 
         void AcceptPendingApkDrop(Context &context) {
@@ -1198,6 +1179,10 @@ namespace CoreDeck {
             context.UI.Workspace = WorkspacePage::ApkAnalyzer;
             StartAnalysis(context, dropped);
         }
+    }
+
+    void CloseApkAnalyzer(Context &context) {
+        LeaveApkAnalyzer(context);
     }
 
     void BuildApkAnalyzerWindow(Context &context) {
@@ -1228,9 +1213,10 @@ namespace CoreDeck {
         const bool toolMissing =
             context.Host.Sdk.ApkAnalyzerPath.empty() || (work.Report.ToolMissing && !work.PendingPath.empty());
         const bool showReport = work.HasReport && !reportBusy && !work.Report.ToolMissing;
-        DrawAnalyzerToolbar(context, reportBusy, toolMissing, showReport);
+        if (DrawAnalyzerToolbar(context, reportBusy, toolMissing, showReport)) {
+            ImGui::Spacing();
+        }
 
-        ImGui::Spacing();
         const float bodyHeight = std::max(Eh(12.0F), ImGui::GetContentRegionAvail().y);
         ImGui::BeginChild("##ApkAnalyzerBody", ImVec2(0.0F, bodyHeight), 0, ImGuiWindowFlags_NoScrollbar);
         if (reportBusy) {

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-10-16 01:45+0300\n"
+"POT-Creation-Date: 2026-10-16 15:18+0300\n"
 "PO-Revision-Date: 2026-09-29 09:20+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: German\n"
@@ -1071,11 +1071,11 @@ msgstr "Installation fehlgeschlagen!"
 msgid "Installation Completed!"
 msgstr "Installation abgeschlossen!"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:241
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:243
 msgid "Failed to initialize GLFW."
 msgstr "GLFW konnte nicht initialisiert werden."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:264
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:266
 msgid ""
 "Failed to create window.\n"
 "Your system may not support OpenGL 3.3."
@@ -1097,15 +1097,29 @@ msgstr "Java"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:1003
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:704
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:772
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:670
+#, c++-format
+msgid "Copy {0}"
+msgstr "{0} kopieren"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:732
+msgid "Hide Password"
+msgstr "Passwort ausblenden"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:732
+msgid "Show Password"
+msgstr "Passwort anzeigen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets.cpp:1360
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:716
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:735
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:971
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:330
 msgid "Browse..."
 msgstr "Durchsuchen..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/about.cpp:16
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:70
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:137
 msgid "About CoreDeck"
 msgstr "Über CoreDeck"
 
@@ -1173,7 +1187,7 @@ msgid "Agree"
 msgstr "Zustimmen"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/accept_licenses.cpp:75
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1004
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:983
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:287
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:316
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/delete_avd.cpp:48
@@ -1205,21 +1219,21 @@ msgstr "APK-Archivheader werden gelesen..."
 msgid "Building file tree structure..."
 msgstr "Dateibaum wird aufgebaut..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:230
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:706
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:851
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:209
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:718
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:830
 msgid "Android packages"
 msgstr "Android-Pakete"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:594
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:811
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:995
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:703
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:909
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:573
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:790
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:974
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:716
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:935
 msgid "APK"
 msgstr "APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:724
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:703
 msgid ""
 "This command needs aapt from Android SDK build-tools. The rest of this APK "
 "is still shown."
@@ -1227,153 +1241,153 @@ msgstr ""
 "Dieser Befehl benötigt aapt aus den build-tools des Android-SDK. Der Rest "
 "dieses APK wird weiterhin angezeigt."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:726
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:705
 msgid "This file is not a compiled Android XML resource."
 msgstr "Diese Datei ist keine kompilierte Android-XML-Ressource."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:730
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:709
 msgid "'apkanalyzer' did not return a result for this section."
 msgstr "„apkanalyzer“ hat für diesen Abschnitt kein Ergebnis geliefert."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:733
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:712
 msgid "Open Health Check"
 msgstr "Statusprüfung öffnen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:758
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:763
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:905
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:737
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:742
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:884
 msgid "N/A"
 msgstr "k. A."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:758
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:737
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:55
 msgid "16 KB"
 msgstr "16 KB"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:817
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:796
 #, c++-format
 msgid "Package Name: {0}"
 msgstr "Paketname: {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:818
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:797
 #, c++-format
 msgid "Version Name: {0}"
 msgstr "Versionsname: {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:819
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:798
 #, c++-format
 msgid "Version Code: {0}"
 msgstr "Versionscode: {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:828
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:807
 #, c++-format
 msgid "APK Size: {0}"
 msgstr "APK-Größe: {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:829
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:808
 #, c++-format
 msgid "Download Size: {0}"
 msgstr "Downloadgröße: {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:903
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:811
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:882
 msgid "Yes"
 msgstr "Ja"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:907
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:811
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:886
 msgid "No"
 msgstr "Nein"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:834
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:813
 #, c++-format
 msgid "Debuggable: {0}"
 msgstr "Debuggbar: {0}"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:853
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:20
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:832
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:83
 msgid "File"
 msgstr "Datei"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:855
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:834
 msgid "Raw Size"
 msgstr "Rohgröße"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:856
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:835
 msgid "Download Size"
 msgstr "Downloadgröße"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:857
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:836
 msgid "% of Download Size"
 msgstr "% der Downloadgröße"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:858
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:837
 msgid "Compressed"
 msgstr "Komprimiert"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:859
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:838
 msgid "Alignment"
 msgstr "Ausrichtung"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:865
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:844
 msgid "No files match."
 msgstr "Keine Dateien entsprechen der Suche."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:925
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:904
 msgid "The file list could not be read."
 msgstr "Die Dateiliste konnte nicht gelesen werden."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:994
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:996
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:973
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:975
 #, c++-format
 msgid "Analyzing {0}"
 msgstr "{0} wird analysiert"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1001
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1004
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1005
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:980
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:983
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:984
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:905
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:909
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/onboarding.cpp:910
 msgid "Cancelling..."
 msgstr "Wird abgebrochen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1001
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:980
 msgid "In Progress... (This may take a while)"
 msgstr "In Bearbeitung... (das kann eine Weile dauern)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1041
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1057
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1020
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1036
 msgid "Drag & Drop .apk file here"
 msgstr ".apk-Datei hierher ziehen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1058
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1037
 msgid "Or"
 msgstr "Oder"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1075
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1054
 msgid "Browse File..."
 msgstr "Datei auswählen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1076
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1140
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:706
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1055
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1117
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:718
 msgid "Open APK"
 msgstr "APK öffnen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1093
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1072
 msgid "Recent APKs"
 msgstr "Zuletzt verwendete APKs"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1098
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1077
 msgid "No recent APKs"
 msgstr "Keine zuletzt verwendeten APKs"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1119
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1098
 msgid "Missing Command-line Tools (apkanalyzer)"
 msgstr "Fehlende Befehlszeilentools (apkanalyzer)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1121
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1100
 msgid ""
 "APK Analyzer uses apkanalyzer from the Android command-line tools. Install "
 "those tools to add it. AVDs already in this SDK stay where they are."
@@ -1382,115 +1396,288 @@ msgstr ""
 "Installieren Sie diese Tools, um ihn hinzuzufügen. AVDs, die bereits in "
 "diesem SDK liegen, bleiben dort."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1124
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1103
 msgid "Install command-line tools..."
 msgstr "Befehlszeilentools installieren..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1139
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1116
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:958
 msgid "Reading..."
 msgstr "Wird gelesen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1139
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1116
 msgid "Open APK..."
 msgstr "APK öffnen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1149
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1126
 msgid "Compare with previous APK..."
 msgstr "Mit vorherigem APK vergleichen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1150
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1127
 msgid "Comparing..."
 msgstr "Wird verglichen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1155
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1135
 msgid "Compare with previous APK"
 msgstr "Mit vorherigem APK vergleichen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1165
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1145
 msgid "Filter files..."
 msgstr "Dateien filtern..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1169
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1149
 #, c++-format
 msgid "{0} file"
 msgid_plural "{0} files"
 msgstr[0] "{0} Datei"
 msgstr[1] "{0} Dateien"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1183
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1163
 #, c++-format
 msgid "Comparing with {0}..."
 msgstr "Vergleich mit {0}..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1188
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1168
 msgid "The comparison could not be read."
 msgstr "Der Vergleich konnte nicht gelesen werden."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1210
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:56
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_analyzer.cpp:1195
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:119
 msgid "APK Analyzer"
 msgstr "APK-Analysator"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:221
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:198
 msgid "apksigner is not installed."
 msgstr "apksigner ist nicht installiert."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:223
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:200
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1299
 msgid "A JDK is required."
 msgstr "Ein JDK ist erforderlich."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:225
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:202
 msgid "zipalign was not found under build-tools."
 msgstr "zipalign wurde unter build-tools nicht gefunden."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:227
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:204
 msgid "Choose an output path for the signed APK."
 msgstr "Wählen Sie einen Ausgabepfad für das signierte APK."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:229
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:206
 msgid ""
 "The output path is the same as the APK. The original APK is left unchanged."
 msgstr ""
 "Der Ausgabepfad entspricht dem APK. Das ursprüngliche APK bleibt unverändert."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:491
-msgid "Hide password"
-msgstr "Passwort ausblenden"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:423
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:474
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:736
+msgid "File Name"
+msgstr "Dateiname"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:491
-msgid "Show password"
-msgstr "Passwort anzeigen"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:424
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:475
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:737
+msgid "Full Path"
+msgstr "Vollständiger Pfad"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:565
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:425
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:557
+msgid "Schemes"
+msgstr "Schemata"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:426
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:595
+msgid "Certificate DN"
+msgstr "Zertifikat-DN"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:502
 msgid "v1"
 msgstr "v1"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:566
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:503
 msgid "v2"
 msgstr "v2"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:567
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:504
 msgid "v3"
 msgstr "v3"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:568
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:505
 msgid "v3.1"
 msgstr "v3.1"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:569
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:506
 msgid "v4"
 msgstr "v4"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:656
-msgid "Copy SHA-256"
-msgstr "SHA-256 kopieren"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:597
+msgid "Certificate SHA-256"
+msgstr "Zertifikat-SHA-256"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:663
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:918
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:606
+msgid "Verified"
+msgstr "Verifiziert"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:606
+msgid "Not Verified"
+msgstr "Nicht verifiziert"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:629
+msgid "Select an Alias"
+msgstr "Alias auswählen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:631
+msgid "Reading keystore aliases..."
+msgstr "Keystore-Aliasse werden gelesen..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:659
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:782
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:783
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:842
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:891
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1123
+msgid "Alias"
+msgstr "Alias"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:673
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:480
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:524
+msgid "keytool was not found in the JDK."
+msgstr "keytool wurde im JDK nicht gefunden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:677
+msgid "The keystore aliases could not be read."
+msgstr "Die Keystore-Aliasse konnten nicht gelesen werden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:681
+msgid "No private-key aliases were found in this keystore."
+msgstr ""
+"In diesem Keystore wurden keine Aliasse für private Schlüssel gefunden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:707
+msgid "Sign"
+msgstr "Signieren"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:708
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:941
+msgid "Signing..."
+msgstr "Wird signiert..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:716
+msgid "Choose an APK file..."
+msgstr "APK-Datei auswählen..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:733
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:971
+msgid "Choose a keystore file..."
+msgstr "Keystore-Datei auswählen..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:737
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:809
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:971
+msgid "Keystore"
+msgstr "Keystore"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:740
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:973
+msgid "Open Keystore"
+msgstr "Keystore öffnen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:740
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:973
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1051
+msgid "Keystores"
+msgstr "Keystores"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:772
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:985
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1184
+msgid "Keystore Password"
+msgstr "Keystore-Passwort"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:793
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1213
+msgid "Key Password"
+msgstr "Schlüsselpasswort"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:800
+msgid "Align before signing"
+msgstr "Vor dem Signieren ausrichten"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:801
+msgid "Zip-align the APK before the signature is written."
+msgstr ""
+"Richtet das APK mit zip-align aus, bevor die Signatur geschrieben wird."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:802
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1162
+msgid "Key password matches keystore password"
+msgstr "Schlüsselpasswort entspricht dem Keystore-Passwort"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:803
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1163
+msgid "Turn this off if the key entry has a different password."
+msgstr ""
+"Deaktivieren Sie diese Option, wenn der Schlüsseleintrag ein anderes "
+"Passwort hat."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:825
+msgid "No output path"
+msgstr "Kein Ausgabepfad"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:825
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1045
+msgid "Save As..."
+msgstr "Speichern unter..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:825
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:953
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:961
+msgid "Signed APK"
+msgstr "Signiertes APK"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:828
+msgid "Save signed APK"
+msgstr "Signiertes APK speichern"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:849
+msgid "Alignment failed."
+msgstr "Ausrichtung fehlgeschlagen."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:851
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:855
+msgid "Signing failed."
+msgstr "Signierung fehlgeschlagen."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:862
+msgid "Signing the APK."
+msgstr "Das APK wird signiert."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:866
+msgid "Checking the signature."
+msgstr "Die Signatur wird geprüft."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:870
+msgid "Reading the keystore aliases."
+msgstr "Die Keystore-Aliasse werden gelesen."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:879
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:886
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:932
 msgid "The signature could not be checked."
 msgstr "Die Signatur konnte nicht geprüft werden."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:670
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:882
+msgid "APK signed."
+msgstr "APK signiert."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:900
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:924
+msgid "Choose an APK to see its signature."
+msgstr "Wählen Sie ein APK aus, um seine Signatur anzuzeigen."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:907
 msgid ""
 "This APK is already signed. The new file carries a different signature, and "
 "the original APK is left unchanged."
@@ -1498,157 +1685,43 @@ msgstr ""
 "Dieses APK ist bereits signiert. Die neue Datei trägt eine andere Signatur, "
 "und das ursprüngliche APK bleibt unverändert."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:678
-msgid "Certificate DN"
-msgstr "Zertifikat-DN"
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:913
+msgid "Ready to sign an APK."
+msgstr "Bereit, ein APK zu signieren."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:680
-msgid "Certificate SHA-256"
-msgstr "Zertifikat-SHA-256"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:689
-msgid "Verified"
-msgstr "Verifiziert"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:689
-msgid "Not Verified"
-msgstr "Nicht verifiziert"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:704
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:905
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:924
 msgid "No APK Selected"
 msgstr "Kein APK ausgewählt"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:721
-msgid "Alias"
-msgstr "Alias"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:725
-msgid "Reading keystore aliases..."
-msgstr "Keystore-Aliasse werden gelesen..."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:729
-msgid "keytool was not found in the JDK."
-msgstr "keytool wurde im JDK nicht gefunden."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:732
-msgid "The keystore aliases could not be read."
-msgstr "Die Keystore-Aliasse konnten nicht gelesen werden."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:734
-msgid "No private-key aliases were found in this keystore."
-msgstr ""
-"In diesem Keystore wurden keine Aliasse für private Schlüssel gefunden."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:738
-msgid "Select an alias"
-msgstr "Alias auswählen"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:766
-msgid "Keystore"
-msgstr "Keystore"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:770
-msgid "No keystore selected"
-msgstr "Kein Keystore ausgewählt"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:776
-msgid "Open Keystore"
-msgstr "Keystore öffnen"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:777
-msgid "Keystores"
-msgstr "Keystores"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:788
-msgid "Keystore Password"
-msgstr "Keystore-Passwort"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:815
-msgid "Key password matches keystore password"
-msgstr "Schlüsselpasswort entspricht dem Keystore-Passwort"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:816
-msgid "Turn this off if the key entry has a different password."
-msgstr ""
-"Deaktivieren Sie diese Option, wenn der Schlüsseleintrag ein anderes "
-"Passwort hat."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:826
-msgid "Key Password"
-msgstr "Schlüsselpasswort"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:838
-msgid "Align before signing"
-msgstr "Vor dem Signieren ausrichten"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:839
-msgid "Zip-align the APK before the signature is written."
-msgstr ""
-"Richtet das APK mit zip-align aus, bevor die Signatur geschrieben wird."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:845
-msgid "Output"
-msgstr "Ausgabe"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:846
-msgid "No output path"
-msgstr "Kein Ausgabepfad"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:846
-msgid "Save As..."
-msgstr "Speichern unter..."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:849
-msgid "Save signed APK"
-msgstr "Signiertes APK speichern"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:867
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:935
-msgid "Signing..."
-msgstr "Wird signiert..."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:868
-msgid "Sign"
-msgstr "Signieren"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:905
-msgid "Choose an APK to see its signature."
-msgstr "Wählen Sie ein APK aus, um seine Signatur anzuzeigen."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:916
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:928
 msgid "Checking the signature..."
 msgstr "Signatur wird geprüft..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:925
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:932
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:949
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:868
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:909
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:914
+msgid "Something Went Wrong!"
+msgstr "Etwas ist schiefgelaufen!"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:945
 msgid "No Signed APK"
 msgstr "Kein signiertes APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:925
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:945
 msgid "Sign an APK to see the result here."
 msgstr "Signieren Sie ein APK, um das Ergebnis hier zu sehen."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:930
-msgid "Signed APK"
-msgstr "Signiertes APK"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:941
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:957
 msgid "Sign the APK to see its signature here."
 msgstr "Signieren Sie das APK, um die Signatur hier anzuzeigen."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:953
-msgid "Alignment failed."
-msgstr "Ausrichtung fehlgeschlagen."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:956
-msgid "Signing failed."
-msgstr "Signierung fehlgeschlagen."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1073
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:977
 msgid "Missing Build Tools (apksigner & zipalign)"
 msgstr "Fehlende Build-Tools (apksigner und zipalign)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1075
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:979
 msgid ""
 "APK Signer uses apksigner from the Android build-tools. Install those tools "
 "to add it. AVDs already in this SDK stay where they are."
@@ -1657,12 +1730,12 @@ msgstr ""
 "Installieren Sie diese Tools, um ihn hinzuzufügen. AVDs, die bereits in "
 "diesem SDK liegen, bleiben dort."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1078
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:982
 msgid "Install build-tools..."
 msgstr "build-tools installieren..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:1100
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:59
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/apk_signer.cpp:996
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:122
 msgid "APK Signer"
 msgstr "APK-Signierer"
 
@@ -1766,6 +1839,7 @@ msgstr "Speicher"
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:224
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/device_profile.cpp:128
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/install_image.cpp:349
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:841
 msgid "Type"
 msgstr "Typ"
 
@@ -1799,7 +1873,7 @@ msgid "Stop the emulator before wiping data"
 msgstr "Stoppen Sie den Emulator, bevor Sie die Daten löschen"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd_info.cpp:269
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:63
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:130
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/storage.cpp:102
 msgid "Storage Overview"
 msgstr "Speicherübersicht"
@@ -2033,10 +2107,12 @@ msgid "e.g. 512 (MB)"
 msgstr "z. B. 512 (MB)"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:286
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1027
 msgid "Creating..."
 msgstr "Wird erstellt..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/create_avd.cpp:287
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1310
 msgid "Create"
 msgstr "Erstellen"
 
@@ -2384,63 +2460,366 @@ msgstr "Lizenzen werden geprüft..."
 msgid "Install"
 msgstr "Installieren"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:21
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:482
+msgid "Choose a destination file."
+msgstr "Wählen Sie eine Zieldatei."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:484
+msgid "The keystore file could not be found."
+msgstr "Die Keystore-Datei wurde nicht gefunden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:486
+msgid "A keystore already exists at this path."
+msgstr "An diesem Pfad ist bereits ein Keystore vorhanden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:488
+msgid "The destination folder does not exist."
+msgstr "Der Zielordner ist nicht vorhanden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:490
+msgid "Enter an alias."
+msgstr "Geben Sie einen Alias ein."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:493
+msgid "The password must be at least 6 characters."
+msgstr "Das Passwort muss mindestens 6 Zeichen lang sein."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:495
+msgid "PKCS12 uses the keystore password for the key."
+msgstr "PKCS12 verwendet das Keystore-Passwort für den Schlüssel."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:497
+msgid "Enter a validity of at least one day."
+msgstr "Geben Sie eine Gültigkeit von mindestens einem Tag ein."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:499
+msgid "Choose a key size for this algorithm."
+msgstr "Wählen Sie eine Schlüsselgröße für diesen Algorithmus."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:501
+msgid "Enter a two-letter country code."
+msgstr "Geben Sie einen zweistelligen Ländercode ein."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:503
+msgid "Enter a name for the certificate."
+msgstr "Geben Sie einen Namen für das Zertifikat ein."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:505
+msgid "The password could not be passed to keytool."
+msgstr "Das Passwort konnte nicht an keytool übergeben werden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:514
+msgid "The passwords do not match."
+msgstr "Die Passwörter stimmen nicht überein."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:530
+msgid "The keystore password was incorrect."
+msgstr "Das Keystore-Passwort war falsch."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:536
+msgid "The keystore could not be read."
+msgstr "Der Keystore konnte nicht gelesen werden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:540
+msgid "The keystore could not be created."
+msgstr "Der Keystore konnte nicht erstellt werden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:698
+msgid "Private Key"
+msgstr "Privater Schlüssel"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:701
+msgid "Trusted certificate"
+msgstr "Vertrauenswürdiges Zertifikat"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:704
+msgid "Secret key"
+msgstr "Geheimer Schlüssel"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:746
+#, c++-format
+msgid "Certificate {0}"
+msgstr "Zertifikat {0}"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:749
+msgid "Owner"
+msgstr "Inhaber"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:750
+msgid "Issuer"
+msgstr "Aussteller"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:751
+msgid "Serial Number"
+msgstr "Seriennummer"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:752
+msgid "Valid From"
+msgstr "Gültig ab"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:753
+msgid "Valid Until"
+msgstr "Gültig bis"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:754
+msgid "Signature"
+msgstr "Signatur"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:755
+msgid "Public Key"
+msgstr "Öffentlicher Schlüssel"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:781
+msgid "Select an alias"
+msgstr "Alias auswählen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:788
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:799
+msgid "Use in APK Signer"
+msgstr "In APK-Signierer verwenden"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:835
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:890
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1105
+msgid "Store Type"
+msgstr "Keystore-Typ"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:836
+msgid "Provider"
+msgstr "Anbieter"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:838
+msgid "Entries"
+msgstr "Einträge"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:838
+#, c++-format
+msgid "{0} Entry"
+msgid_plural "{0} Entries"
+msgstr[0] "{0} Eintrag"
+msgstr[1] "{0} Einträge"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:843
+msgid "Created"
+msgstr "Erstellt"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:849
+msgid "No entries were found in this keystore."
+msgstr "In diesem Keystore wurden keine Einträge gefunden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:852
+msgid "This entry has no certificate."
+msgstr "Dieser Eintrag hat kein Zertifikat."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:860
+msgid "Reading Keystore..."
+msgstr "Keystore wird gelesen..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:860
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1247
+msgid "Keytool is listing the entries."
+msgstr "Keytool listet die Einträge auf."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:864
+msgid "No Keystore Inspected"
+msgstr "Kein Keystore geprüft"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:864
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1251
+msgid "Choose a keystore and read its entries."
+msgstr "Wählen Sie einen Keystore und lesen Sie seine Einträge."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:886
+msgid "New Keystore"
+msgstr "Neuer Keystore"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:892
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1126
+msgid "Key Algorithm"
+msgstr "Schlüsselalgorithmus"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:893
+msgid "Validity"
+msgstr "Gültigkeit"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:893
+#, c++-format
+msgid "{0} Days"
+msgstr "{0} Tage"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:894
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1222
+msgid "Distinguished Name"
+msgstr "Definierter Name"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:901
+msgid "Creating keystore..."
+msgstr "Keystore wird erstellt..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:901
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1264
+msgid "Keytool is generating the key pair."
+msgstr "Keytool erzeugt das Schlüsselpaar."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:915
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1276
+msgid "The keystore was created, but its entries could not be read."
+msgstr "Der Keystore wurde erstellt, aber seine Einträge konnten nicht gelesen werden."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:957
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1310
+msgid "Inspect"
+msgstr "Prüfen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1026
+msgid "Create keystore"
+msgstr "Keystore erstellen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1041
+msgid "Template"
+msgstr "Vorlage"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1045
+msgid "Choose a destination file..."
+msgstr "Zieldatei auswählen..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1045
+msgid "Destination"
+msgstr "Ziel"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1049
+msgid "Save Keystore"
+msgstr "Keystore speichern"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1117
+msgid "File Extension"
+msgstr "Dateiendung"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1144
+msgid "Key Size"
+msgstr "Schlüsselgröße"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1155
+msgid "Validity (days)"
+msgstr "Gültigkeit (Tage)"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1198
+msgid "Confirm Password"
+msgstr "Passwort bestätigen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1225
+msgid "Common Name"
+msgstr "Allgemeiner Name"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1227
+msgid "Organizational Unit"
+msgstr "Organisationseinheit"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1229
+msgid "Organization"
+msgstr "Organisation"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1231
+msgid "City"
+msgstr "Stadt"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1233
+msgid "State"
+msgstr "Bundesland"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1235
+msgid "Country"
+msgstr "Land"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1258
+msgid "Keystore read."
+msgstr "Keystore gelesen."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1268
+msgid "Keystore created."
+msgstr "Keystore erstellt."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1288
+msgid "Ready to create a keystore."
+msgstr "Bereit, einen Keystore zu erstellen."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1300
+msgid "Keytool creates and reads keystores with the JDK's keytool."
+msgstr "Keytool erstellt und liest Keystores mit dem keytool des JDK."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1301
+msgid "Choose a JDK..."
+msgstr "JDK auswählen..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/keytool.cpp:1347
+msgid "Keytool"
+msgstr "Keytool"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:47
+msgid "Close Workspace"
+msgstr "Arbeitsbereich schließen"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:84
 msgid "Preferences..."
 msgstr "Einstellungen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:25
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:88
 msgid "Quit"
 msgstr "Beenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:31
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:94
 msgid "View"
 msgstr "Ansicht"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:32
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:95
 msgid "Hide AVD List"
 msgstr "AVD-Liste ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:32
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:95
 msgid "Show AVD List"
 msgstr "AVD-Liste anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:36
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:99
 msgid "Hide Options"
 msgstr "Optionen ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:36
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:99
 msgid "Show Options"
 msgstr "Optionen anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:40
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:103
 msgid "Hide Details"
 msgstr "Details ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:40
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:103
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:44
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:107
 msgid "Hide Output Log"
 msgstr "Ausgabeprotokoll ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:44
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:107
 msgid "Show Output Log"
 msgstr "Ausgabeprotokoll anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:51
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:114
 msgid "Tools"
 msgstr "Werkzeuge"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:52
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:115
 msgid "Health Check..."
 msgstr "Statusprüfung..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:69
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:126
+msgid "Java Keytool"
+msgstr "Java-Keytool"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:136
 msgid "Help"
 msgstr "Hilfe"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:73
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/main_menu_bar.cpp:140
 msgid "Check for Updates..."
 msgstr "Nach Updates suchen..."
 

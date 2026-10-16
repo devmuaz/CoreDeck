@@ -242,6 +242,7 @@ add_executable(${PROJECT_NAME}
     src/gui/windows/about.cpp
     src/gui/windows/apk_analyzer.cpp
     src/gui/windows/apk_signer.cpp
+    src/gui/windows/keytool.cpp
     src/gui/windows/avd_info.cpp
     src/gui/windows/avd_list.cpp
     src/gui/windows/avd_logs.cpp

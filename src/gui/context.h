@@ -41,6 +41,7 @@ namespace CoreDeck {
         Home,
         ApkAnalyzer,
         ApkSigner,
+        Keytool,
     };
 
     enum class AvdSortMode : uint8_t {
@@ -81,6 +82,17 @@ namespace CoreDeck {
         Verify,
         Aliases,
         Sign,
+    };
+
+    enum class KeytoolTask : uint8_t {
+        None,
+        Inspect,
+        Create,
+    };
+
+    enum class KeytoolPage : uint8_t {
+        Inspect,
+        Create,
     };
 
     struct Context {
@@ -321,7 +333,53 @@ namespace CoreDeck {
 
             bool HasSignResult = false;
             ApkSignResult SignResult;
+            std::string KeystoreType;
         } ApkSignerWork;
+
+        struct KeytoolState {
+            std::atomic<bool> Busy{false};
+            KeytoolTask Task = KeytoolTask::None;
+            KeytoolPage Page = KeytoolPage::Inspect;
+
+            std::future<KeystoreDescription> InspectFuture;
+            std::future<CreateKeystoreResult> CreateFuture;
+
+            std::string InspectPath;
+            std::string CreatePath;
+
+            char InspectPassword[512] = {};
+            char CreatePassword[512] = {};
+            char ConfirmPassword[512] = {};
+            char KeyPassword[512] = {};
+            bool ShowInspectPassword = false;
+            bool ShowCreatePassword = false;
+            bool ShowConfirmPassword = false;
+            bool ShowKeyPassword = false;
+            bool KeyPasswordMatches = true;
+            std::uint32_t SecretEpoch = 0;
+
+            KeystoreType StoreType = KeystoreType::Pkcs12;
+            int CreateExtension = 0;
+            int CreateTemplate = 0;
+            KeyAlgorithm Algorithm = KeyAlgorithm::Rsa;
+            int KeySize = 2048;
+            int ValidityDays = DEFAULT_KEY_VALIDITY_DAYS;
+            char Alias[256] = {};
+            char CommonName[256] = {};
+            char OrganizationalUnit[256] = {};
+            char Organization[256] = {};
+            char Locality[256] = {};
+            char StateName[256] = {};
+            char Country[8] = {};
+
+            bool HasInspect = false;
+            KeystoreDescription InspectResult;
+            int InspectEntry = 0;
+
+            bool HasCreate = false;
+            CreateKeystoreResult CreateResult;
+            int CreateEntry = 0;
+        } KeytoolWork;
 
         struct Updates {
             bool ShowNewVersionModal = false;
@@ -337,6 +395,7 @@ namespace CoreDeck {
     };
 
     using ApkSignerWork = Context::ApkSignerState;
+    using KeytoolWork = Context::KeytoolState;
 
     inline void SetNativeWindowPage(Context &context, const char *page) {
         context.UI.NativeWindowPage = page != nullptr ? page : "";

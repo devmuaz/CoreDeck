@@ -8,6 +8,8 @@
 #include "../context.h"
 
 namespace CoreDeck {
+    void CloseApkAnalyzer(Context &context);
+
     void BuildApkAnalyzerWindow(Context &context);
 }
 

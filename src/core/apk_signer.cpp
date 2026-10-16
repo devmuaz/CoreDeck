@@ -352,17 +352,22 @@ namespace CoreDeck {
         const std::string &keyAlias,
         const std::string &outputPath,
         const std::string &inputPath,
-        const std::string &keyPassFilePath
+        const std::string &keyPassFilePath,
+        const std::string &keystoreType
     ) {
         std::vector<std::string> args = {
             "sign",
             "--ks",
             keystorePath,
-            "--ks-key-alias",
-            keyAlias,
-            "--ks-pass",
-            "stdin",
         };
+        if (!keystoreType.empty()) {
+            args.push_back("--ks-type");
+            args.push_back(keystoreType);
+        }
+        args.push_back("--ks-key-alias");
+        args.push_back(keyAlias);
+        args.push_back("--ks-pass");
+        args.push_back("stdin");
         if (!keyPassFilePath.empty()) {
             args.push_back("--key-pass");
             args.push_back("file:" + keyPassFilePath);
@@ -443,7 +448,8 @@ namespace CoreDeck {
                 request.KeyAlias,
                 request.OutputPath,
                 inputForSign,
-                keyPassPath
+                keyPassPath,
+                request.KeystoreType
             ),
             stdinPassword.Value,
             request.ToolEnv

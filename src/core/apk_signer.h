@@ -53,6 +53,7 @@ namespace CoreDeck {
         std::string InputPath;
         std::string OutputPath;
         std::string KeystorePath;
+        std::string KeystoreType;
         std::string KeyAlias;
         std::string StorePassword;
         std::string KeyPassword;
@@ -83,7 +84,8 @@ namespace CoreDeck {
         const std::string &keyAlias,
         const std::string &outputPath,
         const std::string &inputPath,
-        const std::string &keyPassFilePath = {}
+        const std::string &keyPassFilePath = {},
+        const std::string &keystoreType = {}
     );
 
     bool ApkOutputPathEqualsInput(const std::string &inputPath, const std::string &outputPath);

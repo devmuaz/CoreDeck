@@ -138,3 +138,29 @@ TEST_CASE("BuildApkSignArguments adds a key password file without the password",
         REQUIRE(arg.find("super-secret-password") == std::string::npos);
     }
 }
+
+TEST_CASE("BuildApkSignArguments passes a known keystore type", "[apk-signer]") {
+    const std::vector<std::string> args = BuildApkSignArguments(
+        "/tmp/release.jceks",
+        "upload",
+        "/tmp/app-signed.apk",
+        "/tmp/app.apk",
+        "",
+        "JCEKS"
+    );
+
+    REQUIRE(args == std::vector<std::string>{
+                        "sign",
+                        "--ks",
+                        "/tmp/release.jceks",
+                        "--ks-type",
+                        "JCEKS",
+                        "--ks-key-alias",
+                        "upload",
+                        "--ks-pass",
+                        "stdin",
+                        "--out",
+                        "/tmp/app-signed.apk",
+                        "/tmp/app.apk",
+                    });
+}

@@ -1,3 +1,11 @@
+## [v0.14.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0-beta.2) — 2026-10-16
+
+- Add Java Keytool (Tools → Java Keytool) so a keystore can be created and inspected with the JDK's `keytool`, without Android Studio
+- Create a PKCS12, JKS, or JCEKS keystore, and pick the file extension separately (`.jks`, `.keystore`, `.p12`, `.pfx`, or `.jceks`). Templates fill the Flutter upload, Android release, and Android debug recipes, and leave the passwords empty
+- Inspect shows the store type, entries, certificate details, and SHA fingerprints. A private-key entry can be opened in APK Signer
+- APK Signer accepts those keystore files and passes the detected store type to `apksigner`. Each report shows the v1, v2, v3, v3.1, and v4 schemes, and the status sits under the reports
+- Close an open tool workspace from the menu bar with Close Workspace
+
 ## [v0.14.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0-beta.1) — 2026-10-15
 
 - Add APK Signer (Tools → APK Signer) so a package can be verified and signed with the official `apksigner` and `zipalign`, without Android Studio. Signing writes a new APK and leaves the original unchanged. Use an existing keystore
