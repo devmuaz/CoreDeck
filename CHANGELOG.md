@@ -1,6 +1,14 @@
+## [v0.14.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0) — 2026-10-16
+
+- Add Java Keytool (Tools, Java Keytool) so a keystore can be created and inspected with the JDK's `keytool`, without Android Studio
+- Create a PKCS12, JKS, or JCEKS keystore, and pick the file extension separately (`.jks`, `.keystore`, `.p12`, `.pfx`, or `.jceks`). Templates fill the Flutter upload, Android release, and Android debug recipes, and leave the passwords empty
+- Inspect shows the store type, entries, certificate details, and SHA fingerprints. A private-key entry can be opened in APK Signer
+- APK Signer accepts those keystore files and passes the detected store type to `apksigner`. Each report shows the v1, v2, v3, v3.1, and v4 schemes, and the status sits under the reports
+- Close an open tool workspace from the menu bar with Close Workspace
+
 ## [v0.14.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0-beta.2) — 2026-10-16
 
-- Add Java Keytool (Tools → Java Keytool) so a keystore can be created and inspected with the JDK's `keytool`, without Android Studio
+- Add Java Keytool (Tools, Java Keytool) so a keystore can be created and inspected with the JDK's `keytool`, without Android Studio
 - Create a PKCS12, JKS, or JCEKS keystore, and pick the file extension separately (`.jks`, `.keystore`, `.p12`, `.pfx`, or `.jceks`). Templates fill the Flutter upload, Android release, and Android debug recipes, and leave the passwords empty
 - Inspect shows the store type, entries, certificate details, and SHA fingerprints. A private-key entry can be opened in APK Signer
 - APK Signer accepts those keystore files and passes the detected store type to `apksigner`. Each report shows the v1, v2, v3, v3.1, and v4 schemes, and the status sits under the reports
@@ -8,9 +16,9 @@
 
 ## [v0.14.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0-beta.1) — 2026-10-15
 
-- Add APK Signer (Tools → APK Signer) so a package can be verified and signed with the official `apksigner` and `zipalign`, without Android Studio. Signing writes a new APK and leaves the original unchanged. Use an existing keystore
+- Add APK Signer (Tools, APK Signer) so a package can be verified and signed with the official `apksigner` and `zipalign`, without Android Studio. Signing writes a new APK and leaves the original unchanged. Use an existing keystore
 - Health Check now requires `aapt2`, `zipalign`, and `apksigner` from build-tools. A missing `apksigner` offers to install them
-- Add a Preferences → General option to check for updates when CoreDeck starts. It is on by default, and Help → Check for Updates still works when it is off
+- Add a Preferences, General option to check for updates when CoreDeck starts. It is on by default, and Help, Check for Updates still works when it is off
 - Fix log search so a regular expression that matches an empty string, such as `^`, is ignored instead of counting as a match on every line
 
 ## [v0.13.3](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.3) — 2026-10-09
@@ -29,7 +37,7 @@
 
 ## [v0.13.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.13.0) — 2026-09-29
 
-- Translate the interface. Preferences → General can follow the system language or stay on English, French, German, Simplified Chinese, or Traditional Chinese. Chinese, Japanese, and Korean text uses the bundled Noto Sans CJK font (thanks [@xqyveteyio](https://github.com/xqyveteyio), [#51](https://github.com/devmuaz/CoreDeck/issues/51))
+- Translate the interface. Preferences, General can follow the system language or stay on English, French, German, Simplified Chinese, or Traditional Chinese. Chinese, Japanese, and Korean text uses the bundled Noto Sans CJK font (thanks [@xqyveteyio](https://github.com/xqyveteyio), [#51](https://github.com/devmuaz/CoreDeck/issues/51))
 - Add a translation issue template, and a `tools/update_translations.sh` step for refreshing the catalogs after new interface text
 - Keep the first-run flag, SDK path, JDK path, and recent APKs in `settings.json`, and remove the old separate files
 - Fix the output log so it keeps following new lines
@@ -43,12 +51,12 @@
 - Install progress shows the package name, and a failed license check explains why
 - The folder picker opens even if the path you typed is not there yet
 - Health Check can install the Android build-tools the APK Analyzer needs. New SDK installs include them
-- Preferences → Java lists the JDKs on this computer. Choosing one applies right away
+- Preferences, Java lists the JDKs on this computer. Choosing one applies right away
 - Hints, warnings, and errors share one status style. An empty AVD list and a failed APK section show a notice, and the APK notice opens Health Check
 
 ## [v0.11.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.11.0) — 2026-09-27
 
-- Add a light theme, and an Appearance setting in Preferences → General to follow the system, stay dark, or stay light
+- Add a light theme, and an Appearance setting in Preferences, General to follow the system, stay dark, or stay light
 - Follow the system appearance on macOS, Windows, and Linux, and match the window frame on macOS and Windows
 - Tune status colors, buttons, banners, and the Storage Overview bar for the light background. The dark theme is unchanged
 
@@ -58,16 +66,16 @@
 
 ## [v0.10.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0) — 2026-09-25
 
-- Add a Health Check (Tools → Health Check...) that reviews the Android SDK, emulator, platform-tools, command-line tools, JDK 17 or newer, SDK licenses, installed system images, and free disk space, with a fix action for each problem
+- Add a Health Check (Tools, Health Check...) that reviews the Android SDK, emulator, platform-tools, command-line tools, JDK 17 or newer, SDK licenses, installed system images, and free disk space, with a fix action for each problem
 - Replace the separate setup banners with one warning bar, and accept SDK licenses from the Health Check
-- Add APK Analyzer (Tools → APK Analyzer) so a package can be opened, compared, and inspected with the official `apkanalyzer`, without Android Studio
+- Add APK Analyzer (Tools, APK Analyzer) so a package can be opened, compared, and inspected with the official `apkanalyzer`, without Android Studio
 - Offer to download the command-line tools into an existing SDK when the emulator is already installed but `avdmanager` and `sdkmanager` are missing (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#42](https://github.com/devmuaz/CoreDeck/issues/42))
 - Show whether a system image uses 4 KB or 16 KB pages, and keep `avdmanager` errors out of the Create AVD device list (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#46](https://github.com/devmuaz/CoreDeck/issues/46), [#44](https://github.com/devmuaz/CoreDeck/issues/44))
 - Support cmdline-tools 23 package ids, license checks, and install progress, and notice when `avdmanager`, `sdkmanager`, or `apkanalyzer` is removed or restored without restarting
 
 ## [v0.10.0-beta.5](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.5) — 2026-09-25
 
-- Add APK Analyzer (Tools → APK Analyzer) that reads a package with the official `apkanalyzer` from the command-line tools, without Android Studio. Open an APK from the file picker or by dropping it on the window, and reopen recent APKs
+- Add APK Analyzer (Tools, APK Analyzer) that reads a package with the official `apkanalyzer` from the command-line tools, without Android Studio. Open an APK from the file picker or by dropping it on the window, and reopen recent APKs
 - Show package name, version name, version code, APK size, download size, and whether the package is debuggable, then a file table sorted by download size with raw size, share of download size, compression, and zip alignment
 - Compare the open APK with a previous one, with the comparison status beside the file count
 - Re-check `avdmanager`, `sdkmanager`, and `apkanalyzer` while the app is running, so removing or restoring one updates the Health Check and APK Analyzer without a restart. A missing `sdkmanager` offers to install the command-line tools instead of asking to configure Java, and a missing `apkanalyzer` is reported the same way
@@ -75,7 +83,7 @@
 
 ## [v0.10.0-beta.4](https://github.com/devmuaz/CoreDeck/releases/tag/v0.10.0-beta.4) — 2026-09-23
 
-- Add a Health Check (Tools → Health Check...) that reports the Android SDK location, emulator, platform-tools, command-line tools, JDK 17 or newer, whether those tools actually start, SDK licenses, installed system images, and free disk space, with a fix action on each problem
+- Add a Health Check (Tools, Health Check...) that reports the Android SDK location, emulator, platform-tools, command-line tools, JDK 17 or newer, whether those tools actually start, SDK licenses, installed system images, and free disk space, with a fix action on each problem
 - Replace the separate missing-SDK, missing command-line tools, and old-Java banners with one warning bar that also appears when SDK licenses are not accepted, and opens the Health Check
 - Accept SDK licenses in their own window above the Health Check; agreeing, canceling, or closing it returns to the check and runs it again
 - Move Storage Overview to the Tools menu, and add icons to the menu bar
@@ -120,13 +128,13 @@
 
 ## [v0.8.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0) — 2026-07-27
 
-- Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences → Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
+- Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences, Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
 - Fix live resource usage CPU always showing 0% on Windows by aggregating stats across the emulator process tree (thanks [@sjoerdev](https://github.com/sjoerdev), [#27](https://github.com/devmuaz/CoreDeck/issues/27))
 - Fix live resource usage CPU reading above 100% by normalizing against logical core count so the Details panel shows 0–100% of total system capacity
 
 ## [v0.8.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0-beta.2) — 2026-07-27
 
-- Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences → Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
+- Add JDK configuration so `avdmanager` and `sdkmanager` can run with a specific JDK 17+ when the system default is older, including auto-detection, a Preferences, Java (JDK) section, and a warning banner for incompatible Java version (thanks [@kangaroo1122](https://github.com/kangaroo1122), [#29](https://github.com/devmuaz/CoreDeck/issues/29))
 
 ## [v0.8.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.8.0-beta.1) — 2026-06-02
 
