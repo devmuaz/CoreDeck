@@ -21,10 +21,6 @@
 
 > Bring an SDK you already have, or let CoreDeck download Google's tools and set them up for you.
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/cade70a8-c7b4-47ac-98c1-6b8986893dcc" controls width="720"></video>
-</div>
-
 ## Features
 
 - **AVD Management** — Create, delete, and browse your Android Virtual Devices
