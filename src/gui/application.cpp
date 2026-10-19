@@ -80,7 +80,7 @@ namespace CoreDeck {
     Application::Application() : m_Context(DetectAndroidSdk()) {
         EnsureOptionsConfigDirectoryExists();
         ApplyAppSettingsToContext(m_Context, LoadAppSettings());
-        SetLocalesDirectory(Paths::JoinPaths({Paths::GetResourcesDirectory(), "assets", "locales"}));
+        SetLocalesDirectory(Paths::JoinPaths({Paths::GetAssetsDirectory(), "locales"}));
         SetLanguage(m_Context.Prefs.Language);
 
         m_Context.Host.Jdk = DetectJdk();
@@ -306,15 +306,15 @@ namespace CoreDeck {
     void Application::m_LoadFonts() const {
         const ImGuiIO &io = ImGui::GetIO();
 
-        const std::string resourcesDir = Paths::GetResourcesDirectory();
+        const std::string assetsDir = Paths::GetAssetsDirectory();
         const std::string textFontPath = Paths::JoinPaths(
-            {resourcesDir, "assets", "fonts", "JetBrainsMono-Regular.ttf"}
+            {assetsDir, "fonts", "JetBrainsMono-Regular.ttf"}
         );
         const std::string cjkFontPath = Paths::JoinPaths(
-            {resourcesDir, "assets", "fonts", "NotoSansCJKsc-Regular.otf"}
+            {assetsDir, "fonts", "NotoSansCJKsc-Regular.otf"}
         );
         const std::string iconFontPath = Paths::JoinPaths(
-            {resourcesDir, "assets", "fonts", "FontAwesome7Free-Solid-900.otf"}
+            {assetsDir, "fonts", "FontAwesome7Free-Solid-900.otf"}
         );
 
         const float dpi = (m_FontPixelScale > 0.0F) ? m_FontPixelScale : 1.0F;

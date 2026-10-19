@@ -199,10 +199,10 @@ namespace CoreDeck {
 
 #ifndef NDEBUG
         // Debug-only escape hatch for exercising failure paths against a local file server.
-        if (const char *urlOverride = std::getenv("COREDECK_CMDLINE_TOOLS_URL")) { // NOLINT(concurrency-mt-unsafe)
+        if (const char *urlOverride = std::getenv(ENV_COREDECK_CMDLINE_TOOLS_URL)) { // NOLINT(concurrency-mt-unsafe)
             if (*urlOverride) {
                 release.DownloadUrl = urlOverride;
-                if (const char *shaOverride = std::getenv("COREDECK_CMDLINE_TOOLS_SHA256")) { // NOLINT(concurrency-mt-unsafe)
+                if (const char *shaOverride = std::getenv(ENV_COREDECK_CMDLINE_TOOLS_SHA256)) { // NOLINT(concurrency-mt-unsafe)
                     release.Sha256 = shaOverride;
                 }
             }

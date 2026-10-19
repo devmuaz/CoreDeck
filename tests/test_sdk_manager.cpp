@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include "core/constants.h"
 #include "core/sdk_manager.h"
 
 using namespace CoreDeck;
@@ -73,17 +74,17 @@ TEST_CASE("ParseSdkManagerProgressLine ignores lines without a progress percent"
 }
 
 TEST_CASE("SdkManagerInstallEnvironment forces a wide COLUMNS", "[sdk-manager]") {
-    EnvVars env = {{.Name = "JAVA_HOME", .Value = "/jbr"}, {.Name = "COLUMNS", .Value = "80"}};
+    EnvVars env = {{.Name = ENV_JAVA_HOME, .Value = "/jbr"}, {.Name = ENV_COLUMNS, .Value = "80"}};
     const EnvVars installEnv = SdkManagerInstallEnvironment(std::move(env));
 
     REQUIRE(installEnv.size() == 2);
-    REQUIRE(installEnv.at(1).Name == "COLUMNS");
-    REQUIRE(installEnv.at(1).Value == "16384");
+    REQUIRE(installEnv.at(1).Name == ENV_COLUMNS);
+    REQUIRE(installEnv.at(1).Value == SDK_MANAGER_PROGRESS_COLUMNS);
 
     const EnvVars added = SdkManagerInstallEnvironment({});
     REQUIRE(added.size() == 1);
-    REQUIRE(added.at(0).Name == "COLUMNS");
-    REQUIRE(added.at(0).Value == "16384");
+    REQUIRE(added.at(0).Name == ENV_COLUMNS);
+    REQUIRE(added.at(0).Value == SDK_MANAGER_PROGRESS_COLUMNS);
 }
 
 TEST_CASE("RunSdkManagerInstall refuses to run without a sdkmanager binary", "[sdk-manager]") {

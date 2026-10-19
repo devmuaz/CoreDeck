@@ -4,6 +4,8 @@
 
 #include "i18n.h"
 
+#include "constants.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
@@ -201,18 +203,18 @@ namespace CoreDeck {
             }
             const char *catalog = IsLanguageToken(tag) ? tag.c_str() : "en";
 #ifdef _WIN32
-            if (const CrtGetEnv get = GetUniversalCrt().GetEnv; get != nullptr && IsCLocaleName(get("LC_ALL"))) {
+            if (const CrtGetEnv get = GetUniversalCrt().GetEnv; get != nullptr && IsCLocaleName(get(ENV_LC_ALL))) {
                 // libintl ignores LANGUAGE while LC_ALL is the C locale.
-                PublishEnvironment("LC_ALL", "");
+                PublishEnvironment(ENV_LC_ALL, "");
             }
-            PublishEnvironment("LANGUAGE", languages.c_str());
+            PublishEnvironment(ENV_LANGUAGE, languages.c_str());
             // The catalog folder is the tag itself (zh-Hans, not zh_Hans). libintl
             // uses this name when LANGUAGE is absent.
-            PublishEnvironment("LC_MESSAGES", catalog);
-            PublishEnvironment("LANG", catalog);
+            PublishEnvironment(ENV_LC_MESSAGES, catalog);
+            PublishEnvironment(ENV_LANG, catalog);
 #else
             (void) catalog;
-            setenv("LANGUAGE", languages.c_str(), 1); // NOLINT(concurrency-mt-unsafe)
+            setenv(ENV_LANGUAGE, languages.c_str(), 1); // NOLINT(concurrency-mt-unsafe)
 #endif
         }
 
@@ -220,8 +222,8 @@ namespace CoreDeck {
 #ifdef _WIN32
             setlocale(LC_MESSAGES, ""); // NOLINT(concurrency-mt-unsafe)
 #else
-            if (const char *lcAll = std::getenv("LC_ALL"); IsCLocaleName(lcAll)) { // NOLINT(concurrency-mt-unsafe)
-                unsetenv("LC_ALL"); // NOLINT(concurrency-mt-unsafe)
+            if (const char *lcAll = std::getenv(ENV_LC_ALL); IsCLocaleName(lcAll)) { // NOLINT(concurrency-mt-unsafe)
+                unsetenv(ENV_LC_ALL); // NOLINT(concurrency-mt-unsafe)
             }
             const char *applied = setlocale(LC_MESSAGES, ""); // NOLINT(concurrency-mt-unsafe)
             if (applied != nullptr && !IsCLocaleName(applied)) {
@@ -231,13 +233,13 @@ namespace CoreDeck {
             // A UTF-8 messages locale still leaves LC_NUMERIC on the decimal dot.
             const char *candidates[] = {"en_US.UTF-8", "en_US.utf8", "en_US"};
             for (const char *candidate: candidates) {
-                setenv("LC_MESSAGES", candidate, 1); // NOLINT(concurrency-mt-unsafe)
+                setenv(ENV_LC_MESSAGES, candidate, 1); // NOLINT(concurrency-mt-unsafe)
                 applied = setlocale(LC_MESSAGES, ""); // NOLINT(concurrency-mt-unsafe)
                 if (applied != nullptr && !IsCLocaleName(applied)) {
                     return;
                 }
             }
-            unsetenv("LC_MESSAGES"); // NOLINT(concurrency-mt-unsafe)
+            unsetenv(ENV_LC_MESSAGES); // NOLINT(concurrency-mt-unsafe)
             (void) setlocale(LC_MESSAGES, ""); // NOLINT(concurrency-mt-unsafe)
 #endif
         }
@@ -316,7 +318,7 @@ namespace CoreDeck {
             }
             return NormalizeLanguageTag(buffer);
 #else
-            const char *variables[] = {"LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"};
+            const char *variables[] = {ENV_LANGUAGE, ENV_LC_ALL, ENV_LC_MESSAGES, ENV_LANG};
             for (const char *name: variables) {
                 const char *value = std::getenv(name); // NOLINT(concurrency-mt-unsafe)
                 if (value == nullptr || value[0] == '\0') {

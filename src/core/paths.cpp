@@ -16,6 +16,7 @@
 #include <unistd.h>
 #endif
 
+#include "constants.h"
 #include "log.h"
 
 namespace CoreDeck::Paths {
@@ -49,13 +50,13 @@ namespace CoreDeck::Paths {
 
         switch (platform) {
             case Platform::Windows: {
-                const char *userProfile = std::getenv("USERPROFILE"); // NOLINT(concurrency-mt-unsafe)
+                const char *userProfile = std::getenv(ENV_USERPROFILE); // NOLINT(concurrency-mt-unsafe)
                 if (userProfile) {
                     return {userProfile};
                 }
 
-                const char *homeDrive = std::getenv("HOMEDRIVE"); // NOLINT(concurrency-mt-unsafe)
-                const char *homePath = std::getenv("HOMEPATH"); // NOLINT(concurrency-mt-unsafe)
+                const char *homeDrive = std::getenv(ENV_HOMEDRIVE); // NOLINT(concurrency-mt-unsafe)
+                const char *homePath = std::getenv(ENV_HOMEPATH); // NOLINT(concurrency-mt-unsafe)
                 if (homeDrive && homePath) {
                     return std::string(homeDrive) + std::string(homePath);
                 }
@@ -63,7 +64,7 @@ namespace CoreDeck::Paths {
             }
             case Platform::MacOS:
             case Platform::Linux: {
-                const char *home = std::getenv("HOME"); // NOLINT(concurrency-mt-unsafe)
+                const char *home = std::getenv(ENV_HOME); // NOLINT(concurrency-mt-unsafe)
                 if (home) {
                     return {home};
                 }
@@ -87,7 +88,7 @@ namespace CoreDeck::Paths {
 
         switch (platform) {
             case Platform::Windows: {
-                const char *appData = std::getenv("APPDATA"); // NOLINT(concurrency-mt-unsafe)
+                const char *appData = std::getenv(ENV_APPDATA); // NOLINT(concurrency-mt-unsafe)
                 if (appData) {
                     return {appData};
                 }
@@ -110,7 +111,7 @@ namespace CoreDeck::Paths {
 
         switch (platform) {
             case Platform::Windows: {
-                const char *localAppData = std::getenv("LOCALAPPDATA"); // NOLINT(concurrency-mt-unsafe)
+                const char *localAppData = std::getenv(ENV_LOCALAPPDATA); // NOLINT(concurrency-mt-unsafe)
                 if (localAppData) {
                     return JoinPaths({std::string(localAppData), "Android", "Sdk"});
                 }
@@ -207,6 +208,18 @@ namespace CoreDeck::Paths {
         }
 #endif
         return std::move(exeDir);
+    }
+
+    std::string GetAssetsDirectory() {
+        const char *overrideDir = std::getenv(ENV_COREDECK_ASSETS_DIR); // NOLINT(concurrency-mt-unsafe)
+        if (overrideDir != nullptr && overrideDir[0] != '\0') {
+            std::error_code error;
+            if (!std::filesystem::is_directory(overrideDir, error)) {
+                Log::Warn(ENV_COREDECK_ASSETS_DIR, " is not a directory: ", overrideDir);
+            }
+            return {overrideDir};
+        }
+        return JoinPaths({GetResourcesDirectory(), "assets"});
     }
 
     std::string JoinPaths(const std::vector<std::string> &components) {

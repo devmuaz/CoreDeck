@@ -1,5 +1,7 @@
 #include "emulator_console.h"
 
+#include "constants.h"
+
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -80,9 +82,9 @@ namespace CoreDeck::EmulatorConsole {
         std::string ReadAuthToken() {
             const char *home =
 #ifdef _WIN32
-                std::getenv("USERPROFILE");
+                std::getenv(ENV_USERPROFILE);
 #else
-                std::getenv("HOME"); // NOLINT(concurrency-mt-unsafe)
+                std::getenv(ENV_HOME); // NOLINT(concurrency-mt-unsafe)
 #endif
             if (!home) {
                 return "";

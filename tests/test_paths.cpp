@@ -1,5 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstdlib>
+#include <filesystem>
+#include <string>
+
+#include "core/constants.h"
 #include "core/paths.h"
 
 using namespace CoreDeck::Paths;
@@ -78,4 +83,77 @@ TEST_CASE("GetNullDevice returns the correct per-platform device", "[paths][plat
 #else
     REQUIRE(GetNullDevice() == "/dev/null");
 #endif
+}
+
+namespace {
+    void SetEnvVar(const char *name, const char *value) {
+#ifdef _WIN32
+        _putenv_s(name, value);
+#else
+        setenv(name, value, 1); // NOLINT(concurrency-mt-unsafe)
+#endif
+    }
+
+    void UnsetEnvVar(const char *name) {
+#ifdef _WIN32
+        _putenv_s(name, "");
+#else
+        unsetenv(name); // NOLINT(concurrency-mt-unsafe)
+#endif
+    }
+
+    class ScopedEnvVar {
+    public:
+        ScopedEnvVar(ScopedEnvVar &&) = delete;
+        ScopedEnvVar &operator=(ScopedEnvVar &&) = delete;
+
+        ScopedEnvVar(const char *name, const char *value) : m_Name(name) {
+            if (const char *previous = std::getenv(name)) { // NOLINT(concurrency-mt-unsafe)
+                m_Previous = previous;
+                m_HadPrevious = true;
+            }
+            if (value != nullptr) {
+                SetEnvVar(name, value);
+            } else {
+                UnsetEnvVar(name);
+            }
+        }
+
+        ~ScopedEnvVar() {
+            if (m_HadPrevious) {
+                SetEnvVar(m_Name.c_str(), m_Previous.c_str());
+            } else {
+                UnsetEnvVar(m_Name.c_str());
+            }
+        }
+
+        ScopedEnvVar(const ScopedEnvVar &) = delete;
+        ScopedEnvVar &operator=(const ScopedEnvVar &) = delete;
+
+    private:
+        std::string m_Name;
+        std::string m_Previous;
+        bool m_HadPrevious = false;
+    };
+}
+
+TEST_CASE("GetAssetsDirectory uses COREDECK_ASSETS_DIR when set", "[paths][assets]") {
+    const std::string dir = std::filesystem::temp_directory_path().string();
+    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, dir.c_str());
+    REQUIRE(GetAssetsDirectory() == dir);
+}
+
+TEST_CASE("GetAssetsDirectory keeps a set path that is not a directory", "[paths][assets]") {
+    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, "/usr/share/coredeck");
+    REQUIRE(GetAssetsDirectory() == "/usr/share/coredeck");
+}
+
+TEST_CASE("GetAssetsDirectory ignores an empty COREDECK_ASSETS_DIR", "[paths][assets]") {
+    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, "");
+    REQUIRE(GetAssetsDirectory() == JoinPaths({GetResourcesDirectory(), "assets"}));
+}
+
+TEST_CASE("GetAssetsDirectory falls back to assets beside the resources directory", "[paths][assets]") {
+    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, nullptr);
+    REQUIRE(GetAssetsDirectory() == JoinPaths({GetResourcesDirectory(), "assets"}));
 }

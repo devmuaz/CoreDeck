@@ -262,7 +262,7 @@ namespace CoreDeck {
                 case JdkSource::Override:
                     return Tr("Custom Path");
                 case JdkSource::JavaHomeEnv:
-                    return "JAVA_HOME";
+                    return ENV_JAVA_HOME;
                 case JdkSource::Detected:
                     return Tr("Auto-Detected");
                 case JdkSource::None:

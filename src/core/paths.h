@@ -38,6 +38,8 @@ namespace CoreDeck::Paths {
 
     std::string GetResourcesDirectory();
 
+    std::string GetAssetsDirectory();
+
     std::string JoinPaths(const std::vector<std::string> &components);
 
     std::string NormalizePath(const std::string &path);

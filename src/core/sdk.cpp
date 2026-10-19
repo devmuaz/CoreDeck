@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "sdk.h"
+#include "constants.h"
 #include "paths.h"
 
 namespace CoreDeck {
@@ -126,9 +127,9 @@ namespace CoreDeck {
         if (!savedPath.empty() && std::filesystem::exists(savedPath)) {
             sdkPath = savedPath;
         } else {
-            const char *sdkEnv = std::getenv("ANDROID_HOME"); // NOLINT(concurrency-mt-unsafe)
+            const char *sdkEnv = std::getenv(ENV_ANDROID_HOME); // NOLINT(concurrency-mt-unsafe)
             if (!sdkEnv) {
-                sdkEnv = std::getenv("ANDROID_SDK_ROOT"); // NOLINT(concurrency-mt-unsafe)
+                sdkEnv = std::getenv(ENV_ANDROID_SDK_ROOT); // NOLINT(concurrency-mt-unsafe)
             }
 
             if (sdkEnv) {

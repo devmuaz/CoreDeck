@@ -154,8 +154,8 @@ namespace CoreDeck {
             const std::string home = Paths::GetHomeDirectory();
 
 #ifdef _WIN32
-            const char *programFiles = std::getenv("ProgramFiles");
-            const char *localAppData = std::getenv("LOCALAPPDATA");
+            const char *programFiles = std::getenv(ENV_PROGRAM_FILES);
+            const char *localAppData = std::getenv(ENV_LOCALAPPDATA);
             if (programFiles) {
                 const std::string pf(programFiles);
                 AddSubdirCandidates(homes, Paths::JoinPaths({pf, "Java"}), "");
@@ -267,7 +267,7 @@ namespace CoreDeck {
             return info;
         }
 
-        if (const char *javaHomeEnv = std::getenv("JAVA_HOME"); javaHomeEnv && *javaHomeEnv) { // NOLINT(concurrency-mt-unsafe)
+        if (const char *javaHomeEnv = std::getenv(ENV_JAVA_HOME); javaHomeEnv && *javaHomeEnv) { // NOLINT(concurrency-mt-unsafe)
             JdkInfo info = InspectJdk(javaHomeEnv);
             if (info.IsFound) {
                 info.Source = JdkSource::JavaHomeEnv;
@@ -290,7 +290,7 @@ namespace CoreDeck {
         if (const std::string overrideHome = Paths::Onboarding::LoadJdkPathOverride(); !overrideHome.empty()) {
             homes.insert(homes.begin(), overrideHome);
         }
-        if (const char *javaHomeEnv = std::getenv("JAVA_HOME"); javaHomeEnv != nullptr && javaHomeEnv[0] != '\0') { // NOLINT(concurrency-mt-unsafe)
+        if (const char *javaHomeEnv = std::getenv(ENV_JAVA_HOME); javaHomeEnv != nullptr && javaHomeEnv[0] != '\0') { // NOLINT(concurrency-mt-unsafe)
             homes.insert(homes.begin(), javaHomeEnv);
         }
 
@@ -345,14 +345,14 @@ namespace CoreDeck {
             return env;
         }
 
-        env.push_back({.Name = "JAVA_HOME", .Value = jdk.JavaHome});
+        env.push_back({.Name = ENV_JAVA_HOME, .Value = jdk.JavaHome});
 
         // The Windows sdkmanager/avdmanager/apkanalyzer scripts encode "17.0" as 170
         // and compare with `lss`. `java version "27"` has no minor component, so the
         // script stores 27 and exits before Java starts. CoreDeck already requires
         // JDK 17 or newer.
         if (jdk.MajorVersion >= JDK_MINIMUM_MAJOR) {
-            env.push_back({.Name = "SKIP_JDK_VERSION_CHECK", .Value = "1"});
+            env.push_back({.Name = ENV_SKIP_JDK_VERSION_CHECK, .Value = "1"});
         }
 
         std::string binDir;
@@ -364,11 +364,11 @@ namespace CoreDeck {
 
         if (!binDir.empty()) {
             std::string newPath = binDir;
-            if (const char *existing = std::getenv("PATH"); existing && *existing) { // NOLINT(concurrency-mt-unsafe)
+            if (const char *existing = std::getenv(ENV_PATH); existing && *existing) { // NOLINT(concurrency-mt-unsafe)
                 newPath.push_back(PATH_SEPARATOR);
                 newPath += existing;
             }
-            env.push_back({.Name = "PATH", .Value = newPath});
+            env.push_back({.Name = ENV_PATH, .Value = newPath});
         }
 
         return env;

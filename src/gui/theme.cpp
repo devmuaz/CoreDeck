@@ -26,6 +26,7 @@
 #endif
 
 #if !defined(_WIN32) && !defined(__APPLE__)
+#include "../core/constants.h"
 #include "../core/utilities.h"
 #endif
 
@@ -250,10 +251,10 @@ namespace CoreDeck {
         }
 
         std::string ConfigDirectory() {
-            if (const char *xdg = std::getenv("XDG_CONFIG_HOME"); xdg != nullptr && xdg[0] != '\0') {
+            if (const char *xdg = std::getenv(ENV_XDG_CONFIG_HOME); xdg != nullptr && xdg[0] != '\0') {
                 return xdg;
             }
-            if (const char *home = std::getenv("HOME"); home != nullptr && home[0] != '\0') {
+            if (const char *home = std::getenv(ENV_HOME); home != nullptr && home[0] != '\0') {
                 return std::string(home) + "/.config";
             }
             return {};
