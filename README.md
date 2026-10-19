@@ -1,7 +1,5 @@
 <div align="center">
   <img src="media/branding/header-logo.png" alt="CoreDeck" width="220" />
-  <br /><br />
-  <a href="https://www.producthunt.com/products/coredeck?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-coredeck" target="_blank" rel="noopener noreferrer"><img alt="CoreDeck - Manage Android emulators without opening Android Studio | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1138545&amp;theme=light&amp;t=1777884973182" /></a>
 </div>
 
 <br />
@@ -10,6 +8,7 @@
 [![Release](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?label=release)](https://github.com/devmuaz/CoreDeck/releases)
 [![Latest pre-release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?include_prereleases&label=pre-release)](https://github.com/devmuaz/CoreDeck/releases)
+[![AUR version](https://img.shields.io/aur/version/coredeck-bin)](https://aur.archlinux.org/packages/coredeck-bin)
 [![Downloads](https://img.shields.io/github/downloads/devmuaz/CoreDeck/total)](https://github.com/devmuaz/CoreDeck/releases)
 [![Stars](https://img.shields.io/github/stars/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/stargazers)
 [![Issues](https://img.shields.io/github/issues/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/issues)
@@ -119,9 +118,19 @@ On macOS and Linux, the easiest way to install is with Homebrew:
 ```bash
 # macOS (Apple Silicon and Intel)
 brew install --cask devmuaz/tap/coredeck
+```
 
+```bash
 # Linux (arm64 and x86-64)
 brew install devmuaz/tap/coredeck
+```
+
+On Arch Linux, install from the [AUR](https://aur.archlinux.org/packages/coredeck-bin):
+
+```bash
+paru -S coredeck-bin
+# or
+yay -S coredeck-bin
 ```
 
 You can also grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
