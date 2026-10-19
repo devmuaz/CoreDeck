@@ -58,13 +58,13 @@ namespace CoreDeck {
         }
 
         if (BeginCenteredModal(title.c_str(), &context.UI.ShowCreateAvdDialog, ImVec2(Em(70.0F), 0), WINDOW_AUTO_RESIZE_FLAGS)) {
-            const bool isLoading = context.AvdCreationWork.Prefetch.Loading.load();
+            const bool isLoading = !context.AvdCreationWork.Prefetch.Ready.load();
+            LoadingOverlay loading(isLoading);
+
             const bool isCreating = context.Jobs.AvdCreation.Busy.load();
             const auto &gpuModes = GpuModeOptions();
 
-            if (isLoading) {
-                ImGui::BeginDisabled();
-            } else if (isCreating) {
+            if (isCreating) {
                 ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
             }
 
@@ -270,9 +270,7 @@ namespace CoreDeck {
                 }
             }
 
-            if (isLoading) {
-                ImGui::EndDisabled();
-            } else if (isCreating) {
+            if (isCreating) {
                 ImGui::PopItemFlag();
             }
 
@@ -280,7 +278,7 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             const float halfWidth = EqualButtonWidth(2);
-            const bool canCreate = !context.AvdCreationWork.CreationData.Name.empty() && hasImage && !nameConflict && !isLoading;
+            const bool canCreate = !context.AvdCreationWork.CreationData.Name.empty() && hasImage && !nameConflict;
 
             if (isCreating) {
                 PositiveButton(Tr("Creating..."), true, ImVec2(halfWidth, 0), true);
@@ -329,6 +327,7 @@ namespace CoreDeck {
             BuildSkinWindow(context);
             BuildInstallImageWindow(context);
 
+            loading.End();
             ImGui::EndPopup();
         }
     }

@@ -131,6 +131,164 @@ namespace CoreDeck {
 
             context.ImageInstallationWork.RemoteImages = ListRemoteSystemImages(context.Host.Sdk, images);
         }
+
+        struct VisibleImageChoice {
+            bool Visible = false;
+            bool Installed = false;
+        };
+
+        VisibleImageChoice CurrentVisibleImage(const Context &context) {
+            const auto &work = context.ImageInstallationWork;
+            VisibleImageChoice choice;
+            if (work.SelectedImage < 0 || work.SelectedImage >= static_cast<int>(work.RemoteImages.size())) {
+                return choice;
+            }
+            const auto &image = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage));
+            if (!MatchesImageFilters(image, work.SearchFilter, work.SelectedCategory)) {
+                return choice;
+            }
+            choice.Visible = true;
+            choice.Installed = image.IsInstalled;
+            return choice;
+        }
+
+        int CountVisibleImages(const Context &context) {
+            const auto &work = context.ImageInstallationWork;
+            int count = 0;
+            for (const auto &image: work.RemoteImages) {
+                if (MatchesImageFilters(image, work.SearchFilter, work.SelectedCategory)) {
+                    ++count;
+                }
+            }
+            return count;
+        }
+
+        // The bar shows exactly one of these. Several inputs can be true at once;
+        // ResolveInstallImageStatus picks the one that wins.
+        enum class InstallImageStatus : uint8_t {
+            LicenseError,
+            Installing,
+            InstallSucceeded,
+            InstallFailed,
+            Removing,
+            CheckingLicenses,
+            Loading,
+            NoRemoteImages,
+            NoMatches,
+            Installed,
+            ReadyToInstall,
+            SelectImage,
+        };
+
+        struct InstallImageStatusView {
+            InstallImageStatus Status = InstallImageStatus::SelectImage;
+            std::string Detail;
+        };
+
+        InstallImageStatusView ResolveInstallImageStatus(const Context &context) {
+            const auto &work = context.ImageInstallationWork;
+            const bool isLoading = !work.Prefetch.Ready.load();
+            const bool isInstalling = work.Installing.load();
+            const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
+            const bool licenseBusy = work.LicenseBusy.load();
+            const VisibleImageChoice selection = CurrentVisibleImage(context);
+
+            if (!work.LicenseError.empty()) {
+                return {.Status = InstallImageStatus::LicenseError, .Detail = work.LicenseError};
+            }
+
+            if (work.Progress) {
+                bool finished = false;
+                bool succeeded = false;
+                std::string statusText;
+                {
+                    std::scoped_lock lock(work.Progress->Mutex);
+                    finished = work.Progress->Finished;
+                    succeeded = work.Progress->Succeeded;
+                    statusText = work.Progress->StatusText;
+                }
+                if (isInstalling) {
+                    return {.Status = InstallImageStatus::Installing, .Detail = std::move(statusText)};
+                }
+                if (finished && !statusText.empty()) {
+                    return {
+                        .Status = succeeded ? InstallImageStatus::InstallSucceeded : InstallImageStatus::InstallFailed,
+                        .Detail = std::move(statusText),
+                    };
+                }
+            }
+
+            if (removalBusy) {
+                return {.Status = InstallImageStatus::Removing};
+            }
+            if (licenseBusy) {
+                return {.Status = InstallImageStatus::CheckingLicenses};
+            }
+            if (isLoading) {
+                return {.Status = InstallImageStatus::Loading};
+            }
+            if (work.RemoteImages.empty()) {
+                return {.Status = InstallImageStatus::NoRemoteImages};
+            }
+            if (CountVisibleImages(context) == 0) {
+                return {.Status = InstallImageStatus::NoMatches};
+            }
+            if (selection.Visible && selection.Installed) {
+                return {.Status = InstallImageStatus::Installed};
+            }
+            if (selection.Visible) {
+                return {.Status = InstallImageStatus::ReadyToInstall};
+            }
+            return {.Status = InstallImageStatus::SelectImage};
+        }
+
+        void BuildInstallImageStatusBar(const Context &context) {
+            const InstallImageStatusView status = ResolveInstallImageStatus(context);
+            switch (status.Status) {
+                case InstallImageStatus::LicenseError:
+                    StatusBar(StatusBarTone::Error, status.Detail.c_str());
+                    return;
+                case InstallImageStatus::Installing:
+                    StatusBar(
+                        StatusBarTone::Busy,
+                        status.Detail.empty() ? Tr("Installing the system image.") : status.Detail.c_str()
+                    );
+                    return;
+                case InstallImageStatus::InstallSucceeded:
+                    StatusBar(StatusBarTone::Success, status.Detail.c_str());
+                    return;
+                case InstallImageStatus::InstallFailed:
+                    StatusBar(StatusBarTone::Error, status.Detail.c_str());
+                    return;
+                case InstallImageStatus::Removing:
+                    StatusBar(StatusBarTone::Busy, Tr("Removing the system image."));
+                    return;
+                case InstallImageStatus::CheckingLicenses:
+                    StatusBar(StatusBarTone::Busy, Tr("Checking licenses..."));
+                    return;
+                case InstallImageStatus::Loading:
+                    StatusBar(StatusBarTone::Busy, Tr("Loading..."));
+                    return;
+                case InstallImageStatus::NoRemoteImages:
+                    StatusBar(
+                        StatusBarTone::Error,
+                        Tr("No remote system images found. Check your SDK and internet connection.")
+                    );
+                    return;
+                case InstallImageStatus::NoMatches:
+                    StatusBar(StatusBarTone::Idle, Tr("No system images available."));
+                    return;
+                case InstallImageStatus::Installed:
+                    StatusBar(StatusBarTone::Idle, Tr("This system image is installed."));
+                    return;
+                case InstallImageStatus::ReadyToInstall:
+                    StatusBar(StatusBarTone::Idle, Tr("Ready to install this system image."));
+                    return;
+                case InstallImageStatus::SelectImage:
+                    StatusBar(StatusBarTone::Idle, Tr("Select a system image to install."));
+                    return;
+            }
+        }
     }
 
     LabeledIconStyle SystemImageTypeStyleForVariant(const std::string &variant) {
@@ -205,7 +363,6 @@ namespace CoreDeck {
             if (BeginCenteredModal(title.c_str(), pOpen, EmV(100.0F, 28.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
                 auto &work = context.ImageInstallationWork;
                 auto &removal = context.AvdCreationWork.SystemImageRemoval;
-                const bool isLoading = work.Prefetch.Loading.load();
                 const bool isInstalling = installing;
 
                 if (work.LicenseCheckFuture.valid() &&
@@ -287,6 +444,8 @@ namespace CoreDeck {
                     return;
                 }
 
+                const bool isLoading = !work.Prefetch.Ready.load();
+
                 if (!isInstalling && work.InstallFuture.valid()) {
                     if (work.InstallFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                         if (work.InstallFuture.get()) {
@@ -333,13 +492,8 @@ namespace CoreDeck {
 
                 ImGui::Spacing();
                 ImGui::Text("%s", Tr("Available System Images"));
-                if (isLoading) {
-                    ImGui::SameLine();
-                    ImGui::TextDisabled("%s", Tr("Fetching available images from SDK manager..."));
-                }
                 ImGui::Spacing();
 
-                int visibleCount = 0;
                 {
                     PickerTableStyle pts;
                     const bool tableOpen = BeginPickerTable("##RemoteImageTableFrame", "##RemoteImageTable", 6, Eh(14.0F));
@@ -353,14 +507,13 @@ namespace CoreDeck {
                         ImGui::TableSetupColumn(Tr("Status"), ImGuiTableColumnFlags_WidthStretch, 1.2F);
                         ImGui::TableHeadersRow();
 
-                        if (isLoading || !work.RemoteImages.empty()) {
+                        if (!work.RemoteImages.empty()) {
                             for (int i = 0; i < static_cast<int>(work.RemoteImages.size()); i++) {
                                 const auto &img = work.RemoteImages.at(static_cast<std::size_t>(i));
                                 if (!MatchesImageFilters(img, work.SearchFilter, work.SelectedCategory)) {
                                     continue;
                                 }
 
-                                visibleCount++;
                                 const bool isSelected = work.SelectedImage == i;
                                 const auto [_, slabel, color] = SystemImageTypeStyleFor(img);
 
@@ -404,17 +557,6 @@ namespace CoreDeck {
                     EndPickerTable(tableOpen);
                 }
 
-                if (!isLoading && work.RemoteImages.empty()) {
-                    ImGui::Spacing();
-                    StatusMessage(
-                        StatusMessageTone::Error,
-                        Tr("No remote system images found. Check your SDK and internet connection.")
-                    );
-                } else if (!isLoading && !work.RemoteImages.empty() && visibleCount == 0) {
-                    ImGui::Spacing();
-                    StatusMessage(StatusMessageTone::Info, Tr("No system images available."));
-                }
-
                 if (isInstalling || removalBusy) {
                     ImGui::EndDisabled();
                 }
@@ -425,51 +567,25 @@ namespace CoreDeck {
                     ImGui::Spacing();
 
                     float fraction = 0.0F;
-                    std::string statusText;
                     {
                         std::scoped_lock lock(work.Progress->Mutex);
                         fraction = work.Progress->Percent;
-                        statusText = work.Progress->StatusText;
                     }
 
                     const TaskProgress task{
-                        .Subtitle = statusText.c_str(),
                         .Fraction = fraction,
                         .CenterHorizontally = false,
                     };
                     TaskProgressPanel(task);
                 }
 
-                if (!isInstalling && work.Progress) {
-                    bool finished = false;
-                    bool succeeded = false;
-                    std::string statusText;
-                    {
-                        std::scoped_lock lock(work.Progress->Mutex);
-                        finished = work.Progress->Finished;
-                        succeeded = work.Progress->Succeeded;
-                        statusText = work.Progress->StatusText;
-                    }
-
-                    if (finished && !statusText.empty()) {
-                        ImGui::Spacing();
-                        StatusMessage(
-                            succeeded ? StatusMessageTone::Positive : StatusMessageTone::Error,
-                            statusText.c_str()
-                        );
-                    }
-                }
-
                 ImGui::Spacing();
                 ImGui::Separator();
                 ImGui::Spacing();
 
-                const bool hasVisibleSelection =
-                    work.SelectedImage >= 0 &&
-                    work.SelectedImage < static_cast<int>(work.RemoteImages.size()) &&
-                    MatchesImageFilters(work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)), work.SearchFilter, work.SelectedCategory);
-
-                const bool selectedInstalled = hasVisibleSelection && work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)).IsInstalled;
+                const VisibleImageChoice selection = CurrentVisibleImage(context);
+                const bool hasVisibleSelection = selection.Visible;
+                const bool selectedInstalled = selection.Installed;
                 const bool canUseSelected = !isLoading && !isInstalling && !removalBusy && selectedInstalled;
                 const bool canRemove = canUseSelected;
                 const bool canInstall = !isLoading && !isInstalling && !removalBusy && hasVisibleSelection && !selectedInstalled;
@@ -478,11 +594,6 @@ namespace CoreDeck {
                 const float thirdWidth = EqualButtonWidth(3);
 
                 const bool licenseBusy = work.LicenseBusy.load();
-
-                if (!work.LicenseError.empty()) {
-                    StatusMessage(StatusMessageTone::Error, work.LicenseError.c_str());
-                    ImGui::Spacing();
-                }
 
                 if (selectedInstalled || removalBusy) {
                     if (removalBusy) {
@@ -550,6 +661,9 @@ namespace CoreDeck {
                         context.UI.ShowInstallImageDialog = false;
                     }
                 }
+
+                ImGui::Spacing();
+                BuildInstallImageStatusBar(context);
 
                 ImGui::EndPopup();
             }

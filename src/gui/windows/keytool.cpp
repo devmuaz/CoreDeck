@@ -857,15 +857,15 @@ namespace CoreDeck {
             auto &work = context.KeytoolWork;
             const bool reading = work.Busy.load() && work.Task == KeytoolTask::Inspect;
             if (reading) {
-                EmptyReport(Tr("Reading Keystore..."), Tr("Keytool is listing the entries."));
+                CenteredMessage(Tr("Reading Keystore..."), Tr("Keytool is listing the entries."));
                 return;
             }
             if (!work.HasInspect) {
-                EmptyReport(Tr("No Keystore Inspected"), Tr("Choose a keystore and read its entries."));
+                CenteredMessage(Tr("No Keystore Inspected"), Tr("Choose a keystore and read its entries."));
                 return;
             }
             if (work.InspectResult.Status != KeytoolStatus::Ok) {
-                EmptyReport(Tr("Something Went Wrong!"), DescribeFailure(work.InspectResult), Colors::NEGATIVE);
+                CenteredMessage(Tr("Something Went Wrong!"), DescribeFailure(work.InspectResult), Colors::NEGATIVE);
                 return;
             }
             DrawDescription(context, work.InspectPath, work.InspectResult, work.InspectEntry);
@@ -898,7 +898,7 @@ namespace CoreDeck {
         void DrawCreateReport(Context &context) {
             auto &work = context.KeytoolWork;
             if (work.Busy.load() && work.Task == KeytoolTask::Create) {
-                EmptyReport(Tr("Creating keystore..."), Tr("Keytool is generating the key pair."));
+                CenteredMessage(Tr("Creating keystore..."), Tr("Keytool is generating the key pair."));
                 return;
             }
             if (!work.HasCreate) {
@@ -906,11 +906,11 @@ namespace CoreDeck {
                 return;
             }
             if (work.CreateResult.Status != KeytoolStatus::Ok) {
-                EmptyReport(Tr("Something Went Wrong!"), CreateFailure(work.CreateResult), Colors::NEGATIVE);
+                CenteredMessage(Tr("Something Went Wrong!"), CreateFailure(work.CreateResult), Colors::NEGATIVE);
                 return;
             }
             if (work.CreateResult.Description.Status != KeytoolStatus::Ok) {
-                EmptyReport(
+                CenteredMessage(
                     Tr("Something Went Wrong!"),
                     Tr("The keystore was created, but its entries could not be read."),
                     Colors::NEGATIVE

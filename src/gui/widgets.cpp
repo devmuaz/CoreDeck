@@ -6,6 +6,7 @@
 #include <cstring>
 #include <filesystem>
 #include <numbers>
+#include <utility>
 #include <vector>
 
 #include "imgui.h"
@@ -547,7 +548,7 @@ namespace CoreDeck {
         return PrimaryButton(buttonLabel, true, ImVec2(buttonW, 0.0F));
     }
 
-    void EmptyReport(const char *title, const char *subtitle, const char *titleColor) {
+    void CenteredMessage(const char *title, const char *subtitle, const char *titleColor) {
         if (title == nullptr || title[0] == '\0') {
             return;
         }
@@ -579,6 +580,86 @@ namespace CoreDeck {
             ImGui::TextWrapped("%s", subtitle);
         }
         ImGui::PopTextWrapPos();
+    }
+
+    LoadingOverlay::LoadingOverlay(const bool active, const char *label) {
+        if (!active) {
+            return;
+        }
+        ImGuiWindow *window = ImGui::GetCurrentWindow();
+        m_Active = true;
+        m_WindowId = window->ID;
+        m_Label = label != nullptr && label[0] != '\0' ? label : Tr("Loading...");
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        if (GImGui->ActiveId != 0 && GImGui->ActiveIdWindow == window) {
+            ImGui::ClearActiveID();
+        }
+    }
+
+    LoadingOverlay::~LoadingOverlay() {
+        End();
+    }
+
+    void LoadingOverlay::End() {
+        if (!m_Active) {
+            return;
+        }
+        m_Active = false;
+        ImGui::PopItemFlag();
+        ImGui::PopItemFlag();
+
+        ImGuiWindow *window = ImGui::FindWindowByID(m_WindowId);
+        if (window == nullptr || window->Size.x <= 1.0F || window->Size.y <= 1.0F) {
+            return;
+        }
+        if (m_Label == nullptr || m_Label[0] == '\0') {
+            return;
+        }
+
+        const float dpi = GetDpiScale();
+        const float spinner = 32.0F * dpi;
+        const float padX = 22.0F * dpi;
+        const float padY = 18.0F * dpi;
+        const float gap = 10.0F * dpi;
+        const float rounding = ImGui::GetStyle().FrameRounding;
+        const float maxTextW = std::max(spinner, window->Size.x - (padX * 2.0F) - (32.0F * dpi));
+        const ImVec2 textSize = ImGui::CalcTextSize(m_Label, nullptr, false, maxTextW);
+        const float innerW = std::max(spinner, textSize.x);
+        const float cardW = innerW + (padX * 2.0F);
+        const float cardH = padY + spinner + gap + textSize.y + padY;
+
+        const ImVec2 windowMin = window->Pos;
+        const ImVec2 windowMax(window->Pos.x + window->Size.x, window->Pos.y + window->Size.y);
+        const ImVec2 cardMin(
+            windowMin.x + ((window->Size.x - cardW) * 0.5F),
+            windowMin.y + ((window->Size.y - cardH) * 0.5F)
+        );
+        const ImVec2 cardMax(cardMin.x + cardW, cardMin.y + cardH);
+
+        ImDrawList *draw = window->DrawList;
+        draw->PushClipRect(windowMin, windowMax, false);
+        draw->AddRectFilled(windowMin, windowMax, ImGui::GetColorU32(HexColor(Colors::SHADOW, 0.45F)), window->WindowRounding);
+        draw->AddRectFilled(cardMin, cardMax, ImGui::GetColorU32(HexColor(Colors::SURFACE1)), rounding);
+        draw->AddRect(cardMin, cardMax, ImGui::GetColorU32(HexColor(Colors::BORDER)), rounding, 0, std::max(1.0F, dpi));
+
+        const float thickness = std::max(2.5F * dpi, spinner * 0.10F);
+        const float radius = std::max(1.0F, (spinner - thickness) * 0.5F);
+        const ImVec2 spinnerCenter(cardMin.x + (cardW * 0.5F), cardMin.y + padY + (spinner * 0.5F));
+        PaintSpinner(draw, spinnerCenter, radius, thickness, ImGui::GetColorU32(HexColor(Colors::TEXT_PRIMARY)));
+
+        const float textTop = cardMin.y + padY + spinner + gap;
+        DrawCenteredWrapped(
+            draw,
+            ImGui::GetFont(),
+            ImGui::GetFontSize(),
+            ImGui::GetColorU32(HexColor(Colors::TEXT_PRIMARY)),
+            m_Label,
+            cardMin.x + padX,
+            innerW,
+            textTop
+        );
+        draw->PopClipRect();
     }
 
     namespace {
@@ -812,7 +893,7 @@ namespace CoreDeck {
         }
         ImGui::Spacing();
         std::string section;
-        for (int index = 0; index < static_cast<int>(copies.size()); ++index) {
+        for (int index = 0; std::cmp_less(index, copies.size()); ++index) {
             const CopyableValue &copy = copies[static_cast<std::size_t>(index)];
             if (!copy.Section.empty() && copy.Section != section) {
                 ImGui::Spacing();

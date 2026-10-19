@@ -155,8 +155,24 @@ namespace CoreDeck {
 
     void StatusBar(StatusBarTone tone, const char *message);
 
-    // Spinning arc. A diameter of 0 uses the current text line height.
     void Spinner(const ImVec4 &color, float diameter = 0.0F);
+
+    class LoadingOverlay {
+    public:
+        explicit LoadingOverlay(bool active, const char *label = nullptr);
+        LoadingOverlay(const LoadingOverlay &) = delete;
+        LoadingOverlay(LoadingOverlay &&) = delete;
+        LoadingOverlay &operator=(const LoadingOverlay &) = delete;
+        LoadingOverlay &operator=(LoadingOverlay &&) = delete;
+        ~LoadingOverlay();
+
+        void End();
+
+    private:
+        bool m_Active = false;
+        ImGuiID m_WindowId = 0;
+        const char *m_Label = nullptr;
+    };
 
     enum class NoticeCardTone : uint8_t {
         Default,
@@ -182,7 +198,7 @@ namespace CoreDeck {
         ImGui::EndChild();
     }
 
-    void EmptyReport(const char *title, const char *subtitle = nullptr, const char *titleColor = nullptr);
+    void CenteredMessage(const char *title, const char *subtitle = nullptr, const char *titleColor = nullptr);
 
     enum class SplitDetailKind : uint8_t {
         Text,

@@ -921,15 +921,15 @@ namespace CoreDeck {
 
         void DrawInputDetail(const ApkSignerWork &work) {
             if (work.ApkPath.empty()) {
-                EmptyReport(Tr("No APK Selected"), Tr("Choose an APK to see its signature."));
+                CenteredMessage(Tr("No APK Selected"), Tr("Choose an APK to see its signature."));
                 return;
             }
             if (work.Busy.load() && work.Task == ApkSignerTask::Verify) {
-                EmptyReport(Tr("Checking the signature..."), nullptr);
+                CenteredMessage(Tr("Checking the signature..."), nullptr);
                 return;
             }
             if (!work.HasVerify || !work.Verify.Started || work.Verify.ToolMissing) {
-                EmptyReport(Tr("Something Went Wrong!"), Tr("The signature could not be checked."), Colors::NEGATIVE);
+                CenteredMessage(Tr("Something Went Wrong!"), Tr("The signature could not be checked."), Colors::NEGATIVE);
                 return;
             }
             DrawSignatureReport(Tr("APK"), work.ApkPath, work.Verify);
@@ -938,15 +938,15 @@ namespace CoreDeck {
         void DrawOutputDetail(const ApkSignerWork &work) {
             const bool signing = work.Busy.load() && work.Task == ApkSignerTask::Sign;
             if (signing) {
-                EmptyReport(Tr("Signing..."), nullptr);
+                CenteredMessage(Tr("Signing..."), nullptr);
                 return;
             }
             if (!work.HasSignResult && work.OutputPath.empty()) {
-                EmptyReport(Tr("No Signed APK"), Tr("Sign an APK to see the result here."));
+                CenteredMessage(Tr("No Signed APK"), Tr("Sign an APK to see the result here."));
                 return;
             }
             if (work.HasSignResult && work.SignResult.Status != ApkSignStatus::Signed) {
-                EmptyReport(Tr("Something Went Wrong!"), SignFailure(work.SignResult), Colors::NEGATIVE);
+                CenteredMessage(Tr("Something Went Wrong!"), SignFailure(work.SignResult), Colors::NEGATIVE);
                 return;
             }
             if (!work.HasSignResult) {
