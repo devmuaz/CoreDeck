@@ -88,8 +88,6 @@ namespace CoreDeck {
         const std::string &keystoreType = {}
     );
 
-    bool ApkOutputPathEqualsInput(const std::string &inputPath, const std::string &outputPath);
-
     ApkSignResult SignApk(ApkSignRequest request);
 }
 

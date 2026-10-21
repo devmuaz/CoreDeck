@@ -68,15 +68,6 @@ namespace CoreDeck {
             return Tr("Building file tree structure...");
         }
 
-        constexpr ImGuiWindowFlags APK_ANALYZER_WINDOW_FLAGS =
-            ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoScrollbar |
-            ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_NoNavFocus;
-
         struct FileNode {
             std::string Name;
             std::string FullPath;
@@ -1200,7 +1191,7 @@ namespace CoreDeck {
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0F);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0F);
-        ImGui::Begin("##ApkAnalyzer", nullptr, APK_ANALYZER_WINDOW_FLAGS);
+        ImGui::Begin("##ApkAnalyzer", nullptr, WORKSPACE_WINDOW_FLAGS);
         ImGui::PopStyleVar(2);
 
         auto &work = context.ApkAnalyzerWork;

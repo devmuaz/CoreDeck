@@ -11,6 +11,7 @@
 #include "apk_analyzer.h"
 #include "apk_signer.h"
 #include "health_check.h"
+#include "jar_signer.h"
 #include "keytool.h"
 #include "../widgets.h"
 #include "../theme.h"
@@ -20,7 +21,8 @@
 namespace CoreDeck {
     namespace {
         bool ToolWorkspaceOpen(const WorkspacePage page) {
-            return page == WorkspacePage::ApkAnalyzer || page == WorkspacePage::ApkSigner || page == WorkspacePage::Keytool;
+            return page == WorkspacePage::ApkAnalyzer || page == WorkspacePage::ApkSigner || page == WorkspacePage::Keytool ||
+                   page == WorkspacePage::JarSigner;
         }
 
         void CloseToolWorkspace(Context &context) {
@@ -33,6 +35,9 @@ namespace CoreDeck {
                     break;
                 case WorkspacePage::Keytool:
                     CloseKeytool(context);
+                    break;
+                case WorkspacePage::JarSigner:
+                    CloseJarSigner(context);
                     break;
                 default:
                     break;
@@ -125,6 +130,9 @@ namespace CoreDeck {
                 ImGui::Separator();
                 if (RoundedMenuItem(IconWithLabel(Icons::KEY, Tr("Java Keytool")).c_str())) {
                     context.UI.Workspace = WorkspacePage::Keytool;
+                }
+                if (RoundedMenuItem(IconWithLabel(Icons::SIGNATURE, Tr("Java Jar Signer")).c_str())) {
+                    context.UI.Workspace = WorkspacePage::JarSigner;
                 }
                 ImGui::Separator();
                 if (RoundedMenuItem(IconWithLabel(Icons::HARD_DRIVE, Tr("Storage Overview")).c_str())) {

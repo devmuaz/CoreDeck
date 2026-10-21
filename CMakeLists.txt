@@ -187,6 +187,7 @@ add_library(coredeck_core STATIC
     src/core/http_download.cpp
     src/core/i18n.cpp
     src/core/jdk.cpp
+    src/core/jar_signer.cpp
     src/core/keytool.cpp
     src/core/log_buffer.cpp
     src/core/log_filter.cpp
@@ -242,6 +243,7 @@ add_executable(${PROJECT_NAME}
     src/gui/windows/about.cpp
     src/gui/windows/apk_analyzer.cpp
     src/gui/windows/apk_signer.cpp
+    src/gui/windows/jar_signer.cpp
     src/gui/windows/keytool.cpp
     src/gui/windows/avd_info.cpp
     src/gui/windows/avd_list.cpp
@@ -266,7 +268,13 @@ add_executable(${PROJECT_NAME}
     src/gui/application.cpp
     src/gui/theme.cpp
     src/gui/utilities.cpp
-    src/gui/widgets.cpp
+    src/gui/widgets/style.cpp
+    src/gui/widgets/buttons.cpp
+    src/gui/widgets/feedback.cpp
+    src/gui/widgets/form.cpp
+    src/gui/widgets/report.cpp
+    src/gui/widgets/chrome.cpp
+    src/gui/widgets/banner.cpp
 )
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.h)

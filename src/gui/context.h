@@ -22,6 +22,7 @@
 #include "../core/options.h"
 #include "../core/apk_analyzer.h"
 #include "../core/apk_signer.h"
+#include "../core/jar_signer.h"
 #include "../core/keytool.h"
 #include "../core/sdk.h"
 #include "../core/sdk_bootstrap.h"
@@ -42,6 +43,7 @@ namespace CoreDeck {
         ApkAnalyzer,
         ApkSigner,
         Keytool,
+        JarSigner,
     };
 
     enum class AvdSortMode : uint8_t {
@@ -78,6 +80,13 @@ namespace CoreDeck {
     };
 
     enum class ApkSignerTask : uint8_t {
+        None,
+        Verify,
+        Aliases,
+        Sign,
+    };
+
+    enum class JarSignerTask : uint8_t {
         None,
         Verify,
         Aliases,
@@ -299,7 +308,7 @@ namespace CoreDeck {
             std::vector<std::string> PendingDrops;
         } ApkAnalyzerWork;
 
-        struct ApkSignerState {
+        struct ApkSignerWork {
             std::atomic<bool> Busy{false};
             ApkSignerTask Task = ApkSignerTask::None;
 
@@ -336,7 +345,43 @@ namespace CoreDeck {
             std::string KeystoreType;
         } ApkSignerWork;
 
-        struct KeytoolState {
+        struct JarSignerWork {
+            std::atomic<bool> Busy{false};
+            JarSignerTask Task = JarSignerTask::None;
+
+            std::future<JarVerifyResult> VerifyFuture;
+            std::future<KeytoolAliasListResult> AliasFuture;
+            std::future<JarSignResult> SignFuture;
+            bool AliasRefreshPending = false;
+            bool AliasListScheduled = false;
+            std::chrono::steady_clock::time_point AliasListDue;
+
+            std::string ArchivePath;
+            std::string KeystorePath;
+            std::string OutputPath;
+            bool OutputCustomized = false;
+
+            char StorePassword[512] = {};
+            char KeyPassword[512] = {};
+            bool ShowStorePassword = false;
+            bool ShowKeyPassword = false;
+            std::uint32_t SecretEpoch = 0;
+            bool KeyPasswordMatches = true;
+
+            bool HasVerify = false;
+            JarVerifyResult Verify;
+
+            bool HasAliasResult = false;
+            KeytoolAliasListResult AliasResult;
+            std::vector<std::string> Aliases;
+            std::string SelectedAlias;
+
+            bool HasSignResult = false;
+            JarSignResult SignResult;
+            std::string KeystoreType;
+        } JarSignerWork;
+
+        struct KeytoolWork {
             std::atomic<bool> Busy{false};
             KeytoolTask Task = KeytoolTask::None;
             KeytoolPage Page = KeytoolPage::Inspect;
@@ -393,9 +438,6 @@ namespace CoreDeck {
         explicit Context(SdkInfo sdk) : Host(std::move(sdk)) {
         }
     };
-
-    using ApkSignerWork = Context::ApkSignerState;
-    using KeytoolWork = Context::KeytoolState;
 
     inline void SetNativeWindowPage(Context &context, const char *page) {
         context.UI.NativeWindowPage = page != nullptr ? page : "";

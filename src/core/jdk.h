@@ -42,6 +42,8 @@ namespace CoreDeck {
 
     EnvVars JavaToolEnvironment(const JdkInfo &jdk);
 
+    std::string JdkExecutablePath(const JdkInfo &jdk, const std::string &tool);
+
     void ApplyJdkToSdk(SdkInfo &sdk, const JdkInfo &jdk);
 }
 

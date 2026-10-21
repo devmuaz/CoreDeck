@@ -1,3 +1,8 @@
+## [Unreleased]
+
+- Add Java Jar Signer (Tools, Java Jar Signer) so a JAR archive, including an Android App Bundle, can be verified and signed with the JDK's `jarsigner`. Signing writes a new file and leaves the original unchanged
+- A private-key entry in Java Keytool can be opened in Java Jar Signer as well as APK Signer
+
 ## [v0.14.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0) — 2026-10-16
 
 - Add Java Keytool (Tools, Java Keytool) so a keystore can be created and inspected with the JDK's `keytool`, without Android Studio

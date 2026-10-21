@@ -73,22 +73,19 @@ namespace CoreDeck {
                             }
 
                             case OptionType::Selection: {
-                                ImGui::SetNextItemWidth(-1.0F);
-                                const char *selectedLabel = EmulatorOptionItemDisplayLabel(flag, items.at(selectedItem));
-                                ComboStyle cs;
-                                if (ImGui::BeginCombo("##selection", selectedLabel)) {
-                                    for (int i = 0; i < items.size(); ++i) {
-                                        const bool isSelected = selectedItem == i;
-                                        const char *itemLabel = EmulatorOptionItemDisplayLabel(flag, items.at(i));
-                                        if (RoundedSelectable(itemLabel, isSelected)) {
-                                            selectedItem = i;
-                                            optionsChanged = true;
-                                        }
-                                        if (isSelected) {
-                                            ImGui::SetItemDefaultFocus();
-                                        }
-                                    }
-                                    ImGui::EndCombo();
+                                std::vector<const char *> labels;
+                                labels.reserve(items.size());
+                                for (const std::string &item: items) {
+                                    labels.push_back(EmulatorOptionItemDisplayLabel(flag, item));
+                                }
+                                if (RoundedCombo(
+                                        "##selection",
+                                        labels.at(static_cast<std::size_t>(selectedItem)),
+                                        labels.data(),
+                                        static_cast<int>(labels.size()),
+                                        selectedItem
+                                    )) {
+                                    optionsChanged = true;
                                 }
                                 break;
                             }

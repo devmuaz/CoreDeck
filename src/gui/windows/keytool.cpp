@@ -26,15 +26,6 @@ namespace CoreDeck {
     namespace {
         constexpr const char *UNAVAILABLE = "\u2014";
 
-        constexpr ImGuiWindowFlags KEYTOOL_WINDOW_FLAGS =
-            ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoScrollbar |
-            ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_NoNavFocus;
-
         constexpr const char *STORE_TYPE_LABELS[] = {"PKCS12", "JKS", "JCEKS"};
         constexpr const char *ALGORITHM_LABELS[] = {"RSA", "EC", "DSA", "Ed25519", "Ed448"};
         constexpr const char *KEYSTORE_SUFFIXES[] = {".jks", ".keystore", ".p12", ".pfx", ".jceks"};
@@ -163,7 +154,7 @@ namespace CoreDeck {
             return true;
         }
 
-        void RetireJobs(KeytoolWork &work) {
+        void RetireJobs(struct Context::KeytoolWork &work) {
             auto &grave = Graveyard();
             Retire(work.InspectFuture, grave.Inspect);
             Retire(work.CreateFuture, grave.Create);
@@ -231,7 +222,7 @@ namespace CoreDeck {
             return ExtensionIndexOf(path) >= 0;
         }
 
-        const char *CreateExtensionOf(const KeytoolWork &work) {
+        const char *CreateExtensionOf(const struct Context::KeytoolWork &work) {
             const int last = IM_ARRAYSIZE(KEYSTORE_SUFFIXES) - 1;
             return KEYSTORE_SUFFIXES[std::clamp(work.CreateExtension, 0, last)];
         }
@@ -248,7 +239,7 @@ namespace CoreDeck {
             return path;
         }
 
-        void AssignCreatePath(KeytoolWork &work, std::string path) {
+        void AssignCreatePath(struct Context::KeytoolWork &work, std::string path) {
             const int existing = ExtensionIndexOf(path);
             if (existing >= 0) {
                 work.CreateExtension = existing;
@@ -258,9 +249,9 @@ namespace CoreDeck {
             work.CreatePath = path + CreateExtensionOf(work);
         }
 
-        void ClearCreate(KeytoolWork &work);
+        void ClearCreate(struct Context::KeytoolWork &work);
 
-        std::string SuggestedKeystore(const KeytoolWork &work) {
+        std::string SuggestedKeystore(const struct Context::KeytoolWork &work) {
             if (!work.CreatePath.empty()) {
                 return work.CreatePath;
             }
@@ -272,7 +263,7 @@ namespace CoreDeck {
             return std::string("keystore") + CreateExtensionOf(work);
         }
 
-        void ApplyCreateTemplate(KeytoolWork &work, const int index) {
+        void ApplyCreateTemplate(struct Context::KeytoolWork &work, const int index) {
             const int selected = std::clamp(index, 0, IM_ARRAYSIZE(CREATE_TEMPLATES) - 1);
             work.CreateTemplate = selected;
             ClearCreate(work);
@@ -301,19 +292,19 @@ namespace CoreDeck {
             }
         }
 
-        void ClearInspect(KeytoolWork &work) {
+        void ClearInspect(struct Context::KeytoolWork &work) {
             work.HasInspect = false;
             work.InspectResult = {};
             work.InspectEntry = 0;
         }
 
-        void ClearCreate(KeytoolWork &work) {
+        void ClearCreate(struct Context::KeytoolWork &work) {
             work.HasCreate = false;
             work.CreateResult = {};
             work.CreateEntry = 0;
         }
 
-        void WipePasswords(KeytoolWork &work) {
+        void WipePasswords(struct Context::KeytoolWork &work) {
             WipeSecret(work.InspectPassword, sizeof work.InspectPassword);
             WipeSecret(work.CreatePassword, sizeof work.CreatePassword);
             WipeSecret(work.ConfirmPassword, sizeof work.ConfirmPassword);
@@ -325,7 +316,7 @@ namespace CoreDeck {
             work.SecretEpoch += 1;
         }
 
-        void ResetForm(KeytoolWork &work) {
+        void ResetForm(struct Context::KeytoolWork &work) {
             WipePasswords(work);
             work.Page = KeytoolPage::Inspect;
             work.InspectPath.clear();
@@ -417,7 +408,7 @@ namespace CoreDeck {
             return -1;
         }
 
-        void SnapKeySize(KeytoolWork &work) {
+        void SnapKeySize(struct Context::KeytoolWork &work) {
             if (!KeyAlgorithmUsesSize(work.Algorithm)) {
                 work.KeySize = 0;
                 return;
@@ -427,12 +418,12 @@ namespace CoreDeck {
             }
         }
 
-        int SizeIndex(const KeytoolWork &work) {
+        int SizeIndex(const struct Context::KeytoolWork &work) {
             const int index = FindSizeIndex(work.Algorithm, work.KeySize);
             return index < 0 ? 0 : index;
         }
 
-        CreateKeystoreRequest IdentityRequest(const KeytoolWork &work) {
+        CreateKeystoreRequest IdentityRequest(const struct Context::KeytoolWork &work) {
             CreateKeystoreRequest request;
             request.KeystorePath = work.CreatePath;
             request.StoreType = work.StoreType;
@@ -449,7 +440,7 @@ namespace CoreDeck {
             return request;
         }
 
-        CreateKeystoreRequest CreateRequest(const KeytoolWork &work) {
+        CreateKeystoreRequest CreateRequest(const struct Context::KeytoolWork &work) {
             CreateKeystoreRequest request = IdentityRequest(work);
             request.StorePassword = work.CreatePassword;
             if (work.StoreType != KeystoreType::Pkcs12 && !work.KeyPasswordMatches) {
@@ -458,7 +449,7 @@ namespace CoreDeck {
             return request;
         }
 
-        CreateCheck CheckCreate(const KeytoolWork &work) {
+        CreateCheck CheckCreate(const struct Context::KeytoolWork &work) {
             CreateKeystoreRequest request = CreateRequest(work);
             CreateCheck check;
             check.Refusal = ValidateCreateKeystore(request);
@@ -470,7 +461,7 @@ namespace CoreDeck {
             return check;
         }
 
-        bool CreateDirty(const KeytoolWork &work) {
+        bool CreateDirty(const struct Context::KeytoolWork &work) {
             return !work.CreatePath.empty() || work.Alias[0] != '\0' || work.CommonName[0] != '\0' || work.CreatePassword[0] != '\0' || work.Country[0] != '\0';
         }
 
@@ -612,13 +603,15 @@ namespace CoreDeck {
             work.Busy = true;
         }
 
-        void UseInApkSigner(
+        template<typename Signer>
+        void UseInSigner(
             Context &context,
+            Signer &signer,
+            const WorkspacePage page,
             const std::string &path,
             const KeystoreDescription &description,
             const std::string &alias
         ) {
-            auto &signer = context.ApkSignerWork;
             auto &work = context.KeytoolWork;
             if (signer.Busy.load() || work.Busy.load() || path.empty() || alias.empty()) {
                 return;
@@ -657,40 +650,7 @@ namespace CoreDeck {
             }
             signer.ShowStorePassword = false;
             signer.SecretEpoch += 1;
-            context.UI.Workspace = WorkspacePage::ApkSigner;
-        }
-
-        bool DrawCombo(
-            const char *id,
-            const char *preview,
-            const char *const *labels,
-            const int count,
-            int &selected,
-            const float width = -1.0F,
-            const char *tooltip = nullptr
-        ) {
-            ImGui::SetNextItemWidth(width);
-            bool changed = false;
-            {
-                ComboStyle cs;
-                if (ImGui::BeginCombo(id, preview)) {
-                    for (int index = 0; index < count; ++index) {
-                        ImGui::PushID(index);
-                        const bool isSelected = index == selected;
-                        if (RoundedSelectable(labels[index], isSelected)) {
-                            selected = index;
-                            changed = true;
-                        }
-                        if (isSelected) {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                        ImGui::PopID();
-                    }
-                    ImGui::EndCombo();
-                }
-            }
-            HoverTooltip(tooltip);
-            return changed;
+            context.UI.Workspace = page;
         }
 
         const char *EntryTypeLabel(const std::string &type) {
@@ -780,26 +740,12 @@ namespace CoreDeck {
             const std::string &alias = description.Entries.at(static_cast<std::size_t>(selected)).Alias;
             const char *preview = alias.empty() ? Tr("Select an alias") : alias.c_str();
             FieldLabel(Tr("Alias"));
-            DrawCombo("##EntryAlias", preview, labels.data(), static_cast<int>(labels.size()), selected, -1.0F, Tr("Alias"));
+            RoundedCombo("##EntryAlias", preview, labels.data(), static_cast<int>(labels.size()), selected, -1.0F, Tr("Alias"));
             ImGui::Spacing();
         }
 
-        float UseInSignerButtonWidth() {
-            return ImGui::CalcTextSize(Tr("Use in APK Signer")).x + (ImGui::GetStyle().FramePadding.x * 2.0F);
-        }
-
-        void DrawUseInSignerButton(
-            Context &context,
-            const std::string &path,
-            const KeystoreDescription &description,
-            const std::string &alias,
-            const float width
-        ) {
-            const bool canHandOff = !context.ApkSignerWork.Busy.load() && !context.KeytoolWork.Busy.load();
-            const std::string label = StrConcat(Tr("Use in APK Signer"), "##UseInSigner");
-            if (PrimaryButton(label.c_str(), canHandOff, ImVec2(width, 0.0F))) {
-                UseInApkSigner(context, path, description, alias);
-            }
+        float SignerButtonWidth(const char *label) {
+            return ImGui::CalcTextSize(label).x + (ImGui::GetStyle().FramePadding.x * 2.0F);
         }
 
         void DrawKeystoreHeading(Context &context, const std::string &path, const KeystoreDescription &description, const KeystoreEntry *entry) {
@@ -811,13 +757,26 @@ namespace CoreDeck {
                 return;
             }
 
-            const float buttonW = UseInSignerButtonWidth();
+            const char *apkLabel = Tr("Use in APK Signer");
+            const char *jarLabel = Tr("Use in Jar Signer");
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float apkW = SignerButtonWidth(apkLabel);
+            const float jarW = SignerButtonWidth(jarLabel);
+            const float total = apkW + spacing + jarW;
             ImGui::SameLine();
             const float remaining = ImGui::GetContentRegionAvail().x;
-            if (remaining > buttonW) {
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + remaining - buttonW);
+            if (remaining > total) {
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + remaining - total);
             }
-            DrawUseInSignerButton(context, path, description, entry->Alias, buttonW);
+            const bool keytoolBusy = context.KeytoolWork.Busy.load();
+            const std::string &alias = entry->Alias;
+            if (PrimaryButton(StrConcat(apkLabel, "##UseInApkSigner").c_str(), !context.ApkSignerWork.Busy.load() && !keytoolBusy, ImVec2(apkW, 0.0F))) {
+                UseInSigner(context, context.ApkSignerWork, WorkspacePage::ApkSigner, path, description, alias);
+            }
+            ImGui::SameLine(0.0F, spacing);
+            if (PrimaryButton(StrConcat(jarLabel, "##UseInJarSigner").c_str(), !context.JarSignerWork.Busy.load() && !keytoolBusy, ImVec2(jarW, 0.0F))) {
+                UseInSigner(context, context.JarSignerWork, WorkspacePage::JarSigner, path, description, alias);
+            }
         }
 
         void DrawDescription(Context &context, const std::string &path, const KeystoreDescription &description, int &selected) {
@@ -871,7 +830,7 @@ namespace CoreDeck {
             DrawDescription(context, work.InspectPath, work.InspectResult, work.InspectEntry);
         }
 
-        std::string AlgorithmSummary(const KeytoolWork &work) {
+        std::string AlgorithmSummary(const struct Context::KeytoolWork &work) {
             std::string algorithm = KeyAlgorithmName(work.Algorithm);
             if (KeyAlgorithmUsesSize(work.Algorithm) && work.KeySize > 0) {
                 algorithm += ' ';
@@ -881,7 +840,7 @@ namespace CoreDeck {
             return algorithm;
         }
 
-        void DrawCreatePreview(const KeytoolWork &work) {
+        void DrawCreatePreview(const struct Context::KeytoolWork &work) {
             ImGui::AlignTextToFramePadding();
             ImGui::TextDisabled("%s", Tr("New Keystore"));
             ImGui::Spacing();
@@ -940,15 +899,6 @@ namespace CoreDeck {
             return patterns;
         }
 
-        bool BusyActionButton(const char *id, const char *idleLabel, const char *busyLabel, const bool busy, const bool enabled, const float width) {
-            const std::string label = StrConcat(busy ? busyLabel : idleLabel, id);
-            if (busy) {
-                PrimaryButton(label.c_str(), true, ImVec2(width, 0.0F), true);
-                return false;
-            }
-            return PrimaryButton(label.c_str(), enabled, ImVec2(width, 0.0F));
-        }
-
         void DrawInspectBar(Context &context) {
             auto &work = context.KeytoolWork;
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
@@ -968,7 +918,7 @@ namespace CoreDeck {
 
             {
                 FormDisabled disabled(work.Busy.load());
-                if (DrawBrowseRow("##InspectPath", work.InspectPath, Tr("Choose a keystore file..."), "InspectPath", Tr("Browse..."), pathW, Tr("Keystore"))) {
+                if (BrowseRow("##InspectPath", work.InspectPath, Tr("Choose a keystore file..."), "InspectPath", Tr("Browse..."), pathW, Tr("Keystore"))) {
                     const std::string start = DirectoryOf(work.InspectPath);
                     if (const auto picked = FileDialog::PickFile(Tr("Open Keystore"), Tr("Keystores"), KeystorePatterns(), start)) {
                         work.InspectPath = *picked;
@@ -977,7 +927,7 @@ namespace CoreDeck {
                 }
                 ImGui::SameLine(0.0F, spacing);
                 ImGui::PushID(static_cast<int>(work.SecretEpoch));
-                const SecretEdit password = DrawSecretField(
+                const SecretEdit password = SecretField(
                     "##InspectPassword",
                     work.InspectPassword,
                     sizeof work.InspectPassword,
@@ -996,7 +946,7 @@ namespace CoreDeck {
             ImGui::SameLine(0.0F, spacing);
             const bool reading = work.Busy.load() && work.Task == KeytoolTask::Inspect;
             const bool enabled = !work.InspectPath.empty() && work.InspectPassword[0] != '\0';
-            if (BusyActionButton("##InspectKeystore", idleLabel, busyLabel, reading, enabled, inspectW)) {
+            if (BusyButton("##InspectKeystore", idleLabel, busyLabel, reading, enabled, inspectW)) {
                 StartInspect(context);
             }
         }
@@ -1038,11 +988,11 @@ namespace CoreDeck {
                     templateLabels[index] = Tr(CREATE_TEMPLATES[index].Label);
                 }
                 int templateIndex = std::clamp(work.CreateTemplate, 0, IM_ARRAYSIZE(CREATE_TEMPLATES) - 1);
-                if (DrawCombo("##CreateTemplate", templateLabels[templateIndex], templateLabels, IM_ARRAYSIZE(CREATE_TEMPLATES), templateIndex, templateW, Tr("Template"))) {
+                if (RoundedCombo("##CreateTemplate", templateLabels[templateIndex], templateLabels, IM_ARRAYSIZE(CREATE_TEMPLATES), templateIndex, templateW, Tr("Template"))) {
                     ApplyCreateTemplate(work, templateIndex);
                 }
                 ImGui::SameLine(0.0F, spacing);
-                if (DrawBrowseRow("##CreatePath", work.CreatePath, Tr("Choose a destination file..."), "CreatePath", Tr("Save As..."), pathW, Tr("Destination"))) {
+                if (BrowseRow("##CreatePath", work.CreatePath, Tr("Choose a destination file..."), "CreatePath", Tr("Save As..."), pathW, Tr("Destination"))) {
                     const char *extension = CreateExtensionOf(work);
                     const std::string upperExtension = UpperExtension(extension);
                     if (const auto picked = FileDialog::SaveFile(
@@ -1065,7 +1015,7 @@ namespace CoreDeck {
             ImGui::SameLine(0.0F, spacing);
             const CreateCheck createCheck = CheckCreate(work);
             const bool creating = work.Busy.load() && work.Task == KeytoolTask::Create;
-            if (BusyActionButton("##CreateKeystore", idleLabel, busyLabel, creating, createCheck.Ready(), createW)) {
+            if (BusyButton("##CreateKeystore", idleLabel, busyLabel, creating, createCheck.Ready(), createW)) {
                 StartCreate(context);
             }
 
@@ -1102,7 +1052,7 @@ namespace CoreDeck {
                 }
 
                 int storeType = static_cast<int>(work.StoreType);
-                if (DrawCombo("##StoreType", STORE_TYPE_LABELS[storeType], STORE_TYPE_LABELS, IM_ARRAYSIZE(STORE_TYPE_LABELS), storeType, storeW, Tr("Store Type"))) {
+                if (RoundedCombo("##StoreType", STORE_TYPE_LABELS[storeType], STORE_TYPE_LABELS, IM_ARRAYSIZE(STORE_TYPE_LABELS), storeType, storeW, Tr("Store Type"))) {
                     work.StoreType = static_cast<KeystoreType>(storeType);
                     if (work.StoreType == KeystoreType::Pkcs12) {
                         work.KeyPasswordMatches = true;
@@ -1114,7 +1064,7 @@ namespace CoreDeck {
                 }
                 ImGui::SameLine(0.0F, spacing);
                 int extension = std::clamp(work.CreateExtension, 0, IM_ARRAYSIZE(KEYSTORE_SUFFIXES) - 1);
-                if (DrawCombo("##CreateExtension", KEYSTORE_SUFFIXES[extension], KEYSTORE_SUFFIXES, IM_ARRAYSIZE(KEYSTORE_SUFFIXES), extension, extensionW, Tr("File Extension"))) {
+                if (RoundedCombo("##CreateExtension", KEYSTORE_SUFFIXES[extension], KEYSTORE_SUFFIXES, IM_ARRAYSIZE(KEYSTORE_SUFFIXES), extension, extensionW, Tr("File Extension"))) {
                     work.CreateExtension = extension;
                     work.CreatePath = ApplyCreateExtension(work.CreatePath, CreateExtensionOf(work));
                     touch();
@@ -1123,7 +1073,7 @@ namespace CoreDeck {
                 drawHint("##Alias", work.Alias, sizeof work.Alias, Tr("Alias"), aliasW);
                 ImGui::SameLine(0.0F, spacing);
                 int algorithm = static_cast<int>(work.Algorithm);
-                if (DrawCombo("##Algorithm", ALGORITHM_LABELS[algorithm], ALGORITHM_LABELS, IM_ARRAYSIZE(ALGORITHM_LABELS), algorithm, algW, Tr("Key Algorithm"))) {
+                if (RoundedCombo("##Algorithm", ALGORITHM_LABELS[algorithm], ALGORITHM_LABELS, IM_ARRAYSIZE(ALGORITHM_LABELS), algorithm, algW, Tr("Key Algorithm"))) {
                     work.Algorithm = static_cast<KeyAlgorithm>(algorithm);
                     SnapKeySize(work);
                     touch();
@@ -1141,7 +1091,7 @@ namespace CoreDeck {
                             labels[index] = sizes[index].Label;
                         }
                     }
-                    if (DrawCombo("##KeySize", preview, labels, count, selected, sizeW, Tr("Key Size")) && sizes != nullptr) {
+                    if (RoundedCombo("##KeySize", preview, labels, count, selected, sizeW, Tr("Key Size")) && sizes != nullptr) {
                         work.KeySize = sizes[selected].Size;
                         touch();
                     }
@@ -1176,7 +1126,7 @@ namespace CoreDeck {
                 const int secretCount = distinctKey ? 3 : 2;
                 const float secretW = std::max(1.0F, (avail - (spacing * static_cast<float>(secretCount - 1))) / static_cast<float>(secretCount));
                 ImGui::PushID(static_cast<int>(work.SecretEpoch));
-                storePassword = DrawSecretField(
+                storePassword = SecretField(
                     "##CreateStorePassword",
                     work.CreatePassword,
                     sizeof work.CreatePassword,
@@ -1190,7 +1140,7 @@ namespace CoreDeck {
                 }
                 ImGui::SameLine(0.0F, spacing);
                 ImGui::PushID(static_cast<int>(work.SecretEpoch) + 1);
-                confirmPassword = DrawSecretField(
+                confirmPassword = SecretField(
                     "##ConfirmPassword",
                     work.ConfirmPassword,
                     sizeof work.ConfirmPassword,
@@ -1205,7 +1155,7 @@ namespace CoreDeck {
                 if (distinctKey) {
                     ImGui::SameLine(0.0F, spacing);
                     ImGui::PushID(static_cast<int>(work.SecretEpoch) + 2);
-                    const SecretEdit keyPassword = DrawSecretField(
+                    const SecretEdit keyPassword = SecretField(
                         "##CreateKeyPassword",
                         work.KeyPassword,
                         sizeof work.KeyPassword,
@@ -1354,7 +1304,7 @@ namespace CoreDeck {
             StyleVar sv;
             sv.Push(ImGuiStyleVar_WindowRounding, 0.0F);
             sv.Push(ImGuiStyleVar_WindowBorderSize, 0.0F);
-            ImGui::Begin("##Keytool", nullptr, KEYTOOL_WINDOW_FLAGS);
+            ImGui::Begin("##Keytool", nullptr, WORKSPACE_WINDOW_FLAGS);
         }
 
         const float bodyHeight = std::max(Eh(12.0F), ImGui::GetContentRegionAvail().y);

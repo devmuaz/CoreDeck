@@ -61,12 +61,6 @@ namespace CoreDeck {
         PickerTableStyle();
     };
 
-    constexpr ImGuiTableFlags PICKER_TABLE_FLAGS =
-        ImGuiTableFlags_BordersInnerV |
-        ImGuiTableFlags_RowBg |
-        ImGuiTableFlags_ScrollY |
-        ImGuiTableFlags_SizingStretchProp;
-
     constexpr ImGuiWindowFlags WINDOW_NO_RESIZE_FLAGS =
         ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoResize |
@@ -80,29 +74,14 @@ namespace CoreDeck {
         ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoDocking;
 
-    enum class DialogResult : uint8_t {
-        None,
-        Confirmed,
-        Cancelled,
-    };
-
-    enum class DialogType : uint8_t {
-        Default,
-        Positive,
-        Negative,
-    };
-
-    struct DialogData {
-        const char *Id{};
-        bool &IsOpen; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
-        const char *Title{};
-        const char *Message{};
-        const char *ConfirmButtonTitle{};
-        const char *CancelButtonTitle{};
-        const char *BusyButtonTitle{};
-        DialogType Type = DialogType::Default;
-        bool IsBusy = false;
-    };
+    constexpr ImGuiWindowFlags WORKSPACE_WINDOW_FLAGS =
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_NoNavFocus;
 
     inline std::string IconWithLabel(const char *icon, const char *label) {
         return StrConcat(icon, " ", label);
@@ -117,7 +96,21 @@ namespace CoreDeck {
     }
 
     inline ImVec2 EmV(const float w, const float h) {
-        return ImVec2(Em(w), Eh(h));
+        return {Em(w), Eh(h)};
+    }
+
+    template<typename T>
+    void Retire(std::future<T> &job, std::vector<std::future<T>> &retired) {
+        if (job.valid()) {
+            retired.push_back(std::move(job));
+        }
+    }
+
+    template<typename T>
+    void DropFinished(std::vector<std::future<T>> &retired) {
+        std::erase_if(retired, [](std::future<T> &job) {
+            return job.valid() && job.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        });
     }
 
     bool PrimaryButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
@@ -133,6 +126,8 @@ namespace CoreDeck {
     bool ToggleButton(const char *label, bool &isToggled, ImVec2 size = ImVec2(0, 0));
 
     void StatusBadge(const char *label, bool isActive);
+
+    void Spinner(const ImVec4 &color, float diameter = 0.0F);
 
     enum class StatusMessageTone : uint8_t {
         Positive,
@@ -155,7 +150,17 @@ namespace CoreDeck {
 
     void StatusBar(StatusBarTone tone, const char *message);
 
-    void Spinner(const ImVec4 &color, float diameter = 0.0F);
+    enum class NoticeCardTone : uint8_t {
+        Default,
+        Positive,
+        Error,
+        Warning,
+        Info,
+    };
+
+    bool NoticeCard(NoticeCardTone tone, const char *title, const char *body = nullptr, const char *buttonLabel = nullptr);
+
+    void CenteredMessage(const char *title, const char *subtitle = nullptr, const char *titleColor = nullptr);
 
     class LoadingOverlay {
     public:
@@ -174,55 +179,16 @@ namespace CoreDeck {
         const char *m_Label = nullptr;
     };
 
-    enum class NoticeCardTone : uint8_t {
-        Default,
-        Positive,
-        Error,
-        Warning,
-        Info,
-    };
-
-    bool NoticeCard(NoticeCardTone tone, const char *title, const char *body = nullptr, const char *buttonLabel = nullptr);
-
-    template<typename Draw>
-    void DetailCard(const char *id, const float height, const Draw &draw, const float width = 0.0F) {
-        StyleColor sc;
-        StyleVar sv;
-        sc.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
-        sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
-        sv.Push(ImGuiStyleVar_ChildRounding, 8.0F);
-        sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0F);
-        sv.Push(ImGuiStyleVar_WindowPadding, ImGui::GetStyle().WindowPadding);
-        ImGui::BeginChild(id, ImVec2(width, height), ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding);
-        draw();
-        ImGui::EndChild();
-    }
-
-    void CenteredMessage(const char *title, const char *subtitle = nullptr, const char *titleColor = nullptr);
-
-    enum class SplitDetailKind : uint8_t {
-        Text,
-        Chip,
-        Section,
-    };
-
-    struct SplitDetail {
-        std::string Label;
-        std::string Value;
-        const char *Accent = nullptr;
-        SplitDetailKind Kind = SplitDetailKind::Text;
-    };
-
-    struct CopyableValue {
-        std::string Label;
-        std::string Value;
-        std::string Section;
-    };
-
-    // First half of the details on the left, the rest on the right, then full-width copyable values.
-    void SplitDetailReport(std::span<const SplitDetail> details, std::span<const CopyableValue> copies = {});
-
-    void CopyableField(const char *label, const std::string &value);
+    bool StatusActionItem(
+        const char *id,
+        const char *icon,
+        const ImVec4 &iconColor,
+        const char *title,
+        const char *description,
+        const ImVec4 &descriptionColor,
+        const char *actionLabel = nullptr,
+        bool actionEnabled = true
+    );
 
     struct FormDisabled {
         bool Active = false;
@@ -256,7 +222,7 @@ namespace CoreDeck {
         bool Submitted = false;
     };
 
-    SecretEdit DrawSecretField(
+    SecretEdit SecretField(
         const char *id,
         char *buffer,
         std::size_t size,
@@ -266,7 +232,7 @@ namespace CoreDeck {
         const char *tooltip = nullptr
     );
 
-    bool DrawBrowseRow(
+    bool BrowseRow(
         const char *fieldId,
         const std::string &path,
         const char *placeholder,
@@ -278,19 +244,85 @@ namespace CoreDeck {
 
     float BusyActionWidth(const char *idleLabel, const char *busyLabel);
 
-    template<typename T>
-    void Retire(std::future<T> &job, std::vector<std::future<T>> &retired) {
-        if (job.valid()) {
-            retired.push_back(std::move(job));
-        }
+    bool BusyButton(
+        const char *id,
+        const char *idleLabel,
+        const char *busyLabel,
+        bool busy,
+        bool enabled = true,
+        float width = 0.0F
+    );
+
+    bool RoundedCombo(
+        const char *id,
+        const char *preview,
+        const char *const *labels,
+        int count,
+        int &selected,
+        float width = -1.0F,
+        const char *tooltip = nullptr
+    );
+
+    void SearchField(const char *id, const char *hint, char *buffer, std::size_t bufferSize);
+
+    std::string PathPicker(
+        const char *id,
+        const char *label,
+        const char *hint,
+        const char *dialogTitle,
+        char *buffer,
+        std::size_t bufferSize,
+        float fieldWidth = 0.0F
+    );
+
+    bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
+
+    template<typename Draw>
+    void DetailCard(const char *id, const float height, const Draw &draw, const float width = 0.0F) {
+        StyleColor sc;
+        StyleVar sv;
+        sc.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
+        sv.Push(ImGuiStyleVar_ChildRounding, 8.0F);
+        sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0F);
+        sv.Push(ImGuiStyleVar_WindowPadding, ImGui::GetStyle().WindowPadding);
+        ImGui::BeginChild(id, ImVec2(width, height), ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding);
+        draw();
+        ImGui::EndChild();
     }
 
-    template<typename T>
-    void DropFinished(std::vector<std::future<T>> &retired) {
-        std::erase_if(retired, [](std::future<T> &job) {
-            return job.valid() && job.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-        });
-    }
+    enum class SplitDetailKind : uint8_t {
+        Text,
+        Chip,
+        Section,
+    };
+
+    struct SplitDetail {
+        std::string Label;
+        std::string Value;
+        const char *Accent = nullptr;
+        SplitDetailKind Kind = SplitDetailKind::Text;
+    };
+
+    struct CopyableValue {
+        std::string Label;
+        std::string Value;
+        std::string Section;
+    };
+
+    void SplitDetailReport(std::span<const SplitDetail> details, std::span<const CopyableValue> copies = {});
+
+    void CopyableField(const char *label, const std::string &value);
+
+    float DetailColumnWidth(std::span<const char *const> labels, float avail);
+
+    void DetailLabel(const ImVec2 &origin, float column, float rowHeight, const char *label, float textY);
+
+    void LabeledValue(const char *label, const std::string &value, std::span<const char *const> columnLabels);
+
+    void FileRows(const std::string &path, std::span<const char *const> columnLabels);
+
+    void ReportHeading(const char *title, const bool *verified = nullptr);
 
     bool SelectableItem(
         const char *label,
@@ -304,6 +336,32 @@ namespace CoreDeck {
     bool PropertyText(const char *label, const char *value, bool isClickable = false, bool hasSpaceBetween = false);
 
     void PropertyTextWrapped(const char *label, const char *value, bool invertColors = false);
+
+    enum class DialogResult : uint8_t {
+        None,
+        Confirmed,
+        Cancelled,
+    };
+
+    enum class DialogType : uint8_t {
+        Default,
+        Positive,
+        Negative,
+    };
+
+    struct DialogData {
+        const char *Id{};
+        bool &IsOpen; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        const char *Title{};
+        const char *Message{};
+        const char *ConfirmButtonTitle{};
+        const char *CancelButtonTitle{};
+        const char *BusyButtonTitle{};
+        DialogType Type = DialogType::Default;
+        bool IsBusy = false;
+    };
+
+    DialogResult SimpleDialog(const DialogData &data, bool hasSpinner = false);
 
     bool CategoryChip(const char *label, bool isSelected);
 
@@ -327,14 +385,6 @@ namespace CoreDeck {
 
     bool RoundedBeginMenu(const char *label, bool isEnabled = true);
 
-    struct ComboStyle {
-        StyleVar Vars;
-
-        ComboStyle();
-    };
-
-    bool RoundedSelectable(const char *label, bool isSelected = false, ImGuiSelectableFlags flags = 0, const ImVec2 &size = ImVec2(0, 0));
-
     enum class RecentFileAction : uint8_t {
         None,
         Activated,
@@ -353,27 +403,17 @@ namespace CoreDeck {
 
     float EqualButtonWidth(int count);
 
-    void SearchField(const char *id, const char *hint, char *buffer, std::size_t bufferSize);
-
     bool CategoryChipRow(const char *const *labels, int count, int &selectedIndex);
+
+    constexpr ImGuiTableFlags PICKER_TABLE_FLAGS =
+        ImGuiTableFlags_BordersInnerV |
+        ImGuiTableFlags_RowBg |
+        ImGuiTableFlags_ScrollY |
+        ImGuiTableFlags_SizingStretchProp;
 
     bool BeginPickerTable(const char *childId, const char *tableId, int columns, float height);
 
     void EndPickerTable(bool open);
-
-    std::string PathPicker(
-        const char *id,
-        const char *label,
-        const char *hint,
-        const char *dialogTitle,
-        char *buffer,
-        std::size_t bufferSize,
-        float fieldWidth = 0.0F
-    );
-
-    DialogResult SimpleDialog(const DialogData &data, bool hasSpinner = false);
-
-    bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
 
     enum class BannerTone : uint8_t {
         Warning,
@@ -415,17 +455,6 @@ namespace CoreDeck {
     };
 
     bool TaskProgressPanel(const TaskProgress &task);
-
-    bool StatusActionItem(
-        const char *id,
-        const char *icon,
-        const ImVec4 &iconColor,
-        const char *title,
-        const char *description,
-        const ImVec4 &descriptionColor,
-        const char *actionLabel = nullptr,
-        bool actionEnabled = true
-    );
 }
 
 #endif // COREDECK_WIDGETS_H

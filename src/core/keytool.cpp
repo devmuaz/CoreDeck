@@ -542,10 +542,7 @@ namespace CoreDeck {
     }
 
     std::string KeytoolPath(const JdkInfo &jdk) {
-        if (jdk.JavaHome.empty()) {
-            return {};
-        }
-        return Paths::JoinPaths({jdk.JavaHome, "bin", "keytool" + Paths::GetExecutableExtension()});
+        return JdkExecutablePath(jdk, "keytool");
     }
 
     const char *KeystoreTypeName(const KeystoreType type) {

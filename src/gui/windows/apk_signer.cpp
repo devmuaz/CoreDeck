@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <chrono>
 #include <cstddef>
@@ -22,21 +23,11 @@
 #include "../../core/apk_signer.h"
 #include "../../core/keytool.h"
 #include "../../core/file_dialog.h"
+#include "../../core/paths.h"
 #include "../../core/i18n.h"
 
 namespace CoreDeck {
     namespace {
-        constexpr const char *UNAVAILABLE = "\u2014";
-
-        constexpr ImGuiWindowFlags APK_SIGNER_WINDOW_FLAGS =
-            ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoScrollbar |
-            ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_NoNavFocus;
-
         struct StorePassword {
             std::string Value;
 
@@ -111,12 +102,12 @@ namespace CoreDeck {
             return true;
         }
 
-        void FinishTask(ApkSignerWork &work) {
+        void FinishTask(struct Context::ApkSignerWork &work) {
             work.Busy = false;
             work.Task = ApkSignerTask::None;
         }
 
-        void RetireJobs(ApkSignerWork &work) {
+        void RetireJobs(struct Context::ApkSignerWork &work) {
             auto &grave = Graveyard();
             Retire(work.VerifyFuture, grave.Verify);
             Retire(work.AliasFuture, grave.Aliases);
@@ -150,18 +141,18 @@ namespace CoreDeck {
             return !std::filesystem::is_regular_file(path, error);
         }
 
-        void WipePasswordBuffers(ApkSignerWork &work) {
+        void WipePasswordBuffers(struct Context::ApkSignerWork &work) {
             WipeSecret(work.StorePassword, sizeof work.StorePassword);
             WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
             work.SecretEpoch += 1;
         }
 
-        void ClearSignResult(ApkSignerWork &work) {
+        void ClearSignResult(struct Context::ApkSignerWork &work) {
             work.HasSignResult = false;
             work.SignResult = {};
         }
 
-        void ResetForm(ApkSignerWork &work) {
+        void ResetForm(struct Context::ApkSignerWork &work) {
             WipePasswordBuffers(work);
             work.ApkPath.clear();
             work.KeystorePath.clear();
@@ -212,7 +203,7 @@ namespace CoreDeck {
 
         ApkSignRefusal SignRefusal(
             const Context &context,
-            const ApkSignerWork &work,
+            const struct Context::ApkSignerWork &work,
             const std::string &apksigner,
             const std::string &zipalign
         ) {
@@ -225,7 +216,7 @@ namespace CoreDeck {
             if (work.OutputPath.empty()) {
                 return ApkSignRefusal::MissingOutput;
             }
-            if (ApkOutputPathEqualsInput(work.ApkPath, work.OutputPath)) {
+            if (Paths::SameFilePath(work.ApkPath, work.OutputPath)) {
                 return ApkSignRefusal::OutputSameAsInput;
             }
             if (work.Align && ZipalignUnavailable(zipalign)) {
@@ -234,7 +225,7 @@ namespace CoreDeck {
             return ApkSignRefusal::None;
         }
 
-        bool ShowLiveRefusal(const ApkSignRefusal refusal, const ApkSignerWork &work) {
+        bool ShowLiveRefusal(const ApkSignRefusal refusal, const struct Context::ApkSignerWork &work) {
             switch (refusal) {
                 case ApkSignRefusal::None:
                 case ApkSignRefusal::EmptyApksigner:
@@ -251,7 +242,7 @@ namespace CoreDeck {
 
         bool CanSign(
             const Context &context,
-            const ApkSignerWork &work,
+            const struct Context::ApkSignerWork &work,
             const std::string &apksigner,
             const std::string &zipalign
         ) {
@@ -269,12 +260,12 @@ namespace CoreDeck {
 
         void StartAliasList(Context &context);
 
-        void ApplyVerify(ApkSignerWork &work, ApkVerifyResult result) {
+        void ApplyVerify(struct Context::ApkSignerWork &work, ApkVerifyResult result) {
             work.Verify = std::move(result);
             work.HasVerify = true;
         }
 
-        void ApplyAlias(ApkSignerWork &work, KeytoolAliasListResult result) {
+        void ApplyAlias(struct Context::ApkSignerWork &work, KeytoolAliasListResult result) {
             work.AliasResult = std::move(result);
             work.HasAliasResult = true;
             work.Aliases.clear();
@@ -290,7 +281,7 @@ namespace CoreDeck {
             }
         }
 
-        void ApplySign(ApkSignerWork &work, ApkSignResult result) {
+        void ApplySign(struct Context::ApkSignerWork &work, ApkSignResult result) {
             work.SignResult = std::move(result);
             work.HasSignResult = true;
             WipePasswordBuffers(work);
@@ -418,61 +409,13 @@ namespace CoreDeck {
             work.Busy = true;
         }
 
-        float DetailLabelColumn() {
-            const char *labels[] = {
+        std::array<const char *, 4> ReportColumns() {
+            return {
                 Tr("File Name"),
                 Tr("Full Path"),
                 Tr("Schemes"),
                 Tr("Certificate DN"),
             };
-            float width = 0.0F;
-            for (const char *label: labels) {
-                width = std::max(width, ImGui::CalcTextSize(label).x);
-            }
-            return width;
-        }
-
-        float DetailValueColumn(const float avail) {
-            return std::min(DetailLabelColumn(), std::max(Em(8.0F), avail * 0.45F));
-        }
-
-        void DrawDetailLabel(const ImVec2 &origin, const float column, const float rowHeight, const char *label, const float textY) {
-            ImDrawList *draw = ImGui::GetWindowDrawList();
-            draw->PushClipRect(origin, ImVec2(origin.x + column, origin.y + rowHeight), true);
-            draw->AddText(ImVec2(origin.x, textY), ImGui::GetColorU32(ImGuiCol_TextDisabled), label);
-            draw->PopClipRect();
-        }
-
-        void DrawValueLine(const char *label, const std::string &value) {
-            const char *shown = value.empty() ? UNAVAILABLE : value.c_str();
-            const float spacing = ImGui::GetStyle().ItemSpacing.x;
-            const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const float labelColumn = DetailValueColumn(avail);
-            const float valueWidth = std::max(1.0F, avail - labelColumn - spacing);
-            const ImVec2 valueSize = ImGui::CalcTextSize(shown, nullptr, false, valueWidth);
-            const float rowHeight = std::max(ImGui::GetTextLineHeight(), valueSize.y);
-            const ImVec2 origin = ImGui::GetCursorScreenPos();
-            ImGui::Dummy(ImVec2(avail, rowHeight));
-
-            DrawDetailLabel(origin, labelColumn, rowHeight, label, origin.y);
-            ImDrawList *draw = ImGui::GetWindowDrawList();
-            draw->AddText(
-                ImGui::GetFont(),
-                ImGui::GetFontSize(),
-                ImVec2(origin.x + labelColumn + spacing, origin.y),
-                ImGui::GetColorU32(ImGuiCol_Text),
-                shown,
-                nullptr,
-                valueWidth
-            );
-        }
-
-        void DrawFileRows(const std::string &path) {
-            if (path.empty()) {
-                return;
-            }
-            DrawValueLine(Tr("File Name"), FileNameOf(path));
-            DrawValueLine(Tr("Full Path"), path);
         }
 
         std::string FormatCertificateSha256(const std::string &digest) {
@@ -507,7 +450,8 @@ namespace CoreDeck {
             };
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const float labelColumn = DetailValueColumn(avail);
+            const auto columns = ReportColumns();
+            const float labelColumn = DetailColumnWidth(columns, avail);
             const float padX = 10.0F;
             const float padY = 4.0F;
             const float valueX = labelColumn + spacing;
@@ -554,7 +498,7 @@ namespace CoreDeck {
 
             ImDrawList *draw = ImGui::GetWindowDrawList();
             const float labelY = origin.y + ((rowH - ImGui::GetTextLineHeight()) * 0.5F);
-            DrawDetailLabel(origin, labelColumn, rowH, Tr("Schemes"), labelY);
+            DetailLabel(origin, labelColumn, rowH, Tr("Schemes"), labelY);
 
             float chipY = origin.y + ((rowH - blockH) * 0.5F);
             for (int line = 0; line < lineCount; ++line) {
@@ -592,39 +536,23 @@ namespace CoreDeck {
             }
             DrawSchemeChips(result.Report);
             ImGui::Spacing();
-            DrawValueLine(Tr("Certificate DN"), result.Report.SignerDn);
+            const auto columns = ReportColumns();
+            LabeledValue(Tr("Certificate DN"), result.Report.SignerDn, columns);
             ImGui::Spacing();
             CopyableField(Tr("Certificate SHA-256"), FormatCertificateSha256(result.Report.CertificateSha256));
         }
 
-        void DrawCardTitle(const char *title, const bool *verified) {
-            ImGui::AlignTextToFramePadding();
-            ImGui::TextDisabled("%s", title);
-            if (verified == nullptr) {
-                return;
-            }
-            const char *label = *verified ? Tr("Verified") : Tr("Not Verified");
-            const char *icon = *verified ? Icons::CHECK_CIRCLE : Icons::TIMES_CIRCLE;
-            const float dpi = GetDpiScale();
-            const float messageWidth = (16.0F * dpi) + ImGui::CalcTextSize(icon).x + (6.0F * dpi) + ImGui::CalcTextSize(label).x;
-            ImGui::SameLine();
-            const float remaining = ImGui::GetContentRegionAvail().x;
-            if (remaining > messageWidth) {
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + remaining - messageWidth);
-            }
-            StatusMessage(*verified ? StatusMessageTone::Positive : StatusMessageTone::Error, label);
-        }
-
         void DrawSignatureReport(const char *title, const std::string &path, const ApkVerifyResult &verify) {
             const bool hasStatus = verify.Started && !verify.ToolMissing;
-            DrawCardTitle(title, hasStatus ? &verify.Report.Verified : nullptr);
+            ReportHeading(title, hasStatus ? &verify.Report.Verified : nullptr);
             ImGui::Spacing();
-            DrawFileRows(path);
+            const auto columns = ReportColumns();
+            FileRows(path, columns);
             ImGui::Spacing();
             DrawVerifyDetails(verify);
         }
 
-        void DrawAliasCombo(ApkSignerWork &work, const float width) {
+        void AliasCombo(struct Context::ApkSignerWork &work, const float width) {
             const bool reading = work.Busy.load() && work.Task == ApkSignerTask::Aliases;
             const char *preview = Tr("Select an Alias");
             if (reading) {
@@ -632,31 +560,27 @@ namespace CoreDeck {
             } else if (!work.SelectedAlias.empty()) {
                 preview = work.SelectedAlias.c_str();
             }
-            ImGui::SetNextItemWidth(width);
+            std::vector<const char *> labels;
+            labels.reserve(work.Aliases.size());
+            int selected = -1;
+            for (int index = 0; index < static_cast<int>(work.Aliases.size()); ++index) {
+                const std::string &alias = work.Aliases.at(static_cast<std::size_t>(index));
+                labels.push_back(alias.c_str());
+                if (alias == work.SelectedAlias) {
+                    selected = index;
+                }
+            }
             ImGui::BeginDisabled(work.Aliases.empty());
-            {
-                ComboStyle cs;
-                if (ImGui::BeginCombo("##Alias", preview)) {
-                    for (int index = 0; index < static_cast<int>(work.Aliases.size()); ++index) {
-                        const std::string &alias = work.Aliases.at(static_cast<std::size_t>(index));
-                        ImGui::PushID(index);
-                        const bool selected = alias == work.SelectedAlias;
-                        if (RoundedSelectable(alias.c_str(), selected)) {
-                            if (work.SelectedAlias != alias) {
-                                ClearSignResult(work);
-                            }
-                            work.SelectedAlias = alias;
-                        }
-                        if (selected) {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                        ImGui::PopID();
+            if (RoundedCombo("##Alias", preview, labels.data(), static_cast<int>(labels.size()), selected, width, Tr("Alias"))) {
+                if (selected >= 0 && selected < static_cast<int>(work.Aliases.size())) {
+                    const std::string &alias = work.Aliases.at(static_cast<std::size_t>(selected));
+                    if (work.SelectedAlias != alias) {
+                        ClearSignResult(work);
                     }
-                    ImGui::EndCombo();
+                    work.SelectedAlias = alias;
                 }
             }
             ImGui::EndDisabled();
-            HoverTooltip(Tr("Alias"));
         }
 
         const char *AliasNotice(const Context &context, StatusBarTone &tone) {
@@ -683,22 +607,6 @@ namespace CoreDeck {
             return nullptr;
         }
 
-        bool BusyPrimaryButton(
-            const char *id,
-            const char *idleLabel,
-            const char *busyLabel,
-            const bool busy,
-            const bool enabled,
-            const float width
-        ) {
-            const std::string label = StrConcat(busy ? busyLabel : idleLabel, id);
-            if (busy) {
-                PrimaryButton(label.c_str(), true, ImVec2(width, 0.0F), true);
-                return false;
-            }
-            return PrimaryButton(label.c_str(), enabled, ImVec2(width, 0.0F));
-        }
-
         void DrawSignerInputs(Context &context, const std::string &apksigner, const std::string &zipalign) {
             auto &work = context.ApkSignerWork;
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
@@ -713,7 +621,7 @@ namespace CoreDeck {
             SecretEdit storePassword;
             {
                 FormDisabled disabled(work.Busy.load());
-                if (DrawBrowseRow("##ApkPathField", work.ApkPath, Tr("Choose an APK file..."), "ApkPath", Tr("Browse..."), pathW, Tr("APK"))) {
+                if (BrowseRow("##ApkPathField", work.ApkPath, Tr("Choose an APK file..."), "ApkPath", Tr("Browse..."), pathW, Tr("APK"))) {
                     const std::string start = DirectoryOf(work.ApkPath);
                     if (const auto picked = FileDialog::PickFile(Tr("Open APK"), Tr("Android packages"), {"*.apk", "*.APK"}, start)) {
                         work.ApkPath = *picked;
@@ -727,7 +635,7 @@ namespace CoreDeck {
                     }
                 }
                 ImGui::SameLine(0.0F, spacing);
-                if (DrawBrowseRow(
+                if (BrowseRow(
                         "##KeystorePathField",
                         work.KeystorePath,
                         Tr("Choose a keystore file..."),
@@ -747,7 +655,7 @@ namespace CoreDeck {
             }
             ImGui::SameLine(0.0F, spacing);
             const bool signing = work.Busy.load() && work.Task == ApkSignerTask::Sign;
-            if (BusyPrimaryButton("##SignApk", idleLabel, busyLabel, signing, CanSign(context, work, apksigner, zipalign), signW)) {
+            if (BusyButton("##SignApk", idleLabel, busyLabel, signing, CanSign(context, work, apksigner, zipalign), signW)) {
                 StartSign(context, apksigner, zipalign);
             }
 
@@ -764,7 +672,7 @@ namespace CoreDeck {
                     aliasW = std::max(1.0F, avail - (secretW * 2.0F) - (spacing * 2.0F));
                 }
                 ImGui::PushID(static_cast<int>(work.SecretEpoch));
-                storePassword = DrawSecretField(
+                storePassword = SecretField(
                     "##StorePassword",
                     work.StorePassword,
                     sizeof work.StorePassword,
@@ -781,11 +689,11 @@ namespace CoreDeck {
                     work.AliasListScheduled = true;
                 }
                 ImGui::SameLine(0.0F, spacing);
-                DrawAliasCombo(work, aliasW);
+                AliasCombo(work, aliasW);
                 if (!work.KeyPasswordMatches) {
                     ImGui::SameLine(0.0F, spacing);
                     ImGui::PushID(static_cast<int>(work.SecretEpoch) + 1);
-                    DrawSecretField(
+                    SecretField(
                         "##KeyPassword",
                         work.KeyPassword,
                         sizeof work.KeyPassword,
@@ -822,7 +730,7 @@ namespace CoreDeck {
                 }
 
                 ImGui::Spacing();
-                if (DrawBrowseRow("##OutputPathField", work.OutputPath, Tr("No output path"), "OutputPath", Tr("Save As..."), -1.0F, Tr("Signed APK"))) {
+                if (BrowseRow("##OutputPathField", work.OutputPath, Tr("No output path"), "OutputPath", Tr("Save As..."), -1.0F, Tr("Signed APK"))) {
                     const std::string suggested = work.OutputPath.empty() ? DefaultSignedPath(work.ApkPath) : work.OutputPath;
                     if (const auto picked = FileDialog::SaveFile(
                             Tr("Save signed APK"),
@@ -919,7 +827,7 @@ namespace CoreDeck {
             return std::max(1.0F, stack * 0.5F);
         }
 
-        void DrawInputDetail(const ApkSignerWork &work) {
+        void DrawInputDetail(const struct Context::ApkSignerWork &work) {
             if (work.ApkPath.empty()) {
                 CenteredMessage(Tr("No APK Selected"), Tr("Choose an APK to see its signature."));
                 return;
@@ -935,7 +843,7 @@ namespace CoreDeck {
             DrawSignatureReport(Tr("APK"), work.ApkPath, work.Verify);
         }
 
-        void DrawOutputDetail(const ApkSignerWork &work) {
+        void DrawOutputDetail(const struct Context::ApkSignerWork &work) {
             const bool signing = work.Busy.load() && work.Task == ApkSignerTask::Sign;
             if (signing) {
                 CenteredMessage(Tr("Signing..."), nullptr);
@@ -950,9 +858,10 @@ namespace CoreDeck {
                 return;
             }
             if (!work.HasSignResult) {
-                DrawCardTitle(Tr("Signed APK"), nullptr);
+                ReportHeading(Tr("Signed APK"));
                 ImGui::Spacing();
-                DrawFileRows(work.OutputPath);
+                const auto columns = ReportColumns();
+                FileRows(work.OutputPath, columns);
                 ImGui::Spacing();
                 ImGui::TextDisabled("%s", Tr("Sign the APK to see its signature here."));
                 return;
@@ -1003,7 +912,7 @@ namespace CoreDeck {
             StyleVar sv;
             sv.Push(ImGuiStyleVar_WindowRounding, 0.0F);
             sv.Push(ImGuiStyleVar_WindowBorderSize, 0.0F);
-            ImGui::Begin("##ApkSigner", nullptr, APK_SIGNER_WINDOW_FLAGS);
+            ImGui::Begin("##ApkSigner", nullptr, WORKSPACE_WINDOW_FLAGS);
         }
 
         const std::string &apksigner = context.Host.Sdk.ApksignerPath;

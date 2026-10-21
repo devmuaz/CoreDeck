@@ -339,6 +339,13 @@ namespace CoreDeck {
         }
     }
 
+    std::string JdkExecutablePath(const JdkInfo &jdk, const std::string &tool) {
+        if (jdk.JavaHome.empty() || tool.empty()) {
+            return {};
+        }
+        return Paths::JoinPaths({jdk.JavaHome, "bin", tool + Paths::GetExecutableExtension()});
+    }
+
     EnvVars JavaToolEnvironment(const JdkInfo &jdk) {
         EnvVars env;
         if (jdk.JavaHome.empty()) {

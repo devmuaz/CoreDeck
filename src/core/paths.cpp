@@ -244,6 +244,32 @@ namespace CoreDeck::Paths {
         }
     }
 
+    bool SameFilePath(const std::string &left, const std::string &right) {
+        if (left.empty() || right.empty()) {
+            return false;
+        }
+
+        const std::filesystem::path input(NormalizePath(left));
+        const std::filesystem::path output(NormalizePath(right));
+        if (input == output) {
+            return true;
+        }
+
+        std::error_code inputError;
+        std::error_code outputError;
+        const std::filesystem::path inputCanonical = std::filesystem::weakly_canonical(input, inputError);
+        const std::filesystem::path outputCanonical = std::filesystem::weakly_canonical(output, outputError);
+        if (!inputError && !outputError && inputCanonical == outputCanonical) {
+            return true;
+        }
+
+        if (!std::filesystem::exists(input, inputError) || !std::filesystem::exists(output, outputError)) {
+            return false;
+        }
+        std::error_code equivalentError;
+        return std::filesystem::equivalent(input, output, equivalentError);
+    }
+
     std::string GetOptionsConfigPath(const std::string &avdName) {
         const std::string configPath = GetAppConfigPath("avd-options");
         if (configPath.empty()) {

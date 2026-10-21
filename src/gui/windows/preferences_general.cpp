@@ -24,26 +24,15 @@ namespace CoreDeck {
 
             const char *labels[] = {Tr("System"), Tr("Dark"), Tr("Light")};
             const int current = static_cast<int>(context.Prefs.Theme);
-            const int selectedIndex = current >= 0 && current < IM_ARRAYSIZE(labels) ? current : 0;
+            int selectedIndex = current >= 0 && current < IM_ARRAYSIZE(labels) ? current : 0;
 
-            ImGui::SetNextItemWidth(Em(18.0F));
-            ComboStyle comboStyle;
-            if (ImGui::BeginCombo("##Theme", labels[selectedIndex])) {
-                for (int i = 0; i < IM_ARRAYSIZE(labels); ++i) {
-                    const bool selected = selectedIndex == i;
-                    if (RoundedSelectable(labels[i], selected)) {
-                        const auto preference = static_cast<ThemePreference>(i);
-                        context.Prefs.Theme = preference;
-                        SetThemePreference(preference);
-                        RefreshThemeColors();
-                        ApplyWindowChrome(context.UI.MainWindow);
-                        PersistAppSettings(context);
-                    }
-                    if (selected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
+            if (RoundedCombo("##Theme", labels[selectedIndex], labels, IM_ARRAYSIZE(labels), selectedIndex, Em(18.0F))) {
+                const auto preference = static_cast<ThemePreference>(selectedIndex);
+                context.Prefs.Theme = preference;
+                SetThemePreference(preference);
+                RefreshThemeColors();
+                ApplyWindowChrome(context.UI.MainWindow);
+                PersistAppSettings(context);
             }
         }
 
@@ -87,21 +76,23 @@ namespace CoreDeck {
                 selectedIndex = static_cast<int>(tags.size()) - 1;
             }
 
-            ImGui::SetNextItemWidth(Em(18.0F));
-            ComboStyle comboStyle;
-            if (ImGui::BeginCombo("##Language", labels.at(static_cast<std::size_t>(selectedIndex)).c_str())) {
-                for (int i = 0; i < static_cast<int>(tags.size()); ++i) {
-                    const bool selected = selectedIndex == i;
-                    if (RoundedSelectable(labels.at(static_cast<std::size_t>(i)).c_str(), selected)) {
-                        context.Prefs.Language = tags.at(static_cast<std::size_t>(i));
-                        SetLanguage(context.Prefs.Language);
-                        PersistAppSettings(context);
-                    }
-                    if (selected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
+            std::vector<const char *> labelPtrs;
+            labelPtrs.reserve(labels.size());
+            for (const std::string &label: labels) {
+                labelPtrs.push_back(label.c_str());
+            }
+
+            if (RoundedCombo(
+                    "##Language",
+                    labelPtrs.at(static_cast<std::size_t>(selectedIndex)),
+                    labelPtrs.data(),
+                    static_cast<int>(labelPtrs.size()),
+                    selectedIndex,
+                    Em(18.0F)
+                )) {
+                context.Prefs.Language = tags.at(static_cast<std::size_t>(selectedIndex));
+                SetLanguage(context.Prefs.Language);
+                PersistAppSettings(context);
             }
         }
     }

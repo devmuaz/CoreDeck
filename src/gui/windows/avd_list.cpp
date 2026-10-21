@@ -200,24 +200,11 @@ namespace CoreDeck {
 
         ImGui::SameLine();
 
-        ImGui::SetNextItemWidth(Em(17.0F));
-        const int currentSortIdx = static_cast<int>(context.Catalog.SortMode);
-        {
-            ComboStyle cs;
-            const char *sortModeLabels[] = {Tr("Name"), Tr("API Level"), Tr("Device")};
-            if (ImGui::BeginCombo("##AvdSort", sortModeLabels[currentSortIdx])) {
-                for (int i = 0; i < SORT_MODE_COUNT; i++) {
-                    const bool selected = currentSortIdx == i;
-                    if (RoundedSelectable(sortModeLabels[i], selected)) {
-                        context.Catalog.SortMode = static_cast<AvdSortMode>(i);
-                        PersistAppSettings(context);
-                    }
-                    if (selected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
-            }
+        int currentSortIdx = static_cast<int>(context.Catalog.SortMode);
+        const char *sortModeLabels[] = {Tr("Name"), Tr("API Level"), Tr("Device")};
+        if (RoundedCombo("##AvdSort", sortModeLabels[currentSortIdx], sortModeLabels, SORT_MODE_COUNT, currentSortIdx, Em(17.0F))) {
+            context.Catalog.SortMode = static_cast<AvdSortMode>(currentSortIdx);
+            PersistAppSettings(context);
         }
 
         ImGui::SameLine();

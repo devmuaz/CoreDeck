@@ -217,7 +217,7 @@ namespace CoreDeck {
             if (request.OutputPath.empty()) {
                 return ApkSignRefusal::MissingOutput;
             }
-            if (ApkOutputPathEqualsInput(request.InputPath, request.OutputPath)) {
+            if (Paths::SameFilePath(request.InputPath, request.OutputPath)) {
                 return ApkSignRefusal::OutputSameAsInput;
             }
             if (request.Align && (request.ZipalignPath.empty() || !IsRegularFile(request.ZipalignPath))) {
@@ -376,32 +376,6 @@ namespace CoreDeck {
         args.push_back(outputPath);
         args.push_back(inputPath);
         return args;
-    }
-
-    bool ApkOutputPathEqualsInput(const std::string &inputPath, const std::string &outputPath) {
-        if (inputPath.empty() || outputPath.empty()) {
-            return false;
-        }
-
-        const std::filesystem::path input(Paths::NormalizePath(inputPath));
-        const std::filesystem::path output(Paths::NormalizePath(outputPath));
-        if (input == output) {
-            return true;
-        }
-
-        std::error_code inputError;
-        std::error_code outputError;
-        const std::filesystem::path inputCanonical = std::filesystem::weakly_canonical(input, inputError);
-        const std::filesystem::path outputCanonical = std::filesystem::weakly_canonical(output, outputError);
-        if (!inputError && !outputError && inputCanonical == outputCanonical) {
-            return true;
-        }
-
-        if (!std::filesystem::exists(input, inputError) || !std::filesystem::exists(output, outputError)) {
-            return false;
-        }
-        std::error_code equivalentError;
-        return std::filesystem::equivalent(input, output, equivalentError);
     }
 
     ApkSignResult SignApk(ApkSignRequest request) {

@@ -253,22 +253,18 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             ImGui::Text("%s", Tr("GPU Mode"));
-            ImGui::SetNextItemWidth(-1.0F);
-            {
-                ComboStyle cs;
-                if (ImGui::BeginCombo("##gpu", gpuModes.at(context.AvdCreationWork.SelectedGpuMode).Label)) {
-                    for (int i = 0; i < static_cast<int>(gpuModes.size()); i++) {
-                        const bool isSelected = context.AvdCreationWork.SelectedGpuMode == i;
-                        if (RoundedSelectable(gpuModes.at(i).Label, isSelected)) {
-                            context.AvdCreationWork.SelectedGpuMode = i;
-                        }
-                        if (isSelected) {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
+            std::vector<const char *> gpuLabels;
+            gpuLabels.reserve(gpuModes.size());
+            for (const auto &mode: gpuModes) {
+                gpuLabels.push_back(mode.Label);
             }
+            RoundedCombo(
+                "##gpu",
+                gpuModes.at(context.AvdCreationWork.SelectedGpuMode).Label,
+                gpuLabels.data(),
+                static_cast<int>(gpuLabels.size()),
+                context.AvdCreationWork.SelectedGpuMode
+            );
 
             if (isCreating) {
                 ImGui::PopItemFlag();

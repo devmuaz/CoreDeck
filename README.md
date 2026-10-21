@@ -16,7 +16,7 @@
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
 [![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 
-[CoreDeck](https://coredeck.dev) is a native desktop command center for the Android SDK. Create virtual devices, launch them, install system images, inspect and sign APKs, create keystores, and see whether your tools are actually ready, all in one fast app. It drives Google's official `emulator`, `avdmanager`, `sdkmanager`, `apkanalyzer`, `apksigner`, and `zipalign` itself, and the JDK's `keytool`. Android Studio does not need to be installed. Built with C++20 and Dear ImGui.
+[CoreDeck](https://coredeck.dev) is a native desktop command center for the Android SDK. Create virtual devices, launch them, install system images, inspect and sign APKs, create keystores, and see whether your tools are actually ready, all in one fast app. It drives Google's official `emulator`, `avdmanager`, `sdkmanager`, `apkanalyzer`, `apksigner`, and `zipalign` itself, and the JDK's `keytool` and `jarsigner`. Android Studio does not need to be installed. Built with C++20 and Dear ImGui.
 
 > Bring an SDK you already have, or let CoreDeck download Google's tools and set them up for you.
 
@@ -35,7 +35,8 @@
 - **Health Check** — Reviews the SDK, emulator, platform-tools, build-tools, command-line tools, JDK, licenses, system images, and free disk space, and offers a fix for each problem
 - **APK Analyzer** — Opens an APK with the official `apkanalyzer` and shows package info, download size, compression, and alignment
 - **APK Signer** — Verifies an APK and signs a new copy with the official `apksigner` and `zipalign`. The original APK is left unchanged, and the report shows which of the v1, v2, v3, v3.1, and v4 schemes verified
-- **Java Keytool** — Creates and inspects keystores with the JDK's `keytool`. Templates fill the Flutter upload, Android release, and Android debug recipes, and a private-key entry can be opened in APK Signer
+- **Java Keytool** — Creates and inspects keystores with the JDK's `keytool`. Templates fill the Flutter upload, Android release, and Android debug recipes, and a private-key entry can be opened in APK Signer or Java Jar Signer
+- **Java Jar Signer** — Verifies an archive and signs a new copy with the JDK's `jarsigner`. It accepts `.jar`, `.war`, `.ear`, and Android App Bundles `.aab`. The original file is left unchanged
 - **SDK Auto-Detection** — Picks up your Android SDK from environment variables or standard paths
 - **SDK Installer** — Downloads Google's official command-line tools and installs the platform tools and emulator, without Android Studio
 - **JDK Configuration** — Auto-detects a compatible JDK and lets you point at a specific one when your system default is too old

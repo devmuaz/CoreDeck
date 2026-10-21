@@ -44,6 +44,8 @@ namespace CoreDeck::Paths {
 
     std::string NormalizePath(const std::string &path);
 
+    bool SameFilePath(const std::string &left, const std::string &right);
+
     std::string GetOptionsConfigPath(const std::string &avdName);
 
     std::string EnsureOptionsConfigDirectoryExists();
