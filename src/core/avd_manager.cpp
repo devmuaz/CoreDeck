@@ -232,6 +232,70 @@ namespace CoreDeck {
 
             return avd;
         }
+
+        std::string ConfigKey(const std::string &line) {
+            if (line.empty() || line.front() == '#') {
+                return {};
+            }
+            const auto eq = line.find('=');
+            if (eq == std::string::npos) {
+                return {};
+            }
+
+            std::string key = line.substr(0, eq);
+            while (!key.empty() && (key.back() == ' ' || key.back() == '\t')) {
+                key.pop_back();
+            }
+            while (!key.empty() && (key.front() == ' ' || key.front() == '\t')) {
+                key.erase(key.begin());
+            }
+            return key;
+        }
+
+        std::string ConfigAssignment(const std::string &key, const std::string &value) {
+            std::string assignment = key;
+            assignment += '=';
+            assignment += value;
+            return assignment;
+        }
+
+        bool SetConfigValue(const std::string &path, const std::string &key, const std::string &value) {
+            std::ifstream input(path);
+            if (!input.is_open()) {
+                return false;
+            }
+
+            std::vector<std::string> lines;
+            std::string line;
+            bool replaced = false;
+            while (std::getline(input, line)) {
+                if (!line.empty() && line.back() == '\r') {
+                    line.pop_back();
+                }
+                if (ConfigKey(line) == key) {
+                    if (!replaced) {
+                        lines.push_back(ConfigAssignment(key, value));
+                        replaced = true;
+                    }
+                    continue;
+                }
+                lines.push_back(line);
+            }
+            input.close();
+
+            if (!replaced) {
+                lines.push_back(ConfigAssignment(key, value));
+            }
+
+            std::ofstream output(path, std::ios::trunc);
+            if (!output.is_open()) {
+                return false;
+            }
+            for (const std::string &written: lines) {
+                output << written << '\n';
+            }
+            return static_cast<bool>(output);
+        }
     }
 
     DeviceProfileList ParseAvdManagerDeviceList(const std::string &output) {
@@ -336,27 +400,24 @@ namespace CoreDeck {
         const std::string configPath = Paths::JoinPaths({avdDir, data.Name + ".avd", "config.ini"});
 
         if (std::filesystem::exists(configPath)) {
-            std::ofstream file(configPath, std::ios::app);
-            if (file.is_open()) {
-                file << "hw.keyboard=yes\n";
-                if (!data.DisplayName.empty()) {
-                    file << "avd.ini.displayname=" << data.DisplayName << "\n";
-                }
-                if (!data.RamSize.empty()) {
-                    file << "hw.ramSize=" << data.RamSize << "\n";
-                }
-                if (!data.SdCardSize.empty()) {
-                    file << "sdcard.size=" << data.SdCardSize << "\n";
-                }
-                if (!data.GpuMode.empty()) {
-                    file << "hw.gpu.mode=" << data.GpuMode << "\n";
-                    file << "hw.gpu.enabled=yes\n";
-                }
-                if (!data.SkinName.empty()) {
-                    file << "skin.name=" << data.SkinName << "\n";
-                    if (!data.SkinPath.empty()) {
-                        file << "skin.path=" << data.SkinPath << "\n";
-                    }
+            SetConfigValue(configPath, "hw.keyboard", "yes");
+            if (!data.DisplayName.empty()) {
+                SetConfigValue(configPath, "avd.ini.displayname", data.DisplayName);
+            }
+            if (!data.RamSize.empty()) {
+                SetConfigValue(configPath, "hw.ramSize", data.RamSize);
+            }
+            if (!data.SdCardSize.empty()) {
+                SetConfigValue(configPath, "sdcard.size", data.SdCardSize);
+            }
+            if (!data.GpuMode.empty()) {
+                SetConfigValue(configPath, "hw.gpu.mode", data.GpuMode);
+                SetConfigValue(configPath, "hw.gpu.enabled", "yes");
+            }
+            if (!data.SkinName.empty()) {
+                SetConfigValue(configPath, "skin.name", data.SkinName);
+                if (!data.SkinPath.empty()) {
+                    SetConfigValue(configPath, "skin.path", data.SkinPath);
                 }
             }
         }

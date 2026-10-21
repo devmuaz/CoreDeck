@@ -114,7 +114,7 @@ namespace CoreDeck {
 
         if (SubtitledCheckbox(
                 "AutoScrollLogs",
-                &context.Logs.AutoScroll,
+                &context.Prefs.AutoScroll,
                 Tr("Enable auto-scrolling of output logs"),
                 Tr("Keep the log view pinned to the most recent line as new output arrives.")
             )) {

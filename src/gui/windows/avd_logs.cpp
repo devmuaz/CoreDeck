@@ -249,8 +249,11 @@ namespace CoreDeck {
             if (!window) {
                 return false;
             }
-            constexpr float SCROLL_PAST_END = FLT_MAX * 0.5F;
-            ImGui::SetScrollY(window, SCROLL_PAST_END);
+
+            // ImGui rounds the target through a 64-bit integer.
+            // FLT_MAX overflows that cast on x64 and the view stays at the top.
+            constexpr float SCROLL_TO_END = 1.0e9F;
+            ImGui::SetScrollY(window, SCROLL_TO_END);
             return true;
         }
 
@@ -288,7 +291,7 @@ namespace CoreDeck {
         }
 
         void DriveAutoScroll(const PanelInputs &inputs, const Context &context, const PanelView &view, const bool hasQuery) {
-            if (!inputs.Log || !context.Logs.AutoScroll || hasQuery || !view.HasContent) {
+            if (!inputs.Log || !context.Prefs.AutoScroll || hasQuery || !view.HasContent) {
                 return;
             }
             if (!inputs.Log->HasNewContent()) {

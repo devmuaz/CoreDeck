@@ -539,7 +539,7 @@ namespace CoreDeck {
     AppSettings CaptureAppSettingsFromContext(const Context &context) {
         AppSettings s = LoadAppSettings();
         s.SchemaVersion = 1;
-        s.AutoScroll = context.Logs.AutoScroll;
+        s.AutoScroll = context.Prefs.AutoScroll;
         s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
         s.CrashReportingEnabled = context.Prefs.CrashReportingEnabled;
         s.CheckForUpdatesOnLaunch = context.Prefs.CheckForUpdatesOnLaunch;
@@ -555,7 +555,7 @@ namespace CoreDeck {
     }
 
     void ApplyAppSettingsToContext(Context &context, const AppSettings &settings) {
-        context.Logs.AutoScroll = settings.AutoScroll;
+        context.Prefs.AutoScroll = settings.AutoScroll;
         context.Prefs.ConfirmBeforeDeleteAvd = settings.ConfirmBeforeDeleteAvd;
         context.Prefs.CrashReportingEnabled = settings.CrashReportingEnabled;
         context.Prefs.CheckForUpdatesOnLaunch = settings.CheckForUpdatesOnLaunch;

@@ -135,13 +135,13 @@ namespace CoreDeck {
 
         struct Logs {
             std::unordered_map<std::string, LogViewState> PerAvdView;
-            bool AutoScroll = true;
             bool PendingScroll = false;
             bool PendingFocus = false;
             int PendingSyncFrames = 0;
         } Logs;
 
         struct Prefs {
+            bool AutoScroll = true;
             bool ConfirmBeforeDeleteAvd = true;
             bool CrashReportingEnabled = true;
             bool CheckForUpdatesOnLaunch = true;
