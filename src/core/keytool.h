@@ -10,12 +10,10 @@
 #include <string>
 #include <vector>
 
+#include "constants.h"
 #include "jdk.h"
 
 namespace CoreDeck {
-    constexpr int KEYSTORE_PASSWORD_MIN = 6;
-    constexpr int DEFAULT_KEY_VALIDITY_DAYS = 3650;
-
     enum class KeytoolAliasStatus : uint8_t {
         Ok,
         Refused,
@@ -109,7 +107,7 @@ namespace CoreDeck {
         KeystoreType StoreType = KeystoreType::Pkcs12;
         std::string Alias;
         KeyAlgorithm Algorithm = KeyAlgorithm::Rsa;
-        int KeySize = 2048;
+        int KeySize = DEFAULT_KEY_SIZE;
         int ValidityDays = DEFAULT_KEY_VALIDITY_DAYS;
         std::string StorePassword;
         std::string KeyPassword;

@@ -1099,7 +1099,7 @@ namespace CoreDeck {
                 ImGui::SameLine(0.0F, spacing);
                 ImGui::SetNextItemWidth(validW);
                 if (ImGui::InputInt("##Validity", &work.ValidityDays, 0, 0)) {
-                    work.ValidityDays = std::clamp(work.ValidityDays, 1, 365000);
+                    work.ValidityDays = std::clamp(work.ValidityDays, KEYSTORE_VALIDITY_MIN_DAYS, KEYSTORE_VALIDITY_MAX_DAYS);
                     touch();
                 }
                 HoverTooltip(Tr("Validity (days)"));

@@ -6,7 +6,6 @@
 #define COREDECK_CONTEXT_H
 
 #include <atomic>
-#include <chrono>
 #include <cstdint>
 #include <future>
 #include <memory>
@@ -21,14 +20,13 @@
 #include "../core/jdk.h"
 #include "../core/options.h"
 #include "../core/apk_analyzer.h"
-#include "../core/apk_signer.h"
-#include "../core/jar_signer.h"
 #include "../core/keytool.h"
 #include "../core/sdk.h"
 #include "../core/sdk_bootstrap.h"
 #include "../core/sdk_manager.h"
 #include "../core/skin.h"
 #include "../core/system_image.h"
+#include "signer_work.h"
 
 struct GLFWwindow;
 
@@ -79,20 +77,6 @@ namespace CoreDeck {
         std::uintmax_t SystemImagesSize = 0;
     };
 
-    enum class ApkSignerTask : uint8_t {
-        None,
-        Verify,
-        Aliases,
-        Sign,
-    };
-
-    enum class JarSignerTask : uint8_t {
-        None,
-        Verify,
-        Aliases,
-        Sign,
-    };
-
     enum class KeytoolTask : uint8_t {
         None,
         Inspect,
@@ -102,6 +86,18 @@ namespace CoreDeck {
     enum class KeytoolPage : uint8_t {
         Inspect,
         Create,
+    };
+
+    struct AsyncLoad {
+        std::atomic<bool> Loading{false};
+        std::atomic<bool> Ready{false};
+        std::future<void> Future;
+    };
+
+    template<typename Result>
+    struct AsyncWork {
+        std::atomic<bool> Busy{false};
+        std::future<Result> Future;
     };
 
     struct Context {
@@ -198,16 +194,8 @@ namespace CoreDeck {
             bool SkinAutoFilled = true;
             int LastDeviceForSkinAuto = -1;
 
-            struct {
-                std::atomic<bool> Loading{false};
-                std::atomic<bool> Ready{false};
-                std::future<void> Future;
-            } Prefetch;
-
-            struct {
-                std::atomic<bool> Busy{false};
-                std::future<bool> Future;
-            } SystemImageRemoval;
+            AsyncLoad Prefetch;
+            AsyncWork<bool> SystemImageRemoval;
         } AvdCreationWork;
 
         struct ImageInstallationWork {
@@ -216,11 +204,7 @@ namespace CoreDeck {
             ImageCategory SelectedCategory = ImageCategory::PhoneTablet;
             char SearchFilter[128] = {};
 
-            struct {
-                std::atomic<bool> Loading{false};
-                std::atomic<bool> Ready{false};
-                std::future<void> Future;
-            } Prefetch;
+            AsyncLoad Prefetch;
 
             std::atomic<bool> Installing{false};
             std::shared_ptr<InstallProgressData> Progress;
@@ -267,10 +251,7 @@ namespace CoreDeck {
         } LicenseNotice;
 
         struct Jobs {
-            struct {
-                std::atomic<bool> Busy{false};
-                std::future<void> Future;
-            } AvdCreation, AvdDeletion, AvdWipe;
+            AsyncWork<void> AvdCreation, AvdDeletion, AvdWipe;
         } Jobs;
 
         struct DiskUsage {
@@ -308,78 +289,8 @@ namespace CoreDeck {
             std::vector<std::string> PendingDrops;
         } ApkAnalyzerWork;
 
-        struct ApkSignerWork {
-            std::atomic<bool> Busy{false};
-            ApkSignerTask Task = ApkSignerTask::None;
-
-            std::future<ApkVerifyResult> VerifyFuture;
-            std::future<KeytoolAliasListResult> AliasFuture;
-            std::future<ApkSignResult> SignFuture;
-            bool AliasRefreshPending = false;
-            bool AliasListScheduled = false;
-            std::chrono::steady_clock::time_point AliasListDue;
-
-            std::string ApkPath;
-            std::string KeystorePath;
-            std::string OutputPath;
-            bool OutputCustomized = false;
-
-            char StorePassword[512] = {};
-            char KeyPassword[512] = {};
-            bool ShowStorePassword = false;
-            bool ShowKeyPassword = false;
-            std::uint32_t SecretEpoch = 0;
-            bool KeyPasswordMatches = true;
-            bool Align = true;
-
-            bool HasVerify = false;
-            ApkVerifyResult Verify;
-
-            bool HasAliasResult = false;
-            KeytoolAliasListResult AliasResult;
-            std::vector<std::string> Aliases;
-            std::string SelectedAlias;
-
-            bool HasSignResult = false;
-            ApkSignResult SignResult;
-            std::string KeystoreType;
-        } ApkSignerWork;
-
-        struct JarSignerWork {
-            std::atomic<bool> Busy{false};
-            JarSignerTask Task = JarSignerTask::None;
-
-            std::future<JarVerifyResult> VerifyFuture;
-            std::future<KeytoolAliasListResult> AliasFuture;
-            std::future<JarSignResult> SignFuture;
-            bool AliasRefreshPending = false;
-            bool AliasListScheduled = false;
-            std::chrono::steady_clock::time_point AliasListDue;
-
-            std::string ArchivePath;
-            std::string KeystorePath;
-            std::string OutputPath;
-            bool OutputCustomized = false;
-
-            char StorePassword[512] = {};
-            char KeyPassword[512] = {};
-            bool ShowStorePassword = false;
-            bool ShowKeyPassword = false;
-            std::uint32_t SecretEpoch = 0;
-            bool KeyPasswordMatches = true;
-
-            bool HasVerify = false;
-            JarVerifyResult Verify;
-
-            bool HasAliasResult = false;
-            KeytoolAliasListResult AliasResult;
-            std::vector<std::string> Aliases;
-            std::string SelectedAlias;
-
-            bool HasSignResult = false;
-            JarSignResult SignResult;
-            std::string KeystoreType;
-        } JarSignerWork;
+        ApkSignerWork ApkSignerWork;
+        JarSignerWork JarSignerWork;
 
         struct KeytoolWork {
             std::atomic<bool> Busy{false};
@@ -407,7 +318,7 @@ namespace CoreDeck {
             int CreateExtension = 0;
             int CreateTemplate = 0;
             KeyAlgorithm Algorithm = KeyAlgorithm::Rsa;
-            int KeySize = 2048;
+            int KeySize = DEFAULT_KEY_SIZE;
             int ValidityDays = DEFAULT_KEY_VALIDITY_DAYS;
             char Alias[256] = {};
             char CommonName[256] = {};

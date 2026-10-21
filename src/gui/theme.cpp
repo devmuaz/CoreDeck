@@ -199,7 +199,7 @@ namespace CoreDeck {
             RegCloseKey(key);
             return status == ERROR_SUCCESS && value == 0;
         }
-#elif defined(__APPLE__)
+#elif __APPLE__
         bool SystemPrefersDarkAppearance() {
             CFPreferencesAppSynchronize(CFSTR(".GlobalPreferences"));
             CFPropertyListRef value = CFPreferencesCopyValue(

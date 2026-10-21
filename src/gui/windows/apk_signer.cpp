@@ -102,12 +102,12 @@ namespace CoreDeck {
             return true;
         }
 
-        void FinishTask(struct Context::ApkSignerWork &work) {
+        void FinishTask(ApkSignerWork &work) {
             work.Busy = false;
             work.Task = ApkSignerTask::None;
         }
 
-        void RetireJobs(struct Context::ApkSignerWork &work) {
+        void RetireJobs(ApkSignerWork &work) {
             auto &grave = Graveyard();
             Retire(work.VerifyFuture, grave.Verify);
             Retire(work.AliasFuture, grave.Aliases);
@@ -141,20 +141,20 @@ namespace CoreDeck {
             return !std::filesystem::is_regular_file(path, error);
         }
 
-        void WipePasswordBuffers(struct Context::ApkSignerWork &work) {
+        void WipePasswordBuffers(ApkSignerWork &work) {
             WipeSecret(work.StorePassword, sizeof work.StorePassword);
             WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
             work.SecretEpoch += 1;
         }
 
-        void ClearSignResult(struct Context::ApkSignerWork &work) {
+        void ClearSignResult(ApkSignerWork &work) {
             work.HasSignResult = false;
             work.SignResult = {};
         }
 
-        void ResetForm(struct Context::ApkSignerWork &work) {
+        void ResetForm(ApkSignerWork &work) {
             WipePasswordBuffers(work);
-            work.ApkPath.clear();
+            work.InputPath.clear();
             work.KeystorePath.clear();
             work.KeystoreType.clear();
             work.OutputPath.clear();
@@ -203,7 +203,7 @@ namespace CoreDeck {
 
         ApkSignRefusal SignRefusal(
             const Context &context,
-            const struct Context::ApkSignerWork &work,
+            const ApkSignerWork &work,
             const std::string &apksigner,
             const std::string &zipalign
         ) {
@@ -216,7 +216,7 @@ namespace CoreDeck {
             if (work.OutputPath.empty()) {
                 return ApkSignRefusal::MissingOutput;
             }
-            if (Paths::SameFilePath(work.ApkPath, work.OutputPath)) {
+            if (Paths::SameFilePath(work.InputPath, work.OutputPath)) {
                 return ApkSignRefusal::OutputSameAsInput;
             }
             if (work.Align && ZipalignUnavailable(zipalign)) {
@@ -225,13 +225,13 @@ namespace CoreDeck {
             return ApkSignRefusal::None;
         }
 
-        bool ShowLiveRefusal(const ApkSignRefusal refusal, const struct Context::ApkSignerWork &work) {
+        bool ShowLiveRefusal(const ApkSignRefusal refusal, const ApkSignerWork &work) {
             switch (refusal) {
                 case ApkSignRefusal::None:
                 case ApkSignRefusal::EmptyApksigner:
                     return false;
                 case ApkSignRefusal::MissingOutput:
-                    return !work.ApkPath.empty();
+                    return !work.InputPath.empty();
                 case ApkSignRefusal::MissingJdk:
                 case ApkSignRefusal::MissingZipalign:
                 case ApkSignRefusal::OutputSameAsInput:
@@ -242,11 +242,11 @@ namespace CoreDeck {
 
         bool CanSign(
             const Context &context,
-            const struct Context::ApkSignerWork &work,
+            const ApkSignerWork &work,
             const std::string &apksigner,
             const std::string &zipalign
         ) {
-            if (work.Busy.load() || work.ApkPath.empty() || work.KeystorePath.empty() || work.SelectedAlias.empty()) {
+            if (work.Busy.load() || work.InputPath.empty() || work.KeystorePath.empty() || work.SelectedAlias.empty()) {
                 return false;
             }
             if (work.StorePassword[0] == '\0') {
@@ -260,12 +260,12 @@ namespace CoreDeck {
 
         void StartAliasList(Context &context);
 
-        void ApplyVerify(struct Context::ApkSignerWork &work, ApkVerifyResult result) {
+        void ApplyVerify(ApkSignerWork &work, ApkVerifyResult result) {
             work.Verify = std::move(result);
             work.HasVerify = true;
         }
 
-        void ApplyAlias(struct Context::ApkSignerWork &work, KeytoolAliasListResult result) {
+        void ApplyAlias(ApkSignerWork &work, KeytoolAliasListResult result) {
             work.AliasResult = std::move(result);
             work.HasAliasResult = true;
             work.Aliases.clear();
@@ -281,7 +281,7 @@ namespace CoreDeck {
             }
         }
 
-        void ApplySign(struct Context::ApkSignerWork &work, ApkSignResult result) {
+        void ApplySign(ApkSignerWork &work, ApkSignResult result) {
             work.SignResult = std::move(result);
             work.HasSignResult = true;
             WipePasswordBuffers(work);
@@ -321,10 +321,10 @@ namespace CoreDeck {
 
         void StartVerify(Context &context, const std::string &apksigner) {
             auto &work = context.ApkSignerWork;
-            if (work.Busy.load() || work.ApkPath.empty() || apksigner.empty()) {
+            if (work.Busy.load() || work.InputPath.empty() || apksigner.empty()) {
                 return;
             }
-            const std::string apk = work.ApkPath;
+            const std::string apk = work.InputPath;
             const EnvVars toolEnv = context.Host.Sdk.ToolEnv;
             RetireJobs(work);
             work.HasVerify = false;
@@ -383,7 +383,7 @@ namespace CoreDeck {
             ApkSignRequest request;
             request.ApksignerPath = apksigner;
             request.ZipalignPath = zipalign;
-            request.InputPath = work.ApkPath;
+            request.InputPath = work.InputPath;
             request.OutputPath = work.OutputPath;
             request.KeystorePath = work.KeystorePath;
             request.KeystoreType = work.KeystoreType;
@@ -552,7 +552,7 @@ namespace CoreDeck {
             DrawVerifyDetails(verify);
         }
 
-        void AliasCombo(struct Context::ApkSignerWork &work, const float width) {
+        void AliasCombo(ApkSignerWork &work, const float width) {
             const bool reading = work.Busy.load() && work.Task == ApkSignerTask::Aliases;
             const char *preview = Tr("Select an Alias");
             if (reading) {
@@ -621,12 +621,12 @@ namespace CoreDeck {
             SecretEdit storePassword;
             {
                 FormDisabled disabled(work.Busy.load());
-                if (BrowseRow("##ApkPathField", work.ApkPath, Tr("Choose an APK file..."), "ApkPath", Tr("Browse..."), pathW, Tr("APK"))) {
-                    const std::string start = DirectoryOf(work.ApkPath);
+                if (BrowseRow("##ApkPathField", work.InputPath, Tr("Choose an APK file..."), "ApkPath", Tr("Browse..."), pathW, Tr("APK"))) {
+                    const std::string start = DirectoryOf(work.InputPath);
                     if (const auto picked = FileDialog::PickFile(Tr("Open APK"), Tr("Android packages"), {"*.apk", "*.APK"}, start)) {
-                        work.ApkPath = *picked;
+                        work.InputPath = *picked;
                         if (!work.OutputCustomized) {
-                            work.OutputPath = DefaultSignedPath(work.ApkPath);
+                            work.OutputPath = DefaultSignedPath(work.InputPath);
                         }
                         work.HasVerify = false;
                         work.Verify = {};
@@ -644,7 +644,7 @@ namespace CoreDeck {
                         pathW,
                         Tr("Keystore")
                     )) {
-                    const std::string start = work.KeystorePath.empty() ? DirectoryOf(work.ApkPath) : DirectoryOf(work.KeystorePath);
+                    const std::string start = work.KeystorePath.empty() ? DirectoryOf(work.InputPath) : DirectoryOf(work.KeystorePath);
                     if (const auto picked = FileDialog::PickFile(Tr("Open Keystore"), Tr("Keystores"), KeystoreFilePatterns(), start)) {
                         work.KeystorePath = *picked;
                         work.KeystoreType = DetectKeystoreType(*picked);
@@ -731,7 +731,7 @@ namespace CoreDeck {
 
                 ImGui::Spacing();
                 if (BrowseRow("##OutputPathField", work.OutputPath, Tr("No output path"), "OutputPath", Tr("Save As..."), -1.0F, Tr("Signed APK"))) {
-                    const std::string suggested = work.OutputPath.empty() ? DefaultSignedPath(work.ApkPath) : work.OutputPath;
+                    const std::string suggested = work.OutputPath.empty() ? DefaultSignedPath(work.InputPath) : work.OutputPath;
                     if (const auto picked = FileDialog::SaveFile(
                             Tr("Save signed APK"),
                             suggested,
@@ -790,7 +790,7 @@ namespace CoreDeck {
                 StatusBar(StatusBarTone::Success, Tr("APK signed."));
                 return;
             }
-            if (!work.ApkPath.empty() && work.HasVerify && (!work.Verify.Started || work.Verify.ToolMissing)) {
+            if (!work.InputPath.empty() && work.HasVerify && (!work.Verify.Started || work.Verify.ToolMissing)) {
                 StatusBar(StatusBarTone::Error, Tr("The signature could not be checked."));
                 return;
             }
@@ -804,7 +804,7 @@ namespace CoreDeck {
                 StatusBar(StatusBarTone::Error, RefusalText(refusal));
                 return;
             }
-            if (work.ApkPath.empty()) {
+            if (work.InputPath.empty()) {
                 StatusBar(StatusBarTone::Idle, Tr("Choose an APK to see its signature."));
                 return;
             }
@@ -827,8 +827,8 @@ namespace CoreDeck {
             return std::max(1.0F, stack * 0.5F);
         }
 
-        void DrawInputDetail(const struct Context::ApkSignerWork &work) {
-            if (work.ApkPath.empty()) {
+        void DrawInputDetail(const ApkSignerWork &work) {
+            if (work.InputPath.empty()) {
                 CenteredMessage(Tr("No APK Selected"), Tr("Choose an APK to see its signature."));
                 return;
             }
@@ -840,10 +840,10 @@ namespace CoreDeck {
                 CenteredMessage(Tr("Something Went Wrong!"), Tr("The signature could not be checked."), Colors::NEGATIVE);
                 return;
             }
-            DrawSignatureReport(Tr("APK"), work.ApkPath, work.Verify);
+            DrawSignatureReport(Tr("APK"), work.InputPath, work.Verify);
         }
 
-        void DrawOutputDetail(const struct Context::ApkSignerWork &work) {
+        void DrawOutputDetail(const ApkSignerWork &work) {
             const bool signing = work.Busy.load() && work.Task == ApkSignerTask::Sign;
             if (signing) {
                 CenteredMessage(Tr("Signing..."), nullptr);

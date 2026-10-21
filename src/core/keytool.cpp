@@ -580,10 +580,10 @@ namespace CoreDeck {
     int DefaultKeySize(const KeyAlgorithm algorithm) {
         switch (algorithm) {
             case KeyAlgorithm::Ec:
-                return 256;
+                return DEFAULT_EC_KEY_SIZE;
             case KeyAlgorithm::Rsa:
             case KeyAlgorithm::Dsa:
-                return 2048;
+                return DEFAULT_KEY_SIZE;
             case KeyAlgorithm::Ed25519:
             case KeyAlgorithm::Ed448:
                 break;
@@ -744,14 +744,14 @@ namespace CoreDeck {
         if (distinctKey && request.KeyPassword.size() < static_cast<std::size_t>(KEYSTORE_PASSWORD_MIN)) {
             return KeytoolRefusal::KeyPasswordTooShort;
         }
-        if (request.ValidityDays < 1) {
+        if (request.ValidityDays < KEYSTORE_VALIDITY_MIN_DAYS) {
             return KeytoolRefusal::InvalidValidity;
         }
         if (!KeySizeValid(request.Algorithm, request.KeySize)) {
             return KeytoolRefusal::InvalidKeySize;
         }
         const std::string country = TrimCopy(request.Country);
-        if (!country.empty() && CountryValue(country).size() != 2) {
+        if (!country.empty() && CountryValue(country).size() != KEYSTORE_COUNTRY_CODE_LENGTH) {
             return KeytoolRefusal::InvalidCountry;
         }
         if (BuildDistinguishedName(request).empty()) {

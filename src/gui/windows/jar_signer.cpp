@@ -99,12 +99,12 @@ namespace CoreDeck {
             return true;
         }
 
-        void FinishTask(struct Context::JarSignerWork &work) {
+        void FinishTask(JarSignerWork &work) {
             work.Busy = false;
             work.Task = JarSignerTask::None;
         }
 
-        void RetireJobs(struct Context::JarSignerWork &work) {
+        void RetireJobs(JarSignerWork &work) {
             auto &grave = Graveyard();
             Retire(work.VerifyFuture, grave.Verify);
             Retire(work.AliasFuture, grave.Aliases);
@@ -126,20 +126,20 @@ namespace CoreDeck {
             return !std::filesystem::is_regular_file(path, error);
         }
 
-        void WipePasswordBuffers(struct Context::JarSignerWork &work) {
+        void WipePasswordBuffers(JarSignerWork &work) {
             WipeSecret(work.StorePassword, sizeof work.StorePassword);
             WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
             work.SecretEpoch += 1;
         }
 
-        void ClearSignResult(struct Context::JarSignerWork &work) {
+        void ClearSignResult(JarSignerWork &work) {
             work.HasSignResult = false;
             work.SignResult = {};
         }
 
-        void ResetForm(struct Context::JarSignerWork &work) {
+        void ResetForm(JarSignerWork &work) {
             WipePasswordBuffers(work);
-            work.ArchivePath.clear();
+            work.InputPath.clear();
             work.KeystorePath.clear();
             work.KeystoreType.clear();
             work.OutputPath.clear();
@@ -185,7 +185,7 @@ namespace CoreDeck {
             return "";
         }
 
-        JarSignRefusal SignRefusal(const Context &context, const struct Context::JarSignerWork &work, const std::string &jarsigner) {
+        JarSignRefusal SignRefusal(const Context &context, const JarSignerWork &work, const std::string &jarsigner) {
             if (JarsignerMissing(jarsigner)) {
                 return JarSignRefusal::MissingJarsigner;
             }
@@ -195,20 +195,20 @@ namespace CoreDeck {
             if (work.OutputPath.empty()) {
                 return JarSignRefusal::MissingOutput;
             }
-            if (Paths::SameFilePath(work.ArchivePath, work.OutputPath)) {
+            if (Paths::SameFilePath(work.InputPath, work.OutputPath)) {
                 return JarSignRefusal::OutputSameAsInput;
             }
             return JarSignRefusal::None;
         }
 
-        bool ShowLiveRefusal(const JarSignRefusal refusal, const struct Context::JarSignerWork &work) {
+        bool ShowLiveRefusal(const JarSignRefusal refusal, const JarSignerWork &work) {
             switch (refusal) {
                 case JarSignRefusal::None:
                 case JarSignRefusal::MissingJarsigner:
                 case JarSignRefusal::PasswordFileFailed:
                     return false;
                 case JarSignRefusal::MissingOutput:
-                    return !work.ArchivePath.empty();
+                    return !work.InputPath.empty();
                 case JarSignRefusal::MissingJdk:
                 case JarSignRefusal::OutputSameAsInput:
                     return true;
@@ -216,8 +216,8 @@ namespace CoreDeck {
             return false;
         }
 
-        bool CanSign(const Context &context, const struct Context::JarSignerWork &work, const std::string &jarsigner) {
-            if (work.Busy.load() || work.ArchivePath.empty() || work.KeystorePath.empty() || work.SelectedAlias.empty()) {
+        bool CanSign(const Context &context, const JarSignerWork &work, const std::string &jarsigner) {
+            if (work.Busy.load() || work.InputPath.empty() || work.KeystorePath.empty() || work.SelectedAlias.empty()) {
                 return false;
             }
             if (work.StorePassword[0] == '\0') {
@@ -231,12 +231,12 @@ namespace CoreDeck {
 
         void StartAliasList(Context &context);
 
-        void ApplyVerify(struct Context::JarSignerWork &work, JarVerifyResult result) {
+        void ApplyVerify(JarSignerWork &work, JarVerifyResult result) {
             work.Verify = std::move(result);
             work.HasVerify = true;
         }
 
-        void ApplyAlias(struct Context::JarSignerWork &work, KeytoolAliasListResult result) {
+        void ApplyAlias(JarSignerWork &work, KeytoolAliasListResult result) {
             work.AliasResult = std::move(result);
             work.HasAliasResult = true;
             work.Aliases.clear();
@@ -252,7 +252,7 @@ namespace CoreDeck {
             }
         }
 
-        void ApplySign(struct Context::JarSignerWork &work, JarSignResult result) {
+        void ApplySign(JarSignerWork &work, JarSignResult result) {
             work.SignResult = std::move(result);
             work.HasSignResult = true;
             WipePasswordBuffers(work);
@@ -292,10 +292,10 @@ namespace CoreDeck {
 
         void StartVerify(Context &context, const std::string &jarsigner) {
             auto &work = context.JarSignerWork;
-            if (work.Busy.load() || work.ArchivePath.empty() || JarsignerMissing(jarsigner)) {
+            if (work.Busy.load() || work.InputPath.empty() || JarsignerMissing(jarsigner)) {
                 return;
             }
-            const std::string archive = work.ArchivePath;
+            const std::string archive = work.InputPath;
             const EnvVars toolEnv = context.Host.Sdk.ToolEnv;
             RetireJobs(work);
             work.HasVerify = false;
@@ -352,7 +352,7 @@ namespace CoreDeck {
             std::string storePassword(work.StorePassword);
             std::string keyPassword = work.KeyPasswordMatches ? storePassword : std::string(work.KeyPassword);
             JarSignRequest request;
-            request.InputPath = work.ArchivePath;
+            request.InputPath = work.InputPath;
             request.OutputPath = work.OutputPath;
             request.KeystorePath = work.KeystorePath;
             request.KeystoreType = work.KeystoreType;
@@ -412,7 +412,7 @@ namespace CoreDeck {
             DrawVerifyDetails(verify);
         }
 
-        void AliasCombo(struct Context::JarSignerWork &work, const float width) {
+        void AliasCombo(JarSignerWork &work, const float width) {
             const bool reading = work.Busy.load() && work.Task == JarSignerTask::Aliases;
             const char *preview = Tr("Select an Alias");
             if (reading) {
@@ -480,12 +480,12 @@ namespace CoreDeck {
             SecretEdit storePassword;
             {
                 FormDisabled disabled(work.Busy.load());
-                if (BrowseRow("##ArchivePathField", work.ArchivePath, Tr("Choose an archive..."), "ArchivePath", Tr("Browse..."), pathW, Tr("Archive"))) {
-                    const std::string start = DirectoryOf(work.ArchivePath);
+                if (BrowseRow("##ArchivePathField", work.InputPath, Tr("Choose an archive..."), "ArchivePath", Tr("Browse..."), pathW, Tr("Archive"))) {
+                    const std::string start = DirectoryOf(work.InputPath);
                     if (const auto picked = FileDialog::PickFile(Tr("Open Archive"), Tr("Java archives"), JarArchivePatterns(), start)) {
-                        work.ArchivePath = *picked;
+                        work.InputPath = *picked;
                         if (!work.OutputCustomized) {
-                            work.OutputPath = SuggestedSignedJarPath(work.ArchivePath);
+                            work.OutputPath = SuggestedSignedJarPath(work.InputPath);
                         }
                         work.HasVerify = false;
                         work.Verify = {};
@@ -503,7 +503,7 @@ namespace CoreDeck {
                         pathW,
                         Tr("Keystore")
                     )) {
-                    const std::string start = work.KeystorePath.empty() ? DirectoryOf(work.ArchivePath) : DirectoryOf(work.KeystorePath);
+                    const std::string start = work.KeystorePath.empty() ? DirectoryOf(work.InputPath) : DirectoryOf(work.KeystorePath);
                     if (const auto picked = FileDialog::PickFile(Tr("Open Keystore"), Tr("Keystores"), KeystoreFilePatterns(), start)) {
                         work.KeystorePath = *picked;
                         work.KeystoreType = DetectKeystoreType(*picked);
@@ -579,7 +579,7 @@ namespace CoreDeck {
 
                 ImGui::Spacing();
                 if (BrowseRow("##OutputPathField", work.OutputPath, Tr("No output path"), "OutputPath", Tr("Save As..."), -1.0F, Tr("Signed archive"))) {
-                    const std::string suggested = work.OutputPath.empty() ? SuggestedSignedJarPath(work.ArchivePath) : work.OutputPath;
+                    const std::string suggested = work.OutputPath.empty() ? SuggestedSignedJarPath(work.InputPath) : work.OutputPath;
                     if (const auto picked = FileDialog::SaveFile(
                             Tr("Save signed archive"),
                             suggested,
@@ -636,7 +636,7 @@ namespace CoreDeck {
                 StatusBar(StatusBarTone::Success, Tr("Archive signed."));
                 return;
             }
-            if (!work.ArchivePath.empty() && work.HasVerify && (!work.Verify.Started || work.Verify.ToolMissing)) {
+            if (!work.InputPath.empty() && work.HasVerify && (!work.Verify.Started || work.Verify.ToolMissing)) {
                 StatusBar(StatusBarTone::Error, Tr("The signature could not be checked."));
                 return;
             }
@@ -650,7 +650,7 @@ namespace CoreDeck {
                 StatusBar(StatusBarTone::Error, RefusalText(refusal));
                 return;
             }
-            if (work.ArchivePath.empty()) {
+            if (work.InputPath.empty()) {
                 StatusBar(StatusBarTone::Idle, Tr("Choose an archive to see its signature."));
                 return;
             }
@@ -673,8 +673,8 @@ namespace CoreDeck {
             return std::max(1.0F, stack * 0.5F);
         }
 
-        void DrawInputDetail(const struct Context::JarSignerWork &work) {
-            if (work.ArchivePath.empty()) {
+        void DrawInputDetail(const JarSignerWork &work) {
+            if (work.InputPath.empty()) {
                 CenteredMessage(Tr("No Archive Selected"), Tr("Choose an archive to see its signature."));
                 return;
             }
@@ -686,10 +686,10 @@ namespace CoreDeck {
                 CenteredMessage(Tr("Something Went Wrong!"), Tr("The signature could not be checked."), Colors::NEGATIVE);
                 return;
             }
-            DrawSignatureReport(Tr("Archive"), work.ArchivePath, work.Verify);
+            DrawSignatureReport(Tr("Archive"), work.InputPath, work.Verify);
         }
 
-        void DrawOutputDetail(const struct Context::JarSignerWork &work) {
+        void DrawOutputDetail(const JarSignerWork &work) {
             const bool signing = work.Busy.load() && work.Task == JarSignerTask::Sign;
             if (signing) {
                 CenteredMessage(Tr("Signing..."), nullptr);

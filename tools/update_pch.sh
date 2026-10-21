@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+# Rewrites src/pch.h from actual include usage.
 # Inclusion criteria for PCH:
 #   - Used in ≥5 translation units
 #   - Cross-platform (no <windows.h>, <unistd.h>, etc.)
 #   - Standard library or stable third-party (no project headers)
+# A header already in pch.h is removed when it is used fewer than 3 times.
 
 set -eu
 
@@ -29,7 +31,6 @@ grep -rh "^#include <" "${SRC_DIR}" 2>/dev/null \
     | sort | uniq -c | awk '{$1=$1; print}' \
     | sort -rn > "${TMPDIR}/usage.txt"
 
-# Headers currently in pch.h.
 grep -E '^#include <' "${PCH_FILE}" \
     | sed -E 's/^#include <([^>]+)>.*$/\1/' \
     | sort -u > "${TMPDIR}/in_pch.txt"
@@ -59,42 +60,67 @@ awk -v threshold="${REMOVE_THRESHOLD}" '
 ' "${TMPDIR}/usage.txt" "${TMPDIR}/in_pch.txt" \
     | sort -n > "${TMPDIR}/remove_candidates.txt"
 
-EXIT_CODE=0
+awk '{ print $2 }' "${TMPDIR}/add_candidates.txt" > "${TMPDIR}/add_names.txt"
+awk '{ print $2 }' "${TMPDIR}/remove_candidates.txt" > "${TMPDIR}/remove_names.txt"
 
+if [ ! -s "${TMPDIR}/add_names.txt" ] && [ ! -s "${TMPDIR}/remove_names.txt" ]; then
+    echo "src/pch.h is already up to date."
+    exit 0
+fi
+
+awk -v add_file="${TMPDIR}/add_names.txt" -v remove_file="${TMPDIR}/remove_names.txt" '
+    function emit_additions() {
+        if (emitted) {
+            return
+        }
+        emitted = 1
+        for (i = 1; i <= nadd; i++) {
+            printf "#include <%s>\n", add[i]
+        }
+    }
+    BEGIN {
+        while ((getline line < remove_file) > 0) {
+            remove[line] = 1
+        }
+        close(remove_file)
+        while ((getline line < add_file) > 0) {
+            nadd++
+            add[nadd] = line
+        }
+        close(add_file)
+    }
+    /^#include </ {
+        in_includes = 1
+        header = $0
+        sub(/^#include </, "", header)
+        sub(/>.*$/, "", header)
+        if (header in remove) {
+            next
+        }
+        print
+        next
+    }
+    {
+        if (in_includes) {
+            emit_additions()
+        }
+        print
+    }
+    END {
+        if (in_includes) {
+            emit_additions()
+        }
+    }
+' "${PCH_FILE}" > "${TMPDIR}/pch.h"
+
+mv "${TMPDIR}/pch.h" "${PCH_FILE}"
+
+echo "Updated src/pch.h"
 if [ -s "${TMPDIR}/add_candidates.txt" ]; then
-    echo "Headers to consider ADDING to pch.h (used >= ${ADD_THRESHOLD} times, currently missing):"
-    awk '{ printf "  %3d uses  <%s>\n", $1, $2 }' "${TMPDIR}/add_candidates.txt"
-    echo
-    EXIT_CODE=1
+    echo "Added:"
+    awk '{ printf "  <%s>\n", $2 }' "${TMPDIR}/add_candidates.txt"
 fi
-
 if [ -s "${TMPDIR}/remove_candidates.txt" ]; then
-    echo "Headers to consider REMOVING from pch.h (used < ${REMOVE_THRESHOLD} times):"
-    awk '{ printf "  %3d uses  <%s>\n", $1, $2 }' "${TMPDIR}/remove_candidates.txt"
-    echo
-    EXIT_CODE=1
+    echo "Removed:"
+    awk '{ printf "  <%s>\n", $2 }' "${TMPDIR}/remove_candidates.txt"
 fi
-
-if [ "${EXIT_CODE}" -eq 0 ]; then
-    echo "pch.h looks healthy — no suggestions."
-    echo
-fi
-
-echo "Top 25 standard headers by usage:"
-awk -v platform_re="${PLATFORM_PATTERN}" -v nonstd_re="${NONSTD_PATTERN}" '
-    $2 ~ platform_re { next }
-    $2 ~ nonstd_re { next }
-    { print }
-' "${TMPDIR}/usage.txt" | head -25 \
-    | awk -v in_pch_file="${TMPDIR}/in_pch.txt" '
-        BEGIN {
-            while ((getline line < in_pch_file) > 0) in_pch[line] = 1
-            close(in_pch_file)
-        }
-        {
-            marker = ($2 in in_pch) ? "[in pch]" : "        "
-            printf "  %s  %3d uses  <%s>\n", marker, $1, $2
-        }
-    '
-
-exit "${EXIT_CODE}"

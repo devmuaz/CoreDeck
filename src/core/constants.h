@@ -13,6 +13,15 @@ namespace CoreDeck {
     constexpr int JDK_RECOMMENDED_MAJOR = 21;
     constexpr const char *JAVA_JDK21_DOWNLOAD_URL = "https://www.oracle.com/java/technologies/downloads/#java21";
 
+    // Keystore
+    constexpr int KEYSTORE_PASSWORD_MIN = 6;
+    constexpr int KEYSTORE_COUNTRY_CODE_LENGTH = 2;
+    constexpr int KEYSTORE_VALIDITY_MIN_DAYS = 1;
+    constexpr int KEYSTORE_VALIDITY_MAX_DAYS = 365000;
+    constexpr int DEFAULT_KEY_VALIDITY_DAYS = 3650;
+    constexpr int DEFAULT_KEY_SIZE = 2048;
+    constexpr int DEFAULT_EC_KEY_SIZE = 256;
+
     // Android SDK
     constexpr const char *SDK_LICENSE_URL = "https://developer.android.com/studio/terms";
     constexpr const char *ANDROID_REPOSITORY_URL = "https://dl.google.com/android/repository/";

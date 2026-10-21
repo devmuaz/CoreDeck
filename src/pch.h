@@ -23,5 +23,12 @@
 #include <cctype>
 #include <functional>
 #include <cstddef>
+#include <utility>
+#include <array>
+#include <cstring>
+#include <string_view>
+#include <cstdlib>
+#include <cerrno>
+
 
 #endif // COREDECK_PCH_H
