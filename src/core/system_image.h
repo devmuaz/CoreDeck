@@ -13,7 +13,7 @@
 
 #include "sdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct SystemImage {
         std::string ApiLevel;
         std::string Variant;

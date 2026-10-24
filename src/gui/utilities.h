@@ -11,14 +11,17 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct JdkInfo;
+}
+
+namespace CoreDeck::Gui {
 
     void CopyToBuffer(char *buffer, std::size_t size, const std::string &value);
 
     bool SameJdkHome(const std::string &left, const std::string &right);
 
-    std::string JavaRuntimeLabel(const JdkInfo &jdk);
+    std::string JavaRuntimeLabel(const Core::JdkInfo &jdk);
 
     // A drawn spinner calls this. The frame loop consumes it to keep redrawing.
     void RequestSpinnerFrame();

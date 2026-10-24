@@ -14,11 +14,13 @@
 #include "../utilities.h"
 #include "../widgets.h"
 #include "../../core/jdk.h"
-#include "../../core/paths.h"
+#include "platform/paths.h"
+#include "app/paths.h"
 #include "../../core/sdk.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
+#include "app/app_settings.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         enum class SdkPathAction : uint8_t {
             Apply,
@@ -26,7 +28,7 @@ namespace CoreDeck {
         };
 
         struct SdkPathResult {
-            SdkInfo Sdk;
+            Core::SdkInfo Sdk;
             AvdCatalogSnapshot Catalog;
             bool UpdateBuffer = false;
         };
@@ -46,15 +48,15 @@ namespace CoreDeck {
             return path;
         }
 
-        void StartSdkPathJob(const SdkPathAction action, const JdkInfo &jdk) {
+        void StartSdkPathJob(const SdkPathAction action, const Core::JdkInfo &jdk) {
             SupersedeAvdListRefresh();
             SdkPathJob &job = PathJob();
             job.Action = action;
             const bool updateBuffer = action == SdkPathAction::Discover;
             job.Future = std::async(std::launch::async, [jdk, updateBuffer] {
                 SdkPathResult result;
-                result.Sdk = DetectAndroidSdk();
-                ApplyJdkToSdk(result.Sdk, jdk);
+                result.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+                Core::ApplyJdkToSdk(result.Sdk, jdk);
                 result.Catalog = LoadAvdCatalog(result.Sdk);
                 result.UpdateBuffer = updateBuffer;
                 return result;
@@ -83,37 +85,37 @@ namespace CoreDeck {
         PersistAppSettings(context);
     }
 
-    void DrawPreferencesAndroidSdkSection(Context &context, char *sdkPathBuffer, const size_t bufferSize) {
-        if (PendingSdkPath()) {
-            CopyToBuffer(sdkPathBuffer, bufferSize, *PendingSdkPath());
+    void PreferencesAndroidSdkSection(const Context &context, char *sdkPathBuffer, const size_t bufferSize) {
+        if (const std::optional<std::string> &pending = PendingSdkPath()) {
+            CopyToBuffer(sdkPathBuffer, bufferSize, *pending);
             PendingSdkPath().reset();
         }
 
-        PreferencesSectionHeader(Tr("Android SDK"), Tr("Where CoreDeck looks for the emulator and command-line tools."));
+        PreferencesSectionHeader(Platform::Tr("Android SDK"), Platform::Tr("Where CoreDeck looks for the emulator and command-line tools."));
 
         const std::string pathStr = PathPicker(
             "##SdkPrefs",
-            Tr("SDK root"),
-            Tr("Path to Android SDK"),
-            Tr("Select Android SDK directory"),
+            Platform::Tr("SDK root"),
+            Platform::Tr("Path to Android SDK"),
+            Platform::Tr("Select Android SDK directory"),
             sdkPathBuffer,
             bufferSize
         );
-        const bool pathOk = Paths::Onboarding::ValidateSdkPath(pathStr);
+        const bool pathOk = Core::ValidateSdkPath(pathStr);
 
         if (!pathStr.empty()) {
             if (pathOk) {
-                StatusMessage(StatusMessageTone::Positive, Tr("Valid Android SDK path."));
+                StatusMessage(StatusMessageTone::Positive, Platform::Tr("Valid Android SDK path."));
             } else {
                 StatusMessage(
                     StatusMessageTone::Error,
-                    Tr("Not a valid SDK (need emulator and cmdline-tools with avdmanager).")
+                    Platform::Tr("Not a valid SDK (need emulator and cmdline-tools with avdmanager).")
                 );
             }
         } else {
             StatusMessage(
                 StatusMessageTone::Info,
-                Tr("Leave empty to auto-detect from ANDROID_HOME or default install paths.")
+                Platform::Tr("Leave empty to auto-detect from ANDROID_HOME or default install paths.")
             );
         }
 
@@ -125,21 +127,21 @@ namespace CoreDeck {
         const bool applyingPath = pathBusy && pathJob.Action == SdkPathAction::Apply;
         const bool discoveringPath = pathBusy && pathJob.Action == SdkPathAction::Discover;
 
-        if (PrimaryButton(Tr("Apply SDK Path"), (!pathBusy && pathOk) || applyingPath, ImVec2(0, 0), applyingPath)) {
-            Paths::Onboarding::SaveSdkPathOverride(pathStr);
+        if (PrimaryButton(Platform::Tr("Apply SDK Path"), (!pathBusy && pathOk) || applyingPath, ImVec2(0, 0), applyingPath)) {
+            App::UpdateAppSettings([&](App::AppSettings &settings) { settings.SdkPath = pathStr; });
             StartSdkPathJob(SdkPathAction::Apply, context.Host.Jdk);
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !pathOk) {
-            ImGui::SetTooltip("%s", Tr("Fix the path or validation errors before applying."));
+            ImGui::SetTooltip("%s", Platform::Tr("Fix the path or validation errors before applying."));
         }
 
         ImGui::SameLine();
-        if (PrimaryButton(Tr("Use Default Discovery"), !pathBusy || discoveringPath, ImVec2(0, 0), discoveringPath)) {
-            Paths::Onboarding::ClearSdkPathOverride();
+        if (PrimaryButton(Platform::Tr("Use Default Discovery"), !pathBusy || discoveringPath, ImVec2(0, 0), discoveringPath)) {
+            App::UpdateAppSettings([](App::AppSettings &settings) { settings.SdkPath.clear(); });
             StartSdkPathJob(SdkPathAction::Discover, context.Host.Jdk);
         }
         if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("%s", Tr("Forget the saved override and detect the SDK from ANDROID_HOME / default paths."));
+            ImGui::SetTooltip("%s", Platform::Tr("Forget the saved override and detect the SDK from ANDROID_HOME / default paths."));
         }
     }
 }

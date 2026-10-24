@@ -8,12 +8,8 @@
 #include "sdk_manager.h"
 #include "process.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
-        // Java's PrintStream buffers 8192 characters and auto-flushes on newline.
-        // A wider COLUMNS makes each Android CLI progress redraw spill that buffer.
-        constexpr const char *SDK_MANAGER_PROGRESS_COLUMNS = "16384";
-
         std::string TrimProgressText(const std::string &text) {
             const auto start = text.find_first_not_of(" \t");
             if (start == std::string::npos) {
@@ -128,14 +124,14 @@ namespace CoreDeck {
         return result;
     }
 
-    EnvVars SdkManagerInstallEnvironment(EnvVars env) {
+    Platform::EnvVars SdkManagerInstallEnvironment(Platform::EnvVars env) {
         for (auto &var: env) {
-            if (var.Name == "COLUMNS") {
+            if (var.Name == ENV_COLUMNS) {
                 var.Value = SDK_MANAGER_PROGRESS_COLUMNS;
                 return env;
             }
         }
-        env.insert(env.begin(), {.Name = "COLUMNS", .Value = SDK_MANAGER_PROGRESS_COLUMNS});
+        env.insert(env.begin(), {.Name = ENV_COLUMNS, .Value = SDK_MANAGER_PROGRESS_COLUMNS});
         return env;
     }
 
@@ -148,7 +144,7 @@ namespace CoreDeck {
             return std::nullopt;
         }
 
-        return RunCommandArgs(sdk.SdkManagerPath, args, stdinData, sdk.ToolEnv);
+        return Platform::RunCommandArgs(sdk.SdkManagerPath, args, stdinData, sdk.ToolEnv);
     }
 
     bool RunSdkManagerInstall(
@@ -161,7 +157,7 @@ namespace CoreDeck {
             return false;
         }
 
-        StreamCommandArgs(
+        Platform::StreamCommandArgs(
             sdk.SdkManagerPath,
             args,
             stdinInput,

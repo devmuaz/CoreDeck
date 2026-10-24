@@ -7,9 +7,9 @@
 
 #include "imgui.h"
 
-#include "../core/app_settings_types.h"
+#include "app/app_settings_types.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace Icons {
         constexpr const char *PLAY = "\xef\x81\x8b";
         constexpr const char *STOP = "\xef\x81\x8d";
@@ -37,6 +37,8 @@ namespace CoreDeck {
         constexpr const char *WATCH = "\xef\x80\x97";
         constexpr const char *CAR = "\xef\x86\xb9";
         constexpr const char *COPY = "\xef\x83\x85";
+        constexpr const char *EYE = "\xef\x81\xae";
+        constexpr const char *EYE_SLASH = "\xef\x81\xb0";
         constexpr const char *CHEVRON_LEFT = "\xef\x81\x93";
         constexpr const char *CHEVRON_RIGHT = "\xef\x81\x94";
         constexpr const char *COFFEE = "\xef\x83\xb4";
@@ -45,6 +47,8 @@ namespace CoreDeck {
         constexpr const char *TIMES_CIRCLE = "\xef\x81\x97";
         constexpr const char *WARNING_TRIANGLE = "\xef\x81\xb1";
         constexpr const char *HEART_PULSE = "\xef\x88\x9e";
+        constexpr const char *SIGNATURE = "\xef\x96\xb7";
+        constexpr const char *KEY = "\xef\x82\x84";
     }
 
     struct ColorToken {
@@ -104,7 +108,7 @@ namespace CoreDeck {
 
     bool IsLightColorScheme();
 
-    void SetThemePreference(ThemePreference preference);
+    void SetThemePreference(App::ThemePreference preference);
 
     bool SyncSystemColorScheme();
 

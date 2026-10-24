@@ -6,7 +6,7 @@
 
 #include "theme.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
 void SetCocoaWindowAppearance(void *nativeWindow, const bool light) {
   if (nativeWindow == nullptr) {
     return;
@@ -17,4 +17,4 @@ void SetCocoaWindowAppearance(void *nativeWindow, const bool light) {
       light ? NSAppearanceNameAqua : NSAppearanceNameDarkAqua;
   window.appearance = [NSAppearance appearanceNamed:name];
 }
-} // namespace CoreDeck
+} // namespace CoreDeck::Gui

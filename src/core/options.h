@@ -11,7 +11,7 @@
 
 #include "i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class OptionType : uint8_t {
         Default = 0,
         TextInput,
@@ -19,15 +19,15 @@ namespace CoreDeck {
     };
 
     namespace OptionCategory {
-        constexpr const char *DISPLAY = TrNoop("Display");
-        constexpr const char *PERFORMANCE = TrNoop("Performance");
-        constexpr const char *BOOT = TrNoop("Boot");
-        constexpr const char *AUDIO = TrNoop("Audio");
-        constexpr const char *NETWORK = TrNoop("Network");
-        constexpr const char *ADVANCED = TrNoop("Advanced");
-        constexpr const char *CAMERA = TrNoop("Camera");
-        constexpr const char *SYSTEM = TrNoop("System");
-        constexpr const char *LOCATION = TrNoop("Location");
+        constexpr const char *DISPLAY = Platform::TrNoop("Display");
+        constexpr const char *PERFORMANCE = Platform::TrNoop("Performance");
+        constexpr const char *BOOT = Platform::TrNoop("Boot");
+        constexpr const char *AUDIO = Platform::TrNoop("Audio");
+        constexpr const char *NETWORK = Platform::TrNoop("Network");
+        constexpr const char *ADVANCED = Platform::TrNoop("Advanced");
+        constexpr const char *CAMERA = Platform::TrNoop("Camera");
+        constexpr const char *SYSTEM = Platform::TrNoop("System");
+        constexpr const char *LOCATION = Platform::TrNoop("Location");
     }
 
     struct EmulatorOption {
@@ -68,9 +68,6 @@ namespace CoreDeck {
 
     std::vector<EmulatorOption> LoadOptionsFromFile(const std::string &filePath);
 
-    std::string GetOptionsConfigPath(const std::string &avdName);
-
-    void EnsureOptionsConfigDirectoryExists();
 }
 
 #endif // COREDECK_OPTIONS_H

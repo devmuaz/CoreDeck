@@ -6,7 +6,6 @@
 #include <filesystem>
 
 #include "sdk_bootstrap.h"
-#include "constants.h"
 #include "i18n.h"
 #include "archive.h"
 #include "http_download.h"
@@ -14,7 +13,7 @@
 #include "sha256.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         constexpr const char *STAGING_DIR_NAME = ".coredeck-bootstrap";
 
@@ -35,7 +34,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->Stage = stage;
             progress->Percent = percent;
             progress->StatusText = status;
@@ -46,7 +45,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->DetailText = detail;
         }
 
@@ -54,7 +53,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->Percent = percent;
         }
 
@@ -62,7 +61,7 @@ namespace CoreDeck {
             if (!progress) {
                 return false;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             return progress->CancelRequested;
         }
 
@@ -81,13 +80,13 @@ namespace CoreDeck {
             }
 
             if (progress) {
-                std::scoped_lock lock(progress->Mutex);
+                const std::scoped_lock lock(progress->Mutex);
                 progress->Stage = finalStage;
                 progress->Error = error;
                 progress->ErrorDetail = detail;
                 progress->Finished = true;
                 progress->Succeeded = succeeded;
-                progress->StatusText = succeeded ? Tr("Android SDK ready.") : BootstrapErrorMessage(error);
+                progress->StatusText = succeeded ? Platform::Tr("Android SDK ready.") : BootstrapErrorMessage(error);
                 if (succeeded) {
                     progress->Percent = 1.0F;
                 }
@@ -131,55 +130,55 @@ namespace CoreDeck {
         }
 
         std::string PlatformArchiveName() {
-            switch (Paths::GetCurrentPlatform()) {
-                case Paths::Platform::Windows:
-                    return StrConcat("commandlinetools-win-", CMDLINE_TOOLS_VERSION, "_latest.zip");
-                case Paths::Platform::MacOS:
+            switch (Platform::GetCurrentOs()) {
+                case Platform::Os::Windows:
+                    return Platform::StrConcat("commandlinetools-win-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                case Platform::Os::MacOS:
 #if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
-                    return StrConcat("commandlinetools-mac_arm64-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                    return Platform::StrConcat("commandlinetools-mac_arm64-", CMDLINE_TOOLS_VERSION, "_latest.zip");
 #else
-                    return StrConcat("commandlinetools-mac_x86_64-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                    return Platform::StrConcat("commandlinetools-mac_x86_64-", CMDLINE_TOOLS_VERSION, "_latest.zip");
 #endif
-                case Paths::Platform::Linux:
+                case Platform::Os::Linux:
                     // Google publishes a single Linux archive; the tools themselves are Java.
-                    return StrConcat("commandlinetools-linux-", CMDLINE_TOOLS_VERSION, "_latest.zip");
-                case Paths::Platform::Unknown:
+                    return Platform::StrConcat("commandlinetools-linux-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                case Platform::Os::Unknown:
                 default:
                     return {};
             }
         }
 
         std::string_view PlatformArchiveSha256() {
-            switch (Paths::GetCurrentPlatform()) {
-                case Paths::Platform::Windows:
+            switch (Platform::GetCurrentOs()) {
+                case Platform::Os::Windows:
                     return "90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a";
-                case Paths::Platform::MacOS:
+                case Platform::Os::MacOS:
 #if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
                     return "835b62a26162b229b441d1f6d4680383815a270809eb33522c0d480fa5002c4e";
 #else
                     return "c5a6378ab5cf7e0d5701921405115befff13e9ff7417fb588389338f8bd050f3";
 #endif
-                case Paths::Platform::Linux:
+                case Platform::Os::Linux:
                     return "4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583";
-                case Paths::Platform::Unknown:
+                case Platform::Os::Unknown:
                 default:
                     return {};
             }
         }
 
         std::uint64_t PlatformArchiveSize() {
-            switch (Paths::GetCurrentPlatform()) {
-                case Paths::Platform::Windows:
+            switch (Platform::GetCurrentOs()) {
+                case Platform::Os::Windows:
                     return 155655386ULL;
-                case Paths::Platform::MacOS:
+                case Platform::Os::MacOS:
 #if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
                     return 156083281ULL;
 #else
                     return 156281494ULL;
 #endif
-                case Paths::Platform::Linux:
+                case Platform::Os::Linux:
                     return 181833628ULL;
-                case Paths::Platform::Unknown:
+                case Platform::Os::Unknown:
                 default:
                     return 0ULL;
             }
@@ -193,16 +192,16 @@ namespace CoreDeck {
         if (release.FileName.empty()) {
             return release;
         }
-        release.DownloadUrl = StrConcat(ANDROID_REPOSITORY_URL, release.FileName);
+        release.DownloadUrl = Platform::StrConcat(ANDROID_REPOSITORY_URL, release.FileName);
         release.Sha256 = PlatformArchiveSha256();
         release.DownloadSize = PlatformArchiveSize();
 
 #ifndef NDEBUG
         // Debug-only escape hatch for exercising failure paths against a local file server.
-        if (const char *urlOverride = std::getenv("COREDECK_CMDLINE_TOOLS_URL")) { // NOLINT(concurrency-mt-unsafe)
+        if (const char *urlOverride = std::getenv(ENV_COREDECK_CMDLINE_TOOLS_URL)) { // NOLINT(concurrency-mt-unsafe)
             if (*urlOverride) {
                 release.DownloadUrl = urlOverride;
-                if (const char *shaOverride = std::getenv("COREDECK_CMDLINE_TOOLS_SHA256")) { // NOLINT(concurrency-mt-unsafe)
+                if (const char *shaOverride = std::getenv(ENV_COREDECK_CMDLINE_TOOLS_SHA256)) { // NOLINT(concurrency-mt-unsafe)
                     release.Sha256 = shaOverride;
                 }
             }
@@ -213,73 +212,73 @@ namespace CoreDeck {
     }
 
     std::string BootstrapStagingDirectory(const std::string &installRoot) {
-        return Paths::JoinPaths({installRoot, STAGING_DIR_NAME});
+        return Platform::JoinPaths({installRoot, STAGING_DIR_NAME});
     }
 
     const char *BootstrapErrorMessage(const BootstrapError error) {
         switch (error) {
             case BootstrapError::None:
-                return Tr("No error.");
+                return Platform::Tr("No error.");
             case BootstrapError::InvalidInstallRoot:
-                return Tr("The chosen install location cannot be used.");
+                return Platform::Tr("The chosen install location cannot be used.");
             case BootstrapError::InsufficientDiskSpace:
-                return Tr("Not enough free disk space for this install.");
+                return Platform::Tr("Not enough free disk space for this install.");
             case BootstrapError::UnsupportedPlatform:
-                return Tr("Google does not publish command-line tools for this platform.");
+                return Platform::Tr("Google does not publish command-line tools for this platform.");
             case BootstrapError::NetworkFailed:
-                return Tr("The download failed. Check your internet connection and try again.");
+                return Platform::Tr("The download failed. Check your internet connection and try again.");
             case BootstrapError::ChecksumMismatch:
-                return Tr("The downloaded archive did not match its expected checksum.");
+                return Platform::Tr("The downloaded archive did not match its expected checksum.");
             case BootstrapError::ExtractFailed:
-                return Tr("The downloaded archive could not be extracted.");
+                return Platform::Tr("The downloaded archive could not be extracted.");
             case BootstrapError::JdkRequired:
-                return Tr("A JDK 17 or newer is required before the Android SDK can be installed.");
+                return Platform::Tr("A JDK 17 or newer is required before the Android SDK can be installed.");
             case BootstrapError::SdkManagerMissing:
-                return Tr("The SDK Manager was not found after extracting the command-line tools.");
+                return Platform::Tr("The SDK Manager was not found after extracting the command-line tools.");
             case BootstrapError::LicenseCheckFailed:
-                return Tr("The Android SDK license state could not be read.");
+                return Platform::Tr("The Android SDK license state could not be read.");
             case BootstrapError::LicenseAcceptFailed:
-                return Tr("The Android SDK licenses were not accepted.");
+                return Platform::Tr("The Android SDK licenses were not accepted.");
             case BootstrapError::PackageInstallFailed:
-                return Tr("The SDK Manager could not install the required packages.");
+                return Platform::Tr("The SDK Manager could not install the required packages.");
             case BootstrapError::EmulatorMissingAfterInstall:
-                return Tr("The emulator is still missing after the installation finished.");
+                return Platform::Tr("The emulator is still missing after the installation finished.");
             case BootstrapError::Cancelled:
-                return Tr("The installation was cancelled.");
+                return Platform::Tr("The installation was cancelled.");
             case BootstrapError::Unknown:
             default:
-                return Tr("The Android SDK installation failed.");
+                return Platform::Tr("The Android SDK installation failed.");
         }
     }
 
     const char *BootstrapStageLabel(const BootstrapStage stage) {
         switch (stage) {
             case BootstrapStage::Idle:
-                return Tr("Ready");
+                return Platform::Tr("Ready");
             case BootstrapStage::Preparing:
-                return Tr("Preparing");
+                return Platform::Tr("Preparing");
             case BootstrapStage::DownloadingCmdlineTools:
-                return Tr("Downloading command-line tools");
+                return Platform::Tr("Downloading command-line tools");
             case BootstrapStage::Verifying:
-                return Tr("Verifying download");
+                return Platform::Tr("Verifying download");
             case BootstrapStage::Extracting:
-                return Tr("Extracting");
+                return Platform::Tr("Extracting");
             case BootstrapStage::ResolvingTools:
-                return Tr("Locating tools");
+                return Platform::Tr("Locating tools");
             case BootstrapStage::AcceptingLicenses:
-                return Tr("Accepting licenses");
+                return Platform::Tr("Accepting licenses");
             case BootstrapStage::InstallingPackages:
-                return Tr("Installing packages");
+                return Platform::Tr("Installing packages");
             case BootstrapStage::VerifyingInstall:
-                return Tr("Verifying installation");
+                return Platform::Tr("Verifying installation");
             case BootstrapStage::Succeeded:
-                return Tr("Done");
+                return Platform::Tr("Done");
             case BootstrapStage::Failed:
-                return Tr("Failed");
+                return Platform::Tr("Failed");
             case BootstrapStage::Cancelled:
-                return Tr("Cancelled");
+                return Platform::Tr("Cancelled");
             default:
-                return Tr("Working");
+                return Platform::Tr("Working");
         }
     }
 
@@ -292,8 +291,8 @@ namespace CoreDeck {
                             const std::function<bool(std::uint64_t, std::uint64_t)> &onProgress,
                             std::string &error
                         ) {
-            const std::string userAgent = StrConcat(USER_AGENT_PREFIX, COREDECK_VERSION);
-            return HttpDownloadToFile(url, destPath, userAgent, onProgress, error);
+            const std::string userAgent = Platform::StrConcat(COREDECK_TITLE, "/", COREDECK_VERSION);
+            return Platform::HttpDownloadToFile(url, destPath, userAgent, onProgress, error);
         };
 
         deps.Extract = [](
@@ -302,10 +301,10 @@ namespace CoreDeck {
                            const std::function<bool(float)> &onProgress,
                            std::string &error
                        ) {
-            return ExtractZip(zipPath, destDir, ExtractOptions{.StripTopLevelDir = true}, onProgress, error);
+            return Platform::ExtractZip(zipPath, destDir, Platform::ExtractOptions{.StripTopLevelDir = true}, onProgress, error);
         };
 
-        deps.FileSha256 = [](const std::string &path) { return Sha256File(path); };
+        deps.FileSha256 = [](const std::string &path) { return Platform::Sha256File(path); };
 
         deps.Probe = [](const std::string &sdkPath) { return ProbeAndroidSdk(sdkPath); };
 
@@ -321,7 +320,7 @@ namespace CoreDeck {
                                ) {
             std::vector<std::string> args;
             args.reserve(packages.size() + 2);
-            args.push_back(StrConcat("--sdk_root=", sdkRoot));
+            args.push_back(Platform::StrConcat("--sdk_root=", sdkRoot));
             args.emplace_back("--install");
             for (const auto &package: packages) {
                 args.push_back(package);
@@ -348,7 +347,7 @@ namespace CoreDeck {
             const BootstrapDeps &deps
         ) {
             if (plan.AcceptLicenses) {
-                SetStage(progress, BootstrapStage::AcceptingLicenses, RESOLVE_END, Tr("Accepting SDK licenses..."));
+                SetStage(progress, BootstrapStage::AcceptingLicenses, RESOLVE_END, Platform::Tr("Accepting SDK licenses..."));
                 const LicenseStatus status = deps.CheckLicenses(sdk);
                 if (status == LicenseStatus::CheckFailed) {
                     return Finish(progress, BootstrapError::LicenseCheckFailed, "");
@@ -365,18 +364,21 @@ namespace CoreDeck {
 
             if (!plan.Packages.empty()) {
                 const char *status = plan.UseExistingCmdlineTools
-                                         ? Tr("Installing build-tools...")
-                                         : Tr("Installing platform-tools, build-tools, and emulator...");
+                                         ? Platform::Tr("Installing build-tools...")
+                                         : Platform::Tr("Installing platform-tools, build-tools, and emulator...");
                 SetStage(progress, BootstrapStage::InstallingPackages, LICENSE_END, status);
                 if (!deps.InstallPackages(sdk, plan.InstallRoot, plan.Packages, progress)) {
                     return Finish(progress, BootstrapError::PackageInstallFailed, "");
                 }
             }
 
-            SetStage(progress, BootstrapStage::VerifyingInstall, PACKAGES_END, Tr("Verifying installation..."));
+            SetStage(progress, BootstrapStage::VerifyingInstall, PACKAGES_END, Platform::Tr("Verifying installation..."));
             if (plan.UseExistingCmdlineTools) {
-                if (FindInstalledAapt2(plan.InstallRoot).empty()) {
-                    return Finish(progress, BootstrapError::PackageInstallFailed, Tr("aapt2 was not found under build-tools."));
+                const bool ready = !FindInstalledBuildTool(plan.InstallRoot, "aapt2").empty() &&
+                                   !FindInstalledBuildTool(plan.InstallRoot, "zipalign").empty() &&
+                                   !FindInstalledBuildTool(plan.InstallRoot, "apksigner").empty();
+                if (!ready) {
+                    return Finish(progress, BootstrapError::PackageInstallFailed, Platform::Tr("aapt2, zipalign, or apksigner were not found under build-tools."));
                 }
                 return Finish(progress, BootstrapError::None, "");
             }
@@ -396,10 +398,10 @@ namespace CoreDeck {
         const std::shared_ptr<BootstrapProgressData> &progress,
         const BootstrapDeps &deps
     ) {
-        SetStage(progress, BootstrapStage::Preparing, 0.0F, Tr("Preparing..."));
+        SetStage(progress, BootstrapStage::Preparing, 0.0F, Platform::Tr("Preparing..."));
 
         if (plan.InstallRoot.empty()) {
-            return Finish(progress, BootstrapError::InvalidInstallRoot, Tr("No install location was provided."));
+            return Finish(progress, BootstrapError::InvalidInstallRoot, Platform::Tr("No install location was provided."));
         }
         if (!jdk.IsFound || !jdk.IsValid) {
             return Finish(progress, BootstrapError::JdkRequired, jdk.VersionString);
@@ -419,12 +421,12 @@ namespace CoreDeck {
             return Finish(
                 progress,
                 BootstrapError::InsufficientDiskSpace,
-                TrFormat("About {0} is needed, {1} is free.", FormatFileSize(requiredBytes), FormatFileSize(space.available))
+                Platform::TrFormat("About {0} is needed, {1} is free.", Platform::FormatFileSize(requiredBytes), Platform::FormatFileSize(space.available))
             );
         }
 
         if (plan.UseExistingCmdlineTools) {
-            SetStage(progress, BootstrapStage::ResolvingTools, RESOLVE_END, Tr("Locating the SDK Manager..."));
+            SetStage(progress, BootstrapStage::ResolvingTools, RESOLVE_END, Platform::Tr("Locating the SDK Manager..."));
             SdkInfo sdk = deps.Probe(plan.InstallRoot);
             ApplyJdkToSdk(sdk, jdk);
             if (sdk.SdkManagerPath.empty()) {
@@ -435,7 +437,7 @@ namespace CoreDeck {
 
         const CmdlineToolsRelease release = GetBundledCmdlineToolsRelease();
         if (release.DownloadUrl.empty()) {
-            return Finish(progress, BootstrapError::UnsupportedPlatform, Paths::GetPlatformName());
+            return Finish(progress, BootstrapError::UnsupportedPlatform, Platform::GetOsName());
         }
 
         const std::string staging = BootstrapStagingDirectory(plan.InstallRoot);
@@ -451,8 +453,8 @@ namespace CoreDeck {
         }
 
         // Download
-        SetStage(progress, BootstrapStage::DownloadingCmdlineTools, DOWNLOAD_START, Tr("Downloading command-line tools..."));
-        const std::string archivePath = Paths::JoinPaths({staging, release.FileName});
+        SetStage(progress, BootstrapStage::DownloadingCmdlineTools, DOWNLOAD_START, Platform::Tr("Downloading command-line tools..."));
+        const std::string archivePath = Platform::JoinPaths({staging, release.FileName});
         std::string error;
         const bool downloaded = deps.Download(
             release.DownloadUrl,
@@ -466,7 +468,7 @@ namespace CoreDeck {
                     const float ratio = static_cast<float>(received) / static_cast<float>(expected);
                     SetPercent(progress, Interpolate(DOWNLOAD_START, DOWNLOAD_END, ratio));
                 }
-                SetDetail(progress, TrFormat("{0} downloaded", FormatFileSize(received)));
+                SetDetail(progress, Platform::TrFormat("{0} downloaded", Platform::FormatFileSize(received)));
                 return true;
             },
             error
@@ -486,23 +488,23 @@ namespace CoreDeck {
         }
 
         // Checksum
-        SetStage(progress, BootstrapStage::Verifying, DOWNLOAD_END, Tr("Verifying download..."));
+        SetStage(progress, BootstrapStage::Verifying, DOWNLOAD_END, Platform::Tr("Verifying download..."));
         if (!release.Sha256.empty()) {
             const std::string actual = deps.FileSha256(archivePath);
-            if (!EqualsIgnoreCaseHex(actual, release.Sha256)) {
+            if (!Platform::EqualsIgnoreCaseHex(actual, release.Sha256)) {
                 RemoveStaging(plan.InstallRoot);
                 return Finish(
                     progress,
                     BootstrapError::ChecksumMismatch,
-                    TrFormat("expected {0}, got {1}", release.Sha256, actual.empty() ? Tr("nothing") : actual.c_str())
+                    Platform::TrFormat("expected {0}, got {1}", release.Sha256, actual.empty() ? Platform::Tr("nothing") : actual.c_str())
                 );
             }
         }
         SetPercent(progress, CHECKSUM_END);
 
         // Extract
-        SetStage(progress, BootstrapStage::Extracting, CHECKSUM_END, Tr("Extracting command-line tools..."));
-        const std::string extractDir = Paths::JoinPaths({staging, "extracted"});
+        SetStage(progress, BootstrapStage::Extracting, CHECKSUM_END, Platform::Tr("Extracting command-line tools..."));
+        const std::string extractDir = Platform::JoinPaths({staging, "extracted"});
         const bool extracted = deps.Extract(
             archivePath,
             extractDir,
@@ -525,8 +527,8 @@ namespace CoreDeck {
         }
 
         // Move into place: <root>/cmdline-tools/latest
-        const std::string cmdlineToolsRoot = Paths::JoinPaths({plan.InstallRoot, "cmdline-tools"});
-        const std::string latestDir = Paths::JoinPaths({cmdlineToolsRoot, "latest"});
+        const std::string cmdlineToolsRoot = Platform::JoinPaths({plan.InstallRoot, "cmdline-tools"});
+        const std::string latestDir = Platform::JoinPaths({cmdlineToolsRoot, "latest"});
         std::filesystem::create_directories(cmdlineToolsRoot, ec);
         std::filesystem::remove_all(latestDir, ec);
         std::filesystem::rename(extractDir, latestDir, ec);
@@ -551,7 +553,7 @@ namespace CoreDeck {
         }
 
         // Resolve the freshly installed tools
-        SetStage(progress, BootstrapStage::ResolvingTools, EXTRACT_END, Tr("Locating the SDK Manager..."));
+        SetStage(progress, BootstrapStage::ResolvingTools, EXTRACT_END, Platform::Tr("Locating the SDK Manager..."));
         SdkInfo sdk = deps.Probe(plan.InstallRoot);
         ApplyJdkToSdk(sdk, jdk);
         if (sdk.SdkManagerPath.empty()) {

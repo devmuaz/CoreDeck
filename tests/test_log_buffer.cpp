@@ -1,17 +1,18 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/log_buffer.h"
+#include "platform/log_buffer.h"
 
+using namespace CoreDeck::Platform;
 using namespace CoreDeck;
 
 TEST_CASE("LogBuffer starts empty with no new content", "[log_buffer]") {
-    LogBuffer buf;
+    Platform::LogBuffer buf;
     REQUIRE(buf.GetLines().empty());
     REQUIRE_FALSE(buf.HasNewContent());
 }
 
 TEST_CASE("LogBuffer::Push appends lines in order", "[log_buffer][push]") {
-    LogBuffer buf;
+    Platform::LogBuffer buf;
     buf.Push("first");
     buf.Push("second");
     buf.Push("third");
@@ -24,14 +25,14 @@ TEST_CASE("LogBuffer::Push appends lines in order", "[log_buffer][push]") {
 }
 
 TEST_CASE("LogBuffer::Push flips HasNewContent to true", "[log_buffer][new-content]") {
-    LogBuffer buf;
+    Platform::LogBuffer buf;
     REQUIRE_FALSE(buf.HasNewContent());
     buf.Push("line");
     REQUIRE(buf.HasNewContent());
 }
 
 TEST_CASE("LogBuffer::ResetNewContentFlag clears HasNewContent without touching lines", "[log_buffer][new-content]") {
-    LogBuffer buf;
+    Platform::LogBuffer buf;
     buf.Push("line");
     REQUIRE(buf.HasNewContent());
 
@@ -41,7 +42,7 @@ TEST_CASE("LogBuffer::ResetNewContentFlag clears HasNewContent without touching 
 }
 
 TEST_CASE("LogBuffer::Clear empties the buffer and resets HasNewContent", "[log_buffer][clear]") {
-    LogBuffer buf;
+    Platform::LogBuffer buf;
     buf.Push("line");
     REQUIRE_FALSE(buf.GetLines().empty());
     REQUIRE(buf.HasNewContent());
@@ -52,7 +53,7 @@ TEST_CASE("LogBuffer::Clear empties the buffer and resets HasNewContent", "[log_
 }
 
 TEST_CASE("LogBuffer evicts the oldest line when maxLines is exceeded (FIFO)", "[log_buffer][eviction]") {
-    LogBuffer buf(3);
+    Platform::LogBuffer buf(3);
     buf.Push("a");
     buf.Push("b");
     buf.Push("c");
@@ -66,7 +67,7 @@ TEST_CASE("LogBuffer evicts the oldest line when maxLines is exceeded (FIFO)", "
 }
 
 TEST_CASE("LogBuffer eviction holds steady at maxLines across many pushes", "[log_buffer][eviction]") {
-    LogBuffer buf(5);
+    Platform::LogBuffer buf(5);
     for (int i = 0; i < 20; ++i) {
         buf.Push("line_" + std::to_string(i));
     }
@@ -78,7 +79,7 @@ TEST_CASE("LogBuffer eviction holds steady at maxLines across many pushes", "[lo
 }
 
 TEST_CASE("LogBuffer with maxLines=1 keeps only the newest line", "[log_buffer][eviction]") {
-    LogBuffer buf(1);
+    Platform::LogBuffer buf(1);
     buf.Push("old");
     buf.Push("new");
 

@@ -7,7 +7,7 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void BuildOnboardingWindow(Context &context);
 
     void OpenSdkSetupWizard(Context &context);

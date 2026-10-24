@@ -2,7 +2,7 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -14,7 +14,7 @@
 #include <dwmapi.h>
 #endif
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 
@@ -36,12 +36,15 @@
 #include "application.h"
 #include "theme.h"
 #include "utilities.h"
-#include "widgets.h"
-#include "../core/app_settings.h"
-#include "../core/i18n.h"
-#include "../core/paths.h"
+#include "app/app_settings.h"
+#include "platform/i18n.h"
+#include "platform/paths.h"
+#include "app/paths.h"
 #include "windows/about.h"
 #include "windows/apk_analyzer.h"
+#include "windows/apk_signer.h"
+#include "windows/jar_signer.h"
+#include "windows/keytool.h"
 #include "windows/avd_info.h"
 #include "windows/avd_list.h"
 #include "windows/avd_logs.h"
@@ -56,9 +59,9 @@
 #include "windows/preferences.h"
 #include "windows/storage.h"
 #include "windows/update.h"
-#include "../core/version_check.h"
+#include "app/version_check.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         void ClearFramebuffer() {
             const ImVec4 color = HexColor(Colors::SURFACE0);
@@ -76,16 +79,16 @@ namespace CoreDeck {
         }
     }
 
-    Application::Application() : m_Context(DetectAndroidSdk()) {
-        EnsureOptionsConfigDirectoryExists();
-        ApplyAppSettingsToContext(m_Context, LoadAppSettings());
-        SetLocalesDirectory(Paths::JoinPaths({Paths::GetResourcesDirectory(), "assets", "locales"}));
-        SetLanguage(m_Context.Prefs.Language);
+    Application::Application() : m_Context(Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath)) {
+        App::EnsureOptionsConfigDirectoryExists();
+        ApplyAppSettingsToContext(m_Context, App::LoadAppSettings());
+        Platform::SetLocalesDirectory(Platform::JoinPaths({App::GetAssetsDirectory(), "locales"}));
+        Platform::SetLanguage(m_Context.Prefs.Language);
 
-        m_Context.Host.Jdk = DetectJdk();
-        ApplyJdkToSdk(m_Context.Host.Sdk, m_Context.Host.Jdk);
+        m_Context.Host.Jdk = Core::DetectJdk(App::LoadAppSettings().JdkPath);
+        Core::ApplyJdkToSdk(m_Context.Host.Sdk, m_Context.Host.Jdk);
 
-        if (!Paths::Onboarding::IsFirstRunComplete() || !m_Context.Host.Sdk.IsFound) {
+        if (!App::LoadAppSettings().FirstRunComplete || !m_Context.Host.Sdk.IsFound) {
             m_Context.Flow.CurrentScreen = Screen::Onboarding;
         } else {
             m_Context.Flow.CurrentScreen = Screen::Main;
@@ -145,7 +148,19 @@ namespace CoreDeck {
             return;
         }
 
-        RefreshAndroidSdk(m_Context.Host.Sdk);
+        if (m_Context.Host.Sdk.SdkPath.empty()) {
+            const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
+            m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            m_Context.Host.Sdk.ToolEnv = toolEnv;
+        } else {
+            if (m_Context.Host.Sdk.SdkPath.empty()) {
+            const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
+            m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            m_Context.Host.Sdk.ToolEnv = toolEnv;
+        } else {
+            Core::RefreshAndroidSdk(m_Context.Host.Sdk);
+        }
+        }
 
 #ifdef NDEBUG
         m_PollUpdateCheckIfNeeded();
@@ -198,7 +213,7 @@ namespace CoreDeck {
 
                 ImGui::DockBuilderFinish(dockSpaceId);
 
-                auto configureNode = [](const ImGuiID id) {
+                const auto configureNode = [](const ImGuiID id) {
                     if (ImGuiDockNode *node = ImGui::DockBuilderGetNode(id)) {
                         node->LocalFlags |= ImGuiDockNodeFlags_NoWindowMenuButton;
                     }
@@ -211,7 +226,7 @@ namespace CoreDeck {
         }
 
         BuildMainMenuBar(m_Context);
-        if (!m_Context.UI.ShowApkAnalyzerWindow) {
+        if (m_Context.UI.Workspace == WorkspacePage::Home) {
             BuildHealthCheckBanner(m_Context);
             BuildAvdOptionsWindow(m_Context);
             BuildAvdListWindow(m_Context);
@@ -228,6 +243,9 @@ namespace CoreDeck {
         }
         BuildHealthCheckWindow(m_Context);
         BuildApkAnalyzerWindow(m_Context);
+        BuildKeytoolWindow(m_Context);
+        BuildApkSignerWindow(m_Context);
+        BuildJarSignerWindow(m_Context);
         BuildStorageWindow(m_Context);
 
         m_Context.Host.Manager.Update();
@@ -237,7 +255,7 @@ namespace CoreDeck {
 
     bool Application::m_InitPlatform() {
         if (!glfwInit()) {
-            ShowFatalError(COREDECK_TITLE, Tr("Failed to initialize GLFW."));
+            ShowFatalError(COREDECK_TITLE, Platform::Tr("Failed to initialize GLFW."));
             return false;
         }
         m_GlfwInitialized = true;
@@ -260,7 +278,7 @@ namespace CoreDeck {
     bool Application::m_CreateMainWindow() {
         m_Window = glfwCreateWindow(1200, 900, COREDECK_TITLE, nullptr, nullptr);
         if (!m_Window) {
-            ShowFatalError(COREDECK_TITLE, Tr("Failed to create window.\nYour system may not support OpenGL 3.3."));
+            ShowFatalError(COREDECK_TITLE, Platform::Tr("Failed to create window.\nYour system may not support OpenGL 3.3."));
             return false;
         }
 
@@ -296,22 +314,22 @@ namespace CoreDeck {
         // per-viewport rectangle math for multi-monitor docking, not fonts.
         io.ConfigDpiScaleViewports = true;
 
-        static std::string imguiIniPath = Paths::GetAppConfigPath("imgui.ini");
-        io.IniFilename = imguiIniPath.c_str();
+        static const std::string IMGUI_INI_PATH = App::GetAppConfigPath("imgui.ini");
+        io.IniFilename = IMGUI_INI_PATH.c_str();
     }
 
     void Application::m_LoadFonts() const {
         const ImGuiIO &io = ImGui::GetIO();
 
-        const std::string resourcesDir = Paths::GetResourcesDirectory();
-        const std::string textFontPath = Paths::JoinPaths(
-            {resourcesDir, "assets", "fonts", "JetBrainsMono-Regular.ttf"}
+        const std::string assetsDir = App::GetAssetsDirectory();
+        const std::string textFontPath = Platform::JoinPaths(
+            {assetsDir, "fonts", "JetBrainsMono-Regular.ttf"}
         );
-        const std::string cjkFontPath = Paths::JoinPaths(
-            {resourcesDir, "assets", "fonts", "NotoSansCJKsc-Regular.otf"}
+        const std::string cjkFontPath = Platform::JoinPaths(
+            {assetsDir, "fonts", "NotoSansCJKsc-Regular.otf"}
         );
-        const std::string iconFontPath = Paths::JoinPaths(
-            {resourcesDir, "assets", "fonts", "FontAwesome7Free-Solid-900.otf"}
+        const std::string iconFontPath = Platform::JoinPaths(
+            {assetsDir, "fonts", "FontAwesome7Free-Solid-900.otf"}
         );
 
         const float dpi = (m_FontPixelScale > 0.0F) ? m_FontPixelScale : 1.0F;
@@ -342,17 +360,16 @@ namespace CoreDeck {
     }
 
     void Application::m_ApplyDpiScale() {
+#ifdef __APPLE__
+        m_DpiScale = 1.0F;
+        m_FontPixelScale = 1.0F;
+#else
         float xscale = 1.0F;
         float yscale = 1.0F;
         if (m_Window) {
             glfwGetWindowContentScale(m_Window, &xscale, &yscale);
         }
         const float reportedScale = (xscale > 0.0F) ? xscale : 1.0F;
-
-#ifdef __APPLE__
-        m_DpiScale = 1.0F;
-        m_FontPixelScale = 1.0F;
-#else
         m_DpiScale = reportedScale;
         m_FontPixelScale = reportedScale;
 #endif
@@ -412,7 +429,7 @@ namespace CoreDeck {
                 pending.push_back(path);
             }
             if (!pending.empty()) {
-                self->m_Context.UI.ShowApkAnalyzerWindow = true;
+                self->m_Context.UI.Workspace = WorkspacePage::ApkAnalyzer;
             }
         });
 
@@ -494,7 +511,7 @@ namespace CoreDeck {
                 return;
             }
 
-            std::optional<RemoteRelease> newer = m_UpdateCheckFuture.get();
+            std::optional<App::RemoteRelease> newer = m_UpdateCheckFuture.get();
             m_Context.Updates.UpdateCheckInFlight = false;
 
             if (newer) {
@@ -512,7 +529,7 @@ namespace CoreDeck {
         if (!m_AutoUpdateCheckStarted) {
             m_AutoUpdateCheckStarted = true;
             m_UpdateCheckWasManual = false;
-            start = true;
+            start = m_Context.Prefs.CheckForUpdatesOnLaunch;
         } else if (m_Context.Updates.RequestManualUpdateCheck) {
             m_Context.Updates.RequestManualUpdateCheck = false;
             m_UpdateCheckWasManual = true;
@@ -521,9 +538,9 @@ namespace CoreDeck {
 
         if (start) {
             m_Context.Updates.UpdateCheckInFlight = true;
-            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<RemoteRelease> {
+            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<App::RemoteRelease> {
                 try {
-                    return QueryRemoteNewerVersion();
+                    return App::QueryRemoteNewerVersion();
                 } catch (...) {
                     return std::nullopt;
                 }
@@ -531,12 +548,13 @@ namespace CoreDeck {
         }
     }
 
-    AppSettings CaptureAppSettingsFromContext(const Context &context) {
-        AppSettings s = LoadAppSettings();
+    App::AppSettings CaptureAppSettingsFromContext(const Context &context) {
+        App::AppSettings s = App::LoadAppSettings();
         s.SchemaVersion = 1;
-        s.AutoScroll = context.Logs.AutoScroll;
+        s.AutoScroll = context.Prefs.AutoScroll;
         s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
         s.CrashReportingEnabled = context.Prefs.CrashReportingEnabled;
+        s.CheckForUpdatesOnLaunch = context.Prefs.CheckForUpdatesOnLaunch;
         s.ShowAvdListPanel = context.UI.ShowAvdListPanel;
         s.ShowOptionsPanel = context.UI.ShowOptionsPanel;
         s.ShowDetailsPanel = context.UI.ShowDetailsPanel;
@@ -548,10 +566,11 @@ namespace CoreDeck {
         return s;
     }
 
-    void ApplyAppSettingsToContext(Context &context, const AppSettings &settings) {
-        context.Logs.AutoScroll = settings.AutoScroll;
+    void ApplyAppSettingsToContext(Context &context, const App::AppSettings &settings) {
+        context.Prefs.AutoScroll = settings.AutoScroll;
         context.Prefs.ConfirmBeforeDeleteAvd = settings.ConfirmBeforeDeleteAvd;
         context.Prefs.CrashReportingEnabled = settings.CrashReportingEnabled;
+        context.Prefs.CheckForUpdatesOnLaunch = settings.CheckForUpdatesOnLaunch;
         context.UI.ShowAvdListPanel = settings.ShowAvdListPanel;
         context.UI.ShowOptionsPanel = settings.ShowOptionsPanel;
         context.UI.ShowDetailsPanel = settings.ShowDetailsPanel;
@@ -563,10 +582,10 @@ namespace CoreDeck {
         context.Catalog.SortAscending = settings.AvdSortAscending;
 
         const int theme = settings.Theme;
-        const auto preference = theme >= static_cast<int>(ThemePreference::System) &&
-                                        theme <= static_cast<int>(ThemePreference::Light)
-                                    ? static_cast<ThemePreference>(theme)
-                                    : ThemePreference::System;
+        const auto preference = theme >= static_cast<int>(App::ThemePreference::System) &&
+                                        theme <= static_cast<int>(App::ThemePreference::Light)
+                                    ? static_cast<App::ThemePreference>(theme)
+                                    : App::ThemePreference::System;
         context.Prefs.Theme = preference;
         context.Prefs.Language = settings.Language;
         SetThemePreference(preference);
@@ -578,7 +597,7 @@ namespace CoreDeck {
         }
 
         const bool light = IsLightColorScheme();
-        static GLFWwindow *appliedWindow = nullptr;
+        static const GLFWwindow *appliedWindow = nullptr;
         static bool appliedLight = false;
         static bool applied = false;
         if (applied && appliedWindow == window && appliedLight == light) {
@@ -602,7 +621,7 @@ namespace CoreDeck {
     }
 
     void PersistAppSettings(const Context &context) {
-        SaveAppSettings(CaptureAppSettingsFromContext(context));
+        App::SaveAppSettings(CaptureAppSettingsFromContext(context));
     }
 
     namespace {
@@ -619,13 +638,13 @@ namespace CoreDeck {
         std::atomic<int> g_AvdCatalogEpoch{0};
     }
 
-    AvdCatalogSnapshot LoadAvdCatalog(const SdkInfo &sdk) {
+    AvdCatalogSnapshot LoadAvdCatalog(const Core::SdkInfo &sdk) {
         AvdCatalogSnapshot snapshot;
-        snapshot.Names = ListAvdNames(sdk);
-        snapshot.Avds = LoadAvds(snapshot.Names);
+        snapshot.Names = Core::ListAvdNames(sdk);
+        snapshot.Avds = Core::LoadAvds(snapshot.Names);
         snapshot.Options.reserve(snapshot.Names.size());
         for (const std::string &avdName: snapshot.Names) {
-            snapshot.Options.emplace(avdName, LoadOptionsFromFile(GetOptionsConfigPath(avdName)));
+            snapshot.Options.emplace(avdName, Core::LoadOptionsFromFile(App::GetOptionsConfigPath(avdName)));
         }
         return snapshot;
     }
@@ -658,7 +677,7 @@ namespace CoreDeck {
         ApplyAvdCatalog(context, LoadAvdCatalog(context.Host.Sdk));
     }
 
-    void RequestAvdListRefresh(Context &context) {
+    void RequestAvdListRefresh(const Context &context) {
         AvdListRefreshJob &job = ListRefreshJob();
         if (job.Future.valid()) {
             job.Queued = true;
@@ -666,7 +685,7 @@ namespace CoreDeck {
         }
 
         const int epoch = ++g_AvdCatalogEpoch;
-        const SdkInfo sdk = context.Host.Sdk;
+        const Core::SdkInfo sdk = context.Host.Sdk;
         job.Future = std::async(std::launch::async, [sdk, epoch] {
             return std::make_pair(epoch, LoadAvdCatalog(sdk));
         });
@@ -697,8 +716,8 @@ namespace CoreDeck {
     }
 
     void LoadAvdOptions(Context &context, const std::string &avdName) {
-        const std::string configPath = GetOptionsConfigPath(avdName);
-        context.Catalog.PerAvdOptions[avdName] = LoadOptionsFromFile(configPath);
+        const std::string configPath = App::GetOptionsConfigPath(avdName);
+        context.Catalog.PerAvdOptions[avdName] = Core::LoadOptionsFromFile(configPath);
     }
 
     void SaveAvdOptions(Context &context, const std::string &avdName) {
@@ -706,11 +725,11 @@ namespace CoreDeck {
             return;
         }
 
-        const std::string configPath = GetOptionsConfigPath(avdName);
-        SaveOptionsToFile(configPath, context.Catalog.PerAvdOptions[avdName]);
+        const std::string configPath = App::GetOptionsConfigPath(avdName);
+        Core::SaveOptionsToFile(configPath, context.Catalog.PerAvdOptions[avdName]);
     }
 
-    std::vector<EmulatorOption> &GetDefaultAvdOptions(Context &context) {
+    std::vector<Core::EmulatorOption> &GetDefaultAvdOptions(Context &context) {
         if (context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size()) {
             const auto &avd = context.Catalog.Avds.at(context.Catalog.SelectedAvd);
             const std::string &avdName = avd.Name;
@@ -722,7 +741,7 @@ namespace CoreDeck {
         }
 
         // Fallback
-        static std::vector<EmulatorOption> defaultOptions = GetEmulatorOptions();
+        static std::vector<Core::EmulatorOption> defaultOptions = Core::GetEmulatorOptions();
         return defaultOptions;
     }
 }

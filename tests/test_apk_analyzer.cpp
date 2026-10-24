@@ -2,6 +2,7 @@
 
 #include "core/apk_analyzer.h"
 
+using namespace CoreDeck::Core;
 using namespace CoreDeck;
 
 TEST_CASE("ParseApkSummary reads the tab-separated summary row", "[apk-analyzer]") {

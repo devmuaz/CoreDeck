@@ -28,6 +28,8 @@ FormatStyle: file
 # Strategy: enable broad, high-signal groups; then disable individual checks
 # that are noisy or impractical for an ImGui/OpenGL/GLFW codebase (which deals
 # with C APIs, raw pointers, magic numbers for UI, varargs, etc.).
+# hicpp-signed-bitwise is an alias of bugprone-signed-bitwise. Disabling the
+# alias alone still reports the primary name, so both are turned off.
 # -----------------------------------------------------------------------------
 Checks: >
   -*,
@@ -66,6 +68,7 @@ Checks: >
   -hicpp-avoid-c-arrays,
   -hicpp-no-array-decay,
   -hicpp-signed-bitwise,
+  -bugprone-signed-bitwise,
   -hicpp-vararg,
   -misc-non-private-member-variables-in-classes,
   -misc-no-recursion,
@@ -124,6 +127,8 @@ CheckOptions:
     value: "true"
   - key: bugprone-assert-side-effect.AssertMacros
     value: "assert,IM_ASSERT"
+  - key: bugprone-exception-escape.IgnoredExceptions
+    value: "bad_array_new_length,length_error"
   - key: bugprone-misplaced-widening-cast.CheckImplicitCasts
     value: "false"
   - key: bugprone-sizeof-expression.WarnOnSizeOfIntegerExpression
@@ -179,6 +184,8 @@ CheckOptions:
     value: camelBack
   - key: readability-identifier-naming.LocalVariableCase
     value: camelBack
+  - key: readability-identifier-naming.LocalVariableIgnoredRegexp
+    value: "[A-Z][A-Za-z0-9]*"
   - key: readability-identifier-naming.ParameterCase
     value: camelBack
   - key: readability-identifier-naming.PointerParameterCase
@@ -220,8 +227,12 @@ CheckOptions:
     value: UPPER_CASE
   - key: readability-identifier-naming.LocalConstantCase
     value: camelBack
+  - key: readability-identifier-naming.LocalConstantIgnoredRegexp
+    value: "[A-Z][A-Za-z0-9]*"
   - key: readability-identifier-naming.LocalConstantPointerCase
     value: camelBack
+  - key: readability-identifier-naming.LocalConstantPointerIgnoredRegexp
+    value: "[A-Z][A-Za-z0-9]*"
   - key: readability-identifier-naming.ConstantParameterCase
     value: camelBack
   - key: readability-identifier-naming.ConstantMemberCase

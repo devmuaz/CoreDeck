@@ -8,16 +8,16 @@
 #include "../context.h"
 #include "gui/widgets.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     LabeledIconStyle SystemImageTypeStyleForVariant(const std::string &variant);
 
-    LabeledIconStyle SystemImageTypeStyleFor(const SystemImage &img);
+    LabeledIconStyle SystemImageTypeStyleFor(const Core::SystemImage &img);
 
-    LabeledIconStyle SystemImageTypeStyleFor(const RemoteSystemImage &img);
+    LabeledIconStyle SystemImageTypeStyleFor(const Core::RemoteSystemImage &img);
 
     std::string SystemImageDisplayName(const std::string &apiLevel, const std::string &fallback);
 
-    std::string SystemImagePreviewLabel(const SystemImage &img);
+    std::string SystemImagePreviewLabel(const Core::SystemImage &img);
 
     void OpenInstallImageDialog(Context &context);
 

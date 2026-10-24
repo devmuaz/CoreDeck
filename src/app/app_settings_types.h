@@ -1,0 +1,42 @@
+//
+// Created by AbdulMuaz Aqeel on 18/04/2026.
+//
+
+#ifndef COREDECK_APP_SETTINGS_TYPES_H
+#define COREDECK_APP_SETTINGS_TYPES_H
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+namespace CoreDeck::App {
+    constexpr int RECENT_APK_LIMIT = 4;
+
+    enum class ThemePreference : uint8_t {
+        System = 0,
+        Dark = 1,
+        Light = 2,
+    };
+
+    struct AppSettings {
+        int SchemaVersion = 1;
+        bool AutoScroll = true;
+        bool ConfirmBeforeDeleteAvd = true;
+        bool CrashReportingEnabled = true;
+        bool CheckForUpdatesOnLaunch = true;
+        bool ShowAvdListPanel = true;
+        bool ShowOptionsPanel = true;
+        bool ShowDetailsPanel = true;
+        bool ShowLogPanel = true;
+        int AvdSortMode = 0;
+        bool AvdSortAscending = true;
+        int Theme = static_cast<int>(ThemePreference::System);
+        std::string Language;
+        bool FirstRunComplete = false;
+        std::string SdkPath;
+        std::string JdkPath;
+        std::vector<std::string> RecentApks;
+    };
+}
+
+#endif // COREDECK_APP_SETTINGS_TYPES_H

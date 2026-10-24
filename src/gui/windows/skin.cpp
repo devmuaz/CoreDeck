@@ -4,45 +4,46 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
 
 #include "imgui.h"
 
 #include "skin.h"
 #include "../theme.h"
 #include "../widgets.h"
-#include "../../core/utilities.h"
-#include "../../core/i18n.h"
+#include "platform/utilities.h"
+#include "platform/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
-        const char *SourceColor(const SkinSource &source) {
+        const char *SourceColor(const Core::SkinSource &source) {
             switch (source) {
-                case SkinSource::Sdk:
+                case Core::SkinSource::Sdk:
                     return Colors::ACCENT_PHONE;
-                case SkinSource::SystemImage:
+                case Core::SkinSource::SystemImage:
                     return Colors::POSITIVE;
-                case SkinSource::Platform:
+                case Core::SkinSource::Platform:
                     return Colors::TEXT_SUBTLE;
             }
             return Colors::TEXT_SUBTLE;
         }
 
-        bool MatchesSkinFilter(const Skin &skin, const char *filter) {
+        bool MatchesSkinFilter(const Core::Skin &skin, const char *filter) {
             if (!filter || filter[0] == '\0') {
                 return true;
             }
-            return ContainsIgnoreCase(StrConcat(skin.Name, " ", skin.DisplayName), filter);
+            return Platform::ContainsIgnoreCase(Platform::StrConcat(skin.Name, " ", skin.DisplayName), filter);
         }
     }
 
     std::string SkinPreviewLabel(const Context &context) {
         const auto &work = context.AvdCreationWork;
         if (work.SelectedSkin <= 0 || work.Skins.empty()) {
-            return Tr("No skin (plain emulator window)");
+            return Platform::Tr("No skin (plain emulator window)");
         }
         const int idx = std::clamp(work.SelectedSkin - 1, 0, static_cast<int>(work.Skins.size()) - 1);
         const auto &s = work.Skins.at(idx);
-        return StrConcat(s.DisplayName, " - ", SkinSourceLabel(s.Source));
+        return Platform::StrConcat(s.DisplayName, " - ", Core::SkinSourceLabel(s.Source));
     }
 
 
@@ -51,24 +52,24 @@ namespace CoreDeck {
             return;
         }
 
-        const std::string title = TrWindow("Choose Skin", "SkinDialog");
+        const std::string title = Platform::TrWindow("Choose Skin", "SkinDialog");
         if (BeginCenteredModal(title.c_str(), &context.UI.ShowSkinDialog, EmV(80.0F, 25.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
             const int totalRows = static_cast<int>(work.Skins.size()) + 1; // +1 for "No skin"
             work.PendingSelectedSkin = std::clamp(work.PendingSelectedSkin, 0, totalRows - 1);
 
-            SearchField("##SkinSearch", Tr("Search skins..."), work.SkinSearchFilter, sizeof(work.SkinSearchFilter));
+            SearchField("##SkinSearch", Platform::Tr("Search skins..."), work.SkinSearchFilter, sizeof(work.SkinSearchFilter));
 
             ImGui::Spacing();
-            ImGui::Text("%s", Tr("Skins"));
+            ImGui::Text("%s", Platform::Tr("Skins"));
             ImGui::Spacing();
 
             {
-                PickerTableStyle pts;
+                const PickerTableStyle pts;
                 const bool tableOpen = BeginPickerTable("##SkinTableFrame", "##SkinTable", 2, Eh(16.0F));
                 if (tableOpen) {
-                    ImGui::TableSetupColumn(StrConcat("  ", Tr("Name")).c_str(), ImGuiTableColumnFlags_WidthStretch, 2.8F);
-                    ImGui::TableSetupColumn(Tr("Source"), ImGuiTableColumnFlags_WidthFixed, Em(15.0F));
+                    ImGui::TableSetupColumn(Platform::StrConcat("  ", Platform::Tr("Name")).c_str(), ImGuiTableColumnFlags_WidthStretch, 2.8F);
+                    ImGui::TableSetupColumn(Platform::Tr("Source"), ImGuiTableColumnFlags_WidthFixed, Em(15.0F));
                     ImGui::TableHeadersRow();
 
                     int visibleCount = 0;
@@ -76,7 +77,7 @@ namespace CoreDeck {
                     const bool noSkinSelected = work.PendingSelectedSkin == 0;
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    const std::string noSkinLabel = StrConcat("  ", Icons::GEAR, "  ", Tr("No skin (plain emulator window)"), "##SkinNone");
+                    const std::string noSkinLabel = Platform::StrConcat("  ", Icons::GEAR, "  ", Platform::Tr("No skin (plain emulator window)"), "##SkinNone");
                     if (ImGui::Selectable(noSkinLabel.c_str(), noSkinSelected, ImGuiSelectableFlags_SpanAllColumns)) {
                         work.PendingSelectedSkin = 0;
                     }
@@ -87,7 +88,7 @@ namespace CoreDeck {
                     ImGui::TextDisabled("—");
                     visibleCount++;
 
-                    for (int i = 0; i < static_cast<int>(work.Skins.size()); i++) {
+                    for (int i = 0; std::cmp_less(i, work.Skins.size()); i++) {
                         const auto &skin = work.Skins.at(i);
                         if (!MatchesSkinFilter(skin, work.SkinSearchFilter)) {
                             continue;
@@ -98,7 +99,7 @@ namespace CoreDeck {
 
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        const std::string rowLabel = StrConcat("  ", Icons::MOBILE, "  ", skin.DisplayName, "##Skin", std::to_string(i));
+                        const std::string rowLabel = Platform::StrConcat("  ", Icons::MOBILE, "  ", skin.DisplayName, "##Skin", std::to_string(i));
                         if (ImGui::Selectable(rowLabel.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
                             work.PendingSelectedSkin = rowIndex;
                         }
@@ -107,14 +108,14 @@ namespace CoreDeck {
                         }
 
                         ImGui::TableNextColumn();
-                        ImGui::TextColored(HexColor(SourceColor(skin.Source)), "%s", SkinSourceLabel(skin.Source));
+                        ImGui::TextColored(HexColor(SourceColor(skin.Source)), "%s", Core::SkinSourceLabel(skin.Source));
                         visibleCount++;
                     }
 
                     if (visibleCount == 0) {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::TextDisabled("%s", Tr("No skins match the search."));
+                        ImGui::TextDisabled("%s", Platform::Tr("No skins match the search."));
                     }
                 }
                 EndPickerTable(tableOpen);
@@ -122,7 +123,7 @@ namespace CoreDeck {
 
             if (work.Skins.empty()) {
                 ImGui::Spacing();
-                ImGui::TextWrapped("%s", Tr("No skins were found in your SDK. Skins typically ship with system images and the SDK skins folder."));
+                ImGui::TextWrapped("%s", Platform::Tr("No skins were found in your SDK. Skins typically ship with system images and the SDK skins folder."));
             }
 
             ImGui::Spacing();
@@ -131,13 +132,13 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(Tr("Use Selected Skin"), true, ImVec2(halfWidth, 0))) {
+            if (PositiveButton(Platform::Tr("Use Selected Skin"), true, ImVec2(halfWidth, 0))) {
                 work.SelectedSkin = work.PendingSelectedSkin;
                 work.SkinAutoFilled = false;
                 context.UI.ShowSkinDialog = false;
             }
             ImGui::SameLine();
-            if (PrimaryButton(Tr("Cancel"), true, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Platform::Tr("Cancel"), true, ImVec2(halfWidth, 0))) {
                 context.UI.ShowSkinDialog = false;
             }
 

@@ -14,47 +14,48 @@
 #include "onboarding.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
+#include "app/app_settings.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         struct StatusStyle {
             const char *Icon;
             const char *Color;
         };
 
-        StatusStyle StatusStyleFor(const HealthStatus status) {
+        StatusStyle StatusStyleFor(const Core::HealthStatus status) {
             switch (status) {
-                case HealthStatus::Passed:
+                case Core::HealthStatus::Passed:
                     return {.Icon = Icons::CHECK_CIRCLE, .Color = Colors::POSITIVE};
-                case HealthStatus::Warning:
+                case Core::HealthStatus::Warning:
                     return {.Icon = Icons::WARNING_TRIANGLE, .Color = Colors::WARNING};
-                case HealthStatus::Failed:
+                case Core::HealthStatus::Failed:
                     return {.Icon = Icons::TIMES_CIRCLE, .Color = Colors::NEGATIVE};
-                case HealthStatus::Running:
+                case Core::HealthStatus::Running:
                     return {.Icon = Icons::REFRESH, .Color = Colors::ACCENT_INFO};
-                case HealthStatus::Pending:
-                case HealthStatus::Skipped:
+                case Core::HealthStatus::Pending:
+                case Core::HealthStatus::Skipped:
                 default:
                     return {.Icon = Icons::CIRCLE, .Color = Colors::TEXT_MUTED};
             }
         }
 
-        const char *FixButtonLabel(const HealthFix fix) {
+        const char *FixButtonLabel(const Core::HealthFix fix) {
             switch (fix) {
-                case HealthFix::InstallSdk:
-                    return Tr("Install SDK...");
-                case HealthFix::InstallCmdlineTools:
-                    return Tr("Install Tools...");
-                case HealthFix::InstallBuildTools:
-                    return Tr("Install Build Tools...");
-                case HealthFix::ConfigureJdk:
-                    return Tr("Configure JDK...");
-                case HealthFix::AcceptLicenses:
-                    return Tr("Accept Licenses...");
-                case HealthFix::InstallSystemImage:
-                    return Tr("Install Image...");
-                case HealthFix::None:
+                case Core::HealthFix::InstallSdk:
+                    return Platform::Tr("Install SDK...");
+                case Core::HealthFix::InstallCmdlineTools:
+                    return Platform::Tr("Install Tools...");
+                case Core::HealthFix::InstallBuildTools:
+                    return Platform::Tr("Install Build Tools...");
+                case Core::HealthFix::ConfigureJdk:
+                    return Platform::Tr("Configure JDK...");
+                case Core::HealthFix::AcceptLicenses:
+                    return Platform::Tr("Accept Licenses...");
+                case Core::HealthFix::InstallSystemImage:
+                    return Platform::Tr("Install Image...");
+                case Core::HealthFix::None:
                 default:
                     return "";
             }
@@ -65,54 +66,54 @@ namespace CoreDeck {
             ImGui::CloseCurrentPopup();
         }
 
-        void ApplyFix(Context &context, const HealthFix fix) {
+        void ApplyFix(Context &context, const Core::HealthFix fix) {
             switch (fix) {
-                case HealthFix::InstallSdk:
+                case Core::HealthFix::InstallSdk:
                     CloseDialog(context);
                     OpenSdkSetupWizard(context);
                     break;
-                case HealthFix::InstallCmdlineTools:
+                case Core::HealthFix::InstallCmdlineTools:
                     CloseDialog(context);
                     OpenCmdlineToolsInstall(context);
                     break;
-                case HealthFix::InstallBuildTools:
+                case Core::HealthFix::InstallBuildTools:
                     CloseDialog(context);
                     OpenBuildToolsInstall(context);
                     break;
-                case HealthFix::ConfigureJdk:
+                case Core::HealthFix::ConfigureJdk:
                     CloseDialog(context);
                     context.UI.ShowPreferences = true;
                     context.UI.OpenPreferencesToJava = true;
                     break;
-                case HealthFix::AcceptLicenses:
+                case Core::HealthFix::AcceptLicenses:
                     OpenAcceptLicensesDialog(context);
                     break;
-                case HealthFix::InstallSystemImage:
+                case Core::HealthFix::InstallSystemImage:
                     CloseDialog(context);
                     context.UI.ReopenCreateAvdOnInstallClose = false;
                     OpenInstallImageDialog(context);
                     break;
-                case HealthFix::None:
+                case Core::HealthFix::None:
                 default:
                     break;
             }
         }
 
-        void PublishLicenseNotice(Context &context, const std::vector<HealthCheckResult> &items) {
+        void PublishLicenseNotice(Context &context, const std::vector<Core::HealthCheckResult> &items) {
             for (const auto &item: items) {
-                if (item.Id != HealthCheckId::Licenses) {
+                if (item.Id != Core::HealthCheckId::Licenses) {
                     continue;
                 }
 
                 auto &notice = context.LicenseNotice;
-                if (item.Status == HealthStatus::Failed && item.Fix == HealthFix::AcceptLicenses) {
+                if (item.Status == Core::HealthStatus::Failed && item.Fix == Core::HealthFix::AcceptLicenses) {
                     notice.Epoch += 1;
-                    notice.Status = LicenseStatus::SomeUnaccepted;
+                    notice.Status = Core::LicenseStatus::SomeUnaccepted;
                     notice.Known = true;
                     notice.SdkManagerPath = context.Host.Sdk.SdkManagerPath;
-                } else if (item.Status == HealthStatus::Passed) {
+                } else if (item.Status == Core::HealthStatus::Passed) {
                     notice.Epoch += 1;
-                    notice.Status = LicenseStatus::AllAccepted;
+                    notice.Status = Core::LicenseStatus::AllAccepted;
                     notice.Known = true;
                     notice.SdkManagerPath = context.Host.Sdk.SdkManagerPath;
                 }
@@ -128,46 +129,46 @@ namespace CoreDeck {
                 work.Future.get();
                 work.Busy = false;
 
-                std::vector<HealthCheckResult> items;
+                std::vector<Core::HealthCheckResult> items;
                 if (work.Progress) {
-                    std::scoped_lock lock(work.Progress->Mutex);
+                    const std::scoped_lock lock(work.Progress->Mutex);
                     items = work.Progress->Items;
                 }
                 PublishLicenseNotice(context, items);
             }
         }
 
-        ImVec4 DescriptionColorFor(const HealthStatus status) {
+        ImVec4 DescriptionColorFor(const Core::HealthStatus status) {
             switch (status) {
-                case HealthStatus::Failed:
+                case Core::HealthStatus::Failed:
                     return HexColor(Colors::NEGATIVE);
-                case HealthStatus::Warning:
+                case Core::HealthStatus::Warning:
                     return HexColor(Colors::WARNING);
-                case HealthStatus::Running:
+                case Core::HealthStatus::Running:
                     return HexColor(Colors::ACCENT_INFO);
-                case HealthStatus::Passed:
+                case Core::HealthStatus::Passed:
                     return HexColor(Colors::TEXT_SUBTLE);
-                case HealthStatus::Pending:
-                case HealthStatus::Skipped:
+                case Core::HealthStatus::Pending:
+                case Core::HealthStatus::Skipped:
                 default:
                     return HexColor(Colors::TEXT_MUTED);
             }
         }
 
-        void DrawChecks(Context &context, const std::vector<HealthCheckResult> &items, const bool actionsEnabled) {
+        void HealthChecks(Context &context, const std::vector<Core::HealthCheckResult> &items, const bool actionsEnabled) {
             for (const auto &item: items) {
                 const auto [icon, color] = StatusStyleFor(item.Status);
                 const bool showAction =
-                    item.Fix != HealthFix::None &&
-                    (item.Status == HealthStatus::Failed || item.Status == HealthStatus::Warning);
-                const char *description = item.Detail.empty() ? HealthStatusLabel(item.Status) : item.Detail.c_str();
+                    item.Fix != Core::HealthFix::None &&
+                    (item.Status == Core::HealthStatus::Failed || item.Status == Core::HealthStatus::Warning);
+                const char *description = item.Detail.empty() ? Core::HealthStatusLabel(item.Status) : item.Detail.c_str();
 
                 ImGui::PushID(static_cast<int>(item.Id));
                 if (StatusActionItem(
                         "##check",
                         icon,
                         HexColor(color),
-                        HealthCheckLabel(item.Id),
+                        Core::HealthCheckLabel(item.Id),
                         description,
                         DescriptionColorFor(item.Status),
                         showAction ? FixButtonLabel(item.Fix) : nullptr,
@@ -178,24 +179,35 @@ namespace CoreDeck {
                 ImGui::PopID();
             }
         }
+
+        std::string ObservedSdkTools(const Core::SdkInfo &sdk) {
+            return sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath + "\n" + sdk.Aapt2Path +
+                   "\n" + sdk.ZipalignPath + "\n" + sdk.ApksignerPath;
+        }
     }
 
     void OpenHealthCheckDialog(Context &context) {
         auto &work = context.HealthCheckWork;
         context.UI.ShowHealthCheckDialog = true;
-        RefreshAndroidSdk(context.Host.Sdk);
-        const SdkInfo &sdk = context.Host.Sdk;
-        work.ObservedTools = sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath;
+        if (context.Host.Sdk.SdkPath.empty()) {
+            const auto toolEnv = context.Host.Sdk.ToolEnv;
+            context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            context.Host.Sdk.ToolEnv = toolEnv;
+        } else {
+            Core::RefreshAndroidSdk(context.Host.Sdk);
+        }
+        const Core::SdkInfo &sdk = context.Host.Sdk;
+        work.ObservedTools = ObservedSdkTools(sdk);
         if (work.Busy.load()) {
             return;
         }
 
-        work.Progress = std::make_shared<HealthCheckProgressData>();
+        work.Progress = std::make_shared<Core::HealthCheckProgressData>();
         work.Busy = true;
         work.Future = std::async(
             std::launch::async,
             [sdk, jdk = context.Host.Jdk, progress = work.Progress] {
-                RunHealthChecks(sdk, jdk, progress);
+                Core::RunHealthChecks(sdk, jdk, progress);
             }
         );
     }
@@ -207,13 +219,13 @@ namespace CoreDeck {
             return;
         }
 
-        const SdkInfo &sdk = context.Host.Sdk;
-        const std::string toolsNow = sdk.AvdManagerPath + "\n" + sdk.SdkManagerPath + "\n" + sdk.ApkAnalyzerPath;
+        const Core::SdkInfo &sdk = context.Host.Sdk;
+        const std::string toolsNow = ObservedSdkTools(sdk);
         if (!context.HealthCheckWork.Busy.load() && context.HealthCheckWork.ObservedTools != toolsNow) {
             OpenHealthCheckDialog(context);
         }
 
-        const std::string title = TrWindow("Health Check", "HealthCheckDialog");
+        const std::string title = Platform::TrWindow("Health Check", "HealthCheckDialog");
         const bool licenseOpen = context.UI.ShowAcceptLicensesDialog || context.AcceptLicensesWork.Busy.load();
         bool *healthOpen = licenseOpen ? nullptr : &context.UI.ShowHealthCheckDialog;
         if (BeginCenteredModal(
@@ -222,18 +234,16 @@ namespace CoreDeck {
                 ImVec2(Em(92.0F), 0.0F),
                 WINDOW_AUTO_RESIZE_FLAGS | ImGuiWindowFlags_NoScrollbar
             )) {
-            auto &work = context.HealthCheckWork;
+            const auto &work = context.HealthCheckWork;
             const bool busy = work.Busy.load();
 
-            std::vector<HealthCheckResult> items;
-            bool finished = false;
+            std::vector<Core::HealthCheckResult> items;
             if (work.Progress) {
-                std::scoped_lock lock(work.Progress->Mutex);
+                const std::scoped_lock lock(work.Progress->Mutex);
                 items = work.Progress->Items;
-                finished = work.Progress->Finished;
             }
 
-            DrawChecks(context, items, !busy && !licenseOpen);
+            HealthChecks(context, items, !busy && !licenseOpen);
 
             ImGui::Spacing();
             ImGui::Separator();
@@ -241,11 +251,11 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(busy ? Tr("Checking...") : Tr("Run Again"), !busy && !licenseOpen, ImVec2(halfWidth, 0), busy)) {
+            if (PositiveButton(busy ? Platform::Tr("Checking...") : Platform::Tr("Run Again"), !busy && !licenseOpen, ImVec2(halfWidth, 0), busy)) {
                 OpenHealthCheckDialog(context);
             }
             ImGui::SameLine();
-            if (PrimaryButton(Tr("Close"), !licenseOpen, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Platform::Tr("Close"), !licenseOpen, ImVec2(halfWidth, 0))) {
                 CloseDialog(context);
             }
 

@@ -6,6 +6,7 @@
 #include <cfloat>
 #include <cstddef>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "imgui.h"
@@ -16,19 +17,19 @@
 #include "../theme.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/log_filter.h"
-#include "../../core/i18n.h"
+#include "platform/log_filter.h"
+#include "platform/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         struct PanelInputs {
-            std::shared_ptr<LogBuffer> Log;
+            std::shared_ptr<Platform::LogBuffer> Log;
             std::string AvdName;
             bool HasSelection = false;
         };
 
         struct PanelView {
-            LogFilterResult Filter;
+            Platform::LogFilterResult Filter;
             std::string Placeholder;
             bool HasContent = false;
         };
@@ -56,23 +57,23 @@ namespace CoreDeck {
         PanelView BuildView(const PanelInputs &inputs, const Context::LogViewState &state) {
             PanelView view;
             if (!inputs.HasSelection) {
-                view.Placeholder = Tr("Select an AVD to view logs");
+                view.Placeholder = Platform::Tr("Select an AVD to view logs");
                 return view;
             }
             if (!inputs.Log) {
-                view.Placeholder = TrFormat("Run the \"{0}\" AVD to view logs", inputs.AvdName);
+                view.Placeholder = Platform::TrFormat("Run the \"{0}\" AVD to view logs", inputs.AvdName);
                 return view;
             }
 
             const auto lines = inputs.Log->GetLines();
-            LogFilterOptions options;
+            Platform::LogFilterOptions options;
             options.Query = state.Search;
             options.UseRegex = state.UseRegex;
-            view.Filter = FilterLog(lines, options);
+            view.Filter = Platform::FilterLog(lines, options);
             view.HasContent = !view.Filter.Joined.empty();
 
             if (!view.HasContent) {
-                view.Placeholder = lines.empty() ? Tr("No available logs to view") : Tr("No matching log entries found");
+                view.Placeholder = lines.empty() ? Platform::Tr("No available logs to view") : Platform::Tr("No matching log entries found");
             }
             return view;
         }
@@ -139,7 +140,7 @@ namespace CoreDeck {
             char searchBuffer[256];
             CopyToBuffer(searchBuffer, sizeof(searchBuffer), state.Search);
 
-            const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? Tr("Regex") : Tr("Search logs..."));
+            const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? Platform::Tr("Regex") : Platform::Tr("Search logs..."));
             ImGui::SetNextItemWidth(searchWidth);
             if (regexInvalid) {
                 ImGui::PushStyleColor(ImGuiCol_Border, HexColor(Colors::NEGATIVE));
@@ -156,7 +157,7 @@ namespace CoreDeck {
                 ImGui::PopStyleColor();
             }
             if (regexInvalid && ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("%s", TrFormat("Invalid regex: {0}", view.Filter.RegexError).c_str());
+                ImGui::SetTooltip("%s", Platform::TrFormat("Invalid regex: {0}", view.Filter.RegexError).c_str());
             }
             if (edited) {
                 state.Search = searchBuffer;
@@ -249,14 +250,17 @@ namespace CoreDeck {
             if (!window) {
                 return false;
             }
-            constexpr float SCROLL_PAST_END = FLT_MAX * 0.5F;
-            ImGui::SetScrollY(window, SCROLL_PAST_END);
+
+            // ImGui rounds the target through a 64-bit integer.
+            // FLT_MAX overflows that cast on x64 and the view stays at the top.
+            constexpr float SCROLL_TO_END = 1.0e9F;
+            ImGui::SetScrollY(window, SCROLL_TO_END);
             return true;
         }
 
         void RenderLogBody(const PanelView &view, const SyncSelection &sync, const bool focusLog) {
             const std::string &display = view.HasContent ? view.Filter.Joined : view.Placeholder;
-            std::vector<char> buffer(display.begin(), display.end());
+            std::vector buffer(display.begin(), display.end());
             buffer.push_back('\0');
 
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_ReadOnly |
@@ -288,7 +292,7 @@ namespace CoreDeck {
         }
 
         void DriveAutoScroll(const PanelInputs &inputs, const Context &context, const PanelView &view, const bool hasQuery) {
-            if (!inputs.Log || !context.Logs.AutoScroll || hasQuery || !view.HasContent) {
+            if (!inputs.Log || !context.Prefs.AutoScroll || hasQuery || !view.HasContent) {
                 return;
             }
             if (!inputs.Log->HasNewContent()) {
@@ -306,7 +310,7 @@ namespace CoreDeck {
             return;
         }
 
-        const std::string title = TrWindow("Output Log", "Output Log");
+        const std::string title = Platform::TrWindow("Output Log", "Output Log");
         ImGui::Begin(title.c_str());
 
         const PanelInputs inputs = ResolveInputs(context);
@@ -345,7 +349,7 @@ namespace CoreDeck {
 
         SyncSelection sync;
         int scrollLine = -1;
-        const bool haveActiveMatch = !view.Filter.Matches.empty() && state.ActiveMatchIndex < static_cast<int>(view.Filter.Matches.size());
+        const bool haveActiveMatch = !view.Filter.Matches.empty() && std::cmp_less(state.ActiveMatchIndex, view.Filter.Matches.size());
         if (haveActiveMatch && context.Logs.PendingSyncFrames > 0) {
             const auto &[startOffset, endOffset] = view.Filter.Matches.at(state.ActiveMatchIndex);
             sync.Active = true;

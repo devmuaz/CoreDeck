@@ -6,12 +6,13 @@
 #include <string>
 #include <vector>
 
-#include "core/constants.h"
-#include "core/paths.h"
+
+#include "platform/paths.h"
 #include "core/sdk.h"
 #include "core/sdk_bootstrap.h"
 
 using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 namespace {
     std::filesystem::path MakeScratchDir(const std::string &name) {
@@ -51,7 +52,7 @@ namespace {
 
     void CreateFakeEmulator(const std::string &installRoot) {
         WriteExecutable(
-            std::filesystem::path(installRoot) / "emulator" / ("emulator" + Paths::GetExecutableExtension())
+            std::filesystem::path(installRoot) / "emulator" / Platform::WithExecutableExtension("emulator")
         );
     }
 
@@ -132,12 +133,12 @@ namespace {
     }
 
     BootstrapError ErrorOf(const std::shared_ptr<BootstrapProgressData> &progress) {
-        std::lock_guard lock(progress->Mutex);
+        const std::scoped_lock lock(progress->Mutex);
         return progress->Error;
     }
 
     BootstrapStage StageOf(const std::shared_ptr<BootstrapProgressData> &progress) {
-        std::lock_guard lock(progress->Mutex);
+        const std::scoped_lock lock(progress->Mutex);
         return progress->Stage;
     }
 }
@@ -223,7 +224,7 @@ TEST_CASE("BootstrapAndroidSdk installs a usable SDK on the happy path", "[boots
     REQUIRE(ErrorOf(progress) == BootstrapError::None);
     REQUIRE(StageOf(progress) == BootstrapStage::Succeeded);
     {
-        std::lock_guard lock(progress->Mutex);
+        const std::scoped_lock lock(progress->Mutex);
         REQUIRE(progress->Finished);
         REQUIRE(progress->Succeeded);
         REQUIRE(progress->Percent == 1.0F);
@@ -271,7 +272,7 @@ TEST_CASE("BootstrapAndroidSdk advances stages in order with a monotonic percent
     std::vector<BootstrapStage> observed;
     float lastPercent = -1.0F;
     const auto observe = [&observed, &lastPercent, &progress] {
-        std::lock_guard lock(progress->Mutex);
+        const std::scoped_lock lock(progress->Mutex);
         observed.push_back(progress->Stage);
         REQUIRE(progress->Percent >= lastPercent);
         lastPercent = progress->Percent;
@@ -521,7 +522,7 @@ TEST_CASE("BootstrapAndroidSdk honours a cancellation during download", "[bootst
         std::filesystem::create_directories(std::filesystem::path(destPath).parent_path());
         std::ofstream(destPath, std::ios::binary) << "partial";
         {
-            std::lock_guard lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->CancelRequested = true;
         }
         if (onProgress && !onProgress(16, 128)) {
@@ -584,9 +585,10 @@ TEST_CASE("BootstrapAndroidSdk installs build-tools into an SDK that already has
         REQUIRE(sdk.SdkManagerPath.find("sdkmanager") != std::string::npos);
         REQUIRE(sdkRoot == root);
         installed = packages;
-        WriteExecutable(
-            std::filesystem::path(sdkRoot) / "build-tools" / "37.0.0" / ("aapt2" + Paths::GetExecutableExtension())
-        );
+        const std::filesystem::path buildTools = std::filesystem::path(sdkRoot) / "build-tools" / "37.0.0";
+        for (const char *name: {"aapt2", "zipalign", "apksigner"}) {
+            WriteExecutable(buildTools / Platform::WithExecutableExtension(name));
+        }
         return true;
     };
 
@@ -596,7 +598,10 @@ TEST_CASE("BootstrapAndroidSdk installs build-tools into an SDK that already has
     REQUIRE(installed.size() == 1);
     REQUIRE(installed.front() == BOOTSTRAP_BUILD_TOOLS_PACKAGE);
     REQUIRE(StageOf(progress) == BootstrapStage::Succeeded);
-    REQUIRE_FALSE(FindInstalledAapt2(root.string()).empty());
+    const SdkInfo probed = ProbeAndroidSdk(root.string());
+    REQUIRE_FALSE(probed.Aapt2Path.empty());
+    REQUIRE_FALSE(probed.ZipalignPath.empty());
+    REQUIRE_FALSE(probed.ApksignerPath.empty());
 
     std::filesystem::remove_all(root);
 }

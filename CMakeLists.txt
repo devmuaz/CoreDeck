@@ -173,40 +173,23 @@ foreach(_prefix IN LISTS CMAKE_PREFIX_PATH)
 endforeach()
 find_program(GETTEXT_MSGFMT_EXECUTABLE msgfmt HINTS ${_coredeck_msgfmt_hints} REQUIRED)
 
-add_library(coredeck_core STATIC
-    src/core/app_settings.cpp
-    src/core/apk_analyzer.cpp
-    src/core/archive.cpp
-    src/core/avd_manager.cpp
-    src/core/crash_reporter.cpp
-    src/core/emulator.cpp
-    src/core/emulator_console.cpp
-    src/core/file_dialog.cpp
-    src/core/health_check.cpp
-    src/core/http_download.cpp
-    src/core/i18n.cpp
-    src/core/jdk.cpp
-    src/core/log_buffer.cpp
-    src/core/log_filter.cpp
-    src/core/options.cpp
-    src/core/paths.cpp
-    src/core/process.cpp
-    src/core/process_stats.cpp
-    src/core/sdk.cpp
-    src/core/sdk_bootstrap.cpp
-    src/core/sdk_manager.cpp
-    src/core/sha256.cpp
-    src/core/skin.cpp
-    src/core/system_image.cpp
-    src/core/utilities.cpp
-    src/core/version_check.cpp
+add_library(coredeck_platform STATIC
+    src/platform/archive.cpp
+    src/platform/http_download.cpp
+    src/platform/i18n.cpp
+    src/platform/log_buffer.cpp
+    src/platform/log_filter.cpp
+    src/platform/paths.cpp
+    src/platform/process.cpp
+    src/platform/process_stats.cpp
+    src/platform/sha256.cpp
+    src/platform/utilities.cpp
 )
 
-target_include_directories(coredeck_core PUBLIC src)
-target_precompile_headers(coredeck_core PRIVATE src/pch.h)
-target_link_libraries(coredeck_core PUBLIC reflectcpp tinyfiledialogs miniz Intl::Intl)
-
-target_compile_definitions(coredeck_core PUBLIC
+target_include_directories(coredeck_platform PUBLIC ${CMAKE_SOURCE_DIR}/src/platform)
+target_precompile_headers(coredeck_platform PRIVATE src/pch.h)
+target_link_libraries(coredeck_platform PUBLIC miniz)
+target_compile_definitions(coredeck_platform PUBLIC
     COREDECK_TITLE="CoreDeck"
     COREDECK_VERSION="${PROJECT_VERSION_FULL}"
     COREDECK_BUILD_NUMBER="${PROJECT_BUILD_NUMBER}"
@@ -216,29 +199,71 @@ target_compile_definitions(coredeck_core PUBLIC
     COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
 )
 
+if(WIN32)
+    target_compile_definitions(coredeck_platform PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_link_libraries(coredeck_platform PUBLIC shell32 ole32 winhttp ws2_32)
+elseif(APPLE)
+    target_link_libraries(coredeck_platform PUBLIC CURL::libcurl "-framework CoreFoundation")
+elseif(UNIX)
+    target_link_libraries(coredeck_platform PUBLIC ${CMAKE_DL_LIBS} Threads::Threads CURL::libcurl)
+else()
+    target_link_libraries(coredeck_platform PUBLIC CURL::libcurl)
+endif()
+target_link_libraries(coredeck_platform PUBLIC Intl::Intl)
+
+add_library(coredeck_app STATIC
+    src/app/app_settings.cpp
+    src/app/crash_reporter.cpp
+    src/app/file_dialog.cpp
+    src/app/paths.cpp
+    src/app/version_check.cpp
+)
+
+target_include_directories(coredeck_app PUBLIC ${CMAKE_SOURCE_DIR}/src/app)
+target_precompile_headers(coredeck_app PRIVATE src/pch.h)
+target_link_libraries(coredeck_app PUBLIC coredeck_platform reflectcpp tinyfiledialogs)
+
 if(COREDECK_SENTRY_ENABLED)
-    target_compile_definitions(coredeck_core PUBLIC
+    target_compile_definitions(coredeck_app PUBLIC
         $<$<CONFIG:Release>:COREDECK_SENTRY_DSN="${COREDECK_SENTRY_DSN}">
     )
-    target_link_libraries(coredeck_core PUBLIC $<$<CONFIG:Release>:sentry>)
+    target_link_libraries(coredeck_app PUBLIC $<$<CONFIG:Release>:sentry>)
 endif()
 
 if(WIN32)
-    target_compile_definitions(coredeck_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
-    target_link_libraries(coredeck_core PUBLIC shell32 comdlg32 ole32 winhttp ws2_32)
-elseif(APPLE)
-    target_link_libraries(coredeck_core PUBLIC CURL::libcurl "-framework CoreFoundation")
-elseif(UNIX)
-    target_link_libraries(coredeck_core PUBLIC ${CMAKE_DL_LIBS} Threads::Threads CURL::libcurl)
-else()
-    target_link_libraries(coredeck_core PUBLIC CURL::libcurl)
+    target_link_libraries(coredeck_app PUBLIC comdlg32)
 endif()
+
+add_library(coredeck_core STATIC
+    src/core/apk_analyzer.cpp
+    src/core/apk_signer.cpp
+    src/core/avd_manager.cpp
+    src/core/emulator.cpp
+    src/core/emulator_console.cpp
+    src/core/health_check.cpp
+    src/core/jdk.cpp
+    src/core/jar_signer.cpp
+    src/core/keytool.cpp
+    src/core/options.cpp
+    src/core/sdk.cpp
+    src/core/sdk_bootstrap.cpp
+    src/core/sdk_manager.cpp
+    src/core/skin.cpp
+    src/core/system_image.cpp
+)
+
+target_include_directories(coredeck_core PUBLIC ${CMAKE_SOURCE_DIR}/src/core)
+target_precompile_headers(coredeck_core PRIVATE src/pch.h)
+target_link_libraries(coredeck_core PUBLIC coredeck_platform reflectcpp)
 
 add_executable(${PROJECT_NAME}
     ${IMGUI_SOURCES}
     src/main.cpp
     src/gui/windows/about.cpp
     src/gui/windows/apk_analyzer.cpp
+    src/gui/windows/apk_signer.cpp
+    src/gui/windows/jar_signer.cpp
+    src/gui/windows/keytool.cpp
     src/gui/windows/avd_info.cpp
     src/gui/windows/avd_list.cpp
     src/gui/windows/avd_logs.cpp
@@ -262,17 +287,25 @@ add_executable(${PROJECT_NAME}
     src/gui/application.cpp
     src/gui/theme.cpp
     src/gui/utilities.cpp
-    src/gui/widgets.cpp
+    src/gui/widgets/style.cpp
+    src/gui/widgets/buttons.cpp
+    src/gui/widgets/feedback.cpp
+    src/gui/widgets/form.cpp
+    src/gui/widgets/report.cpp
+    src/gui/widgets/chrome.cpp
+    src/gui/widgets/banner.cpp
 )
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.h)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
     ${IMGUI_DIR}
     ${IMGUI_DIR}/backends
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    coredeck_app
     coredeck_core
     glfw
     OpenGL::GL

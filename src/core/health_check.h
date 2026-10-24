@@ -17,7 +17,7 @@
 #include "sdk.h"
 #include "sdk_manager.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class HealthStatus : uint8_t {
         Pending,
         Running,
@@ -71,8 +71,6 @@ namespace CoreDeck {
         std::function<std::string(const SdkInfo &sdk)> SdkManagerVersion;
 
         std::function<std::size_t(const SdkInfo &sdk)> CountSystemImages;
-
-        std::function<std::optional<std::string>(const std::string &sdkPath)> FindAapt2;
 
         std::function<std::optional<std::uint64_t>(const std::string &root)> FreeDiskSpace;
     };

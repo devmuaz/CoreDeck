@@ -14,7 +14,7 @@
 #include "process.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         bool IsAvdManagerDiagnostic(const std::string &line) {
             return line.starts_with("Error:") || line.starts_with("Warning:");
@@ -36,7 +36,7 @@ namespace CoreDeck {
                     continue;
                 }
 
-                auto eq = line.find('=');
+                const auto eq = line.find('=');
                 if (eq == std::string::npos) {
                     continue;
                 }
@@ -83,7 +83,7 @@ namespace CoreDeck {
 
         bool HasTag(const std::vector<std::string> &tags, const std::string &needle) {
             return std::ranges::any_of(tags, [&](const std::string &tag) {
-                return LowerCopy(tag) == needle;
+                return Platform::LowerCopy(tag) == needle;
             });
         }
 
@@ -129,10 +129,10 @@ namespace CoreDeck {
                 avd.SystemImageTagDisplayNames = {avd.SystemImageTagDisplay};
             }
 
-            const std::string variant = LowerCopy(avd.SystemImageVariant);
-            const std::string tagId = LowerCopy(avd.SystemImageTagId);
-            const std::string tagDisplay = LowerCopy(avd.SystemImageTagDisplay);
-            const std::string tagDisplayNames = LowerCopy(StrConcat(
+            const std::string variant = Platform::LowerCopy(avd.SystemImageVariant);
+            const std::string tagId = Platform::LowerCopy(avd.SystemImageTagId);
+            const std::string tagDisplay = Platform::LowerCopy(avd.SystemImageTagDisplay);
+            const std::string tagDisplayNames = Platform::LowerCopy(Platform::StrConcat(
                 avd.SystemImageTagDisplay,
                 " ",
                 config.contains("tag.displaynames") ? config.at("tag.displaynames") : ""
@@ -161,18 +161,18 @@ namespace CoreDeck {
         AvdInfo ExtractAvdInfo(const std::string &avdName) {
             AvdInfo avd;
 
-            const std::string avdRoot = Paths::GetAvdDirectory();
+            const std::string avdRoot = Core::GetAvdDirectory();
             if (avdRoot.empty()) {
                 return avd;
             }
 
-            const std::string path = Paths::JoinPaths({avdRoot, avdName + ".avd"});
+            const std::string path = Platform::JoinPaths({avdRoot, avdName + ".avd"});
 
             avd.Name = avdName;
             avd.DisplayName = avdName;
             avd.Path = path;
 
-            std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
+            const std::string configPath = Platform::JoinPaths({avd.Path, "config.ini"});
 
             if (!std::filesystem::exists(configPath)) {
                 return avd;
@@ -180,39 +180,39 @@ namespace CoreDeck {
 
             auto config = ParseConfigFile(configPath);
 
-            if (auto it = config.find("hw.device.name"); it != config.end()) {
+            if (const auto it = config.find("hw.device.name"); it != config.end()) {
                 avd.Device = it->second;
             }
 
-            if (auto it = config.find("avd.ini.displayname"); it != config.end() && !it->second.empty()) {
+            if (const auto it = config.find("avd.ini.displayname"); it != config.end() && !it->second.empty()) {
                 avd.DisplayName = it->second;
             }
 
-            if (auto it = config.find("abi.type"); it != config.end()) {
+            if (const auto it = config.find("abi.type"); it != config.end()) {
                 avd.Abi = it->second;
             }
 
             ExtractSystemImageInfo(avd, config);
 
-            if (auto it = config.find("sdcard.size"); it != config.end()) {
+            if (const auto it = config.find("sdcard.size"); it != config.end()) {
                 avd.SdCard = it->second;
             }
 
-            if (auto it = config.find("hw.ramSize"); it != config.end()) {
+            if (const auto it = config.find("hw.ramSize"); it != config.end()) {
                 avd.RamSize = it->second;
             }
 
-            if (auto it = config.find("hw.cpu.arch"); it != config.end()) {
+            if (const auto it = config.find("hw.cpu.arch"); it != config.end()) {
                 avd.Arch = it->second;
             }
 
             std::string width;
             std::string height;
-            if (auto it = config.find("hw.lcd.width"); it != config.end()) {
+            if (const auto it = config.find("hw.lcd.width"); it != config.end()) {
                 width = it->second;
             }
 
-            if (auto it = config.find("hw.lcd.height"); it != config.end()) {
+            if (const auto it = config.find("hw.lcd.height"); it != config.end()) {
                 height = it->second;
             }
 
@@ -222,15 +222,79 @@ namespace CoreDeck {
                 avd.ScreenResolution = ss.str();
             }
 
-            if (auto it = config.find("hw.gpu.mode"); it != config.end()) {
+            if (const auto it = config.find("hw.gpu.mode"); it != config.end()) {
                 avd.GpuMode = it->second;
             }
 
-            if (auto it = config.find("skin.name"); it != config.end()) {
+            if (const auto it = config.find("skin.name"); it != config.end()) {
                 avd.SkinName = it->second;
             }
 
             return avd;
+        }
+
+        std::string ConfigKey(const std::string &line) {
+            if (line.empty() || line.front() == '#') {
+                return {};
+            }
+            const auto eq = line.find('=');
+            if (eq == std::string::npos) {
+                return {};
+            }
+
+            std::string key = line.substr(0, eq);
+            while (!key.empty() && (key.back() == ' ' || key.back() == '\t')) {
+                key.pop_back();
+            }
+            while (!key.empty() && (key.front() == ' ' || key.front() == '\t')) {
+                key.erase(key.begin());
+            }
+            return key;
+        }
+
+        std::string ConfigAssignment(const std::string &key, const std::string &value) {
+            std::string assignment = key;
+            assignment += '=';
+            assignment += value;
+            return assignment;
+        }
+
+        bool SetConfigValue(const std::string &path, const std::string &key, const std::string &value) {
+            std::ifstream input(path);
+            if (!input.is_open()) {
+                return false;
+            }
+
+            std::vector<std::string> lines;
+            std::string line;
+            bool replaced = false;
+            while (std::getline(input, line)) {
+                if (!line.empty() && line.back() == '\r') {
+                    line.pop_back();
+                }
+                if (ConfigKey(line) == key) {
+                    if (!replaced) {
+                        lines.push_back(ConfigAssignment(key, value));
+                        replaced = true;
+                    }
+                    continue;
+                }
+                lines.push_back(line);
+            }
+            input.close();
+
+            if (!replaced) {
+                lines.push_back(ConfigAssignment(key, value));
+            }
+
+            std::ofstream output(path, std::ios::trunc);
+            if (!output.is_open()) {
+                return false;
+            }
+            for (const std::string &written: lines) {
+                output << written << '\n';
+            }
+            return static_cast<bool>(output);
         }
     }
 
@@ -270,7 +334,7 @@ namespace CoreDeck {
             return {};
         }
 
-        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"}, "", sdk.ToolEnv);
+        const std::string output = Platform::RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"}, "", sdk.ToolEnv);
         return ParseAvdManagerDeviceList(output);
     }
 
@@ -306,7 +370,7 @@ namespace CoreDeck {
             return {};
         }
 
-        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "avd", "-c"}, "", sdk.ToolEnv);
+        const std::string output = Platform::RunCommandArgs(sdk.AvdManagerPath, {"list", "avd", "-c"}, "", sdk.ToolEnv);
         return ParseAvdManagerAvdList(output);
     }
 
@@ -330,38 +394,35 @@ namespace CoreDeck {
             args.emplace_back("-d");
             args.push_back(data.DeviceId);
         }
-        RunCommandArgs(sdk.AvdManagerPath, args, "no\n", sdk.ToolEnv);
+        Platform::RunCommandArgs(sdk.AvdManagerPath, args, "no\n", sdk.ToolEnv);
 
-        const std::string avdDir = Paths::GetAvdDirectory();
-        const std::string configPath = Paths::JoinPaths({avdDir, data.Name + ".avd", "config.ini"});
+        const std::string avdDir = Core::GetAvdDirectory();
+        const std::string configPath = Platform::JoinPaths({avdDir, data.Name + ".avd", "config.ini"});
 
         if (std::filesystem::exists(configPath)) {
-            std::ofstream file(configPath, std::ios::app);
-            if (file.is_open()) {
-                file << "hw.keyboard=yes\n";
-                if (!data.DisplayName.empty()) {
-                    file << "avd.ini.displayname=" << data.DisplayName << "\n";
-                }
-                if (!data.RamSize.empty()) {
-                    file << "hw.ramSize=" << data.RamSize << "\n";
-                }
-                if (!data.SdCardSize.empty()) {
-                    file << "sdcard.size=" << data.SdCardSize << "\n";
-                }
-                if (!data.GpuMode.empty()) {
-                    file << "hw.gpu.mode=" << data.GpuMode << "\n";
-                    file << "hw.gpu.enabled=yes\n";
-                }
-                if (!data.SkinName.empty()) {
-                    file << "skin.name=" << data.SkinName << "\n";
-                    if (!data.SkinPath.empty()) {
-                        file << "skin.path=" << data.SkinPath << "\n";
-                    }
+            SetConfigValue(configPath, "hw.keyboard", "yes");
+            if (!data.DisplayName.empty()) {
+                SetConfigValue(configPath, "avd.ini.displayname", data.DisplayName);
+            }
+            if (!data.RamSize.empty()) {
+                SetConfigValue(configPath, "hw.ramSize", data.RamSize);
+            }
+            if (!data.SdCardSize.empty()) {
+                SetConfigValue(configPath, "sdcard.size", data.SdCardSize);
+            }
+            if (!data.GpuMode.empty()) {
+                SetConfigValue(configPath, "hw.gpu.mode", data.GpuMode);
+                SetConfigValue(configPath, "hw.gpu.enabled", "yes");
+            }
+            if (!data.SkinName.empty()) {
+                SetConfigValue(configPath, "skin.name", data.SkinName);
+                if (!data.SkinPath.empty()) {
+                    SetConfigValue(configPath, "skin.path", data.SkinPath);
                 }
             }
         }
 
-        const std::string avdFolder = Paths::JoinPaths({avdDir, data.Name + ".avd"});
+        const std::string avdFolder = Platform::JoinPaths({avdDir, data.Name + ".avd"});
         return std::filesystem::exists(avdFolder);
     }
 
@@ -370,10 +431,48 @@ namespace CoreDeck {
             return false;
         }
 
-        RunCommandArgs(sdk.AvdManagerPath, {"delete", "avd", "-n", avdName}, "", sdk.ToolEnv);
+        Platform::RunCommandArgs(sdk.AvdManagerPath, {"delete", "avd", "-n", avdName}, "", sdk.ToolEnv);
 
-        const std::string avdDir = Paths::GetAvdDirectory();
-        const std::string avdFolder = Paths::JoinPaths({avdDir, avdName + ".avd"});
+        const std::string avdDir = Core::GetAvdDirectory();
+        const std::string avdFolder = Platform::JoinPaths({avdDir, avdName + ".avd"});
         return !std::filesystem::exists(avdFolder);
     }
+    std::string GetAvdDirectory() {
+        const std::string home = Platform::GetHomeDirectory();
+        if (home.empty()) {
+            return "";
+        }
+
+        return Platform::JoinPaths({home, ".android", "avd"});
+    }
+
+    bool WipeAvdUserData(const std::string &avdPath) {
+        if (!std::filesystem::exists(avdPath)) {
+            return false;
+        }
+
+        static constexpr const char *WIPE_TARGETS[] = {
+            "userdata-qemu.img",
+            "userdata-qemu.img.qcow2",
+            "cache.img",
+            "cache.img.qcow2",
+            "sdcard.img",
+            "sdcard.img.qcow2",
+            "snapshots",
+        };
+
+        bool wiped = false;
+        std::error_code ec;
+        for (const auto *name: WIPE_TARGETS) {
+            const auto target = std::filesystem::path(avdPath) / name;
+            if (std::filesystem::exists(target, ec)) {
+                std::filesystem::remove_all(target, ec);
+                if (!ec) {
+                    wiped = true;
+                }
+            }
+        }
+        return wiped;
+    }
+
 }

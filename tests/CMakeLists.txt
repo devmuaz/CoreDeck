@@ -10,10 +10,13 @@ add_executable(coredeck_tests
         test_sha256.cpp
         test_archive.cpp
         test_apk_analyzer.cpp
+        test_apk_signer.cpp
         test_avd_manager.cpp
         test_health_check.cpp
         test_i18n.cpp
         test_jdk.cpp
+        test_jar_signer.cpp
+        test_keytool.cpp
         test_sdk_bootstrap.cpp
         test_sdk_manager.cpp
         test_system_image.cpp
@@ -21,9 +24,11 @@ add_executable(coredeck_tests
 )
 
 target_link_libraries(coredeck_tests PRIVATE
+        coredeck_app
         coredeck_core
         Catch2::Catch2WithMain
 )
+target_include_directories(coredeck_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 file(TO_CMAKE_PATH "${COREDECK_LOCALE_DIR}" _coredeck_locales_dir)
 file(TO_CMAKE_PATH "${GETTEXT_MSGFMT_EXECUTABLE}" _coredeck_msgfmt)

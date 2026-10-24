@@ -8,12 +8,12 @@
 #include "../context.h"
 #include "../theme.h"
 #include "about.h"
-#include "../../core/constants.h"
-#include "../../core/i18n.h"
+#include "app/constants.h"
+#include "platform/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void BuildAboutWindow(Context &context) {
-        const std::string title = TrWindow("About CoreDeck", "About CoreDeck");
+        const std::string title = Platform::TrWindow("About CoreDeck", "About CoreDeck");
         if (!context.UI.ShowAboutDialog && !ImGui::IsPopupOpen(title.c_str())) {
             return;
         }
@@ -25,12 +25,12 @@ namespace CoreDeck {
                 );
             };
 
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]); // NOLINT(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
             centerCursor(ImGui::CalcTextSize(COREDECK_TITLE).x);
             ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), COREDECK_TITLE);
             ImGui::PopFont();
 
-            const std::string version = TrFormat("Version {0} (Build {1})", COREDECK_VERSION, COREDECK_BUILD_NUMBER);
+            const std::string version = Platform::TrFormat("Version {0} (Build {1})", COREDECK_VERSION, COREDECK_BUILD_NUMBER);
             centerCursor(ImGui::CalcTextSize(version.c_str()).x);
             ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", version.c_str());
 
@@ -45,17 +45,17 @@ namespace CoreDeck {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            if (PropertyText(Tr("Author"), COREDECK_VENDOR, true)) {
-                OpenUrl(AUTHOR_WEBSITE_URL);
+            if (PropertyText(Platform::Tr("Author"), COREDECK_VENDOR, true)) {
+                Platform::OpenUrl(App::AUTHOR_WEBSITE_URL);
             }
-            PropertyText(Tr("License"), Tr("MIT"));
-            if (PropertyText(Tr("Website"), WEBSITE_URL, true)) {
-                OpenUrl(WEBSITE_URL);
+            PropertyText(Platform::Tr("License"), Platform::Tr("MIT"));
+            if (PropertyText(Platform::Tr("Website"), App::WEBSITE_URL, true)) {
+                Platform::OpenUrl(App::WEBSITE_URL);
             }
-            if (PropertyText(Tr("GitHub"), GITHUB_URL, true)) {
-                OpenUrl(GITHUB_URL);
+            if (PropertyText(Platform::Tr("GitHub"), App::GITHUB_URL, true)) {
+                Platform::OpenUrl(App::GITHUB_URL);
             }
-            PropertyText(Tr("Built with"), Tr("C++20, Dear ImGui, GLFW, OpenGL"));
+            PropertyText(Platform::Tr("Built with"), Platform::Tr("C++20, Dear ImGui, GLFW, OpenGL"));
 
             ImGui::Spacing();
             ImGui::Separator();

@@ -9,8 +9,8 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
-    void DrawPreferencesAndroidSdkSection(Context &context, char *sdkPathBuffer, size_t bufferSize);
+namespace CoreDeck::Gui {
+    void PreferencesAndroidSdkSection(const Context &context, char *sdkPathBuffer, size_t bufferSize);
 
     void PollPreferencesSdkWork(Context &context);
 }

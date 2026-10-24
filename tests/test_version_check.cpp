@@ -1,8 +1,9 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/version_check.h"
+#include "app/version_check.h"
 
-using namespace CoreDeck::detail;
+using namespace CoreDeck::App::detail;
+using namespace CoreDeck;
 
 TEST_CASE("CompareSemanticVersion reports equality", "[version_check][semver]") {
     REQUIRE(CompareSemanticVersion("1.0.0", "1.0.0") == 0);

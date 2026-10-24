@@ -7,7 +7,7 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void StartDeleteAvdAsync(Context &context, const std::string &avdName);
 
     void BuildDeleteAvdWindow(Context &context);

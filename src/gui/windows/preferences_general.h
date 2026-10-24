@@ -7,8 +7,8 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
-    void DrawPreferencesGeneralSection(Context &context);
+namespace CoreDeck::Gui {
+    void PreferencesGeneralSection(Context &context);
 }
 
 #endif // COREDECK_PREFERENCES_GENERAL_H

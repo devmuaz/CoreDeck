@@ -14,9 +14,9 @@
 #include "../theme.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         enum class PrefsSection : uint8_t {
             General,
@@ -31,9 +31,9 @@ namespace CoreDeck {
         };
 
         constexpr SidebarItem SIDEBAR_ITEMS[] = {
-            {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = TrNoop("General")},
-            {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = TrNoop("Android SDK")},
-            {.Section = PrefsSection::Java, .Icon = Icons::COFFEE, .Label = TrNoop("Java (JDK)")},
+            {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = Platform::TrNoop("General")},
+            {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = Platform::TrNoop("Android SDK")},
+            {.Section = PrefsSection::Java, .Icon = Icons::COFFEE, .Label = Platform::TrNoop("Java (JDK)")},
         };
 
         bool SidebarRow(const SidebarItem &item, const bool selected) {
@@ -75,7 +75,7 @@ namespace CoreDeck {
             const ImU32 textColor = ImGui::GetColorU32(selected ? HexColor(Colors::TEXT_PRIMARY) : HexColor(Colors::TEXT_SUBTLE));
             const float textY = bb.Min.y + ((height - ImGui::GetTextLineHeight()) * 0.5F);
             window->DrawList->AddText(ImVec2(bb.Min.x + 14.0F, textY), textColor, item.Icon);
-            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0F, textY), textColor, Tr(item.Label));
+            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0F, textY), textColor, Platform::Tr(item.Label));
 
             ImGui::PopID();
             return pressed;
@@ -109,7 +109,7 @@ namespace CoreDeck {
         static char sdkPathBuffer[2048];
         static char jdkPathBuffer[2048];
 
-        const std::string title = TrWindow("Preferences", "CoreDeckPrefs");
+        const std::string title = Platform::TrWindow("Preferences", "CoreDeckPrefs");
         if (!context.UI.ShowPreferences && !ImGui::IsPopupOpen(title.c_str())) {
             return;
         }
@@ -172,13 +172,13 @@ namespace CoreDeck {
             ImGui::PopStyleVar();
             switch (activeSection) {
                 case PrefsSection::General:
-                    DrawPreferencesGeneralSection(context);
+                    PreferencesGeneralSection(context);
                     break;
                 case PrefsSection::AndroidSdk:
-                    DrawPreferencesAndroidSdkSection(context, sdkPathBuffer, sizeof(sdkPathBuffer));
+                    PreferencesAndroidSdkSection(context, sdkPathBuffer, sizeof(sdkPathBuffer));
                     break;
                 case PrefsSection::Java:
-                    DrawPreferencesJdkSection(context, jdkPathBuffer, sizeof(jdkPathBuffer));
+                    PreferencesJdkSection(context, jdkPathBuffer, sizeof(jdkPathBuffer));
                     break;
             }
             ImGui::EndChild();

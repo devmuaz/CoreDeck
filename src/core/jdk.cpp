@@ -10,11 +10,10 @@
 #include <filesystem>
 #include <unordered_set>
 
-#include "constants.h"
 #include "paths.h"
 #include "process.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
 #ifdef _WIN32
         constexpr char PATH_SEPARATOR = ';';
@@ -69,7 +68,7 @@ namespace CoreDeck {
         }
 
         std::string JavaBinaryIn(const std::string &home) {
-            return Paths::JoinPaths({home, "bin", "java" + Paths::GetExecutableExtension()});
+            return Platform::JoinPaths({home, "bin", Platform::WithExecutableExtension("java")});
         }
 
         void AddSubdirCandidates(
@@ -88,12 +87,12 @@ namespace CoreDeck {
                 if (!entry.is_directory(ec)) {
                     continue;
                 }
-                out.push_back(suffix.empty() ? entry.path().string() : Paths::JoinPaths({entry.path().string(), suffix}));
+                out.push_back(suffix.empty() ? entry.path().string() : Platform::JoinPaths({entry.path().string(), suffix}));
             }
         }
 
         bool IsHomebrewOpenJdkName(const std::string &name) {
-            return name == "openjdk" || name.rfind("openjdk@", 0) == 0;
+            return name == "openjdk" || name.starts_with("openjdk@");
         }
 
         // Homebrew's openjdk formula is not visible to /usr/libexec/java_home unless the user
@@ -114,7 +113,7 @@ namespace CoreDeck {
                 if (!IsHomebrewOpenJdkName(name)) {
                     continue;
                 }
-                homes.push_back(Paths::JoinPaths({entry.path().string(), "libexec", "openjdk.jdk", "Contents", "Home"}));
+                homes.push_back(Platform::JoinPaths({entry.path().string(), "libexec", "openjdk.jdk", "Contents", "Home"}));
             }
         }
 
@@ -122,7 +121,7 @@ namespace CoreDeck {
             if (!std::filesystem::exists("/usr/libexec/java_home")) {
                 return;
             }
-            const std::string out = RunCommandArgs("/usr/libexec/java_home", {"-V"});
+            const std::string out = Platform::RunCommandArgs("/usr/libexec/java_home", {"-V"});
             std::size_t start = 0;
             while (start < out.size()) {
                 const std::size_t end = out.find('\n', start);
@@ -151,27 +150,27 @@ namespace CoreDeck {
 
         std::vector<std::string> CandidateJdkHomes() {
             std::vector<std::string> homes;
-            const std::string home = Paths::GetHomeDirectory();
+            const std::string home = Platform::GetHomeDirectory();
 
 #ifdef _WIN32
-            const char *programFiles = std::getenv("ProgramFiles");
-            const char *localAppData = std::getenv("LOCALAPPDATA");
+            const char *programFiles = std::getenv(Platform::ENV_PROGRAM_FILES);
+            const char *localAppData = std::getenv(Platform::ENV_LOCALAPPDATA);
             if (programFiles) {
                 const std::string pf(programFiles);
-                AddSubdirCandidates(homes, Paths::JoinPaths({pf, "Java"}), "");
-                AddSubdirCandidates(homes, Paths::JoinPaths({pf, "Eclipse Adoptium"}), "");
-                AddSubdirCandidates(homes, Paths::JoinPaths({pf, "Microsoft"}), "");
-                AddSubdirCandidates(homes, Paths::JoinPaths({pf, "Amazon Corretto"}), "");
-                AddSubdirCandidates(homes, Paths::JoinPaths({pf, "Zulu"}), "");
-                homes.push_back(Paths::JoinPaths({pf, "Android", "Android Studio", "jbr"}));
+                AddSubdirCandidates(homes, Platform::JoinPaths({pf, "Java"}), "");
+                AddSubdirCandidates(homes, Platform::JoinPaths({pf, "Eclipse Adoptium"}), "");
+                AddSubdirCandidates(homes, Platform::JoinPaths({pf, "Microsoft"}), "");
+                AddSubdirCandidates(homes, Platform::JoinPaths({pf, "Amazon Corretto"}), "");
+                AddSubdirCandidates(homes, Platform::JoinPaths({pf, "Zulu"}), "");
+                homes.push_back(Platform::JoinPaths({pf, "Android", "Android Studio", "jbr"}));
             }
             if (localAppData) {
-                homes.push_back(Paths::JoinPaths({std::string(localAppData), "Programs", "Android Studio", "jbr"}));
+                homes.push_back(Platform::JoinPaths({std::string(localAppData), "Programs", "Android Studio", "jbr"}));
             }
 #elif __APPLE__
             AddSubdirCandidates(homes, "/Library/Java/JavaVirtualMachines", "Contents/Home");
             if (!home.empty()) {
-                AddSubdirCandidates(homes, Paths::JoinPaths({home, "Library", "Java", "JavaVirtualMachines"}), "Contents/Home");
+                AddSubdirCandidates(homes, Platform::JoinPaths({home, "Library", "Java", "JavaVirtualMachines"}), "Contents/Home");
             }
             homes.emplace_back("/Applications/Android Studio.app/Contents/jbr/Contents/Home");
             AddHomebrewOpenJdkHomes(homes, "/opt/homebrew/opt");
@@ -184,7 +183,7 @@ namespace CoreDeck {
             homes.emplace_back("/opt/android-studio/jbr");
             homes.emplace_back("/usr/local/android-studio/jbr");
             if (!home.empty()) {
-                homes.push_back(Paths::JoinPaths({home, "android-studio", "jbr"}));
+                homes.push_back(Platform::JoinPaths({home, "android-studio", "jbr"}));
             }
 #endif
             return homes;
@@ -236,7 +235,7 @@ namespace CoreDeck {
 
         if (!std::filesystem::exists(javaBin)) {
 
-            const std::string altHome = Paths::JoinPaths({javaHome, "Contents", "Home"});
+            const std::string altHome = Platform::JoinPaths({javaHome, "Contents", "Home"});
             if (const std::string altBin = JavaBinaryIn(altHome); std::filesystem::exists(altBin)) {
                 home = altHome;
                 javaBin = altBin;
@@ -251,23 +250,23 @@ namespace CoreDeck {
         info.IsFound = true;
 
 
-        const std::string output = RunCommandArgs(javaBin, {"-version"});
+        const std::string output = Platform::RunCommandArgs(javaBin, {"-version"});
         info.VersionString = FirstLine(output);
         info.MajorVersion = ParseMajorVersion(output);
         info.IsValid = info.MajorVersion >= JDK_MINIMUM_MAJOR;
         return info;
     }
 
-    JdkInfo DetectJdk() {
+    JdkInfo DetectJdk(const std::string_view savedHome) {
 
-        if (const std::string override = Paths::Onboarding::LoadJdkPathOverride(); !override.empty()) {
+        if (const std::string override(savedHome); !override.empty()) {
             JdkInfo info = InspectJdk(override);
             info.JavaHome = info.JavaHome.empty() ? override : info.JavaHome;
             info.Source = JdkSource::Override;
             return info;
         }
 
-        if (const char *javaHomeEnv = std::getenv("JAVA_HOME"); javaHomeEnv && *javaHomeEnv) { // NOLINT(concurrency-mt-unsafe)
+        if (const char *javaHomeEnv = std::getenv(ENV_JAVA_HOME); javaHomeEnv && *javaHomeEnv) { // NOLINT(concurrency-mt-unsafe)
             JdkInfo info = InspectJdk(javaHomeEnv);
             if (info.IsFound) {
                 info.Source = JdkSource::JavaHomeEnv;
@@ -285,12 +284,12 @@ namespace CoreDeck {
         return FindBestDetectedJdk();
     }
 
-    std::vector<JdkInfo> ListInstalledJdks() {
+    std::vector<JdkInfo> ListInstalledJdks(const std::string_view savedHome) {
         std::vector<std::string> homes = CandidateJdkHomes();
-        if (const std::string overrideHome = Paths::Onboarding::LoadJdkPathOverride(); !overrideHome.empty()) {
-            homes.insert(homes.begin(), overrideHome);
+        if (!savedHome.empty()) {
+            homes.insert(homes.begin(), std::string(savedHome));
         }
-        if (const char *javaHomeEnv = std::getenv("JAVA_HOME"); javaHomeEnv != nullptr && javaHomeEnv[0] != '\0') { // NOLINT(concurrency-mt-unsafe)
+        if (const char *javaHomeEnv = std::getenv(ENV_JAVA_HOME); javaHomeEnv != nullptr && javaHomeEnv[0] != '\0') { // NOLINT(concurrency-mt-unsafe)
             homes.insert(homes.begin(), javaHomeEnv);
         }
 
@@ -339,36 +338,43 @@ namespace CoreDeck {
         }
     }
 
-    EnvVars JavaToolEnvironment(const JdkInfo &jdk) {
-        EnvVars env;
+    std::string JdkExecutablePath(const JdkInfo &jdk, const std::string &tool) {
+        if (jdk.JavaHome.empty() || tool.empty()) {
+            return {};
+        }
+        return Platform::JoinPaths({jdk.JavaHome, "bin", Platform::WithExecutableExtension(tool)});
+    }
+
+    Platform::EnvVars JavaToolEnvironment(const JdkInfo &jdk) {
+        Platform::EnvVars env;
         if (jdk.JavaHome.empty()) {
             return env;
         }
 
-        env.push_back({.Name = "JAVA_HOME", .Value = jdk.JavaHome});
+        env.push_back({.Name = ENV_JAVA_HOME, .Value = jdk.JavaHome});
 
         // The Windows sdkmanager/avdmanager/apkanalyzer scripts encode "17.0" as 170
         // and compare with `lss`. `java version "27"` has no minor component, so the
         // script stores 27 and exits before Java starts. CoreDeck already requires
         // JDK 17 or newer.
         if (jdk.MajorVersion >= JDK_MINIMUM_MAJOR) {
-            env.push_back({.Name = "SKIP_JDK_VERSION_CHECK", .Value = "1"});
+            env.push_back({.Name = ENV_SKIP_JDK_VERSION_CHECK, .Value = "1"});
         }
 
         std::string binDir;
         if (!jdk.JavaBin.empty()) {
             binDir = std::filesystem::path(jdk.JavaBin).parent_path().string();
         } else {
-            binDir = Paths::JoinPaths({jdk.JavaHome, "bin"});
+            binDir = Platform::JoinPaths({jdk.JavaHome, "bin"});
         }
 
         if (!binDir.empty()) {
             std::string newPath = binDir;
-            if (const char *existing = std::getenv("PATH"); existing && *existing) { // NOLINT(concurrency-mt-unsafe)
+            if (const char *existing = std::getenv(Platform::ENV_PATH); existing && *existing) { // NOLINT(concurrency-mt-unsafe)
                 newPath.push_back(PATH_SEPARATOR);
                 newPath += existing;
             }
-            env.push_back({.Name = "PATH", .Value = newPath});
+            env.push_back({.Name = Platform::ENV_PATH, .Value = newPath});
         }
 
         return env;

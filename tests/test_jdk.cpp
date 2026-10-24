@@ -1,11 +1,13 @@
 #include <catch2/catch_test_macros.hpp>
 
+
 #include "core/jdk.h"
 
+using namespace CoreDeck::Core;
 using namespace CoreDeck;
 
 namespace {
-    const EnvVar *FindEnv(const EnvVars &env, const std::string &name) {
+    const Platform::EnvVar *FindEnv(const Platform::EnvVars &env, const std::string &name) {
         for (const auto &var: env) {
             if (var.Name == name) {
                 return &var;
@@ -22,13 +24,13 @@ TEST_CASE("JavaToolEnvironment skips the cmdline-tools version check for JDK 17+
     jdk.IsFound = true;
     jdk.IsValid = true;
 
-    const EnvVars env = JavaToolEnvironment(jdk);
+    const Platform::EnvVars env = JavaToolEnvironment(jdk);
 
-    const EnvVar *skip = FindEnv(env, "SKIP_JDK_VERSION_CHECK");
+    const Platform::EnvVar *skip = FindEnv(env, ENV_SKIP_JDK_VERSION_CHECK);
     REQUIRE(skip != nullptr);
     REQUIRE(skip->Value == "1");
-    REQUIRE(FindEnv(env, "JAVA_HOME") != nullptr);
-    REQUIRE(FindEnv(env, "JAVA_HOME")->Value == jdk.JavaHome);
+    REQUIRE(FindEnv(env, ENV_JAVA_HOME) != nullptr);
+    REQUIRE(FindEnv(env, ENV_JAVA_HOME)->Value == jdk.JavaHome);
 }
 
 TEST_CASE("JavaToolEnvironment leaves the cmdline-tools version check in place for older JDKs", "[jdk]") {
@@ -38,10 +40,10 @@ TEST_CASE("JavaToolEnvironment leaves the cmdline-tools version check in place f
     jdk.IsFound = true;
     jdk.IsValid = false;
 
-    const EnvVars env = JavaToolEnvironment(jdk);
+    const Platform::EnvVars env = JavaToolEnvironment(jdk);
 
-    REQUIRE(FindEnv(env, "SKIP_JDK_VERSION_CHECK") == nullptr);
-    REQUIRE(FindEnv(env, "JAVA_HOME") != nullptr);
+    REQUIRE(FindEnv(env, ENV_SKIP_JDK_VERSION_CHECK) == nullptr);
+    REQUIRE(FindEnv(env, ENV_JAVA_HOME) != nullptr);
 }
 
 TEST_CASE("JavaToolEnvironment is empty without a JDK home", "[jdk]") {

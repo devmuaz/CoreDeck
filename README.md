@@ -1,7 +1,5 @@
 <div align="center">
   <img src="media/branding/header-logo.png" alt="CoreDeck" width="220" />
-  <br /><br />
-  <a href="https://www.producthunt.com/products/coredeck?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-coredeck" target="_blank" rel="noopener noreferrer"><img alt="CoreDeck - Manage Android emulators without opening Android Studio | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1138545&amp;theme=light&amp;t=1777884973182" /></a>
 </div>
 
 <br />
@@ -10,6 +8,7 @@
 [![Release](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml/badge.svg)](https://github.com/devmuaz/CoreDeck/actions/workflows/release.yml)
 [![Latest release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?label=release)](https://github.com/devmuaz/CoreDeck/releases)
 [![Latest pre-release](https://img.shields.io/github/v/release/devmuaz/CoreDeck?include_prereleases&label=pre-release)](https://github.com/devmuaz/CoreDeck/releases)
+[![AUR version](https://img.shields.io/aur/version/coredeck-bin)](https://aur.archlinux.org/packages/coredeck-bin)
 [![Downloads](https://img.shields.io/github/downloads/devmuaz/CoreDeck/total)](https://github.com/devmuaz/CoreDeck/releases)
 [![Stars](https://img.shields.io/github/stars/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/stargazers)
 [![Issues](https://img.shields.io/github/issues/devmuaz/CoreDeck)](https://github.com/devmuaz/CoreDeck/issues)
@@ -17,13 +16,13 @@
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
 [![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 
-[CoreDeck](https://coredeck.dev) is a native desktop command center for the Android SDK. Create virtual devices, launch them, install system images, inspect APKs, and see whether your tools are actually ready, all in one fast app. It drives Google's official `emulator`, `avdmanager`, `sdkmanager`, and `apkanalyzer` itself. Android Studio does not need to be installed. Built with C++20 and Dear ImGui.
+[CoreDeck](https://coredeck.dev) is a native desktop command center for the Android SDK. Create virtual devices, launch them, install system images, inspect and sign APKs, create keystores, and see whether your tools are actually ready, all in one fast app. It drives Google's official `emulator`, `avdmanager`, `sdkmanager`, `apkanalyzer`, `apksigner`, and `zipalign` itself, and the JDK's `keytool` and `jarsigner`. Android Studio does not need to be installed. Built with C++20 and Dear ImGui.
 
 > Bring an SDK you already have, or let CoreDeck download Google's tools and set them up for you.
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/cade70a8-c7b4-47ac-98c1-6b8986893dcc" controls width="720"></video>
-</div>
+<p align="center">
+  <img src="media/screenshots/coredeck-header.png" alt="CoreDeck showing the AVD manager, APK Analyzer, and keytool" width="100%" />
+</p>
 
 ## Features
 
@@ -35,6 +34,9 @@
 - **Storage Overview** — Inspect per-AVD disk usage and clear heavy or unused data
 - **Health Check** — Reviews the SDK, emulator, platform-tools, build-tools, command-line tools, JDK, licenses, system images, and free disk space, and offers a fix for each problem
 - **APK Analyzer** — Opens an APK with the official `apkanalyzer` and shows package info, download size, compression, and alignment
+- **APK Signer** — Verifies an APK and signs a new copy with the official `apksigner` and `zipalign`. The original APK is left unchanged, and the report shows which of the v1, v2, v3, v3.1, and v4 schemes verified
+- **Java Keytool** — Creates and inspects keystores with the JDK's `keytool`. Templates fill the Flutter upload, Android release, and Android debug recipes, and a private-key entry can be opened in APK Signer or Java Jar Signer
+- **Java Jar Signer** — Verifies an archive and signs a new copy with the JDK's `jarsigner`. It accepts `.jar`, `.war`, `.ear`, and Android App Bundles `.aab`. The original file is left unchanged
 - **SDK Auto-Detection** — Picks up your Android SDK from environment variables or standard paths
 - **SDK Installer** — Downloads Google's official command-line tools and installs the platform tools and emulator, without Android Studio
 - **JDK Configuration** — Auto-detects a compatible JDK and lets you point at a specific one when your system default is too old
@@ -43,27 +45,93 @@
 
 ## Preview
 
-|                                AVD List & Options                                |                                    Running Emulator & Logs                                    |
-| :------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
-| <img src="media/screenshots/avd-list.png" alt="AVD List & Options" width="400"/> | <img src="media/screenshots/avd-list-running.png" alt="Running Emulator & Logs" width="400"/> |
-|                _Browse AVDs with per-device options and details_                 |                      _Live emulator output with search and auto-scroll_                       |
-
-|                                 Create New AVD                                 |                                Preferences                                |
-| :----------------------------------------------------------------------------: | :-----------------------------------------------------------------------: |
-| <img src="media/screenshots/create-avd.png" alt="Create New AVD" width="400"/> | <img src="media/screenshots/settings.png" alt="Preferences" width="400"/> |
-|          _Choose a system image, device, and skin, then name the AVD_          |     _Point CoreDeck at a JDK 17 or newer for the command-line tools_      |
-
-|                                  Health Check                                  |                                  APK Analyzer                                  |
-| :----------------------------------------------------------------------------: | :----------------------------------------------------------------------------: |
-| <img src="media/screenshots/health-check.png" alt="Health Check" width="400"/> | <img src="media/screenshots/apk-analyzer.png" alt="APK Analyzer" width="400"/> |
-|               _Review the SDK setup and fix whatever is missing_               |       _Inspect package size, download size, compression, and alignment_        |
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/list-avds-and-run-emulators.png" alt="AVD list" width="400" height="322" />
+      <br />
+      <strong>AVD List</strong>
+      <br />
+      <em>Browse devices and run emulators</em>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/create-avd-and-install-system-images.png" alt="Create AVD" width="400" height="322" />
+      <br />
+      <strong>Create AVD</strong>
+      <br />
+      <em>Choose an image, device, and name</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/preferences.png" alt="Preferences" width="400" height="322" />
+      <br />
+      <strong>Preferences</strong>
+      <br />
+      <em>Point CoreDeck at a JDK and the SDK</em>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/sdk-health-check.png" alt="Health Check" width="400" height="322" />
+      <br />
+      <strong>Health Check</strong>
+      <br />
+      <em>Review the SDK and fix what is missing</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/apk-analyzer.png" alt="APK Analyzer" width="400" height="322" />
+      <br />
+      <strong>APK Analyzer</strong>
+      <br />
+      <em>Package size, compression, and alignment</em>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/apk-signer.png" alt="APK Signer" width="400" height="322" />
+      <br />
+      <strong>APK Signer</strong>
+      <br />
+      <em>Verify a signature and sign a new APK</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/keytool-inspect-keystore.png" alt="Inspect keystore" width="400" height="322" />
+      <br />
+      <strong>Inspect Keystore</strong>
+      <br />
+      <em>Entries, certificates, and fingerprints</em>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="media/screenshots/keytool-create-keystore.png" alt="Create keystore" width="400" height="322" />
+      <br />
+      <strong>Create Keystore</strong>
+      <br />
+      <em>Flutter and Android keystore templates</em>
+    </td>
+  </tr>
+</table>
 
 ## Downloads
 
-On macOS, the easiest way to install is with Homebrew:
+On macOS and Linux, the easiest way to install is with Homebrew:
 
 ```bash
+# macOS (Apple Silicon and Intel)
 brew install --cask devmuaz/tap/coredeck
+```
+
+```bash
+# Linux (arm64 and x86-64)
+brew install devmuaz/tap/coredeck
+```
+
+On Arch Linux, install from the [AUR](https://aur.archlinux.org/packages/coredeck-bin):
+
+```bash
+paru -S coredeck-bin
+# or
+yay -S coredeck-bin
 ```
 
 You can also grab the latest prebuilt binaries from the official [CoreDeck](https://coredeck.dev) website or the [Releases](https://github.com/devmuaz/CoreDeck/releases) page:
@@ -78,23 +146,36 @@ Each release artifact ships with a matching `.sha256` checksum for download veri
 
 ## Requirements
 
-- **Android SDK** with `emulator`, `avdmanager`, `sdkmanager`, and `apkanalyzer` available. CoreDeck can install these for you from the onboarding wizard, or you can use an existing SDK (for example one installed via Android Studio).
-- **JDK 17+** — the `avdmanager` and `sdkmanager` command-line tools are Java programs and require JDK 17 or newer. CoreDeck auto-detects a suitable JDK (including the one bundled with Android Studio) and lets you select a specific one under **Preferences → Java (JDK)** if your system default is older.
+- **Android SDK** with `emulator`, `avdmanager`, `sdkmanager`, `apkanalyzer`, and build-tools (`apksigner`, `zipalign`) available. CoreDeck can install these for you from the onboarding wizard, or you can use an existing SDK (for example one installed via Android Studio).
+- **JDK 17+** — the `avdmanager`, `sdkmanager`, and `keytool` command-line tools are Java programs and require JDK 17 or newer. CoreDeck auto-detects a suitable JDK (including the one bundled with Android Studio) and lets you select a specific one under **Preferences, Java (JDK)** if your system default is older.
 - **OS:** Windows 10/11, macOS 12+ (Apple Silicon and Intel), or a recent Linux distribution.
 
 ## Build from source
 
 CoreDeck builds with **CMake + Ninja** on all platforms. Output is single-config: `build-debug/` and `build-release/` contain the binary directly, with a `compile_commands.json` for editor tooling.
 
+### Source layout
+
+The code under `src/` is four layers. Each layer is its own `static library`, and it can only include the layer below it.
+
+| Layer        | Folder         | Responsibility                                                                                 |
+| ------------ | -------------- | ---------------------------------------------------------------------------------------------- |
+| **Platform** | `src/platform` | Processes, HTTP, archives, hashing, logging, translation, and generic paths and strings        |
+| **Core**     | `src/core`     | The Android toolchain: the SDK, AVDs, the emulator, system images, skins, the JDK, and signing |
+| **App**      | `src/app`      | Settings, the saved language, update checks, crash reporting, file dialogs, and app paths      |
+| **GUI**      | `src/gui`      | Windows, widgets, and the running screen session                                               |
+
+The GUI may call all three. Core and App may call Platform, and they stay independent of each other. A call from the `GUI` names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppSettings`. A new Android feature is another pair of files in `Core`. A new operating-system helper goes in `Platform`. A new preference or app service goes in `App`.
+
 ### Prerequisites
 
 All platforms need **CMake 3.23+**, **Ninja**, and **Git** (with submodule support). Per-platform compiler:
 
-| Platform | Compiler              | Install                                                                                                                                                                     |
-| -------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| macOS    | Apple Clang           | `xcode-select --install`, then `brew install cmake ninja`                                                                                                                   |
-| Windows  | MSVC 19.30+ (VS 2022) | [Build Tools for VS 2022](https://visualstudio.microsoft.com/downloads/) → _Desktop development with C++_ workload. Then `winget install Kitware.CMake Ninja-build.Ninja`   |
-| Linux    | GCC 11+ / Clang 14+   | `sudo apt-get install build-essential cmake ninja-build libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev` |
+| Platform | Compiler              | Install                                                                                                                                                                           |
+| -------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| macOS    | Apple Clang           | `xcode-select --install`, then `brew install cmake ninja`                                                                                                                         |
+| Windows  | MSVC 19.30+ (VS 2022) | [Build Tools for VS 2022](https://visualstudio.microsoft.com/downloads/), then the _Desktop development with C++_ workload. Then `winget install Kitware.CMake Ninja-build.Ninja` |
+| Linux    | GCC 11+ / Clang 14+   | `sudo apt-get install build-essential cmake ninja-build libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev`       |
 
 ### Clone and build
 
@@ -162,14 +243,14 @@ an SDK at all, choose **Install SDK...** and CoreDeck will download it for you.
 Yes. When no SDK is found, the onboarding wizard offers to install one. CoreDeck downloads Google's official command-line tools archive (verified against a pinned SHA-256), extracts it to a folder you choose, accepts the SDK licenses, and then installs `platform-tools`, `emulator`, and `build-tools` with `sdkmanager`. A **JDK 17 or newer** must already be present, since the command-line tools are Java programs — the wizard asks you to pick one if none is detected. The install is self-contained: CoreDeck remembers the location for itself and never modifies your `PATH`, `ANDROID_HOME`, or `JAVA_HOME`.
 
 **Creating AVDs or installing system images fails, or nothing happens.**
-`avdmanager` and `sdkmanager` require **JDK 17 or newer**. If your default `java` is older (e.g. JDK 8/1.8), these tools fail even when the SDK is fine. CoreDeck warns you when it detects an incompatible JDK — open **Preferences → Java (JDK)** and point it at a compatible JDK (the one bundled with Android Studio works well). CoreDeck runs the tools with that JDK via `JAVA_HOME` without changing your global default.
+`avdmanager` and `sdkmanager` require **JDK 17 or newer**. If your default `java` is older (e.g. JDK 8/1.8), these tools fail even when the SDK is fine. CoreDeck warns you when it detects an incompatible JDK — open **Preferences, Java (JDK)** and point it at a compatible JDK (the one bundled with Android Studio works well). CoreDeck runs the tools with that JDK via `JAVA_HOME` without changing your global default.
 
 **An emulator won't launch / boots forever.**
 Make sure the matching system image is installed and that hardware acceleration is enabled (HAXM/Hyper-V on Windows,
 Hypervisor.framework on macOS, KVM on Linux). The live log viewer usually shows the underlying error from `emulator`.
 
 **Does CoreDeck replace Android Studio?**
-Not in general. CoreDeck wraps the same official command-line tools that Android Studio uses, and it can install those tools for you — so for AVD and emulator work you don't need Android Studio at all. It is not an IDE though: writing, building, and debugging Android apps still needs Android Studio (or Gradle plus your own editor).
+Not in general. CoreDeck wraps the same official command-line tools that Android Studio uses, and it can install those tools for you — so for AVDs, emulators, APK inspection and signing, and keystores you don't need Android Studio at all. It is not an IDE though: writing, building, and debugging Android apps still needs Android Studio (or Gradle plus your own editor).
 
 ## Contributing
 

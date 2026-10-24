@@ -17,7 +17,7 @@
 #include "apk_analyzer.h"
 #include "process.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string TrimLine(std::string line) {
             while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t')) {
@@ -120,7 +120,7 @@ namespace CoreDeck {
         if (sdk.ApkAnalyzerPath.empty()) {
             return std::nullopt;
         }
-        return RunCommandArgs(sdk.ApkAnalyzerPath, args, "", sdk.ToolEnv);
+        return Platform::RunCommandArgs(sdk.ApkAnalyzerPath, args, "", sdk.ToolEnv);
     }
 
     std::optional<ApkSummary> ParseApkSummary(const std::string &output) {

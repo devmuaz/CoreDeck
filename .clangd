@@ -1,3 +1,32 @@
 # Must match the directory passed to cmake -B (where compile_commands.json is generated).
 CompileFlags:
   CompilationDatabase: build-debug
+
+Diagnostics:
+  ClangTidy:
+    FastCheckFilter: None
+
+---
+# src/gui/context.h shares its filename with extern/glfw/src/context.c.
+# clangd's header inference prefers that C file, then parses the header as C
+# ("'atomic' file not found", "unknown type name 'namespace'").
+# Paths are relative to the compilation database directory (build-debug/).
+If:
+  PathMatch: (^|/)src/gui/context\.h$
+CompileFlags:
+  Remove:
+    - -x
+    - c-header
+    - -std=c99
+  Add:
+    - -xc++-header
+    - -std=c++20
+    - -I../src
+    - -I../extern/imgui
+    - -I../extern/imgui/backends
+    - -I../extern/reflect-cpp/include
+    - -I../extern/reflect-cpp/include/rfl/thirdparty
+    - -I../extern/tinyfiledialogs
+    - -I../extern/miniz
+    - -Iextern/miniz
+    - -I../extern/glfw/include

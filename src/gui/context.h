@@ -13,25 +13,35 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../core/app_settings_types.h"
+#include "app/app_settings_types.h"
 #include "../core/avd_manager.h"
 #include "../core/emulator.h"
 #include "../core/health_check.h"
 #include "../core/jdk.h"
 #include "../core/options.h"
 #include "../core/apk_analyzer.h"
+#include "../core/keytool.h"
 #include "../core/sdk.h"
 #include "../core/sdk_bootstrap.h"
 #include "../core/sdk_manager.h"
 #include "../core/skin.h"
 #include "../core/system_image.h"
+#include "signer_work.h"
 
 struct GLFWwindow;
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     enum class Screen : uint8_t {
         Onboarding,
         Main,
+    };
+
+    enum class WorkspacePage : uint8_t {
+        Home,
+        ApkAnalyzer,
+        ApkSigner,
+        Keytool,
+        JarSigner,
     };
 
     enum class AvdSortMode : uint8_t {
@@ -67,13 +77,36 @@ namespace CoreDeck {
         std::uintmax_t SystemImagesSize = 0;
     };
 
+    enum class KeytoolTask : uint8_t {
+        None,
+        Inspect,
+        Create,
+    };
+
+    enum class KeytoolPage : uint8_t {
+        Inspect,
+        Create,
+    };
+
+    struct AsyncLoad {
+        std::atomic<bool> Loading{false};
+        std::atomic<bool> Ready{false};
+        std::future<void> Future;
+    };
+
+    template<typename Result>
+    struct AsyncWork {
+        std::atomic<bool> Busy{false};
+        std::future<Result> Future;
+    };
+
     struct Context {
         struct Host {
-            SdkInfo Sdk;
-            JdkInfo Jdk;
-            EmulatorManager Manager;
+            Core::SdkInfo Sdk;
+            Core::JdkInfo Jdk;
+            Core::EmulatorManager Manager;
 
-            explicit Host(SdkInfo sdk) : Sdk(std::move(sdk)), Manager(Sdk) {
+            explicit Host(Core::SdkInfo sdk) : Sdk(std::move(sdk)), Manager(Sdk) {
             }
         } Host;
 
@@ -83,10 +116,10 @@ namespace CoreDeck {
 
         struct Catalog {
             std::vector<std::string> AvdNames;
-            std::vector<AvdInfo> Avds;
+            std::vector<Core::AvdInfo> Avds;
             int SelectedAvd = -1;
             int PreviousSelectedAvd = -1;
-            std::unordered_map<std::string, std::vector<EmulatorOption>> PerAvdOptions;
+            std::unordered_map<std::string, std::vector<Core::EmulatorOption>> PerAvdOptions;
 
             char SearchFilter[128] = {};
             AvdSortMode SortMode = AvdSortMode::Name;
@@ -102,16 +135,17 @@ namespace CoreDeck {
 
         struct Logs {
             std::unordered_map<std::string, LogViewState> PerAvdView;
-            bool AutoScroll = true;
             bool PendingScroll = false;
             bool PendingFocus = false;
             int PendingSyncFrames = 0;
         } Logs;
 
         struct Prefs {
+            bool AutoScroll = true;
             bool ConfirmBeforeDeleteAvd = true;
             bool CrashReportingEnabled = true;
-            ThemePreference Theme = ThemePreference::System;
+            bool CheckForUpdatesOnLaunch = true;
+            App::ThemePreference Theme = App::ThemePreference::System;
             std::string Language;
         } Prefs;
 
@@ -125,7 +159,7 @@ namespace CoreDeck {
             bool ReopenCreateAvdOnInstallClose = false;
             bool ShowPreferences = false;
             bool ShowStorageDialog = false;
-            bool ShowApkAnalyzerWindow = false;
+            WorkspacePage Workspace = WorkspacePage::Home;
             bool ShowWipeDataDialog = false;
             bool ShowHealthCheckDialog = false;
             bool ShowAcceptLicensesDialog = false;
@@ -140,11 +174,11 @@ namespace CoreDeck {
         } UI;
 
         struct AvdCreationWork {
-            std::vector<SystemImage> SystemImages;
-            std::vector<DeviceProfile> DeviceProfiles;
+            std::vector<Core::SystemImage> SystemImages;
+            std::vector<Core::DeviceProfile> DeviceProfiles;
             bool DeviceDefinitionsSkipped = false;
-            std::vector<Skin> Skins;
-            AvdCreationData CreationData;
+            std::vector<Core::Skin> Skins;
+            Core::AvdCreationData CreationData;
             int SelectedSystemImage = 0;
             int SelectedDevice = 0;
             int PendingSelectedDevice = 0;
@@ -160,52 +194,40 @@ namespace CoreDeck {
             bool SkinAutoFilled = true;
             int LastDeviceForSkinAuto = -1;
 
-            struct {
-                std::atomic<bool> Loading{false};
-                std::atomic<bool> Ready{false};
-                std::future<void> Future;
-            } Prefetch;
-
-            struct {
-                std::atomic<bool> Busy{false};
-                std::future<bool> Future;
-            } SystemImageRemoval;
+            AsyncLoad Prefetch;
+            AsyncWork<bool> SystemImageRemoval;
         } AvdCreationWork;
 
         struct ImageInstallationWork {
-            std::vector<RemoteSystemImage> RemoteImages;
+            std::vector<Core::RemoteSystemImage> RemoteImages;
             int SelectedImage = -1;
             ImageCategory SelectedCategory = ImageCategory::PhoneTablet;
             char SearchFilter[128] = {};
 
-            struct {
-                std::atomic<bool> Loading{false};
-                std::atomic<bool> Ready{false};
-                std::future<void> Future;
-            } Prefetch;
+            AsyncLoad Prefetch;
 
             std::atomic<bool> Installing{false};
-            std::shared_ptr<InstallProgressData> Progress;
+            std::shared_ptr<Core::InstallProgressData> Progress;
             std::future<bool> InstallFuture;
             bool AwaitingLicenseConsent = false;
             std::atomic<bool> LicenseBusy{false};
-            std::future<SdkLicenseQuery> LicenseCheckFuture;
+            std::future<Core::SdkLicenseQuery> LicenseCheckFuture;
             std::future<bool> LicenseAcceptFuture;
             std::string PendingPackagePath;
             std::string LicenseError;
         } ImageInstallationWork;
 
         struct SdkBootstrapWork {
-            BootstrapPlan Plan;
-            std::shared_ptr<BootstrapProgressData> Progress;
+            Core::BootstrapPlan Plan;
+            std::shared_ptr<Core::BootstrapProgressData> Progress;
             std::atomic<bool> Busy{false};
             std::future<bool> Future;
-            BootstrapError LastError = BootstrapError::None;
+            Core::BootstrapError LastError = Core::BootstrapError::None;
             std::string LastErrorDetail;
         } SdkBootstrapWork;
 
         struct HealthCheckWork {
-            std::shared_ptr<HealthCheckProgressData> Progress;
+            std::shared_ptr<Core::HealthCheckProgressData> Progress;
             std::atomic<bool> Busy{false};
             std::future<void> Future;
             std::string ObservedTools;
@@ -221,18 +243,15 @@ namespace CoreDeck {
         struct LicenseNotice {
             std::atomic<bool> Busy{false};
             bool Known = false;
-            LicenseStatus Status = LicenseStatus::AllAccepted;
+            Core::LicenseStatus Status = Core::LicenseStatus::AllAccepted;
             std::string SdkManagerPath;
             std::uint32_t Epoch = 0;
             std::uint32_t PendingEpoch = 0;
-            std::future<LicenseStatus> Future;
+            std::future<Core::LicenseStatus> Future;
         } LicenseNotice;
 
         struct Jobs {
-            struct {
-                std::atomic<bool> Busy{false};
-                std::future<void> Future;
-            } AvdCreation, AvdDeletion, AvdWipe;
+            AsyncWork<void> AvdCreation, AvdDeletion, AvdWipe;
         } Jobs;
 
         struct DiskUsage {
@@ -250,15 +269,15 @@ namespace CoreDeck {
             std::atomic<bool> Cancel{false};
             std::atomic<std::uint32_t> LoadEpoch{0};
             std::string PendingPath;
-            std::future<ApkReport> Future;
+            std::future<Core::ApkReport> Future;
             bool HasReport = false;
-            ApkReport Report;
+            Core::ApkReport Report;
 
             std::atomic<bool> CompareBusy{false};
             std::string ComparePath;
-            std::future<ApkAnalyzerQuery<std::vector<ApkCompareEntry>>> CompareFuture;
+            std::future<Core::ApkAnalyzerQuery<std::vector<Core::ApkCompareEntry>>> CompareFuture;
             bool HasCompare = false;
-            ApkAnalyzerQuery<std::vector<ApkCompareEntry>> Compare;
+            Core::ApkAnalyzerQuery<std::vector<Core::ApkCompareEntry>> Compare;
 
             std::string SelectedPath;
             std::uint32_t ContentEpoch = 0;
@@ -270,6 +289,54 @@ namespace CoreDeck {
             std::vector<std::string> PendingDrops;
         } ApkAnalyzerWork;
 
+        ApkSignerWork ApkSignerWork;
+        JarSignerWork JarSignerWork;
+
+        struct KeytoolWork {
+            std::atomic<bool> Busy{false};
+            KeytoolTask Task = KeytoolTask::None;
+            KeytoolPage Page = KeytoolPage::Inspect;
+
+            std::future<Core::KeystoreDescription> InspectFuture;
+            std::future<Core::CreateKeystoreResult> CreateFuture;
+
+            std::string InspectPath;
+            std::string CreatePath;
+
+            char InspectPassword[512] = {};
+            char CreatePassword[512] = {};
+            char ConfirmPassword[512] = {};
+            char KeyPassword[512] = {};
+            bool ShowInspectPassword = false;
+            bool ShowCreatePassword = false;
+            bool ShowConfirmPassword = false;
+            bool ShowKeyPassword = false;
+            bool KeyPasswordMatches = true;
+            std::uint32_t SecretEpoch = 0;
+
+            Core::KeystoreType StoreType = Core::KeystoreType::Pkcs12;
+            int CreateExtension = 0;
+            int CreateTemplate = 0;
+            Core::KeyAlgorithm Algorithm = Core::KeyAlgorithm::Rsa;
+            int KeySize = Core::DEFAULT_KEY_SIZE;
+            int ValidityDays = Core::DEFAULT_KEY_VALIDITY_DAYS;
+            char Alias[256] = {};
+            char CommonName[256] = {};
+            char OrganizationalUnit[256] = {};
+            char Organization[256] = {};
+            char Locality[256] = {};
+            char StateName[256] = {};
+            char Country[8] = {};
+
+            bool HasInspect = false;
+            Core::KeystoreDescription InspectResult;
+            int InspectEntry = 0;
+
+            bool HasCreate = false;
+            Core::CreateKeystoreResult CreateResult;
+            int CreateEntry = 0;
+        } KeytoolWork;
+
         struct Updates {
             bool ShowNewVersionModal = false;
             std::string LatestVersion;
@@ -279,7 +346,7 @@ namespace CoreDeck {
             bool UpdateCheckInFlight = false;
         } Updates;
 
-        explicit Context(SdkInfo sdk) : Host(std::move(sdk)) {
+        explicit Context(Core::SdkInfo sdk) : Host(std::move(sdk)) {
         }
     };
 

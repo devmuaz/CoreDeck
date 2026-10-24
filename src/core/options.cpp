@@ -9,9 +9,8 @@
 #include "options.h"
 #include "i18n.h"
 #include "log.h"
-#include "paths.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         const char *FindDisplayLabel(const std::vector<OptionValueLabel> &options, const std::string &value) {
             for (const auto &[label, rawValue]: options) {
@@ -25,76 +24,76 @@ namespace CoreDeck {
 
     const std::vector<OptionValueLabel> &GpuModeOptions() {
         static const std::vector<OptionValueLabel> OPTIONS = {
-            {.Label = TrNoop("Automatic"), .Value = "auto"},
-            {.Label = TrNoop("Hardware Acceleration"), .Value = "host"},
-            {.Label = TrNoop("Software Rendering"), .Value = "swiftshader_indirect"},
-            {.Label = TrNoop("ANGLE Rendering"), .Value = "angle_indirect"},
-            {.Label = TrNoop("Guest Rendering"), .Value = "guest"},
+            {.Label = Platform::TrNoop("Automatic"), .Value = "auto"},
+            {.Label = Platform::TrNoop("Hardware Acceleration"), .Value = "host"},
+            {.Label = Platform::TrNoop("Software Rendering"), .Value = "swiftshader_indirect"},
+            {.Label = Platform::TrNoop("ANGLE Rendering"), .Value = "angle_indirect"},
+            {.Label = Platform::TrNoop("Guest Rendering"), .Value = "guest"},
         };
         return OPTIONS;
     }
 
     const char *GpuModeDisplayLabel(const std::string &value) {
-        return Tr(FindDisplayLabel(GpuModeOptions(), value));
+        return Platform::Tr(FindDisplayLabel(GpuModeOptions(), value));
     }
 
     const char *ScreenModeDisplayLabel(const std::string &value) {
         static const std::vector<OptionValueLabel> OPTIONS = {
-            {.Label = TrNoop("Touch Screen"), .Value = "touch"},
-            {.Label = TrNoop("Multi-Touch Screen"), .Value = "multi-touch"},
-            {.Label = TrNoop("No Touch Input"), .Value = "no-touch"},
+            {.Label = Platform::TrNoop("Touch Screen"), .Value = "touch"},
+            {.Label = Platform::TrNoop("Multi-Touch Screen"), .Value = "multi-touch"},
+            {.Label = Platform::TrNoop("No Touch Input"), .Value = "no-touch"},
         };
-        return Tr(FindDisplayLabel(OPTIONS, value));
+        return Platform::Tr(FindDisplayLabel(OPTIONS, value));
     }
 
     namespace {
         const char *NetworkSpeedDisplayLabel(const std::string &value) {
             static const std::vector<OptionValueLabel> OPTIONS = {
-                {.Label = TrNoop("Full Speed"), .Value = "full"},
-                {.Label = TrNoop("LTE"), .Value = "lte"},
-                {.Label = TrNoop("HSDPA"), .Value = "hsdpa"},
-                {.Label = TrNoop("UMTS"), .Value = "umts"},
-                {.Label = TrNoop("EDGE"), .Value = "edge"},
-                {.Label = TrNoop("GPRS"), .Value = "gprs"},
-                {.Label = TrNoop("GSM"), .Value = "gsm"},
+                {.Label = Platform::TrNoop("Full Speed"), .Value = "full"},
+                {.Label = Platform::TrNoop("LTE"), .Value = "lte"},
+                {.Label = Platform::TrNoop("HSDPA"), .Value = "hsdpa"},
+                {.Label = Platform::TrNoop("UMTS"), .Value = "umts"},
+                {.Label = Platform::TrNoop("EDGE"), .Value = "edge"},
+                {.Label = Platform::TrNoop("GPRS"), .Value = "gprs"},
+                {.Label = Platform::TrNoop("GSM"), .Value = "gsm"},
             };
-            return Tr(FindDisplayLabel(OPTIONS, value));
+            return Platform::Tr(FindDisplayLabel(OPTIONS, value));
         }
 
         const char *NetworkDelayDisplayLabel(const std::string &value) {
             static const std::vector<OptionValueLabel> OPTIONS = {
-                {.Label = TrNoop("No Delay"), .Value = "none"},
-                {.Label = TrNoop("GPRS Latency"), .Value = "gprs"},
-                {.Label = TrNoop("EDGE Latency"), .Value = "edge"},
-                {.Label = TrNoop("UMTS Latency"), .Value = "umts"},
+                {.Label = Platform::TrNoop("No Delay"), .Value = "none"},
+                {.Label = Platform::TrNoop("GPRS Latency"), .Value = "gprs"},
+                {.Label = Platform::TrNoop("EDGE Latency"), .Value = "edge"},
+                {.Label = Platform::TrNoop("UMTS Latency"), .Value = "umts"},
             };
-            return Tr(FindDisplayLabel(OPTIONS, value));
+            return Platform::Tr(FindDisplayLabel(OPTIONS, value));
         }
 
         const char *AccelerationModeDisplayLabel(const std::string &value) {
             static const std::vector<OptionValueLabel> OPTIONS = {
-                {.Label = TrNoop("Automatic"), .Value = "auto"},
-                {.Label = TrNoop("Disabled"), .Value = "off"},
-                {.Label = TrNoop("Enabled"), .Value = "on"},
+                {.Label = Platform::TrNoop("Automatic"), .Value = "auto"},
+                {.Label = Platform::TrNoop("Disabled"), .Value = "off"},
+                {.Label = Platform::TrNoop("Enabled"), .Value = "on"},
             };
-            return Tr(FindDisplayLabel(OPTIONS, value));
+            return Platform::Tr(FindDisplayLabel(OPTIONS, value));
         }
 
         const char *SELinuxModeDisplayLabel(const std::string &value) {
             static const std::vector<OptionValueLabel> OPTIONS = {
-                {.Label = TrNoop("Permissive"), .Value = "permissive"},
-                {.Label = TrNoop("Disabled"), .Value = "disabled"},
+                {.Label = Platform::TrNoop("Permissive"), .Value = "permissive"},
+                {.Label = Platform::TrNoop("Disabled"), .Value = "disabled"},
             };
-            return Tr(FindDisplayLabel(OPTIONS, value));
+            return Platform::Tr(FindDisplayLabel(OPTIONS, value));
         }
 
         const char *CameraModeDisplayLabel(const std::string &value) {
             static const std::vector<OptionValueLabel> OPTIONS = {
-                {.Label = TrNoop("Virtual Scene"), .Value = "virtualscene"},
-                {.Label = TrNoop("Emulated"), .Value = "emulated"},
-                {.Label = TrNoop("None"), .Value = "none"},
+                {.Label = Platform::TrNoop("Virtual Scene"), .Value = "virtualscene"},
+                {.Label = Platform::TrNoop("Emulated"), .Value = "emulated"},
+                {.Label = Platform::TrNoop("None"), .Value = "none"},
             };
-            return Tr(FindDisplayLabel(OPTIONS, value));
+            return Platform::Tr(FindDisplayLabel(OPTIONS, value));
         }
     }
 
@@ -128,8 +127,8 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-gpu",
-                    .DisplayName = TrNoop("GPU Mode"),
-                    .Description = TrNoop("Set hardware OpenGLES emulation mode"),
+                    .DisplayName = Platform::TrNoop("GPU Mode"),
+                    .Description = Platform::TrNoop("Set hardware OpenGLES emulation mode"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::DISPLAY,
                     .Items = {"auto", "host", "swiftshader_indirect", "angle_indirect", "guest"},
@@ -137,42 +136,42 @@ namespace CoreDeck {
                 },
                 {
                     .Flag = "-screen",
-                    .DisplayName = TrNoop("Screen Mode"),
-                    .Description = TrNoop("Set emulated screen mode"),
+                    .DisplayName = Platform::TrNoop("Screen Mode"),
+                    .Description = Platform::TrNoop("Set emulated screen mode"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::DISPLAY,
                     .Items = {"touch", "multi-touch", "no-touch"},
                 },
                 {
                     .Flag = "-dpi-device",
-                    .DisplayName = TrNoop("Device DPI"),
-                    .Description = TrNoop("Override the device's screen density in dpi"),
+                    .DisplayName = Platform::TrNoop("Device DPI"),
+                    .Description = Platform::TrNoop("Override the device's screen density in dpi"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::DISPLAY,
-                    .Hint = TrNoop("e.g., 420"),
+                    .Hint = Platform::TrNoop("e.g., 420"),
                 },
                 {
                     .Flag = "-skin",
-                    .DisplayName = TrNoop("Skin"),
-                    .Description = TrNoop("Select a specific device skin by name"),
+                    .DisplayName = Platform::TrNoop("Skin"),
+                    .Description = Platform::TrNoop("Select a specific device skin by name"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::DISPLAY,
-                    .Hint = TrNoop("e.g., pixel_7"),
+                    .Hint = Platform::TrNoop("e.g., pixel_7"),
                 },
                 {
                     .Flag = "-no-skin",
-                    .DisplayName = TrNoop("Disable Skin"),
-                    .Description = TrNoop("Run without any device skin"),
+                    .DisplayName = Platform::TrNoop("Disable Skin"),
+                    .Description = Platform::TrNoop("Run without any device skin"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::DISPLAY,
                 },
                 {
                     .Flag = "-window-size",
-                    .DisplayName = TrNoop("Window Size"),
-                    .Description = TrNoop("Set the initial emulator window size (useful with no-skin)"),
+                    .DisplayName = Platform::TrNoop("Window Size"),
+                    .Description = Platform::TrNoop("Set the initial emulator window size (useful with no-skin)"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::DISPLAY,
-                    .Hint = TrNoop("e.g., 1080x1920"),
+                    .Hint = Platform::TrNoop("e.g., 1080x1920"),
                 },
             };
         }
@@ -181,27 +180,27 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-memory",
-                    .DisplayName = TrNoop("Physical RAM (MBs)"),
-                    .Description = TrNoop("Physical RAM size in MBs"),
+                    .DisplayName = Platform::TrNoop("Physical RAM (MBs)"),
+                    .Description = Platform::TrNoop("Physical RAM size in MBs"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::PERFORMANCE,
-                    .Hint = TrNoop("e.g., 2048"),
+                    .Hint = Platform::TrNoop("e.g., 2048"),
                 },
                 {
                     .Flag = "-cores",
-                    .DisplayName = TrNoop("CPU Cores"),
-                    .Description = TrNoop("Set number of CPU cores for the emulator"),
+                    .DisplayName = Platform::TrNoop("CPU Cores"),
+                    .Description = Platform::TrNoop("Set number of CPU cores for the emulator"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::PERFORMANCE,
-                    .Hint = TrNoop("e.g., 4"),
+                    .Hint = Platform::TrNoop("e.g., 4"),
                 },
                 {
                     .Flag = "-cache-size",
-                    .DisplayName = TrNoop("Cache Size (MBs)"),
-                    .Description = TrNoop("Cache partition size in MBs"),
+                    .DisplayName = Platform::TrNoop("Cache Size (MBs)"),
+                    .Description = Platform::TrNoop("Cache partition size in MBs"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::PERFORMANCE,
-                    .Hint = TrNoop("e.g., 512"),
+                    .Hint = Platform::TrNoop("e.g., 512"),
                 },
             };
         }
@@ -210,51 +209,51 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-no-snapshot",
-                    .DisplayName = TrNoop("Full Boot"),
-                    .Description = TrNoop("Perform a full boot and do not auto-save on exit"),
+                    .DisplayName = Platform::TrNoop("Full Boot"),
+                    .Description = Platform::TrNoop("Perform a full boot and do not auto-save on exit"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::BOOT,
                 },
                 {
                     .Flag = "-no-snapshot-load",
-                    .DisplayName = TrNoop("Cold Boot"),
-                    .Description = TrNoop("Perform a full boot without loading a snapshot (preserves user data)"),
+                    .DisplayName = Platform::TrNoop("Cold Boot"),
+                    .Description = Platform::TrNoop("Perform a full boot without loading a snapshot (preserves user data)"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::BOOT,
                 },
                 {
                     .Flag = "-no-snapshot-save",
-                    .DisplayName = TrNoop("Discard State on Exit"),
-                    .Description = TrNoop("Do not auto-save to snapshot on exit; changed state is abandoned"),
+                    .DisplayName = Platform::TrNoop("Discard State on Exit"),
+                    .Description = Platform::TrNoop("Do not auto-save to snapshot on exit; changed state is abandoned"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::BOOT,
                 },
                 {
                     .Flag = "-snapshot",
-                    .DisplayName = TrNoop("Snapshot Name"),
-                    .Description = TrNoop("Name of the snapshot to auto-start from and auto-save to"),
+                    .DisplayName = Platform::TrNoop("Snapshot Name"),
+                    .Description = Platform::TrNoop("Name of the snapshot to auto-start from and auto-save to"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::BOOT,
-                    .Hint = TrNoop("e.g., default-boot"),
+                    .Hint = Platform::TrNoop("e.g., default-boot"),
                 },
                 {
                     .Flag = "-read-only",
-                    .DisplayName = TrNoop("Read-Only (Multi-Instance)"),
-                    .Description = TrNoop("Allow running multiple instances of this AVD (snapshots cannot be saved)"),
+                    .DisplayName = Platform::TrNoop("Read-Only (Multi-Instance)"),
+                    .Description = Platform::TrNoop("Allow running multiple instances of this AVD (snapshots cannot be saved)"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::BOOT,
                 },
                 {
                     .Flag = "-wipe-data",
-                    .DisplayName = TrNoop("Factory Reset"),
-                    .Description = TrNoop("Reset AVD to factory defaults (clears user data)"),
+                    .DisplayName = Platform::TrNoop("Factory Reset"),
+                    .Description = Platform::TrNoop("Reset AVD to factory defaults (clears user data)"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::BOOT,
                 },
                 {
                     .Flag = "-no-boot-anim",
-                    .DisplayName = TrNoop("Skip Boot Animation"),
-                    .Description = TrNoop("Disable boot animation for faster startup"),
+                    .DisplayName = Platform::TrNoop("Skip Boot Animation"),
+                    .Description = Platform::TrNoop("Disable boot animation for faster startup"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::BOOT,
                 },
@@ -265,15 +264,15 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-no-audio",
-                    .DisplayName = TrNoop("Disable Audio"),
-                    .Description = TrNoop("Disable audio support"),
+                    .DisplayName = Platform::TrNoop("Disable Audio"),
+                    .Description = Platform::TrNoop("Disable audio support"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::AUDIO,
                 },
                 {
                     .Flag = "-allow-host-audio",
-                    .DisplayName = TrNoop("Allow Host Microphone"),
-                    .Description = TrNoop("Pass host audio input devices through to the guest (otherwise zeroed)"),
+                    .DisplayName = Platform::TrNoop("Allow Host Microphone"),
+                    .Description = Platform::TrNoop("Pass host audio input devices through to the guest (otherwise zeroed)"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::AUDIO,
                 },
@@ -284,59 +283,59 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-netspeed",
-                    .DisplayName = TrNoop("Network Speed"),
-                    .Description = TrNoop("Simulate network download/upload speed"),
+                    .DisplayName = Platform::TrNoop("Network Speed"),
+                    .Description = Platform::TrNoop("Simulate network download/upload speed"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::NETWORK,
                     .Items = {"full", "lte", "hsdpa", "umts", "edge", "gprs", "gsm"},
                 },
                 {
                     .Flag = "-netdelay",
-                    .DisplayName = TrNoop("Network Delay"),
-                    .Description = TrNoop("Simulate network latency"),
+                    .DisplayName = Platform::TrNoop("Network Delay"),
+                    .Description = Platform::TrNoop("Simulate network latency"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::NETWORK,
                     .Items = {"none", "gprs", "edge", "umts"},
                 },
                 {
                     .Flag = "-http-proxy",
-                    .DisplayName = TrNoop("HTTP Proxy"),
-                    .Description = TrNoop("Route network traffic through a HTTP/HTTPS proxy (e.g., Charles, mitmproxy)"),
+                    .DisplayName = Platform::TrNoop("HTTP Proxy"),
+                    .Description = Platform::TrNoop("Route network traffic through a HTTP/HTTPS proxy (e.g., Charles, mitmproxy)"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::NETWORK,
-                    .Hint = TrNoop("e.g., http://localhost:8888"),
+                    .Hint = Platform::TrNoop("e.g., http://localhost:8888"),
                 },
                 {
                     .Flag = "-dns-server",
-                    .DisplayName = TrNoop("DNS Server"),
-                    .Description = TrNoop("Use custom DNS server(s) in the emulated system"),
+                    .DisplayName = Platform::TrNoop("DNS Server"),
+                    .Description = Platform::TrNoop("Use custom DNS server(s) in the emulated system"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::NETWORK,
-                    .Hint = TrNoop("e.g., 8.8.8.8"),
+                    .Hint = Platform::TrNoop("e.g., 8.8.8.8"),
                 },
                 {
                     .Flag = "-tcpdump",
-                    .DisplayName = TrNoop("Packet Capture File"),
-                    .Description = TrNoop("Capture network packets to the given pcap file"),
+                    .DisplayName = Platform::TrNoop("Packet Capture File"),
+                    .Description = Platform::TrNoop("Capture network packets to the given pcap file"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::NETWORK,
-                    .Hint = TrNoop("e.g., /tmp/emulator.pcap"),
+                    .Hint = Platform::TrNoop("e.g., /tmp/emulator.pcap"),
                 },
                 {
                     .Flag = "-port",
-                    .DisplayName = TrNoop("Console Port"),
-                    .Description = TrNoop("TCP port used for the emulator console (adb port is console + 1)"),
+                    .DisplayName = Platform::TrNoop("Console Port"),
+                    .Description = Platform::TrNoop("TCP port used for the emulator console (adb port is console + 1)"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::NETWORK,
-                    .Hint = TrNoop("e.g., 5554"),
+                    .Hint = Platform::TrNoop("e.g., 5554"),
                 },
                 {
                     .Flag = "-ports",
-                    .DisplayName = TrNoop("Console + ADB Ports"),
-                    .Description = TrNoop("TCP ports used for the console and adb bridge"),
+                    .DisplayName = Platform::TrNoop("Console + ADB Ports"),
+                    .Description = Platform::TrNoop("TCP ports used for the console and adb bridge"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::NETWORK,
-                    .Hint = TrNoop("e.g., 5554,5555"),
+                    .Hint = Platform::TrNoop("e.g., 5554,5555"),
                 },
             };
         }
@@ -345,16 +344,16 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-camera-back",
-                    .DisplayName = TrNoop("Back Camera"),
-                    .Description = TrNoop("Set emulation mode for the back-facing camera"),
+                    .DisplayName = Platform::TrNoop("Back Camera"),
+                    .Description = Platform::TrNoop("Set emulation mode for the back-facing camera"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::CAMERA,
                     .Items = {"virtualscene", "emulated", "none"},
                 },
                 {
                     .Flag = "-camera-front",
-                    .DisplayName = TrNoop("Front Camera"),
-                    .Description = TrNoop("Set emulation mode for the front-facing camera"),
+                    .DisplayName = Platform::TrNoop("Front Camera"),
+                    .Description = Platform::TrNoop("Set emulation mode for the front-facing camera"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::CAMERA,
                     .Items = {"emulated", "none"},
@@ -366,18 +365,18 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-no-passive-gps",
-                    .DisplayName = TrNoop("Disable Passive GPS"),
-                    .Description = TrNoop("Disable passive GPS updates from the host"),
+                    .DisplayName = Platform::TrNoop("Disable Passive GPS"),
+                    .Description = Platform::TrNoop("Disable passive GPS updates from the host"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::LOCATION,
                 },
                 {
                     .Flag = "-gnss-file-path",
-                    .DisplayName = TrNoop("GNSS Replay File"),
-                    .Description = TrNoop("Read GNSS data from the given file to replay a route"),
+                    .DisplayName = Platform::TrNoop("GNSS Replay File"),
+                    .Description = Platform::TrNoop("Read GNSS data from the given file to replay a route"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::LOCATION,
-                    .Hint = TrNoop("e.g., /path/to/track.nmea"),
+                    .Hint = Platform::TrNoop("e.g., /path/to/track.nmea"),
                 },
             };
         }
@@ -386,57 +385,57 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-phone-number",
-                    .DisplayName = TrNoop("Phone Number"),
-                    .Description = TrNoop("Set the phone number reported by the emulated device"),
+                    .DisplayName = Platform::TrNoop("Phone Number"),
+                    .Description = Platform::TrNoop("Set the phone number reported by the emulated device"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::SYSTEM,
-                    .Hint = TrNoop("e.g., +15555550100"),
+                    .Hint = Platform::TrNoop("e.g., +15555550100"),
                 },
                 {
                     .Flag = "-change-locale",
-                    .DisplayName = TrNoop("Locale"),
-                    .Description = TrNoop("Override the device locale (restarts the framework)"),
+                    .DisplayName = Platform::TrNoop("Locale"),
+                    .Description = Platform::TrNoop("Override the device locale (restarts the framework)"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::SYSTEM,
-                    .Hint = TrNoop("e.g., en-US"),
+                    .Hint = Platform::TrNoop("e.g., en-US"),
                 },
                 {
                     .Flag = "-writable-system",
-                    .DisplayName = TrNoop("Writable System"),
-                    .Description = TrNoop("Make the system and vendor images writable after 'adb remount'"),
+                    .DisplayName = Platform::TrNoop("Writable System"),
+                    .Description = Platform::TrNoop("Make the system and vendor images writable after 'adb remount'"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::SYSTEM,
                 },
                 {
                     .Flag = "-skip-adb-auth",
-                    .DisplayName = TrNoop("Skip ADB Auth"),
-                    .Description = TrNoop("Skip the adb authentication dialog on connect"),
+                    .DisplayName = Platform::TrNoop("Skip ADB Auth"),
+                    .Description = Platform::TrNoop("Skip the adb authentication dialog on connect"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::SYSTEM,
                 },
                 {
                     .Flag = "-id",
-                    .DisplayName = TrNoop("Instance ID"),
-                    .Description = TrNoop("Assign a separate id to this virtual device (independent of the AVD name)"),
+                    .DisplayName = Platform::TrNoop("Instance ID"),
+                    .Description = Platform::TrNoop("Assign a separate id to this virtual device (independent of the AVD name)"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::SYSTEM,
-                    .Hint = TrNoop("e.g., my-instance-1"),
+                    .Hint = Platform::TrNoop("e.g., my-instance-1"),
                 },
                 {
                     .Flag = "-prop",
-                    .DisplayName = TrNoop("System Property"),
-                    .Description = TrNoop("Set a system property on boot (single name=value pair)"),
+                    .DisplayName = Platform::TrNoop("System Property"),
+                    .Description = Platform::TrNoop("Set a system property on boot (single name=value pair)"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::SYSTEM,
-                    .Hint = TrNoop("e.g., ro.debuggable=1"),
+                    .Hint = Platform::TrNoop("e.g., ro.debuggable=1"),
                 },
                 {
                     .Flag = "-feature",
-                    .DisplayName = TrNoop("Emulator Features"),
-                    .Description = TrNoop("Force-enable or disable (-name) emulator features"),
+                    .DisplayName = Platform::TrNoop("Emulator Features"),
+                    .Description = Platform::TrNoop("Force-enable or disable (-name) emulator features"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::SYSTEM,
-                    .Hint = TrNoop("e.g., GLESDynamicVersion,-Vulkan"),
+                    .Hint = Platform::TrNoop("e.g., GLESDynamicVersion,-Vulkan"),
                 },
             };
         }
@@ -445,114 +444,114 @@ namespace CoreDeck {
             return {
                 {
                     .Flag = "-no-window",
-                    .DisplayName = TrNoop("Headless Mode"),
-                    .Description = TrNoop("Run without graphical window display (useful for CI/testing)"),
+                    .DisplayName = Platform::TrNoop("Headless Mode"),
+                    .Description = Platform::TrNoop("Run without graphical window display (useful for CI/testing)"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
                 {
                     .Flag = "-show-kernel",
-                    .DisplayName = TrNoop("Show Kernel Log"),
-                    .Description = TrNoop("Display kernel messages in the output log"),
+                    .DisplayName = Platform::TrNoop("Show Kernel Log"),
+                    .Description = Platform::TrNoop("Display kernel messages in the output log"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
                 {
                     .Flag = "-verbose",
-                    .DisplayName = TrNoop("Verbose Logging"),
-                    .Description = TrNoop("Enable verbose emulator logging (same as -debug-init)"),
+                    .DisplayName = Platform::TrNoop("Verbose Logging"),
+                    .Description = Platform::TrNoop("Enable verbose emulator logging (same as -debug-init)"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
                 {
                     .Flag = "-wait-for-debugger",
-                    .DisplayName = TrNoop("Wait for Debugger"),
-                    .Description = TrNoop("Pause on launch until a debugger process attaches"),
+                    .DisplayName = Platform::TrNoop("Wait for Debugger"),
+                    .Description = Platform::TrNoop("Pause on launch until a debugger process attaches"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
                 {
                     .Flag = "-no-hidpi-scaling",
-                    .DisplayName = TrNoop("Disable HiDPI"),
-                    .Description = TrNoop("Disable HiDPI scaling on macOS Retina displays"),
+                    .DisplayName = Platform::TrNoop("Disable HiDPI"),
+                    .Description = Platform::TrNoop("Disable HiDPI scaling on macOS Retina displays"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
                 {
                     .Flag = "-partition-size",
-                    .DisplayName = TrNoop("Partition Size (MBs)"),
-                    .Description = TrNoop("System/data partition size in MBs"),
+                    .DisplayName = Platform::TrNoop("Partition Size (MBs)"),
+                    .Description = Platform::TrNoop("System/data partition size in MBs"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::ADVANCED,
-                    .Hint = TrNoop("e.g., 2048"),
+                    .Hint = Platform::TrNoop("e.g., 2048"),
                 },
                 {
                     .Flag = "-logcat",
-                    .DisplayName = TrNoop("Logcat Tags"),
-                    .Description = TrNoop("Enable logcat output with specific tags"),
+                    .DisplayName = Platform::TrNoop("Logcat Tags"),
+                    .Description = Platform::TrNoop("Enable logcat output with specific tags"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::ADVANCED,
-                    .Hint = TrNoop("e.g., *:W or ActivityManager:I"),
+                    .Hint = Platform::TrNoop("e.g., *:W or ActivityManager:I"),
                 },
                 {
                     .Flag = "-timezone",
-                    .DisplayName = TrNoop("Timezone"),
-                    .Description = TrNoop("Use a specific timezone instead of the host's default"),
+                    .DisplayName = Platform::TrNoop("Timezone"),
+                    .Description = Platform::TrNoop("Use a specific timezone instead of the host's default"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::ADVANCED,
-                    .Hint = TrNoop("e.g., America/New_York"),
+                    .Hint = Platform::TrNoop("e.g., America/New_York"),
                 },
                 {
                     .Flag = "-accel",
-                    .DisplayName = TrNoop("Acceleration Mode"),
-                    .Description = TrNoop("Configure emulation acceleration"),
+                    .DisplayName = Platform::TrNoop("Acceleration Mode"),
+                    .Description = Platform::TrNoop("Configure emulation acceleration"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::ADVANCED,
                     .Items = {"auto", "off", "on"},
                 },
                 {
                     .Flag = "-selinux",
-                    .DisplayName = TrNoop("SELinux Mode"),
-                    .Description = TrNoop("Set SELinux to disabled or permissive mode"),
+                    .DisplayName = Platform::TrNoop("SELinux Mode"),
+                    .Description = Platform::TrNoop("Set SELinux to disabled or permissive mode"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::ADVANCED,
                     .Items = {"permissive", "disabled"},
                 },
                 {
                     .Flag = "-system",
-                    .DisplayName = TrNoop("System Image"),
-                    .Description = TrNoop("Override the initial system image file"),
+                    .DisplayName = Platform::TrNoop("System Image"),
+                    .Description = Platform::TrNoop("Override the initial system image file"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::ADVANCED,
-                    .Hint = TrNoop("e.g., /path/to/system.img"),
+                    .Hint = Platform::TrNoop("e.g., /path/to/system.img"),
                 },
                 {
                     .Flag = "-data",
-                    .DisplayName = TrNoop("Userdata Image"),
-                    .Description = TrNoop("Override the userdata image file"),
+                    .DisplayName = Platform::TrNoop("Userdata Image"),
+                    .Description = Platform::TrNoop("Override the userdata image file"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::ADVANCED,
-                    .Hint = TrNoop("e.g., /path/to/userdata-qemu.img"),
+                    .Hint = Platform::TrNoop("e.g., /path/to/userdata-qemu.img"),
                 },
                 {
                     .Flag = "-sdcard",
-                    .DisplayName = TrNoop("SD Card Image"),
-                    .Description = TrNoop("Override the SD card image file"),
+                    .DisplayName = Platform::TrNoop("SD Card Image"),
+                    .Description = Platform::TrNoop("Override the SD card image file"),
                     .Type = OptionType::TextInput,
                     .Category = OptionCategory::ADVANCED,
-                    .Hint = TrNoop("e.g., /path/to/sdcard.img"),
+                    .Hint = Platform::TrNoop("e.g., /path/to/sdcard.img"),
                 },
                 {
                     .Flag = "-restart-when-stalled",
-                    .DisplayName = TrNoop("Restart When Stalled"),
-                    .Description = TrNoop("Automatically restart the guest if it becomes unresponsive"),
+                    .DisplayName = Platform::TrNoop("Restart When Stalled"),
+                    .Description = Platform::TrNoop("Automatically restart the guest if it becomes unresponsive"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
                 {
                     .Flag = "-detect-image-hang",
-                    .DisplayName = TrNoop("Detect Image Hangs"),
-                    .Description = TrNoop("Enable detection of system image hangs"),
+                    .DisplayName = Platform::TrNoop("Detect Image Hangs"),
+                    .Description = Platform::TrNoop("Enable detection of system image hangs"),
                     .Type = OptionType::Default,
                     .Category = OptionCategory::ADVANCED,
                 },
@@ -614,26 +613,19 @@ namespace CoreDeck {
         return args;
     }
 
-    std::string GetOptionsConfigPath(const std::string &avdName) {
-        return Paths::GetOptionsConfigPath(avdName);
-    }
-
-    void EnsureOptionsConfigDirectoryExists() {
-        Paths::EnsureOptionsConfigDirectoryExists();
-    }
 
     void SaveOptionsToFile(const std::string &filePath, const std::vector<EmulatorOption> &options) {
         try {
             const auto json = rfl::json::write(options);
             std::ofstream file(filePath);
             if (!file.is_open()) {
-                Log::Error("Failed to save options to: ", filePath);
+                Platform::Log::Error("Failed to save options to: ", filePath);
                 return;
             }
             file << json;
             file.close();
         } catch (const std::exception &e) {
-            Log::Error("Failed to serialize options: ", e.what());
+            Platform::Log::Error("Failed to serialize options: ", e.what());
         }
     }
 
@@ -674,7 +666,7 @@ namespace CoreDeck {
             }
             return merged;
         } catch (const std::exception &e) {
-            Log::Error("Failed to load options from ", filePath, ": ", e.what());
+            Platform::Log::Error("Failed to load options from ", filePath, ": ", e.what());
             return GetEmulatorOptions();
         }
     }

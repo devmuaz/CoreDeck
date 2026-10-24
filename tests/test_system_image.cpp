@@ -2,6 +2,7 @@
 
 #include "core/system_image.h"
 
+using namespace CoreDeck::Core;
 using namespace CoreDeck;
 
 TEST_CASE("ParseRemoteSystemImageLine reads legacy sdkmanager rows", "[system-image]") {

@@ -9,9 +9,9 @@
 #include "../application.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void BuildAvdOptionsWindow(Context &context) {
         if (!context.UI.ShowOptionsPanel) {
             return;
@@ -21,13 +21,13 @@ namespace CoreDeck {
 
         const bool hasSelection = context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size();
         const std::string panelTitle = hasSelection
-                                           ? StrConcat(TrFormat("Options - {0}", context.Catalog.Avds.at(context.Catalog.SelectedAvd).DisplayName), "###Options")
-                                           : TrWindow("Options", "Options");
+                                           ? Platform::StrConcat(Platform::TrFormat("Options - {0}", context.Catalog.Avds.at(context.Catalog.SelectedAvd).DisplayName), "###Options")
+                                           : Platform::TrWindow("Options", "Options");
 
         ImGui::Begin(panelTitle.c_str(), nullptr, FLAGS);
 
         if (!hasSelection) {
-            ImGui::TextDisabled("%s", Tr("Select an AVD to configure options"));
+            ImGui::TextDisabled("%s", Platform::Tr("Select an AVD to configure options"));
             ImGui::End();
             return;
         }
@@ -43,7 +43,7 @@ namespace CoreDeck {
         }
 
         for (const auto &categoryItem: categories) {
-            if (CollapsingHeader(Tr(categoryItem.c_str()), ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (CollapsingHeader(Platform::Tr(categoryItem.c_str()), ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::Indent(20.0F);
 
                 for (auto &[flag, displayName, description, enabled, type, category, hint, textInput, items, selectedItem]: options) {
@@ -54,41 +54,38 @@ namespace CoreDeck {
                     ImGui::PushID(flag.c_str());
 
                     const bool wasEnabled = enabled;
-                    SubtitledCheckbox(flag.c_str(), &enabled, Tr(displayName.c_str()), nullptr, description.empty() ? nullptr : Tr(description.c_str()));
+                    SubtitledCheckbox(flag.c_str(), &enabled, Platform::Tr(displayName.c_str()), nullptr, description.empty() ? nullptr : Platform::Tr(description.c_str()));
                     if (wasEnabled != enabled) {
                         optionsChanged = true;
                     }
 
                     if (enabled) {
                         switch (type) {
-                            case OptionType::TextInput: {
+                            case Core::OptionType::TextInput: {
                                 ImGui::SetNextItemWidth(-1.0F);
                                 char buffer[256];
                                 CopyToBuffer(buffer, sizeof(buffer), textInput);
-                                if (ImGui::InputTextWithHint("##val", Tr(hint.c_str()), buffer, sizeof(buffer))) {
+                                if (ImGui::InputTextWithHint("##val", Platform::Tr(hint.c_str()), buffer, sizeof(buffer))) {
                                     textInput = buffer;
                                     optionsChanged = true;
                                 }
                                 break;
                             }
 
-                            case OptionType::Selection: {
-                                ImGui::SetNextItemWidth(-1.0F);
-                                const char *selectedLabel = EmulatorOptionItemDisplayLabel(flag, items.at(selectedItem));
-                                ComboStyle cs;
-                                if (ImGui::BeginCombo("##selection", selectedLabel)) {
-                                    for (int i = 0; i < items.size(); ++i) {
-                                        const bool isSelected = selectedItem == i;
-                                        const char *itemLabel = EmulatorOptionItemDisplayLabel(flag, items.at(i));
-                                        if (RoundedSelectable(itemLabel, isSelected)) {
-                                            selectedItem = i;
-                                            optionsChanged = true;
-                                        }
-                                        if (isSelected) {
-                                            ImGui::SetItemDefaultFocus();
-                                        }
-                                    }
-                                    ImGui::EndCombo();
+                            case Core::OptionType::Selection: {
+                                std::vector<const char *> labels;
+                                labels.reserve(items.size());
+                                for (const std::string &item: items) {
+                                    labels.push_back(Core::EmulatorOptionItemDisplayLabel(flag, item));
+                                }
+                                if (RoundedCombo(
+                                        "##selection",
+                                        labels.at(static_cast<std::size_t>(selectedItem)),
+                                        labels.data(),
+                                        static_cast<int>(labels.size()),
+                                        selectedItem
+                                    )) {
+                                    optionsChanged = true;
                                 }
                                 break;
                             }

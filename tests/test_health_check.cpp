@@ -2,6 +2,7 @@
 
 #include "core/health_check.h"
 
+using namespace CoreDeck::Core;
 using namespace CoreDeck;
 
 namespace {
@@ -12,6 +13,9 @@ namespace {
         sdk.AvdManagerPath = "/sdk/cmdline-tools/latest/bin/avdmanager";
         sdk.SdkManagerPath = "/sdk/cmdline-tools/latest/bin/sdkmanager";
         sdk.ApkAnalyzerPath = "/sdk/cmdline-tools/latest/bin/apkanalyzer";
+        sdk.Aapt2Path = "/sdk/build-tools/37.0.0/aapt2";
+        sdk.ZipalignPath = "/sdk/build-tools/37.0.0/zipalign";
+        sdk.ApksignerPath = "/sdk/build-tools/37.0.0/apksigner";
         sdk.IsFound = true;
         return sdk;
     }
@@ -32,7 +36,6 @@ namespace {
         deps.CheckLicenses = [](const SdkInfo &) { return LicenseStatus::AllAccepted; };
         deps.SdkManagerVersion = [](const SdkInfo &) { return std::string("16.0\n"); };
         deps.CountSystemImages = [](const SdkInfo &) { return static_cast<std::size_t>(2); };
-        deps.FindAapt2 = [](const std::string &) { return std::optional<std::string>("/sdk/build-tools/37.0.0/aapt2"); };
         deps.FreeDiskSpace = [](const std::string &) {
             return std::optional<std::uint64_t>(10ULL * 1024ULL * 1024ULL * 1024ULL);
         };
@@ -40,10 +43,10 @@ namespace {
     }
 
     std::vector<HealthCheckResult> Run(const SdkInfo &sdk, const JdkInfo &jdk, const HealthCheckDeps &deps) {
-        auto progress = std::make_shared<HealthCheckProgressData>();
+        const auto progress = std::make_shared<HealthCheckProgressData>();
         RunHealthChecks(sdk, jdk, progress, deps);
 
-        std::lock_guard lock(progress->Mutex);
+        const std::scoped_lock lock(progress->Mutex);
         REQUIRE(progress->Finished);
         return progress->Items;
     }
@@ -55,7 +58,7 @@ namespace {
             }
         }
         FAIL("check not found in report");
-        static HealthCheckResult unreachable;
+        static const HealthCheckResult unreachable;
         return unreachable;
     }
 }
@@ -152,7 +155,7 @@ TEST_CASE("RunHealthChecks flags missing cmdline-tools and skips checks that nee
 }
 
 TEST_CASE("RunHealthChecks treats a deleted sdkmanager as missing tools, not a JDK problem", "[health-check]") {
-    SdkInfo sdk = FullSdk();
+    const SdkInfo sdk = FullSdk();
     HealthCheckDeps deps = AllGoodDeps();
     deps.PathExists = [](const std::string &path) { return path.find("sdkmanager") == std::string::npos; };
     deps.SdkManagerVersion = [](const SdkInfo &) { return std::string{}; };
@@ -177,11 +180,19 @@ TEST_CASE("RunHealthChecks flags a missing apkanalyzer", "[health-check]") {
     REQUIRE(tools.Fix == HealthFix::InstallCmdlineTools);
 }
 
-TEST_CASE("RunHealthChecks fails when build-tools are missing", "[health-check]") {
-    HealthCheckDeps deps = AllGoodDeps();
-    deps.FindAapt2 = [](const std::string &) { return std::optional<std::string>{}; };
+TEST_CASE("RunHealthChecks fails when a build tool is missing", "[health-check]") {
+    SdkInfo sdk = FullSdk();
+    SECTION("aapt2") {
+        sdk.Aapt2Path.clear();
+    }
+    SECTION("zipalign") {
+        sdk.ZipalignPath.clear();
+    }
+    SECTION("apksigner") {
+        sdk.ApksignerPath.clear();
+    }
 
-    const auto items = Run(FullSdk(), ValidJdk(), deps);
+    const auto items = Run(sdk, ValidJdk(), AllGoodDeps());
 
     const auto &tools = Find(items, HealthCheckId::BuildTools);
     REQUIRE(tools.Status == HealthStatus::Failed);

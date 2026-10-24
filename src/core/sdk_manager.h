@@ -13,7 +13,7 @@
 
 #include "sdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     // Reads one sdkmanager output line. Understands both progress formats:
     // Legacy sdkmanager: "[====] 42% Fetch remote repository..."
     // cmdline-tools 23: "message #### 42% (1.2 MB/80.0 MB) ETA: 12s"
@@ -28,7 +28,7 @@ namespace CoreDeck {
     // The Android CLI redraws progress with a carriage return. Java only
     // flushes that stream once a line is wider than its stdout buffer, and it
     // reads COLUMNS before asking the terminal how wide it is.
-    EnvVars SdkManagerInstallEnvironment(EnvVars env);
+    Platform::EnvVars SdkManagerInstallEnvironment(Platform::EnvVars env);
 
     using SdkManagerProgressSink = std::function<void(
         const SdkManagerProgressLine &parsed,
