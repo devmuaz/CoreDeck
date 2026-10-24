@@ -55,6 +55,9 @@ set(_coredeck_msgfmt_hints
     /usr/local/bin
     /usr/local/opt/gettext/bin
 )
+if(DEFINED ENV{COREDECK_GETTEXT_TOOLS})
+    list(APPEND _coredeck_msgfmt_hints "$ENV{COREDECK_GETTEXT_TOOLS}")
+endif()
 if(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
     list(APPEND _coredeck_msgfmt_hints
         "$ENV{VCPKG_INSTALLATION_ROOT}/installed/x64-windows/tools/gettext/bin"
