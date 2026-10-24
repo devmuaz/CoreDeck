@@ -100,6 +100,9 @@ namespace CoreDeck::Gui {
         std::future<Result> Future;
     };
 
+    using ApkSignerState = ApkSignerWork;
+    using JarSignerState = JarSignerWork;
+
     struct Context {
         struct Host {
             Core::SdkInfo Sdk;
@@ -289,8 +292,8 @@ namespace CoreDeck::Gui {
             std::vector<std::string> PendingDrops;
         } ApkAnalyzerWork;
 
-        ApkSignerWork ApkSignerWork;
-        JarSignerWork JarSignerWork;
+        ApkSignerState ApkSignerWork;
+        JarSignerState JarSignerWork;
 
         struct KeytoolWork {
             std::atomic<bool> Busy{false};
