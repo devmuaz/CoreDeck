@@ -5,8 +5,7 @@
 -- open the DMG: hides the toolbar/status bar, sets a tidy window size, and
 -- places the app icon on the left with the Applications symlink on the right.
 --
--- A background image can be added later by setting CPACK_DMG_BACKGROUND_IMAGE
--- in CMakeLists.txt and uncommenting the background line below.
+-- cmake/Packaging.cmake supplies the background through CPACK_DMG_BACKGROUND_IMAGE.
 
 on run argv
     set image_name to item 1 of argv
