@@ -60,7 +60,7 @@ namespace CoreDeck::Core {
             return std::filesystem::is_regular_file(path, error);
         }
 
-        bool CommandFailed(const CommandResult &result) {
+        bool CommandFailed(const Platform::CommandResult &result) {
             return !result.Started || result.ExitCode != 0;
         }
 
@@ -214,27 +214,27 @@ namespace CoreDeck::Core {
             SecretString() = default;
 
             explicit SecretString(std::string value) : Value(std::move(value)) {
-                WipeSecret(value);
+                Platform::WipeSecret(value);
             }
 
             SecretString(const SecretString &) = delete;
             SecretString &operator=(const SecretString &) = delete;
 
             SecretString(SecretString &&other) noexcept : Value(std::move(other.Value)) {
-                WipeSecret(other.Value);
+                Platform::WipeSecret(other.Value);
             }
 
             SecretString &operator=(SecretString &&other) noexcept {
                 if (this != &other) {
-                    WipeSecret(Value);
+                    Platform::WipeSecret(Value);
                     Value = std::move(other.Value);
-                    WipeSecret(other.Value);
+                    Platform::WipeSecret(other.Value);
                 }
                 return *this;
             }
 
             ~SecretString() {
-                WipeSecret(Value);
+                Platform::WipeSecret(Value);
             }
         };
 
@@ -452,7 +452,7 @@ namespace CoreDeck::Core {
             return args;
         }
 
-        KeytoolInvocation RunKeytool(const JdkInfo &jdk, const std::vector<std::string> &args, const EnvVars &toolEnv) {
+        KeytoolInvocation RunKeytool(const JdkInfo &jdk, const std::vector<std::string> &args, const Platform::EnvVars &toolEnv) {
             KeytoolInvocation result;
             const std::string keytool = KeytoolPath(jdk);
             if (jdk.JavaHome.empty() || !IsRegularFile(keytool)) {
@@ -462,7 +462,7 @@ namespace CoreDeck::Core {
                 return result;
             }
 
-            const CommandResult command = RunCommandArgsResult(keytool, args, "", toolEnv);
+            const Platform::CommandResult command = Platform::RunCommandArgsResult(keytool, args, "", toolEnv);
             result.Started = command.Started;
             result.ExitCode = command.ExitCode;
             result.Output = command.Output;
@@ -693,7 +693,7 @@ namespace CoreDeck::Core {
     }
 
     bool KeystorePasswordRejected(const std::string &output) {
-        return ContainsIgnoreCase(output, "password was incorrect");
+        return Platform::ContainsIgnoreCase(output, "password was incorrect");
     }
 
     std::string BuildDistinguishedName(const CreateKeystoreRequest &request) {
@@ -799,10 +799,10 @@ namespace CoreDeck::Core {
         const JdkInfo &jdk,
         const std::string &keystorePath,
         std::string storePassword,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     ) {
         SecretString password{std::move(storePassword)};
-        WipeSecret(storePassword);
+        Platform::WipeSecret(storePassword);
 
         KeytoolAliasListResult result;
         if (keystorePath.empty()) {
@@ -823,7 +823,7 @@ namespace CoreDeck::Core {
 
         const KeytoolInvocation invocation = RunKeytool(jdk, BuildListArguments(keystorePath, passFile.Path().string(), false), toolEnv);
         passFile.Destroy();
-        WipeSecret(password.Value);
+        Platform::WipeSecret(password.Value);
 
         result.ToolMissing = invocation.ToolMissing;
         result.Started = invocation.Started;
@@ -846,10 +846,10 @@ namespace CoreDeck::Core {
         const JdkInfo &jdk,
         const std::string &keystorePath,
         std::string storePassword,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     ) {
         SecretString password{std::move(storePassword)};
-        WipeSecret(storePassword);
+        Platform::WipeSecret(storePassword);
 
         KeystoreDescription description;
         if (const KeytoolRefusal refusal = ValidateDescribeKeystore(keystorePath); refusal != KeytoolRefusal::None) {
@@ -873,7 +873,7 @@ namespace CoreDeck::Core {
 
         const KeytoolInvocation invocation = RunKeytool(jdk, BuildListArguments(keystorePath, passFile.Path().string(), true), toolEnv);
         passFile.Destroy();
-        WipeSecret(password.Value);
+        Platform::WipeSecret(password.Value);
         CopyInvocation(invocation, description);
         if (invocation.Status != KeytoolStatus::Ok) {
             return description;
@@ -888,9 +888,9 @@ namespace CoreDeck::Core {
 
     CreateKeystoreResult CreateKeystore(CreateKeystoreRequest request) {
         SecretString storePassword{std::move(request.StorePassword)};
-        WipeSecret(request.StorePassword);
+        Platform::WipeSecret(request.StorePassword);
         SecretString keyPassword{std::move(request.KeyPassword)};
-        WipeSecret(request.KeyPassword);
+        Platform::WipeSecret(request.KeyPassword);
         CreateKeystoreResult result;
         const std::string keytool = KeytoolPath(request.Jdk);
         if (request.Jdk.JavaHome.empty() || !IsRegularFile(keytool)) {
@@ -903,8 +903,8 @@ namespace CoreDeck::Core {
         request.StorePassword = storePassword.Value;
         request.KeyPassword = keyPassword.Value;
         const KeytoolRefusal refusal = ValidateCreateKeystore(request);
-        WipeSecret(request.StorePassword);
-        WipeSecret(request.KeyPassword);
+        Platform::WipeSecret(request.StorePassword);
+        Platform::WipeSecret(request.KeyPassword);
         if (refusal != KeytoolRefusal::None) {
             result.Status = KeytoolStatus::Refused;
             result.Refusal = refusal;
@@ -941,8 +941,8 @@ namespace CoreDeck::Core {
             partial.Armed = invocation.Started;
             storePassFile.Destroy();
             keyPassFile.Destroy();
-            WipeSecret(storePassword.Value);
-            WipeSecret(keyPassword.Value);
+            Platform::WipeSecret(storePassword.Value);
+            Platform::WipeSecret(keyPassword.Value);
             result.Status = invocation.Status;
             result.Refusal = invocation.Refusal;
             result.ToolMissing = invocation.ToolMissing;
@@ -955,8 +955,8 @@ namespace CoreDeck::Core {
         result.Description = DescribeKeystore(request.Jdk, partial.Path.string(), storePassword.Value, request.ToolEnv);
         storePassFile.Destroy();
         keyPassFile.Destroy();
-        WipeSecret(storePassword.Value);
-        WipeSecret(keyPassword.Value);
+        Platform::WipeSecret(storePassword.Value);
+        Platform::WipeSecret(keyPassword.Value);
 
         result.Status = KeytoolStatus::Ok;
         result.Started = true;

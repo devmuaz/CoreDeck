@@ -6,7 +6,6 @@
 #include <sstream>
 
 #include "sdk_manager.h"
-#include "constants.h"
 #include "process.h"
 
 namespace CoreDeck::Core {
@@ -125,7 +124,7 @@ namespace CoreDeck::Core {
         return result;
     }
 
-    EnvVars SdkManagerInstallEnvironment(EnvVars env) {
+    Platform::EnvVars SdkManagerInstallEnvironment(Platform::EnvVars env) {
         for (auto &var: env) {
             if (var.Name == ENV_COLUMNS) {
                 var.Value = SDK_MANAGER_PROGRESS_COLUMNS;
@@ -145,7 +144,7 @@ namespace CoreDeck::Core {
             return std::nullopt;
         }
 
-        return RunCommandArgs(sdk.SdkManagerPath, args, stdinData, sdk.ToolEnv);
+        return Platform::RunCommandArgs(sdk.SdkManagerPath, args, stdinData, sdk.ToolEnv);
     }
 
     bool RunSdkManagerInstall(
@@ -158,7 +157,7 @@ namespace CoreDeck::Core {
             return false;
         }
 
-        StreamCommandArgs(
+        Platform::StreamCommandArgs(
             sdk.SdkManagerPath,
             args,
             stdinInput,

@@ -70,6 +70,10 @@ namespace CoreDeck::Core {
     bool CreateAvd(const SdkInfo &sdk, const AvdCreationData &data);
 
     bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName);
+
+    std::string GetAvdDirectory();
+
+    bool WipeAvdUserData(const std::string &avdPath);
 }
 
 #endif // COREDECK_AVD_MANAGER_H

@@ -11,22 +11,22 @@
 #include "avd_info.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../../core/process_stats.h"
-#include "../../core/utilities.h"
-#include "../../core/i18n.h"
+#include "platform/process_stats.h"
+#include "platform/utilities.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     const char *SystemImageKindLabel(const Core::AvdInfo &avd) {
         if (avd.IsGooglePlayImage) {
-            return Core::Tr("Google Play");
+            return Platform::Tr("Google Play");
         }
         if (avd.IsGoogleApisImage) {
-            return Core::Tr("Google APIs");
+            return Platform::Tr("Google APIs");
         }
         if (!avd.SystemImageTagDisplay.empty()) {
             return avd.SystemImageTagDisplay.c_str();
         }
-        return Core::Tr("Default");
+        return Platform::Tr("Default");
     }
 
     namespace {
@@ -42,7 +42,7 @@ namespace CoreDeck::Gui {
         }
 
         std::string FormatBytesPerSec(const std::uint64_t bytesPerSec) {
-            return Core::FormatFileSize(bytesPerSec) + "/s";
+            return Platform::FormatFileSize(bytesPerSec) + "/s";
         }
 
         std::string FormatUptime(const std::chrono::seconds total) {
@@ -67,7 +67,7 @@ namespace CoreDeck::Gui {
             const ProcessId pid = isRunning ? context.Host.Manager.GetPid(avdName) : 0;
 
             const auto &sampler = context.Host.Manager.Stats();
-            Core::ProcessSample latest{};
+            Platform::ProcessSample latest{};
             std::chrono::seconds uptime{0};
             std::vector<float> cpuHist;
             std::vector<float> rssHist;
@@ -77,11 +77,11 @@ namespace CoreDeck::Gui {
                 sampler.CopyCpuHistory(pid, cpuHist);
                 sampler.CopyRssHistoryMb(pid, rssHist);
             } else {
-                cpuHist.assign(Core::PROCESS_STATS_HISTORY, 0.0F);
-                rssHist.assign(Core::PROCESS_STATS_HISTORY, 0.0F);
+                cpuHist.assign(Platform::PROCESS_STATS_HISTORY, 0.0F);
+                rssHist.assign(Platform::PROCESS_STATS_HISTORY, 0.0F);
             }
 
-            ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), "%s", Core::Tr("Live Resource Usage"));
+            ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), "%s", Platform::Tr("Live Resource Usage"));
             ImGui::Spacing();
 
             if (!isRunning) {
@@ -91,7 +91,7 @@ namespace CoreDeck::Gui {
             const float chartWidth = ImGui::GetContentRegionAvail().x;
             constexpr float CHART_HEIGHT = 70.0F;
 
-            ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", Core::Tr("CPU Usage"));
+            ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", Platform::Tr("CPU Usage"));
             {
                 StyleColor sc;
                 sc.Push(ImGuiCol_PlotLines, HexColor(Colors::POSITIVE));
@@ -105,11 +105,11 @@ namespace CoreDeck::Gui {
             } else {
                 (void) std::snprintf(cpuValue, sizeof(cpuValue), "—");
             }
-            PropertyText(Core::Tr("Current CPU"), cpuValue, false, true);
+            PropertyText(Platform::Tr("Current CPU"), cpuValue, false, true);
 
             ImGui::Spacing();
 
-            ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", Core::Tr("Memory"));
+            ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", Platform::Tr("Memory"));
             {
                 StyleColor sc;
                 sc.Push(ImGuiCol_PlotLines, HexColor(Colors::ACCENT_INFO));
@@ -119,12 +119,12 @@ namespace CoreDeck::Gui {
 
             char ramValue[32];
             if (isRunning && latest.Valid) {
-                const std::string rss = Core::FormatFileSize(latest.RssBytes);
+                const std::string rss = Platform::FormatFileSize(latest.RssBytes);
                 (void) std::snprintf(ramValue, sizeof(ramValue), "%s", rss.c_str());
             } else {
                 (void) std::snprintf(ramValue, sizeof(ramValue), "—");
             }
-            PropertyText(Core::Tr("Current Memory"), ramValue, false, true);
+            PropertyText(Platform::Tr("Current Memory"), ramValue, false, true);
 
             ImGui::Spacing();
 
@@ -138,11 +138,11 @@ namespace CoreDeck::Gui {
                     ? FormatBytesPerSec(latest.DiskWriteBytesPerSec)
                     : std::string("—");
 
-            PropertyText(Core::Tr("Disk Read Rate"), readRate.c_str(), false, true);
-            PropertyText(Core::Tr("Disk Write Rate"), writeRate.c_str(), false, true);
+            PropertyText(Platform::Tr("Disk Read Rate"), readRate.c_str(), false, true);
+            PropertyText(Platform::Tr("Disk Write Rate"), writeRate.c_str(), false, true);
 
             const std::string uptimeStr = isRunning ? FormatUptime(uptime) : std::string("—");
-            PropertyText(Core::Tr("Uptime"), uptimeStr.c_str(), false, true);
+            PropertyText(Platform::Tr("Uptime"), uptimeStr.c_str(), false, true);
 
             if (!isRunning) {
                 ImGui::EndDisabled();
@@ -160,9 +160,9 @@ namespace CoreDeck::Gui {
         constexpr ImGuiWindowFlags FLAGS = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
         if (context.Catalog.SelectedAvd < 0) {
-            const std::string detailsTitle = Core::TrWindow("Details", "Details");
+            const std::string detailsTitle = Platform::TrWindow("Details", "Details");
             ImGui::Begin(detailsTitle.c_str(), nullptr, FLAGS);
-            ImGui::TextDisabled("%s", Core::Tr("Select an AVD to view details"));
+            ImGui::TextDisabled("%s", Platform::Tr("Select an AVD to view details"));
             ImGui::End();
             return;
         }
@@ -180,7 +180,7 @@ namespace CoreDeck::Gui {
         const auto &gpuMode = avd.GpuMode;
         const auto &skinName = avd.SkinName;
         const auto &sdCard = avd.SdCard;
-        ImGui::Begin(Core::StrConcat(Core::TrFormat("Details - {0}", displayName), "###Details").c_str(), nullptr, FLAGS);
+        ImGui::Begin(Platform::StrConcat(Platform::TrFormat("Details - {0}", displayName), "###Details").c_str(), nullptr, FLAGS);
 
         LiveResourceUsage(context, name);
 
@@ -189,30 +189,30 @@ namespace CoreDeck::Gui {
         ImGui::Spacing();
 
         if (!device.empty()) {
-            PropertyText(Core::Tr("Device"), device.c_str(), false, true);
+            PropertyText(Platform::Tr("Device"), device.c_str(), false, true);
         }
         if (!apiLevel.empty()) {
-            PropertyText(Core::Tr("API Level"), apiLevel.c_str(), false, true);
+            PropertyText(Platform::Tr("API Level"), apiLevel.c_str(), false, true);
         }
         if (!abi.empty()) {
-            PropertyText(Core::Tr("ABI"), abi.c_str(), false, true);
+            PropertyText(Platform::Tr("ABI"), abi.c_str(), false, true);
         }
         if (!arch.empty()) {
-            PropertyText(Core::Tr("Arch"), arch.c_str(), false, true);
+            PropertyText(Platform::Tr("Arch"), arch.c_str(), false, true);
         }
         if (!ramSize.empty()) {
-            PropertyText(Core::Tr("RAM"), Core::TrFormat("{0} MB", ramSize).c_str(), false, true);
+            PropertyText(Platform::Tr("RAM"), Platform::TrFormat("{0} MB", ramSize).c_str(), false, true);
         }
         if (!screenResolution.empty()) {
-            PropertyText(Core::Tr("Resolution"), screenResolution.c_str(), false, true);
+            PropertyText(Platform::Tr("Resolution"), screenResolution.c_str(), false, true);
         }
         if (!sdCard.empty()) {
-            PropertyText(Core::Tr("Storage"), sdCard.c_str(), false, true);
+            PropertyText(Platform::Tr("Storage"), sdCard.c_str(), false, true);
         }
         if (!gpuMode.empty()) {
-            PropertyText(Core::Tr("GPU Mode"), Core::GpuModeDisplayLabel(gpuMode), false, true);
+            PropertyText(Platform::Tr("GPU Mode"), Core::GpuModeDisplayLabel(gpuMode), false, true);
         }
-        PropertyText(Core::Tr("Skin"), skinName.empty() ? Core::Tr("None") : skinName.c_str(), false, true);
+        PropertyText(Platform::Tr("Skin"), skinName.empty() ? Platform::Tr("None") : skinName.c_str(), false, true);
 
         if (!avd.SystemImagePath.empty() ||
             !avd.SystemImageVariant.empty() ||
@@ -222,12 +222,12 @@ namespace CoreDeck::Gui {
             ImGui::Separator();
             ImGui::Spacing();
 
-            PropertyText(Core::Tr("Type"), SystemImageKindLabel(avd), false, true);
-            PropertyText(Core::Tr("16 KB Page Size"), avd.Supports16KbPageSize ? Core::Tr("Supported") : Core::Tr("Not supported"), false, true);
+            PropertyText(Platform::Tr("Type"), SystemImageKindLabel(avd), false, true);
+            PropertyText(Platform::Tr("16 KB Page Size"), avd.Supports16KbPageSize ? Platform::Tr("Supported") : Platform::Tr("Not supported"), false, true);
             if (!avd.SystemImageTagDisplayNames.empty()) {
                 const std::string tags = JoinAvdInfoList(avd.SystemImageTagDisplayNames);
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Core::Tr("Tags"));
+                ImGui::TextDisabled("%s", Platform::Tr("Tags"));
                 ImGui::TextWrapped("%s", tags.c_str());
             }
         }
@@ -240,13 +240,13 @@ namespace CoreDeck::Gui {
             auto &diskCache = context.DiskUsage.PerAvdCache;
             auto it = diskCache.find(name);
             if (it == diskCache.end()) {
-                const std::uintmax_t size = Core::GetDirectorySize(path);
+                const std::uintmax_t size = Platform::GetDirectorySize(path);
                 diskCache[name] = size;
                 it = diskCache.find(name);
             }
 
-            const std::string sizeStr = Core::FormatFileSize(it->second);
-            PropertyText(Core::Tr("Disk Usage"), sizeStr.c_str(), false, true);
+            const std::string sizeStr = Platform::FormatFileSize(it->second);
+            PropertyText(Platform::Tr("Disk Usage"), sizeStr.c_str(), false, true);
 
             ImGui::Spacing();
 
@@ -256,18 +256,18 @@ namespace CoreDeck::Gui {
             if (isRunning) {
                 ImGui::BeginDisabled();
             }
-            if (WarningButton(Core::Tr("Wipe User Data"), !isRunning, ImVec2(halfWidth, 0))) {
+            if (WarningButton(Platform::Tr("Wipe User Data"), !isRunning, ImVec2(halfWidth, 0))) {
                 context.UI.ShowWipeDataDialog = true;
             }
             if (isRunning) {
                 ImGui::EndDisabled();
             }
             if (isRunning && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
-                ImGui::SetTooltip("%s", Core::Tr("Stop the emulator before wiping data"));
+                ImGui::SetTooltip("%s", Platform::Tr("Stop the emulator before wiping data"));
             }
 
             ImGui::SameLine();
-            if (PrimaryButton(Core::Tr("Storage Overview"), true, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Platform::Tr("Storage Overview"), true, ImVec2(halfWidth, 0))) {
                 context.UI.ShowStorageDialog = true;
             }
         }
@@ -282,11 +282,11 @@ namespace CoreDeck::Gui {
             const DialogData wipeDialog{
                 .Id = "WipeUserData",
                 .IsOpen = context.UI.ShowWipeDataDialog,
-                .Title = Core::Tr("Wipe User Data"),
-                .Message = Core::Tr("This will delete userdata, cache, SD card images, and snapshots for this AVD. This cannot be undone.\n\nContinue?"),
-                .ConfirmButtonTitle = Core::Tr("Wipe"),
-                .CancelButtonTitle = Core::Tr("Cancel"),
-                .BusyButtonTitle = Core::Tr("Wiping..."),
+                .Title = Platform::Tr("Wipe User Data"),
+                .Message = Platform::Tr("This will delete userdata, cache, SD card images, and snapshots for this AVD. This cannot be undone.\n\nContinue?"),
+                .ConfirmButtonTitle = Platform::Tr("Wipe"),
+                .CancelButtonTitle = Platform::Tr("Cancel"),
+                .BusyButtonTitle = Platform::Tr("Wiping..."),
                 .Type = DialogType::Negative,
                 .IsBusy = isWiping,
             };

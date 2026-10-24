@@ -3,6 +3,7 @@
 #include "core/apk_analyzer.h"
 
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 TEST_CASE("ParseApkSummary reads the tab-separated summary row", "[apk-analyzer]") {
     const auto summary = ParseApkSummary("com.example.helloworld\t1\t1.0\n");

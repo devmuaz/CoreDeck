@@ -39,7 +39,7 @@ namespace CoreDeck::Core {
             return std::filesystem::is_regular_file(path, error);
         }
 
-        bool CommandFailed(const CommandResult &result) {
+        bool CommandFailed(const Platform::CommandResult &result) {
             return !result.Started || result.ExitCode != 0;
         }
 
@@ -75,27 +75,27 @@ namespace CoreDeck::Core {
             SecretString() = default;
 
             explicit SecretString(std::string value) : Value(std::move(value)) {
-                WipeSecret(value);
+                Platform::WipeSecret(value);
             }
 
             SecretString(const SecretString &) = delete;
             SecretString &operator=(const SecretString &) = delete;
 
             SecretString(SecretString &&other) noexcept : Value(std::move(other.Value)) {
-                WipeSecret(other.Value);
+                Platform::WipeSecret(other.Value);
             }
 
             SecretString &operator=(SecretString &&other) noexcept {
                 if (this != &other) {
-                    WipeSecret(Value);
+                    Platform::WipeSecret(Value);
                     Value = std::move(other.Value);
-                    WipeSecret(other.Value);
+                    Platform::WipeSecret(other.Value);
                 }
                 return *this;
             }
 
             ~SecretString() {
-                WipeSecret(Value);
+                Platform::WipeSecret(Value);
             }
         };
 
@@ -134,7 +134,7 @@ namespace CoreDeck::Core {
             return result;
         }
 
-        JarSignResult CommandFailure(const CommandResult &command) {
+        JarSignResult CommandFailure(const Platform::CommandResult &command) {
             JarSignResult result;
             result.Status = JarSignStatus::SignFailed;
             result.Started = command.Started;
@@ -215,7 +215,7 @@ namespace CoreDeck::Core {
     JarVerifyResult VerifyJar(
         const std::string &jarsignerPath,
         const std::string &jarPath,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     ) {
         JarVerifyResult result;
         if (jarsignerPath.empty()) {
@@ -226,7 +226,7 @@ namespace CoreDeck::Core {
             return result;
         }
 
-        const CommandResult command = RunCommandArgsResult(
+        const Platform::CommandResult command = Platform::RunCommandArgsResult(
             jarsignerPath,
             BuildJarVerifyArguments(jarPath),
             "",
@@ -274,9 +274,9 @@ namespace CoreDeck::Core {
 
     JarSignResult SignJar(JarSignRequest request) {
         SecretString storePassword{std::move(request.StorePassword)};
-        WipeSecret(request.StorePassword);
+        Platform::WipeSecret(request.StorePassword);
         SecretString keyPassword{std::move(request.KeyPassword)};
-        WipeSecret(request.KeyPassword);
+        Platform::WipeSecret(request.KeyPassword);
 
         if (request.Jdk.JavaHome.empty()) {
             return Refused(JarSignRefusal::MissingJdk);
@@ -288,7 +288,7 @@ namespace CoreDeck::Core {
         if (request.OutputPath.empty()) {
             return Refused(JarSignRefusal::MissingOutput);
         }
-        if (Paths::SameFilePath(request.InputPath, request.OutputPath)) {
+        if (Platform::SameFilePath(request.InputPath, request.OutputPath)) {
             return Refused(JarSignRefusal::OutputSameAsInput);
         }
 
@@ -309,7 +309,7 @@ namespace CoreDeck::Core {
         partialOutput.Path = request.OutputPath;
         partialOutput.Armed = false;
 
-        const CommandResult signedJar = RunCommandArgsResult(
+        const Platform::CommandResult signedJar = Platform::RunCommandArgsResult(
             jarsigner,
             BuildJarSignArguments(
                 request.KeystorePath,
@@ -325,8 +325,8 @@ namespace CoreDeck::Core {
         );
         storePassFile.Destroy();
         keyPassFile.Destroy();
-        WipeSecret(storePassword.Value);
-        WipeSecret(keyPassword.Value);
+        Platform::WipeSecret(storePassword.Value);
+        Platform::WipeSecret(keyPassword.Value);
 
         if (CommandFailed(signedJar)) {
             partialOutput.Armed = signedJar.Started;

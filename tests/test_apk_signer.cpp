@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "core/apk_signer.h"
-#include "core/paths.h"
+#include "platform/paths.h"
 
 using namespace CoreDeck;
 using namespace CoreDeck::Core;
@@ -74,10 +74,10 @@ TEST_CASE("ParseApkVerifyOutput leaves Verified false on DOES NOT VERIFY", "[apk
 TEST_CASE("SameFilePath treats a normalized path as the same file", "[apk-signer]") {
     const std::string input = "/tmp/coredeck-apk-sign/app.apk";
 
-    REQUIRE(Paths::SameFilePath(input, input));
-    REQUIRE(Paths::SameFilePath(input, "/tmp/coredeck-apk-sign/./app.apk"));
-    REQUIRE(Paths::SameFilePath(input, "/tmp/coredeck-apk-sign/nested/../app.apk"));
-    REQUIRE_FALSE(Paths::SameFilePath(input, "/tmp/coredeck-apk-sign/app-signed.apk"));
+    REQUIRE(Platform::SameFilePath(input, input));
+    REQUIRE(Platform::SameFilePath(input, "/tmp/coredeck-apk-sign/./app.apk"));
+    REQUIRE(Platform::SameFilePath(input, "/tmp/coredeck-apk-sign/nested/../app.apk"));
+    REQUIRE_FALSE(Platform::SameFilePath(input, "/tmp/coredeck-apk-sign/app-signed.apk"));
 }
 
 TEST_CASE("BuildApkSignArguments keeps the store password off argv", "[apk-signer]") {

@@ -8,6 +8,7 @@
 
 namespace fs = std::filesystem;
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 namespace {
     fs::path UniqueTempDir(const std::string &prefix) {

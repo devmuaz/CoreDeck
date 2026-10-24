@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "core/constants.h"
-#include "core/paths.h"
+
+#include "platform/paths.h"
 #include "core/sdk.h"
 #include "core/sdk_bootstrap.h"
 
@@ -52,7 +52,7 @@ namespace {
 
     void CreateFakeEmulator(const std::string &installRoot) {
         WriteExecutable(
-            std::filesystem::path(installRoot) / "emulator" / Paths::WithExecutableExtension("emulator")
+            std::filesystem::path(installRoot) / "emulator" / Platform::WithExecutableExtension("emulator")
         );
     }
 
@@ -587,7 +587,7 @@ TEST_CASE("BootstrapAndroidSdk installs build-tools into an SDK that already has
         installed = packages;
         const std::filesystem::path buildTools = std::filesystem::path(sdkRoot) / "build-tools" / "37.0.0";
         for (const char *name: {"aapt2", "zipalign", "apksigner"}) {
-            WriteExecutable(buildTools / Paths::WithExecutableExtension(name));
+            WriteExecutable(buildTools / Platform::WithExecutableExtension(name));
         }
         return true;
     };

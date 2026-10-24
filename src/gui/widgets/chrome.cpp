@@ -86,7 +86,7 @@ namespace CoreDeck::Gui {
 
     DialogResult SimpleDialog(const DialogData &data, const bool hasSpinner) {
         auto result = DialogResult::None;
-        const std::string title = Core::StrConcat(data.Title, "###", data.Id);
+        const std::string title = Platform::StrConcat(data.Title, "###", data.Id);
 
         constexpr ImGuiWindowFlags FLAGS =
             ImGuiWindowFlags_NoCollapse |

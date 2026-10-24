@@ -39,7 +39,7 @@ namespace CoreDeck::Core {
         }
 
 
-        void RunOutputReader(const int outputFd, const std::shared_ptr<LogBuffer> &log, const std::shared_ptr<std::atomic<bool>> &stopFlag) {
+        void RunOutputReader(const int outputFd, const std::shared_ptr<Platform::LogBuffer> &log, const std::shared_ptr<std::atomic<bool>> &stopFlag) {
             std::array<char, 1024> buf{};
             std::string partial;
 
@@ -126,13 +126,13 @@ namespace CoreDeck::Core {
                     exited = WaitForConsoleUnavailable(instance.ConsolePort, 5000);
                 }
                 if (!exited) {
-                    KillProcess(instance.Pid);
+                    Platform::KillProcess(instance.Pid);
                     exited = instance.ConsolePort > 0
                                  ? WaitForConsoleUnavailable(instance.ConsolePort, 2000)
-                                 : WaitForProcessExit(instance.Pid, 2000);
+                                 : Platform::WaitForProcessExit(instance.Pid, 2000);
                 }
                 if (!exited) {
-                    TerminateProcessTree(instance.Pid);
+                    Platform::TerminateProcessTree(instance.Pid);
                 }
                 instance.IsRunning = false;
             }
@@ -185,7 +185,7 @@ namespace CoreDeck::Core {
         }
 
         int outputFd = -1;
-        const ProcessId pid = SpawnProcessWithPipe(m_Sdk.EmulatorPath, finalArgs, outputFd);
+        const ProcessId pid = Platform::SpawnProcessWithPipe(m_Sdk.EmulatorPath, finalArgs, outputFd);
 
 #ifdef _WIN32
         if (pid == 0) {
@@ -197,7 +197,7 @@ namespace CoreDeck::Core {
         }
 #endif
 
-        auto log = std::make_shared<LogBuffer>();
+        auto log = std::make_shared<Platform::LogBuffer>();
         auto stopFlag = std::make_shared<std::atomic<bool>>(false);
         std::thread reader(RunOutputReader, outputFd, log, stopFlag);
 
@@ -250,16 +250,16 @@ namespace CoreDeck::Core {
                     exited = WaitForConsoleUnavailable(consolePort, 10000);
                 }
                 if (!exited) {
-                    KillProcess(pid);
+                    Platform::KillProcess(pid);
                     exited = consolePort > 0
                                  ? WaitForConsoleUnavailable(consolePort, 3000)
-                                 : WaitForProcessExit(pid, 2000);
+                                 : Platform::WaitForProcessExit(pid, 2000);
                 }
                 if (!exited) {
-                    TerminateProcessTree(pid);
+                    Platform::TerminateProcessTree(pid);
                     exited = consolePort > 0
                                  ? WaitForConsoleUnavailable(consolePort, 3000)
-                                 : WaitForProcessExit(pid, 2000);
+                                 : Platform::WaitForProcessExit(pid, 2000);
                 }
 
                 if (exited) {
@@ -314,7 +314,7 @@ namespace CoreDeck::Core {
         return it->second.IsRunning;
     }
 
-    std::shared_ptr<LogBuffer> EmulatorManager::GetLog(const std::string &avdName) {
+    std::shared_ptr<Platform::LogBuffer> EmulatorManager::GetLog(const std::string &avdName) {
         const std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) {
@@ -337,7 +337,7 @@ namespace CoreDeck::Core {
         {
             const std::scoped_lock lock(m_Mutex);
             for (auto &instance: m_Instances | std::views::values) {
-                if (instance.IsRunning && !IsProcessRunning(instance.Pid)) {
+                if (instance.IsRunning && !Platform::IsProcessRunning(instance.Pid)) {
                     instance.IsRunning = instance.ConsolePort > 0 &&
                                          Core::EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
                     if (!instance.IsRunning) {

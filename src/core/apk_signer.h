@@ -59,7 +59,7 @@ namespace CoreDeck::Core {
         std::string KeyPassword;
         bool Align = true;
         JdkInfo Jdk;
-        EnvVars ToolEnv;
+        Platform::EnvVars ToolEnv;
     };
 
     struct ApkSignResult {
@@ -76,7 +76,7 @@ namespace CoreDeck::Core {
     ApkVerifyResult VerifyApk(
         const std::string &apksignerPath,
         const std::string &apkPath,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     );
 
     std::vector<std::string> BuildApkSignArguments(

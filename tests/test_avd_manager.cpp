@@ -3,6 +3,7 @@
 #include "core/avd_manager.h"
 
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 TEST_CASE("ParseAvdManagerDeviceList keeps device ids and drops avdmanager logs", "[avd]") {
     const auto list = ParseAvdManagerDeviceList(

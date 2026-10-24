@@ -5,9 +5,10 @@
 #include <string>
 
 #include "core/keytool.h"
-#include "core/utilities.h"
+#include "platform/utilities.h"
 
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 namespace {
     CreateKeystoreRequest ValidCreateRequest(const std::filesystem::path &path) {
@@ -220,8 +221,8 @@ TEST_CASE("ValidateCreateKeystore rejects incomplete keystores", "[keytool]") {
     request.StoreType = KeystoreType::Jceks;
     request.KeyPassword = "secret1";
     REQUIRE(ValidateCreateKeystore(request) == KeytoolRefusal::None);
-    WipeSecret(request.StorePassword);
-    WipeSecret(request.KeyPassword);
+    Platform::WipeSecret(request.StorePassword);
+    Platform::WipeSecret(request.KeyPassword);
 }
 
 TEST_CASE("BuildCreateKeystoreArguments keeps passwords off the command line", "[keytool]") {
@@ -264,8 +265,8 @@ TEST_CASE("BuildCreateKeystoreArguments keeps passwords off the command line", "
         REQUIRE(arg.find("super-secret-password") == std::string::npos);
         REQUIRE(arg.find("other-secret") == std::string::npos);
     }
-    WipeSecret(request.StorePassword);
-    WipeSecret(request.KeyPassword);
+    Platform::WipeSecret(request.StorePassword);
+    Platform::WipeSecret(request.KeyPassword);
 }
 
 TEST_CASE("BuildCreateKeystoreArguments follows the selected key", "[keytool]") {
@@ -331,8 +332,8 @@ TEST_CASE("BuildCreateKeystoreArguments follows the selected key", "[keytool]") 
                       "-keypass:file",
                       "/tmp/key-pass",
                   });
-    WipeSecret(request.StorePassword);
-    WipeSecret(request.KeyPassword);
+    Platform::WipeSecret(request.StorePassword);
+    Platform::WipeSecret(request.KeyPassword);
 }
 
 TEST_CASE("ValidateDescribeKeystore requires a keystore file", "[keytool]") {

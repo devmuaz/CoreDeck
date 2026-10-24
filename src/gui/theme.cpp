@@ -26,8 +26,8 @@
 #endif
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-#include "../core/constants.h"
-#include "../core/utilities.h"
+#include "platform/env.h"
+#include "platform/utilities.h"
 #endif
 
 namespace CoreDeck::Gui {
@@ -148,7 +148,7 @@ namespace CoreDeck::Gui {
         };
 
         ColorScheme g_Scheme = ColorScheme::Dark;
-        Core::ThemePreference g_Preference = Core::ThemePreference::Dark;
+        App::ThemePreference g_Preference = App::ThemePreference::Dark;
         int g_ProbeTicket = 0;
         int g_LaunchedTicket = 0;
         bool g_ProbeInFlight = false;
@@ -233,7 +233,7 @@ namespace CoreDeck::Gui {
         }
 
         bool ContainsDark(const std::string &text) {
-            return Core::LowerCopy(text).find("dark") != std::string::npos;
+            return Platform::LowerCopy(text).find("dark") != std::string::npos;
         }
 
         bool ReadCommand(const char *command, std::string &output) {
@@ -251,10 +251,10 @@ namespace CoreDeck::Gui {
         }
 
         std::string ConfigDirectory() {
-            if (const char *xdg = std::getenv(Core::ENV_XDG_CONFIG_HOME); xdg != nullptr && xdg[0] != '\0') {
+            if (const char *xdg = std::getenv(Platform::ENV_XDG_CONFIG_HOME); xdg != nullptr && xdg[0] != '\0') {
                 return xdg;
             }
-            if (const char *home = std::getenv(Core::ENV_HOME); home != nullptr && home[0] != '\0') {
+            if (const char *home = std::getenv(Platform::ENV_HOME); home != nullptr && home[0] != '\0') {
                 return std::string(home) + "/.config";
             }
             return {};
@@ -304,7 +304,7 @@ namespace CoreDeck::Gui {
                     continue;
                 }
                 if (KeyIs(trimmed, "gtk-application-prefer-dark-theme")) {
-                    const std::string lower = Core::LowerCopy(value);
+                    const std::string lower = Platform::LowerCopy(value);
                     if (lower == "1" || lower == "true") {
                         sawFlag = true;
                         flag = true;
@@ -396,7 +396,7 @@ namespace CoreDeck::Gui {
 #endif
 
         bool PublishSystemScheme(const bool dark) {
-            if (g_Preference != Core::ThemePreference::System) {
+            if (g_Preference != App::ThemePreference::System) {
                 return false;
             }
             return ApplyResolvedScheme(dark ? ColorScheme::Dark : ColorScheme::Light);
@@ -443,20 +443,20 @@ namespace CoreDeck::Gui {
         return g_Scheme == ColorScheme::Light;
     }
 
-    void SetThemePreference(const Core::ThemePreference preference) {
+    void SetThemePreference(const App::ThemePreference preference) {
         g_Preference = preference;
         ++g_ProbeTicket;
         NextProbe() = std::chrono::steady_clock::now() + std::chrono::seconds(1);
 
-        if (preference == Core::ThemePreference::System) {
+        if (preference == App::ThemePreference::System) {
             ApplyResolvedScheme(SystemPrefersDarkAppearance() ? ColorScheme::Dark : ColorScheme::Light);
             return;
         }
-        ApplyResolvedScheme(preference == Core::ThemePreference::Light ? ColorScheme::Light : ColorScheme::Dark);
+        ApplyResolvedScheme(preference == App::ThemePreference::Light ? ColorScheme::Light : ColorScheme::Dark);
     }
 
     bool SyncSystemColorScheme() {
-        if (g_Preference != Core::ThemePreference::System) {
+        if (g_Preference != App::ThemePreference::System) {
             return false;
         }
 

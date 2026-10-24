@@ -22,9 +22,10 @@
 #include "../widgets.h"
 #include "../../core/apk_signer.h"
 #include "../../core/keytool.h"
-#include "../../core/file_dialog.h"
-#include "../../core/paths.h"
-#include "../../core/i18n.h"
+#include "app/file_dialog.h"
+#include "platform/paths.h"
+#include "app/paths.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -32,7 +33,7 @@ namespace CoreDeck::Gui {
             std::string Value;
 
             explicit StorePassword(std::string value) : Value(std::move(value)) {
-                Core::WipeSecret(value);
+                Platform::WipeSecret(value);
             }
 
             StorePassword(const StorePassword &) = delete;
@@ -40,11 +41,11 @@ namespace CoreDeck::Gui {
             StorePassword &operator=(StorePassword &&) = delete;
 
             StorePassword(StorePassword &&other) noexcept : Value(std::move(other.Value)) {
-                Core::WipeSecret(other.Value);
+                Platform::WipeSecret(other.Value);
             }
 
             ~StorePassword() {
-                Core::WipeSecret(Value);
+                Platform::WipeSecret(Value);
             }
         };
 
@@ -53,8 +54,8 @@ namespace CoreDeck::Gui {
 
             explicit SignLaunch(Core::ApkSignRequest request) : Request(std::move(request)) {
                 // Moved-from small strings can retain the secret in their inline buffer.
-                Core::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
-                Core::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
+                Platform::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
+                Platform::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
             }
 
             SignLaunch(const SignLaunch &) = delete;
@@ -62,19 +63,19 @@ namespace CoreDeck::Gui {
             SignLaunch &operator=(SignLaunch &&) = delete;
 
             SignLaunch(SignLaunch &&other) noexcept : Request(std::move(other.Request)) {
-                Core::WipeSecret(other.Request.StorePassword);
-                Core::WipeSecret(other.Request.KeyPassword);
+                Platform::WipeSecret(other.Request.StorePassword);
+                Platform::WipeSecret(other.Request.KeyPassword);
             }
 
             ~SignLaunch() {
-                Core::WipeSecret(Request.StorePassword);
-                Core::WipeSecret(Request.KeyPassword);
+                Platform::WipeSecret(Request.StorePassword);
+                Platform::WipeSecret(Request.KeyPassword);
             }
 
             Core::ApkSignResult Run() {
                 Core::ApkSignResult result = Core::SignApk(std::move(Request));
-                Core::WipeSecret(Request.StorePassword);
-                Core::WipeSecret(Request.KeyPassword);
+                Platform::WipeSecret(Request.StorePassword);
+                Platform::WipeSecret(Request.KeyPassword);
                 return result;
             }
         };
@@ -143,8 +144,8 @@ namespace CoreDeck::Gui {
         }
 
         void WipePasswordBuffers(ApkSignerWork &work) {
-            Core::WipeSecret(work.StorePassword, sizeof work.StorePassword);
-            Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+            Platform::WipeSecret(work.StorePassword, sizeof work.StorePassword);
+            Platform::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
             work.SecretEpoch += 1;
         }
 
@@ -187,15 +188,15 @@ namespace CoreDeck::Gui {
         const char *RefusalText(const Core::ApkSignRefusal refusal) {
             switch (refusal) {
                 case Core::ApkSignRefusal::EmptyApksigner:
-                    return Core::Tr("apksigner is not installed.");
+                    return Platform::Tr("apksigner is not installed.");
                 case Core::ApkSignRefusal::MissingJdk:
-                    return Core::Tr("A JDK is required.");
+                    return Platform::Tr("A JDK is required.");
                 case Core::ApkSignRefusal::MissingZipalign:
-                    return Core::Tr("zipalign was not found under build-tools.");
+                    return Platform::Tr("zipalign was not found under build-tools.");
                 case Core::ApkSignRefusal::MissingOutput:
-                    return Core::Tr("Choose an output path for the signed APK.");
+                    return Platform::Tr("Choose an output path for the signed APK.");
                 case Core::ApkSignRefusal::OutputSameAsInput:
-                    return Core::Tr("The output path is the same as the APK. The original APK is left unchanged.");
+                    return Platform::Tr("The output path is the same as the APK. The original APK is left unchanged.");
                 case Core::ApkSignRefusal::None:
                     break;
             }
@@ -217,7 +218,7 @@ namespace CoreDeck::Gui {
             if (work.OutputPath.empty()) {
                 return Core::ApkSignRefusal::MissingOutput;
             }
-            if (Paths::SameFilePath(work.InputPath, work.OutputPath)) {
+            if (Platform::SameFilePath(work.InputPath, work.OutputPath)) {
                 return Core::ApkSignRefusal::OutputSameAsInput;
             }
             if (work.Align && ZipalignUnavailable(zipalign)) {
@@ -326,7 +327,7 @@ namespace CoreDeck::Gui {
                 return;
             }
             const std::string apk = work.InputPath;
-            const Core::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
+            const Platform::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
             RetireJobs(work);
             work.HasVerify = false;
             work.Verify = {};
@@ -356,16 +357,16 @@ namespace CoreDeck::Gui {
 
             std::string storePassword(work.StorePassword);
             StorePassword secret{std::move(storePassword)};
-            Core::WipeSecret(storePassword);
+            Platform::WipeSecret(storePassword);
             const Core::JdkInfo jdk = context.Host.Jdk;
             const std::string keystore = work.KeystorePath;
-            const Core::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
+            const Platform::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
             RetireJobs(work);
             work.AliasFuture = std::async(
                 std::launch::async,
                 [secret = std::move(secret), jdk, keystore, toolEnv]() mutable {
                     Core::KeytoolAliasListResult result = Core::ListKeystoreAliases(jdk, keystore, std::move(secret.Value), toolEnv);
-                    Core::WipeSecret(secret.Value);
+                    Platform::WipeSecret(secret.Value);
                     return result;
                 }
             );
@@ -393,13 +394,13 @@ namespace CoreDeck::Gui {
             request.Jdk = context.Host.Jdk;
             request.ToolEnv = context.Host.Sdk.ToolEnv;
             request.StorePassword = std::move(storePassword);
-            Core::WipeSecret(storePassword);
+            Platform::WipeSecret(storePassword);
             request.KeyPassword = std::move(keyPassword);
-            Core::WipeSecret(keyPassword);
+            Platform::WipeSecret(keyPassword);
 
             SignLaunch launch{std::move(request)};
-            Core::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
-            Core::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
+            Platform::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
+            Platform::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
 
             RetireJobs(work);
             ClearSignResult(work);
@@ -412,10 +413,10 @@ namespace CoreDeck::Gui {
 
         std::array<const char *, 4> ReportColumns() {
             return {
-                Core::Tr("File Name"),
-                Core::Tr("Full Path"),
-                Core::Tr("Schemes"),
-                Core::Tr("Certificate DN"),
+                Platform::Tr("File Name"),
+                Platform::Tr("Full Path"),
+                Platform::Tr("Schemes"),
+                Platform::Tr("Certificate DN"),
             };
         }
 
@@ -443,11 +444,11 @@ namespace CoreDeck::Gui {
 
         void SchemeChips(const Core::ApkVerifyReport &report) {
             const std::pair<const char *, bool> schemes[] = {
-                {Core::Tr("v1"), report.SchemeV1},
-                {Core::Tr("v2"), report.SchemeV2},
-                {Core::Tr("v3"), report.SchemeV3},
-                {Core::Tr("v3.1"), report.SchemeV31},
-                {Core::Tr("v4"), report.SchemeV4},
+                {Platform::Tr("v1"), report.SchemeV1},
+                {Platform::Tr("v2"), report.SchemeV2},
+                {Platform::Tr("v3"), report.SchemeV3},
+                {Platform::Tr("v3.1"), report.SchemeV31},
+                {Platform::Tr("v4"), report.SchemeV4},
             };
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
@@ -499,7 +500,7 @@ namespace CoreDeck::Gui {
 
             ImDrawList *draw = ImGui::GetWindowDrawList();
             const float labelY = origin.y + ((rowH - ImGui::GetTextLineHeight()) * 0.5F);
-            DetailLabel(origin, labelColumn, rowH, Core::Tr("Schemes"), labelY);
+            DetailLabel(origin, labelColumn, rowH, Platform::Tr("Schemes"), labelY);
 
             float chipY = origin.y + ((rowH - blockH) * 0.5F);
             for (int line = 0; line < lineCount; ++line) {
@@ -538,9 +539,9 @@ namespace CoreDeck::Gui {
             SchemeChips(result.Report);
             ImGui::Spacing();
             const auto columns = ReportColumns();
-            LabeledValue(Core::Tr("Certificate DN"), result.Report.SignerDn, columns);
+            LabeledValue(Platform::Tr("Certificate DN"), result.Report.SignerDn, columns);
             ImGui::Spacing();
-            CopyableField(Core::Tr("Certificate SHA-256"), FormatCertificateSha256(result.Report.CertificateSha256));
+            CopyableField(Platform::Tr("Certificate SHA-256"), FormatCertificateSha256(result.Report.CertificateSha256));
         }
 
         void SignatureReport(const char *title, const std::string &path, const Core::ApkVerifyResult &verify) {
@@ -555,9 +556,9 @@ namespace CoreDeck::Gui {
 
         void AliasCombo(ApkSignerWork &work, const float width) {
             const bool reading = work.Busy.load() && work.Task == ApkSignerTask::Aliases;
-            const char *preview = Core::Tr("Select an Alias");
+            const char *preview = Platform::Tr("Select an Alias");
             if (reading) {
-                preview = Core::Tr("Reading keystore aliases...");
+                preview = Platform::Tr("Reading keystore aliases...");
             } else if (!work.SelectedAlias.empty()) {
                 preview = work.SelectedAlias.c_str();
             }
@@ -572,7 +573,7 @@ namespace CoreDeck::Gui {
                 }
             }
             ImGui::BeginDisabled(work.Aliases.empty());
-            if (RoundedCombo("##Alias", preview, labels.data(), static_cast<int>(labels.size()), selected, width, Core::Tr("Alias")) && selected >= 0 && std::cmp_less(selected, work.Aliases.size())) {
+            if (RoundedCombo("##Alias", preview, labels.data(), static_cast<int>(labels.size()), selected, width, Platform::Tr("Alias")) && selected >= 0 && std::cmp_less(selected, work.Aliases.size())) {
                 const std::string &alias = work.Aliases.at(static_cast<std::size_t>(selected));
                 if (work.SelectedAlias != alias) {
                     ClearSignResult(work);
@@ -594,25 +595,25 @@ namespace CoreDeck::Gui {
                     return nullptr;
                 }
                 tone = StatusBarTone::Error;
-                return Core::Tr("keytool was not found in the JDK.");
+                return Platform::Tr("keytool was not found in the JDK.");
             }
             if (work.AliasResult.Status != Core::KeytoolAliasStatus::Ok) {
                 tone = StatusBarTone::Error;
-                return Core::Tr("The keystore aliases could not be read.");
+                return Platform::Tr("The keystore aliases could not be read.");
             }
             if (work.Aliases.empty()) {
                 tone = StatusBarTone::Warning;
-                return Core::Tr("No private-key aliases were found in this keystore.");
+                return Platform::Tr("No private-key aliases were found in this keystore.");
             }
             return nullptr;
         }
 
         void ApkSignerOptions(ApkSignerWork &work, const float spacing, const float avail) {
             const ImGuiStyle &style = ImGui::GetStyle();
-            const char *alignTitle = Core::Tr("Align before signing");
-            const char *alignSubtitle = Core::Tr("Zip-align the APK before the signature is written.");
-            const char *matchTitle = Core::Tr("Key password matches keystore password");
-            const char *matchSubtitle = Core::Tr("Turn this off if the key entry has a different password.");
+            const char *alignTitle = Platform::Tr("Align before signing");
+            const char *alignSubtitle = Platform::Tr("Zip-align the APK before the signature is written.");
+            const char *matchTitle = Platform::Tr("Key password matches keystore password");
+            const char *matchSubtitle = Platform::Tr("Turn this off if the key entry has a different password.");
             const float box = 28.0F;
             const auto blockWidth = [&](const char *title, const char *subtitle) {
                 const float text = std::max(ImGui::CalcTextSize(title).x, ImGui::CalcTextSize(subtitle).x);
@@ -626,18 +627,18 @@ namespace CoreDeck::Gui {
                 ImGui::SameLine(0.0F, spacing);
             }
             if (SubtitledCheckbox("##KeyPasswordMatches", &work.KeyPasswordMatches, matchTitle, matchSubtitle) && work.KeyPasswordMatches) {
-                Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+                Platform::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
                 work.ShowKeyPassword = false;
                 work.SecretEpoch += 1;
             }
 
             ImGui::Spacing();
-            if (BrowseRow("##OutputPathField", work.OutputPath, Core::Tr("No output path"), "OutputPath", Core::Tr("Save As..."), -1.0F, Core::Tr("Signed APK"))) {
+            if (BrowseRow("##OutputPathField", work.OutputPath, Platform::Tr("No output path"), "OutputPath", Platform::Tr("Save As..."), -1.0F, Platform::Tr("Signed APK"))) {
                 const std::string suggested = work.OutputPath.empty() ? DefaultSignedPath(work.InputPath) : work.OutputPath;
-                if (const auto picked = Core::FileDialog::SaveFile(
-                        Core::Tr("Save signed APK"),
+                if (const auto picked = App::FileDialog::SaveFile(
+                        Platform::Tr("Save signed APK"),
                         suggested,
-                        Core::Tr("Android packages"),
+                        Platform::Tr("Android packages"),
                         {"*.apk", "*.APK"}
                     )) {
                     work.OutputPath = *picked;
@@ -651,8 +652,8 @@ namespace CoreDeck::Gui {
             auto &work = context.ApkSignerWork;
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const char *idleLabel = Core::Tr("Sign");
-            const char *busyLabel = Core::Tr("Signing...");
+            const char *idleLabel = Platform::Tr("Sign");
+            const char *busyLabel = Platform::Tr("Signing...");
             const float signW = BusyActionWidth(idleLabel, busyLabel);
             const float pathW = std::max(1.0F, (avail - signW - (spacing * 2.0F)) * 0.5F);
 
@@ -660,9 +661,9 @@ namespace CoreDeck::Gui {
             SecretEdit storePassword;
             {
                 const FormDisabled disabled(work.Busy.load());
-                if (BrowseRow("##ApkPathField", work.InputPath, Core::Tr("Choose an APK file..."), "ApkPath", Core::Tr("Browse..."), pathW, Core::Tr("APK"))) {
+                if (BrowseRow("##ApkPathField", work.InputPath, Platform::Tr("Choose an APK file..."), "ApkPath", Platform::Tr("Browse..."), pathW, Platform::Tr("APK"))) {
                     const std::string start = DirectoryOf(work.InputPath);
-                    if (const auto picked = Core::FileDialog::PickFile(Core::Tr("Open APK"), Core::Tr("Android packages"), {"*.apk", "*.APK"}, start)) {
+                    if (const auto picked = App::FileDialog::PickFile(Platform::Tr("Open APK"), Platform::Tr("Android packages"), {"*.apk", "*.APK"}, start)) {
                         work.InputPath = *picked;
                         if (!work.OutputCustomized) {
                             work.OutputPath = DefaultSignedPath(work.InputPath);
@@ -677,14 +678,14 @@ namespace CoreDeck::Gui {
                 if (BrowseRow(
                         "##KeystorePathField",
                         work.KeystorePath,
-                        Core::Tr("Choose a keystore file..."),
+                        Platform::Tr("Choose a keystore file..."),
                         "KeystorePath",
-                        Core::Tr("Browse..."),
+                        Platform::Tr("Browse..."),
                         pathW,
-                        Core::Tr("Keystore")
+                        Platform::Tr("Keystore")
                     )) {
                     const std::string start = work.KeystorePath.empty() ? DirectoryOf(work.InputPath) : DirectoryOf(work.KeystorePath);
-                    if (const auto picked = Core::FileDialog::PickFile(Core::Tr("Open Keystore"), Core::Tr("Keystores"), Core::KeystoreFilePatterns(), start)) {
+                    if (const auto picked = App::FileDialog::PickFile(Platform::Tr("Open Keystore"), Platform::Tr("Keystores"), Core::KeystoreFilePatterns(), start)) {
                         work.KeystorePath = *picked;
                         work.KeystoreType = Core::DetectKeystoreType(*picked);
                         ClearSignResult(work);
@@ -716,7 +717,7 @@ namespace CoreDeck::Gui {
                     work.StorePassword,
                     sizeof work.StorePassword,
                     work.ShowStorePassword,
-                    Core::Tr("Keystore Password"),
+                    Platform::Tr("Keystore Password"),
                     secretW
                 );
                 ImGui::PopID();
@@ -737,7 +738,7 @@ namespace CoreDeck::Gui {
                         work.KeyPassword,
                         sizeof work.KeyPassword,
                         work.ShowKeyPassword,
-                        Core::Tr("Key Password"),
+                        Platform::Tr("Key Password"),
                         secretW
                     );
                     ImGui::PopID();
@@ -756,28 +757,28 @@ namespace CoreDeck::Gui {
                 case Core::ApkSignStatus::Refused:
                     return RefusalText(result.Refusal);
                 case Core::ApkSignStatus::AlignFailed:
-                    return Core::Tr("Alignment failed.");
+                    return Platform::Tr("Alignment failed.");
                 case Core::ApkSignStatus::SignFailed:
-                    return Core::Tr("Signing failed.");
+                    return Platform::Tr("Signing failed.");
                 case Core::ApkSignStatus::Signed:
                     break;
             }
-            return Core::Tr("Signing failed.");
+            return Platform::Tr("Signing failed.");
         }
 
         void SignerStatus(const Context &context, const std::string &apksigner, const std::string &zipalign) {
             const auto &work = context.ApkSignerWork;
             const bool busy = work.Busy.load();
             if (busy && work.Task == ApkSignerTask::Sign) {
-                StatusBar(StatusBarTone::Busy, Core::Tr("Signing the APK."));
+                StatusBar(StatusBarTone::Busy, Platform::Tr("Signing the APK."));
                 return;
             }
             if (busy && work.Task == ApkSignerTask::Verify) {
-                StatusBar(StatusBarTone::Busy, Core::Tr("Checking the signature."));
+                StatusBar(StatusBarTone::Busy, Platform::Tr("Checking the signature."));
                 return;
             }
             if (busy && work.Task == ApkSignerTask::Aliases) {
-                StatusBar(StatusBarTone::Busy, Core::Tr("Reading the keystore aliases."));
+                StatusBar(StatusBarTone::Busy, Platform::Tr("Reading the keystore aliases."));
                 return;
             }
             if (work.HasSignResult && work.SignResult.Status != Core::ApkSignStatus::Signed) {
@@ -786,14 +787,14 @@ namespace CoreDeck::Gui {
             }
             if (work.HasSignResult) {
                 if (!work.SignResult.Verify.Started || work.SignResult.Verify.ToolMissing) {
-                    StatusBar(StatusBarTone::Error, Core::Tr("The signature could not be checked."));
+                    StatusBar(StatusBarTone::Error, Platform::Tr("The signature could not be checked."));
                     return;
                 }
-                StatusBar(StatusBarTone::Success, Core::Tr("APK signed."));
+                StatusBar(StatusBarTone::Success, Platform::Tr("APK signed."));
                 return;
             }
             if (!work.InputPath.empty() && work.HasVerify && (!work.Verify.Started || work.Verify.ToolMissing)) {
-                StatusBar(StatusBarTone::Error, Core::Tr("The signature could not be checked."));
+                StatusBar(StatusBarTone::Error, Platform::Tr("The signature could not be checked."));
                 return;
             }
             StatusBarTone aliasTone = StatusBarTone::Error;
@@ -807,20 +808,20 @@ namespace CoreDeck::Gui {
                 return;
             }
             if (work.InputPath.empty()) {
-                StatusBar(StatusBarTone::Idle, Core::Tr("Choose an APK to see its signature."));
+                StatusBar(StatusBarTone::Idle, Platform::Tr("Choose an APK to see its signature."));
                 return;
             }
             if (work.HasVerify && work.Verify.Started && !work.Verify.ToolMissing && work.Verify.Report.Verified) {
                 StatusBar(
                     StatusBarTone::Warning,
-                    Core::Tr(
+                    Platform::Tr(
                         "This APK is already signed. The new file carries a different signature, "
                         "and the original APK is left unchanged."
                     )
                 );
                 return;
             }
-            StatusBar(StatusBarTone::Idle, Core::Tr("Ready to sign an APK."));
+            StatusBar(StatusBarTone::Idle, Platform::Tr("Ready to sign an APK."));
         }
 
         float ReportCardHeight() {
@@ -831,45 +832,45 @@ namespace CoreDeck::Gui {
 
         void InputDetail(const ApkSignerWork &work) {
             if (work.InputPath.empty()) {
-                CenteredMessage(Core::Tr("No APK Selected"), Core::Tr("Choose an APK to see its signature."));
+                CenteredMessage(Platform::Tr("No APK Selected"), Platform::Tr("Choose an APK to see its signature."));
                 return;
             }
             if (work.Busy.load() && work.Task == ApkSignerTask::Verify) {
-                CenteredMessage(Core::Tr("Checking the signature..."), nullptr);
+                CenteredMessage(Platform::Tr("Checking the signature..."), nullptr);
                 return;
             }
             if (!work.HasVerify || !work.Verify.Started || work.Verify.ToolMissing) {
-                CenteredMessage(Core::Tr("Something Went Wrong!"), Core::Tr("The signature could not be checked."), Colors::NEGATIVE);
+                CenteredMessage(Platform::Tr("Something Went Wrong!"), Platform::Tr("The signature could not be checked."), Colors::NEGATIVE);
                 return;
             }
-            SignatureReport(Core::Tr("APK"), work.InputPath, work.Verify);
+            SignatureReport(Platform::Tr("APK"), work.InputPath, work.Verify);
         }
 
         void OutputDetail(const ApkSignerWork &work) {
             const bool signing = work.Busy.load() && work.Task == ApkSignerTask::Sign;
             if (signing) {
-                CenteredMessage(Core::Tr("Signing..."), nullptr);
+                CenteredMessage(Platform::Tr("Signing..."), nullptr);
                 return;
             }
             if (!work.HasSignResult && work.OutputPath.empty()) {
-                CenteredMessage(Core::Tr("No Signed APK"), Core::Tr("Sign an APK to see the result here."));
+                CenteredMessage(Platform::Tr("No Signed APK"), Platform::Tr("Sign an APK to see the result here."));
                 return;
             }
             if (work.HasSignResult && work.SignResult.Status != Core::ApkSignStatus::Signed) {
-                CenteredMessage(Core::Tr("Something Went Wrong!"), SignFailure(work.SignResult), Colors::NEGATIVE);
+                CenteredMessage(Platform::Tr("Something Went Wrong!"), SignFailure(work.SignResult), Colors::NEGATIVE);
                 return;
             }
             if (!work.HasSignResult) {
-                ReportHeading(Core::Tr("Signed APK"));
+                ReportHeading(Platform::Tr("Signed APK"));
                 ImGui::Spacing();
                 const auto columns = ReportColumns();
                 FileRows(work.OutputPath, columns);
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Core::Tr("Sign the APK to see its signature here."));
+                ImGui::TextDisabled("%s", Platform::Tr("Sign the APK to see its signature here."));
                 return;
             }
 
-            SignatureReport(Core::Tr("Signed APK"), work.OutputPath, work.SignResult.Verify);
+            SignatureReport(Platform::Tr("Signed APK"), work.OutputPath, work.SignResult.Verify);
         }
 
         void SignerForm(Context &context, const std::string &apksigner, const std::string &zipalign) {
@@ -885,12 +886,12 @@ namespace CoreDeck::Gui {
         void MissingApkSigner(Context &context) {
             if (NoticeCard(
                     NoticeCardTone::Error,
-                    Core::Tr("Missing Build Tools (apksigner & zipalign)"),
-                    Core::Tr(
+                    Platform::Tr("Missing Build Tools (apksigner & zipalign)"),
+                    Platform::Tr(
                         "APK Signer uses apksigner from the Android build-tools. Install those tools to add it. "
                         "AVDs already in this SDK stay where they are."
                     ),
-                    Core::Tr("Install build-tools...")
+                    Platform::Tr("Install build-tools...")
                 )) {
                 LeaveApkSigner(context);
                 OpenBuildToolsInstall(context);
@@ -904,7 +905,7 @@ namespace CoreDeck::Gui {
         if (context.UI.Workspace != WorkspacePage::ApkSigner) {
             return;
         }
-        SetNativeWindowPage(context, Core::Tr("APK Signer"));
+        SetNativeWindowPage(context, Platform::Tr("APK Signer"));
 
         const ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);

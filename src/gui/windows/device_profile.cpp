@@ -10,13 +10,13 @@
 #include "device_profile.h"
 #include "../theme.h"
 #include "../widgets.h"
-#include "../../core/utilities.h"
-#include "../../core/i18n.h"
+#include "platform/utilities.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
 
     DeviceCategory DeviceCategoryForText(const std::string &text) {
-        const std::string searchable = Core::LowerCopy(text);
+        const std::string searchable = Platform::LowerCopy(text);
 
         if (searchable.find("wear") != std::string::npos || searchable.find("watch") != std::string::npos) {
             return DeviceCategory::Wear;
@@ -45,41 +45,41 @@ namespace CoreDeck::Gui {
     }
 
     DeviceCategory DeviceCategoryForProfile(const Core::DeviceProfile &device) {
-        return DeviceCategoryForText(Core::StrConcat(device.Id, " ", device.Name));
+        return DeviceCategoryForText(Platform::StrConcat(device.Id, " ", device.Name));
     }
 
     LabeledIconStyle DeviceFormFactorStyle(const DeviceCategory category) {
         switch (category) {
             case DeviceCategory::Phone:
-                return {.Icon = Icons::MOBILE, .Label = Core::Tr("Phone"), .Color = Colors::ACCENT_PHONE};
+                return {.Icon = Icons::MOBILE, .Label = Platform::Tr("Phone"), .Color = Colors::ACCENT_PHONE};
             case DeviceCategory::Tablet:
-                return {.Icon = Icons::TABLET, .Label = Core::Tr("Tablet"), .Color = Colors::ACCENT_TABLET};
+                return {.Icon = Icons::TABLET, .Label = Platform::Tr("Tablet"), .Color = Colors::ACCENT_TABLET};
             case DeviceCategory::Wear:
-                return {.Icon = Icons::WATCH, .Label = Core::Tr("Wear OS"), .Color = Colors::ACCENT_WEAR};
+                return {.Icon = Icons::WATCH, .Label = Platform::Tr("Wear OS"), .Color = Colors::ACCENT_WEAR};
             case DeviceCategory::Tv:
-                return {.Icon = Icons::TV, .Label = Core::Tr("TV"), .Color = Colors::ACCENT_TV};
+                return {.Icon = Icons::TV, .Label = Platform::Tr("TV"), .Color = Colors::ACCENT_TV};
             case DeviceCategory::Automotive:
-                return {.Icon = Icons::CAR, .Label = Core::Tr("Automotive"), .Color = Colors::NEGATIVE};
+                return {.Icon = Icons::CAR, .Label = Platform::Tr("Automotive"), .Color = Colors::NEGATIVE};
             case DeviceCategory::Desktop:
-                return {.Icon = Icons::DESKTOP, .Label = Core::Tr("Desktop"), .Color = Colors::TEXT_SUBTLE};
+                return {.Icon = Icons::DESKTOP, .Label = Platform::Tr("Desktop"), .Color = Colors::TEXT_SUBTLE};
             case DeviceCategory::All:
             case DeviceCategory::Other:
-                return {.Icon = Icons::GEAR, .Label = Core::Tr("Other"), .Color = Colors::TEXT_SUBTLE};
+                return {.Icon = Icons::GEAR, .Label = Platform::Tr("Other"), .Color = Colors::TEXT_SUBTLE};
         }
-        return {.Icon = Icons::GEAR, .Label = Core::Tr("Other"), .Color = Colors::TEXT_SUBTLE};
+        return {.Icon = Icons::GEAR, .Label = Platform::Tr("Other"), .Color = Colors::TEXT_SUBTLE};
     }
 
     namespace {
         bool MatchesDeviceProfileFilters(const Core::DeviceProfile &device, const char *filter, const DeviceCategory category) {
             const bool matchesCategory = category == DeviceCategory::All || DeviceCategoryForProfile(device) == category;
-            return matchesCategory && Core::ContainsIgnoreCase(Core::StrConcat(device.Id, " ", device.Name), filter ? filter : "");
+            return matchesCategory && Platform::ContainsIgnoreCase(Platform::StrConcat(device.Id, " ", device.Name), filter ? filter : "");
         }
     }
 
 
     std::string DeviceProfilePreviewLabel(const Core::DeviceProfile &device) {
         const auto style = DeviceFormFactorStyle(DeviceCategoryForProfile(device));
-        return Core::StrConcat(device.Name, " - ", style.Label);
+        return Platform::StrConcat(device.Name, " - ", style.Label);
     }
 
     // NOLINTNEXTLINE(readability-function-size)
@@ -88,27 +88,27 @@ namespace CoreDeck::Gui {
             return;
         }
 
-        const std::string title = Core::TrWindow("Choose Device Profile", "DeviceProfileDialog");
+        const std::string title = Platform::TrWindow("Choose Device Profile", "DeviceProfileDialog");
         if (BeginCenteredModal(title.c_str(), &context.UI.ShowDeviceProfileDialog, EmV(84.0F, 26.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
             auto &work = context.AvdCreationWork;
             if (!work.DeviceProfiles.empty()) {
                 work.PendingSelectedDevice = std::clamp(work.PendingSelectedDevice, 0, static_cast<int>(work.DeviceProfiles.size()) - 1);
             }
 
-            SearchField("##DeviceProfileSearch", Core::Tr("Search device profiles..."), work.DeviceSearchFilter, sizeof(work.DeviceSearchFilter));
+            SearchField("##DeviceProfileSearch", Platform::Tr("Search device profiles..."), work.DeviceSearchFilter, sizeof(work.DeviceSearchFilter));
 
             ImGui::Spacing();
-            ImGui::TextDisabled("%s", Core::Tr("Categories"));
+            ImGui::TextDisabled("%s", Platform::Tr("Categories"));
 
             const char * const categoryLabels[] = {
-                Core::Tr("All"),
-                Core::Tr("Phone"),
-                Core::Tr("Tablet"),
-                Core::Tr("Wear OS"),
-                Core::Tr("TV"),
-                Core::Tr("Automotive"),
-                Core::Tr("Desktop"),
-                Core::Tr("Other"),
+                Platform::Tr("All"),
+                Platform::Tr("Phone"),
+                Platform::Tr("Tablet"),
+                Platform::Tr("Wear OS"),
+                Platform::Tr("TV"),
+                Platform::Tr("Automotive"),
+                Platform::Tr("Desktop"),
+                Platform::Tr("Other"),
             };
             static_assert(IM_ARRAYSIZE(categoryLabels) == static_cast<int>(DeviceCategory::Other) + 1);
             int selectedCategory = static_cast<int>(work.SelectedDeviceCategory);
@@ -117,16 +117,16 @@ namespace CoreDeck::Gui {
             }
 
             ImGui::Spacing();
-            ImGui::Text("%s", Core::Tr("Device Profiles"));
+            ImGui::Text("%s", Platform::Tr("Device Profiles"));
             ImGui::Spacing();
 
             {
                 const PickerTableStyle pts;
                 const bool tableOpen = BeginPickerTable("##DeviceProfileTableFrame", "##DeviceProfileTable", 2, Eh(14.0F));
                 if (tableOpen) {
-                    const std::string nameColumn = Core::StrConcat("  ", Core::Tr("Name"));
+                    const std::string nameColumn = Platform::StrConcat("  ", Platform::Tr("Name"));
                     ImGui::TableSetupColumn(nameColumn.c_str(), ImGuiTableColumnFlags_WidthStretch, 2.8F);
-                    ImGui::TableSetupColumn(Core::Tr("Type"), ImGuiTableColumnFlags_WidthFixed, Em(14.0F));
+                    ImGui::TableSetupColumn(Platform::Tr("Type"), ImGuiTableColumnFlags_WidthFixed, Em(14.0F));
                     ImGui::TableHeadersRow();
 
                     int visibleCount = 0;
@@ -143,7 +143,7 @@ namespace CoreDeck::Gui {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
 
-                        const std::string rowLabel = Core::StrConcat("  ", style.Icon, "  ", device.Name, "##DeviceProfile", std::to_string(i));
+                        const std::string rowLabel = Platform::StrConcat("  ", style.Icon, "  ", device.Name, "##DeviceProfile", std::to_string(i));
                         if (ImGui::Selectable(rowLabel.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
                             work.PendingSelectedDevice = i;
                         }
@@ -158,7 +158,7 @@ namespace CoreDeck::Gui {
                     if (visibleCount == 0) {
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        ImGui::TextDisabled("%s", Core::Tr("No device profiles match the selected form factor and search."));
+                        ImGui::TextDisabled("%s", Platform::Tr("No device profiles match the selected form factor and search."));
                     }
                 }
                 EndPickerTable(tableOpen);
@@ -169,13 +169,13 @@ namespace CoreDeck::Gui {
             ImGui::Spacing();
 
             const float halfWidth = EqualButtonWidth(2);
-            if (PositiveButton(Core::Tr("Use Selected Device"), !work.DeviceProfiles.empty(), ImVec2(halfWidth, 0))) {
+            if (PositiveButton(Platform::Tr("Use Selected Device"), !work.DeviceProfiles.empty(), ImVec2(halfWidth, 0))) {
                 work.SelectedDevice = work.PendingSelectedDevice;
                 work.DeviceAutoFilled = false;
                 context.UI.ShowDeviceProfileDialog = false;
             }
             ImGui::SameLine();
-            if (PrimaryButton(Core::Tr("Cancel"), true, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Platform::Tr("Cancel"), true, ImVec2(halfWidth, 0))) {
                 context.UI.ShowDeviceProfileDialog = false;
             }
 

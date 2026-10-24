@@ -28,7 +28,7 @@ namespace CoreDeck::Core {
     // The Android CLI redraws progress with a carriage return. Java only
     // flushes that stream once a line is wider than its stdout buffer, and it
     // reads COLUMNS before asking the terminal how wide it is.
-    EnvVars SdkManagerInstallEnvironment(EnvVars env);
+    Platform::EnvVars SdkManagerInstallEnvironment(Platform::EnvVars env);
 
     using SdkManagerProgressSink = std::function<void(
         const SdkManagerProgressLine &parsed,

@@ -11,10 +11,17 @@
 #include <string_view>
 #include <vector>
 
-#include "constants.h"
 #include "jdk.h"
 
 namespace CoreDeck::Core {
+    constexpr int KEYSTORE_PASSWORD_MIN = 6;
+    constexpr int KEYSTORE_COUNTRY_CODE_LENGTH = 2;
+    constexpr int KEYSTORE_VALIDITY_MIN_DAYS = 1;
+    constexpr int KEYSTORE_VALIDITY_MAX_DAYS = 365000;
+    constexpr int DEFAULT_KEY_VALIDITY_DAYS = 3650;
+    constexpr int DEFAULT_KEY_SIZE = 2048;
+    constexpr int DEFAULT_EC_KEY_SIZE = 256;
+
     enum class KeytoolAliasStatus : uint8_t {
         Ok,
         Refused,
@@ -119,7 +126,7 @@ namespace CoreDeck::Core {
         std::string State;
         std::string Country;
         JdkInfo Jdk;
-        EnvVars ToolEnv;
+        Platform::EnvVars ToolEnv;
     };
 
     struct CreateKeystoreResult {
@@ -191,14 +198,14 @@ namespace CoreDeck::Core {
         const JdkInfo &jdk,
         const std::string &keystorePath,
         std::string storePassword,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     );
 
     KeystoreDescription DescribeKeystore(
         const JdkInfo &jdk,
         const std::string &keystorePath,
         std::string storePassword,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     );
 
     CreateKeystoreResult CreateKeystore(CreateKeystoreRequest request);

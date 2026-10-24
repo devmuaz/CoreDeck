@@ -11,25 +11,25 @@
 #include "../application.h"
 #include "../theme.h"
 #include "../widgets.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     namespace {
         void AppearancePicker(Context &context) {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted(Core::Tr("Appearance"));
+            ImGui::TextUnformatted(Platform::Tr("Appearance"));
             ImGui::PopStyleColor();
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextWrapped("%s", Core::Tr("Follow the system appearance, or keep CoreDeck dark or light."));
+            ImGui::TextWrapped("%s", Platform::Tr("Follow the system appearance, or keep CoreDeck dark or light."));
             ImGui::PopStyleColor();
             ImGui::Spacing();
 
-            const char *labels[] = {Core::Tr("System"), Core::Tr("Dark"), Core::Tr("Light")};
+            const char *labels[] = {Platform::Tr("System"), Platform::Tr("Dark"), Platform::Tr("Light")};
             const int current = static_cast<int>(context.Prefs.Theme);
             int selectedIndex = current >= 0 && current < IM_ARRAYSIZE(labels) ? current : 0;
 
             if (RoundedCombo("##Theme", labels[selectedIndex], labels, IM_ARRAYSIZE(labels), selectedIndex, Em(18.0F))) {
-                const auto preference = static_cast<Core::ThemePreference>(selectedIndex);
+                const auto preference = static_cast<App::ThemePreference>(selectedIndex);
                 context.Prefs.Theme = preference;
                 SetThemePreference(preference);
                 RefreshThemeColors();
@@ -40,26 +40,26 @@ namespace CoreDeck::Gui {
 
         void LanguagePicker(Context &context) {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-            ImGui::TextUnformatted(Core::Tr("Language"));
+            ImGui::TextUnformatted(Platform::Tr("Language"));
             ImGui::PopStyleColor();
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextWrapped("%s", Core::Tr("Follow the system language, or choose one for CoreDeck."));
+            ImGui::TextWrapped("%s", Platform::Tr("Follow the system language, or choose one for CoreDeck."));
             ImGui::PopStyleColor();
             ImGui::Spacing();
 
-            const std::vector<std::string> discovered = Core::AvailableLanguages();
+            const std::vector<std::string> discovered = Platform::AvailableLanguages();
             std::vector<std::string> tags;
             std::vector<std::string> labels;
             tags.emplace_back();
-            labels.emplace_back(Core::Tr("System"));
+            labels.emplace_back(Platform::Tr("System"));
             tags.emplace_back("en");
-            labels.emplace_back(Core::LanguageEndonym("en"));
+            labels.emplace_back(Platform::LanguageEndonym("en"));
             for (const std::string &tag: discovered) {
                 if (tag == "en") {
                     continue;
                 }
                 tags.push_back(tag);
-                labels.push_back(Core::LanguageEndonym(tag));
+                labels.push_back(Platform::LanguageEndonym(tag));
             }
 
             const std::string &current = context.Prefs.Language;
@@ -74,7 +74,7 @@ namespace CoreDeck::Gui {
             }
             if (!found && !current.empty()) {
                 tags.push_back(current);
-                labels.push_back(Core::LanguageEndonym(current));
+                labels.push_back(Platform::LanguageEndonym(current));
                 selectedIndex = static_cast<int>(tags.size()) - 1;
             }
 
@@ -93,14 +93,14 @@ namespace CoreDeck::Gui {
                     Em(18.0F)
                 )) {
                 context.Prefs.Language = tags.at(static_cast<std::size_t>(selectedIndex));
-                Core::SetLanguage(context.Prefs.Language);
+                Platform::SetLanguage(context.Prefs.Language);
                 PersistAppSettings(context);
             }
         }
     }
 
     void PreferencesGeneralSection(Context &context) {
-        PreferencesSectionHeader(Core::Tr("General"), Core::Tr("Appearance, language, and behavior while you work with AVDs."));
+        PreferencesSectionHeader(Platform::Tr("General"), Platform::Tr("Appearance, language, and behavior while you work with AVDs."));
 
         AppearancePicker(context);
 
@@ -117,8 +117,8 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "AutoScrollLogs",
                 &context.Prefs.AutoScroll,
-                Core::Tr("Enable auto-scrolling of output logs"),
-                Core::Tr("Keep the log view pinned to the most recent line as new output arrives.")
+                Platform::Tr("Enable auto-scrolling of output logs"),
+                Platform::Tr("Keep the log view pinned to the most recent line as new output arrives.")
             )) {
             PersistAppSettings(context);
         }
@@ -128,8 +128,8 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "ConfirmDeleteAvd",
                 &context.Prefs.ConfirmBeforeDeleteAvd,
-                Core::Tr("Confirm before deleting an AVD"),
-                Core::Tr("Show a confirmation dialog when you delete a virtual device.")
+                Platform::Tr("Confirm before deleting an AVD"),
+                Platform::Tr("Show a confirmation dialog when you delete a virtual device.")
             )) {
             PersistAppSettings(context);
         }
@@ -139,8 +139,8 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "CrashReporting",
                 &context.Prefs.CrashReportingEnabled,
-                Core::Tr("Send crash reports and diagnostics to CoreDeck"),
-                Core::Tr("Share anonymous crash reports and error diagnostics (Restart Required).")
+                Platform::Tr("Send crash reports and diagnostics to CoreDeck"),
+                Platform::Tr("Share anonymous crash reports and error diagnostics (Restart Required).")
             )) {
             PersistAppSettings(context);
         }
@@ -150,8 +150,8 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "CheckForUpdatesOnLaunch",
                 &context.Prefs.CheckForUpdatesOnLaunch,
-                Core::Tr("Check for updates on launch"),
-                Core::Tr("Look for a new CoreDeck release when the app starts.")
+                Platform::Tr("Check for updates on launch"),
+                Platform::Tr("Look for a new CoreDeck release when the app starts.")
             )) {
             PersistAppSettings(context);
         }

@@ -71,7 +71,7 @@ namespace CoreDeck::Core {
             return std::filesystem::is_regular_file(path, error);
         }
 
-        bool CommandFailed(const CommandResult &result) {
+        bool CommandFailed(const Platform::CommandResult &result) {
             return !result.Started || result.ExitCode != 0;
         }
 
@@ -137,27 +137,27 @@ namespace CoreDeck::Core {
             SecretString() = default;
 
             explicit SecretString(std::string value) : Value(std::move(value)) {
-                WipeSecret(value);
+                Platform::WipeSecret(value);
             }
 
             SecretString(const SecretString &) = delete;
             SecretString &operator=(const SecretString &) = delete;
 
             SecretString(SecretString &&other) noexcept : Value(std::move(other.Value)) {
-                WipeSecret(other.Value);
+                Platform::WipeSecret(other.Value);
             }
 
             SecretString &operator=(SecretString &&other) noexcept {
                 if (this != &other) {
-                    WipeSecret(Value);
+                    Platform::WipeSecret(Value);
                     Value = std::move(other.Value);
-                    WipeSecret(other.Value);
+                    Platform::WipeSecret(other.Value);
                 }
                 return *this;
             }
 
             ~SecretString() {
-                WipeSecret(Value);
+                Platform::WipeSecret(Value);
             }
         };
 
@@ -198,7 +198,7 @@ namespace CoreDeck::Core {
             return result;
         }
 
-        ApkSignResult CommandFailure(const ApkSignStatus status, const CommandResult &command) {
+        ApkSignResult CommandFailure(const ApkSignStatus status, const Platform::CommandResult &command) {
             ApkSignResult result;
             result.Status = status;
             result.Started = command.Started;
@@ -217,7 +217,7 @@ namespace CoreDeck::Core {
             if (request.OutputPath.empty()) {
                 return ApkSignRefusal::MissingOutput;
             }
-            if (Paths::SameFilePath(request.InputPath, request.OutputPath)) {
+            if (Platform::SameFilePath(request.InputPath, request.OutputPath)) {
                 return ApkSignRefusal::OutputSameAsInput;
             }
             if (request.Align && (request.ZipalignPath.empty() || !IsRegularFile(request.ZipalignPath))) {
@@ -235,12 +235,12 @@ namespace CoreDeck::Core {
             alignTemp.Path = AlignTempPath(request.OutputPath);
             alignTemp.Armed = true;
 
-            const CommandResult help = RunCommandArgsResult(request.ZipalignPath, {"-h"}, "", request.ToolEnv);
+            const Platform::CommandResult help = Platform::RunCommandArgsResult(request.ZipalignPath, {"-h"}, "", request.ToolEnv);
             if (!help.Started || help.ExitCode == 127) {
                 return CommandFailure(ApkSignStatus::AlignFailed, help);
             }
 
-            const CommandResult aligned = RunCommandArgsResult(
+            const Platform::CommandResult aligned = Platform::RunCommandArgsResult(
                 request.ZipalignPath,
                 ZipalignArguments(ZipalignHelpHasPageSize(help.Output), request.InputPath, alignTemp.Path.string()),
                 "",
@@ -272,7 +272,7 @@ namespace CoreDeck::Core {
         }
 
         ApkSignResult SignedApkResult(
-            const ApkSignRequest &request, const CommandResult &signedApk, RemovedFile &alignTemp
+            const ApkSignRequest &request, const Platform::CommandResult &signedApk, RemovedFile &alignTemp
         ) {
             RemoveQuiet(alignTemp.Path);
             alignTemp.Path.clear();
@@ -320,7 +320,7 @@ namespace CoreDeck::Core {
     ApkVerifyResult VerifyApk(
         const std::string &apksignerPath,
         const std::string &apkPath,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     ) {
         ApkVerifyResult result;
         if (apksignerPath.empty()) {
@@ -331,7 +331,7 @@ namespace CoreDeck::Core {
             return result;
         }
 
-        const CommandResult command = RunCommandArgsResult(
+        const Platform::CommandResult command = Platform::RunCommandArgsResult(
             apksignerPath,
             {"verify", "--verbose", "--print-certs", apkPath},
             "",
@@ -380,9 +380,9 @@ namespace CoreDeck::Core {
 
     ApkSignResult SignApk(ApkSignRequest request) {
         SecretString storePassword{std::move(request.StorePassword)};
-        WipeSecret(request.StorePassword);
+        Platform::WipeSecret(request.StorePassword);
         SecretString keyPassword{std::move(request.KeyPassword)};
-        WipeSecret(request.KeyPassword);
+        Platform::WipeSecret(request.KeyPassword);
 
         if (const std::optional<ApkSignRefusal> refusal = SignRequestRefusal(request)) {
             return Refused(*refusal);
@@ -415,7 +415,7 @@ namespace CoreDeck::Core {
         partialOutput.Path = request.OutputPath;
         partialOutput.Armed = false;
 
-        const CommandResult signedApk = RunCommandArgsResult(
+        const Platform::CommandResult signedApk = Platform::RunCommandArgsResult(
             request.ApksignerPath,
             BuildApkSignArguments(
                 request.KeystorePath,
@@ -428,9 +428,9 @@ namespace CoreDeck::Core {
             stdinPassword.Value,
             request.ToolEnv
         );
-        WipeSecret(stdinPassword.Value);
-        WipeSecret(storePassword.Value);
-        WipeSecret(keyPassword.Value);
+        Platform::WipeSecret(stdinPassword.Value);
+        Platform::WipeSecret(storePassword.Value);
+        Platform::WipeSecret(keyPassword.Value);
         keyPassFile.Destroy();
 
         if (CommandFailed(signedApk)) {

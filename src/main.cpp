@@ -1,15 +1,15 @@
-#include "core/app_settings_types.h"
+#include "app/app_settings_types.h"
 #include "gui/application.h"
-#include "core/crash_reporter.h"
-#include "core/app_settings.h"
+#include "app/crash_reporter.h"
+#include "app/app_settings.h"
 
 int main() {
-    const CoreDeck::Core::AppSettings settings = CoreDeck::Core::LoadAppSettings();
+    const CoreDeck::App::AppSettings settings = CoreDeck::App::LoadAppSettings();
     const bool isCrashReportingEnabled = settings.CrashReportingEnabled;
 
-    CoreDeck::Core::CrashReporter::Init(isCrashReportingEnabled);
+    CoreDeck::App::CrashReporter::Init(isCrashReportingEnabled);
     CoreDeck::Gui::Application app;
     const int code = app.Run();
-    CoreDeck::Core::CrashReporter::Shutdown(isCrashReportingEnabled);
+    CoreDeck::App::CrashReporter::Shutdown(isCrashReportingEnabled);
     return code;
 }

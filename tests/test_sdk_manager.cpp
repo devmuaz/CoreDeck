@@ -1,9 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/constants.h"
+#include "core/jdk.h"
 #include "core/sdk_manager.h"
 
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 TEST_CASE("InterpretSdkLicenseOutput accepts the cmdline-tools 23 license warning", "[sdk-manager]") {
     const std::string output =
@@ -74,14 +75,14 @@ TEST_CASE("ParseSdkManagerProgressLine ignores lines without a progress percent"
 }
 
 TEST_CASE("SdkManagerInstallEnvironment forces a wide COLUMNS", "[sdk-manager]") {
-    EnvVars env = {{.Name = ENV_JAVA_HOME, .Value = "/jbr"}, {.Name = ENV_COLUMNS, .Value = "80"}};
-    const EnvVars installEnv = SdkManagerInstallEnvironment(std::move(env));
+    Platform::EnvVars env = {{.Name = ENV_JAVA_HOME, .Value = "/jbr"}, {.Name = ENV_COLUMNS, .Value = "80"}};
+    const Platform::EnvVars installEnv = SdkManagerInstallEnvironment(std::move(env));
 
     REQUIRE(installEnv.size() == 2);
     REQUIRE(installEnv.at(1).Name == ENV_COLUMNS);
     REQUIRE(installEnv.at(1).Value == SDK_MANAGER_PROGRESS_COLUMNS);
 
-    const EnvVars added = SdkManagerInstallEnvironment({});
+    const Platform::EnvVars added = SdkManagerInstallEnvironment({});
     REQUIRE(added.size() == 1);
     REQUIRE(added.at(0).Name == ENV_COLUMNS);
     REQUIRE(added.at(0).Value == SDK_MANAGER_PROGRESS_COLUMNS);

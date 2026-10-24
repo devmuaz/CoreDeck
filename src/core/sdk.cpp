@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "sdk.h"
-#include "constants.h"
 #include "paths.h"
 
 namespace CoreDeck::Core {
@@ -17,12 +16,12 @@ namespace CoreDeck::Core {
         std::string FindCmdlineTool(const std::string &binDir, const std::string &name) {
 #ifdef _WIN32
             for (const auto *ext: {".bat", ".exe"}) {
-                const std::string candidate = Paths::JoinPaths({binDir, name + ext});
+                const std::string candidate = Platform::JoinPaths({binDir, name + ext});
                 if (std::filesystem::exists(candidate)) return candidate;
             }
             return "";
 #else
-            const std::string candidate = Paths::JoinPaths({binDir, name});
+            const std::string candidate = Platform::JoinPaths({binDir, name});
             return std::filesystem::exists(candidate) ? candidate : "";
 #endif
         }
@@ -81,7 +80,7 @@ namespace CoreDeck::Core {
                 return {};
             }
 #endif
-            std::filesystem::path candidate = versionDir / Paths::WithExecutableExtension(name);
+            std::filesystem::path candidate = versionDir / Platform::WithExecutableExtension(name);
             if (!std::filesystem::exists(candidate, ec)) return {};
             return candidate;
         }
@@ -120,12 +119,11 @@ namespace CoreDeck::Core {
         return FindInstalledBuildTool(sdkPath, "aapt2");
     }
 
-    SdkInfo DetectAndroidSdk() {
+    SdkInfo DetectAndroidSdk(const std::string_view savedPath) {
         std::string sdkPath;
 
-        const std::string savedPath = Paths::Onboarding::LoadSdkPathOverride();
-        if (!savedPath.empty() && std::filesystem::exists(savedPath)) {
-            sdkPath = savedPath;
+        if (!savedPath.empty() && std::filesystem::exists(std::string(savedPath))) {
+            sdkPath = std::string(savedPath);
         } else {
             const char *sdkEnv = std::getenv(ENV_ANDROID_HOME); // NOLINT(concurrency-mt-unsafe)
             if (!sdkEnv) {
@@ -135,7 +133,7 @@ namespace CoreDeck::Core {
             if (sdkEnv) {
                 sdkPath = sdkEnv;
             } else {
-                const std::string defaultPath = Paths::GetAndroidSdkDefaultPath();
+                const std::string defaultPath = Core::GetAndroidSdkDefaultPath();
                 if (std::filesystem::exists(defaultPath)) {
                     sdkPath = defaultPath;
                 }
@@ -153,17 +151,17 @@ namespace CoreDeck::Core {
             return sdk;
         }
 
-        sdk.EmulatorPath = Paths::JoinPaths({sdk.SdkPath, "emulator", Paths::WithExecutableExtension("emulator")});
+        sdk.EmulatorPath = Platform::JoinPaths({sdk.SdkPath, "emulator", Platform::WithExecutableExtension("emulator")});
 
         std::vector<std::string> binDirs;
-        binDirs.push_back(Paths::JoinPaths({sdk.SdkPath, "cmdline-tools", "latest", "bin"}));
-        const std::string cmdlineRoot = Paths::JoinPaths({sdk.SdkPath, "cmdline-tools"});
+        binDirs.push_back(Platform::JoinPaths({sdk.SdkPath, "cmdline-tools", "latest", "bin"}));
+        const std::string cmdlineRoot = Platform::JoinPaths({sdk.SdkPath, "cmdline-tools"});
         if (std::filesystem::exists(cmdlineRoot) && std::filesystem::is_directory(cmdlineRoot)) {
             for (const auto &entry: std::filesystem::directory_iterator(cmdlineRoot)) {
                 if (!entry.is_directory() || entry.path().filename() == "latest") {
                     continue;
                 }
-                binDirs.push_back(Paths::JoinPaths({entry.path().string(), "bin"}));
+                binDirs.push_back(Platform::JoinPaths({entry.path().string(), "bin"}));
             }
         }
 
@@ -195,9 +193,47 @@ namespace CoreDeck::Core {
         // releases such as 27 otherwise fail the Windows command-line tools'
         // own version check.
         const std::string sdkPath = sdk.SdkPath;
-        const EnvVars toolEnv = sdk.ToolEnv;
-        SdkInfo probed = sdkPath.empty() ? DetectAndroidSdk() : ProbeAndroidSdk(sdkPath);
+        const Platform::EnvVars toolEnv = sdk.ToolEnv;
+        if (sdkPath.empty()) {
+            return;
+        }
+        SdkInfo probed = ProbeAndroidSdk(sdkPath);
         probed.ToolEnv = toolEnv;
         sdk = std::move(probed);
     }
+    std::string GetAndroidSdkDefaultPath() {
+        const auto platform = Platform::GetCurrentOs();
+        const std::string home = Platform::GetHomeDirectory();
+
+        if (home.empty()) {
+            return "";
+        }
+
+        switch (platform) {
+            case Platform::Os::Windows: {
+                const char *localAppData = std::getenv(Platform::ENV_LOCALAPPDATA); // NOLINT(concurrency-mt-unsafe)
+                if (localAppData) {
+                    return Platform::JoinPaths({std::string(localAppData), "Android", "Sdk"});
+                }
+                return Platform::JoinPaths({home, "AppData", "Local", "Android", "Sdk"});
+            }
+            case Platform::Os::MacOS:
+                return Platform::JoinPaths({home, "Library", "Android", "sdk"});
+            case Platform::Os::Linux:
+            default:
+                return Platform::JoinPaths({home, "Android", "Sdk"});
+        }
+    }
+    bool ValidateSdkPath(const std::string &path) {
+        if (path.empty()) {
+            return false;
+        }
+        if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+            return false;
+        }
+
+        const std::string emulatorBinary = Platform::JoinPaths({path, "emulator", Platform::WithExecutableExtension("emulator")});
+        return std::filesystem::exists(emulatorBinary);
+    }
+
 }

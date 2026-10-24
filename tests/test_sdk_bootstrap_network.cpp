@@ -3,12 +3,13 @@
 #include <cstdlib>
 #include <filesystem>
 
-#include "core/archive.h"
-#include "core/http_download.h"
+#include "platform/archive.h"
+#include "platform/http_download.h"
 #include "core/sdk_bootstrap.h"
-#include "core/sha256.h"
+#include "platform/sha256.h"
 
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 namespace {
     bool NetworkTestsEnabled() {
@@ -33,7 +34,7 @@ TEST_CASE("The pinned cmdline-tools archive downloads and matches its checksum",
     const std::filesystem::path archive = scratch / release.FileName;
 
     std::string error;
-    const bool downloaded = HttpDownloadToFile(
+    const bool downloaded = Platform::HttpDownloadToFile(
         release.DownloadUrl,
         archive.string(),
         "CoreDeck-tests",
@@ -44,13 +45,13 @@ TEST_CASE("The pinned cmdline-tools archive downloads and matches its checksum",
     REQUIRE(downloaded);
 
     REQUIRE(std::filesystem::file_size(archive) == release.DownloadSize);
-    REQUIRE(EqualsIgnoreCaseHex(Sha256File(archive.string()), release.Sha256));
+    REQUIRE(Platform::EqualsIgnoreCaseHex(Platform::Sha256File(archive.string()), release.Sha256));
 
     const std::filesystem::path extracted = scratch / "latest";
-    REQUIRE(ExtractZip(
+    REQUIRE(Platform::ExtractZip(
         archive.string(),
         extracted.string(),
-        ExtractOptions{.StripTopLevelDir = true},
+        Platform::ExtractOptions{.StripTopLevelDir = true},
         nullptr,
         error
     ));

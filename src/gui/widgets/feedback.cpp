@@ -8,7 +8,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 #include "../widgets.h"
 #include "internal.h"
 
@@ -350,7 +350,7 @@ namespace CoreDeck::Gui {
         const ImGuiWindow *window = ImGui::GetCurrentWindow();
         m_Active = true;
         m_WindowId = window->ID;
-        m_Label = label != nullptr && label[0] != '\0' ? label : Core::Tr("Loading...");
+        m_Label = label != nullptr && label[0] != '\0' ? label : Platform::Tr("Loading...");
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
         if (GImGui->ActiveId != 0 && GImGui->ActiveIdWindow == window) {

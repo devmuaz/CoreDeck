@@ -83,7 +83,7 @@ namespace CoreDeck::Core {
 
         bool HasTag(const std::vector<std::string> &tags, const std::string &needle) {
             return std::ranges::any_of(tags, [&](const std::string &tag) {
-                return LowerCopy(tag) == needle;
+                return Platform::LowerCopy(tag) == needle;
             });
         }
 
@@ -129,10 +129,10 @@ namespace CoreDeck::Core {
                 avd.SystemImageTagDisplayNames = {avd.SystemImageTagDisplay};
             }
 
-            const std::string variant = LowerCopy(avd.SystemImageVariant);
-            const std::string tagId = LowerCopy(avd.SystemImageTagId);
-            const std::string tagDisplay = LowerCopy(avd.SystemImageTagDisplay);
-            const std::string tagDisplayNames = LowerCopy(StrConcat(
+            const std::string variant = Platform::LowerCopy(avd.SystemImageVariant);
+            const std::string tagId = Platform::LowerCopy(avd.SystemImageTagId);
+            const std::string tagDisplay = Platform::LowerCopy(avd.SystemImageTagDisplay);
+            const std::string tagDisplayNames = Platform::LowerCopy(Platform::StrConcat(
                 avd.SystemImageTagDisplay,
                 " ",
                 config.contains("tag.displaynames") ? config.at("tag.displaynames") : ""
@@ -161,18 +161,18 @@ namespace CoreDeck::Core {
         AvdInfo ExtractAvdInfo(const std::string &avdName) {
             AvdInfo avd;
 
-            const std::string avdRoot = Paths::GetAvdDirectory();
+            const std::string avdRoot = Core::GetAvdDirectory();
             if (avdRoot.empty()) {
                 return avd;
             }
 
-            const std::string path = Paths::JoinPaths({avdRoot, avdName + ".avd"});
+            const std::string path = Platform::JoinPaths({avdRoot, avdName + ".avd"});
 
             avd.Name = avdName;
             avd.DisplayName = avdName;
             avd.Path = path;
 
-            const std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
+            const std::string configPath = Platform::JoinPaths({avd.Path, "config.ini"});
 
             if (!std::filesystem::exists(configPath)) {
                 return avd;
@@ -334,7 +334,7 @@ namespace CoreDeck::Core {
             return {};
         }
 
-        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"}, "", sdk.ToolEnv);
+        const std::string output = Platform::RunCommandArgs(sdk.AvdManagerPath, {"list", "device", "-c"}, "", sdk.ToolEnv);
         return ParseAvdManagerDeviceList(output);
     }
 
@@ -370,7 +370,7 @@ namespace CoreDeck::Core {
             return {};
         }
 
-        const std::string output = RunCommandArgs(sdk.AvdManagerPath, {"list", "avd", "-c"}, "", sdk.ToolEnv);
+        const std::string output = Platform::RunCommandArgs(sdk.AvdManagerPath, {"list", "avd", "-c"}, "", sdk.ToolEnv);
         return ParseAvdManagerAvdList(output);
     }
 
@@ -394,10 +394,10 @@ namespace CoreDeck::Core {
             args.emplace_back("-d");
             args.push_back(data.DeviceId);
         }
-        RunCommandArgs(sdk.AvdManagerPath, args, "no\n", sdk.ToolEnv);
+        Platform::RunCommandArgs(sdk.AvdManagerPath, args, "no\n", sdk.ToolEnv);
 
-        const std::string avdDir = Paths::GetAvdDirectory();
-        const std::string configPath = Paths::JoinPaths({avdDir, data.Name + ".avd", "config.ini"});
+        const std::string avdDir = Core::GetAvdDirectory();
+        const std::string configPath = Platform::JoinPaths({avdDir, data.Name + ".avd", "config.ini"});
 
         if (std::filesystem::exists(configPath)) {
             SetConfigValue(configPath, "hw.keyboard", "yes");
@@ -422,7 +422,7 @@ namespace CoreDeck::Core {
             }
         }
 
-        const std::string avdFolder = Paths::JoinPaths({avdDir, data.Name + ".avd"});
+        const std::string avdFolder = Platform::JoinPaths({avdDir, data.Name + ".avd"});
         return std::filesystem::exists(avdFolder);
     }
 
@@ -431,10 +431,48 @@ namespace CoreDeck::Core {
             return false;
         }
 
-        RunCommandArgs(sdk.AvdManagerPath, {"delete", "avd", "-n", avdName}, "", sdk.ToolEnv);
+        Platform::RunCommandArgs(sdk.AvdManagerPath, {"delete", "avd", "-n", avdName}, "", sdk.ToolEnv);
 
-        const std::string avdDir = Paths::GetAvdDirectory();
-        const std::string avdFolder = Paths::JoinPaths({avdDir, avdName + ".avd"});
+        const std::string avdDir = Core::GetAvdDirectory();
+        const std::string avdFolder = Platform::JoinPaths({avdDir, avdName + ".avd"});
         return !std::filesystem::exists(avdFolder);
     }
+    std::string GetAvdDirectory() {
+        const std::string home = Platform::GetHomeDirectory();
+        if (home.empty()) {
+            return "";
+        }
+
+        return Platform::JoinPaths({home, ".android", "avd"});
+    }
+
+    bool WipeAvdUserData(const std::string &avdPath) {
+        if (!std::filesystem::exists(avdPath)) {
+            return false;
+        }
+
+        static constexpr const char *WIPE_TARGETS[] = {
+            "userdata-qemu.img",
+            "userdata-qemu.img.qcow2",
+            "cache.img",
+            "cache.img.qcow2",
+            "sdcard.img",
+            "sdcard.img.qcow2",
+            "snapshots",
+        };
+
+        bool wiped = false;
+        std::error_code ec;
+        for (const auto *name: WIPE_TARGETS) {
+            const auto target = std::filesystem::path(avdPath) / name;
+            if (std::filesystem::exists(target, ec)) {
+                std::filesystem::remove_all(target, ec);
+                if (!ec) {
+                    wiped = true;
+                }
+            }
+        }
+        return wiped;
+    }
+
 }

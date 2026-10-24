@@ -9,8 +9,8 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "../../core/file_dialog.h"
-#include "../../core/i18n.h"
+#include "app/file_dialog.h"
+#include "platform/i18n.h"
 #include "../utilities.h"
 #include "../widgets.h"
 
@@ -67,7 +67,7 @@ namespace CoreDeck::Gui {
             revealed = !revealed;
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-            ImGui::SetTooltip("%s", revealed ? Core::Tr("Hide Password") : Core::Tr("Show Password"));
+            ImGui::SetTooltip("%s", revealed ? Platform::Tr("Hide Password") : Platform::Tr("Show Password"));
         }
         ImGui::PopID();
         return edit;
@@ -95,7 +95,7 @@ namespace CoreDeck::Gui {
         ImGui::InputTextWithHint(fieldId, placeholder, buffer.data(), buffer.size(), ImGuiInputTextFlags_ReadOnly);
         HoverTooltip(tooltip);
         ImGui::SameLine();
-        const std::string button = Core::StrConcat(browseLabel, "##", browseId);
+        const std::string button = Platform::StrConcat(browseLabel, "##", browseId);
         return PrimaryButton(button.c_str(), true, ImVec2(buttonWidth, 0.0F));
     }
 
@@ -115,7 +115,7 @@ namespace CoreDeck::Gui {
         const bool enabled,
         const float width
     ) {
-        const std::string label = Core::StrConcat(busy ? busyLabel : idleLabel, id);
+        const std::string label = Platform::StrConcat(busy ? busyLabel : idleLabel, id);
         if (busy) {
             PrimaryButton(label.c_str(), true, ImVec2(width, 0.0F), true);
             return false;
@@ -211,8 +211,8 @@ namespace CoreDeck::Gui {
         const std::size_t bufferSize,
         const float fieldWidth
     ) {
-        const char *browseText = Core::Tr("Browse...");
-        const std::string browseLabel = Core::StrConcat(browseText, "##", id);
+        const char *browseText = Platform::Tr("Browse...");
+        const std::string browseLabel = Platform::StrConcat(browseText, "##", id);
         const float browseWidth = std::max(
             Em(11.0F),
             ImGui::CalcTextSize(browseText).x + (ImGui::GetStyle().FramePadding.x * 2.0F)
@@ -224,7 +224,7 @@ namespace CoreDeck::Gui {
         ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
         ImGui::SameLine();
         if (PrimaryButton(browseLabel.c_str(), true, ImVec2(browseWidth, 0))) {
-            if (const auto picked = Core::FileDialog::PickDirectory(dialogTitle, buffer)) {
+            if (const auto picked = App::FileDialog::PickDirectory(dialogTitle, buffer)) {
                 CopyToBuffer(buffer, bufferSize, *picked);
             }
         }

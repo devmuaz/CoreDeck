@@ -11,9 +11,9 @@
 #include "health_check.h"
 #include "../theme.h"
 #include "../widgets.h"
-#include "../../core/constants.h"
-#include "../../core/i18n.h"
-#include "../../core/utilities.h"
+#include "core/sdk.h"
+#include "platform/i18n.h"
+#include "platform/utilities.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -37,19 +37,19 @@ namespace CoreDeck::Gui {
 
             ImGui::TextWrapped(
                 "%s",
-                Core::Tr(
+                Platform::Tr(
                     "Some Android SDK package licenses have not been accepted yet. "
                     "By clicking Agree, you confirm that you have read and accept "
                     "Google's current Android SDK license terms."
                 )
             );
             ImGui::Spacing();
-            if (ImGui::TextLink(Core::Tr("View License Terms..."))) {
-                Core::OpenUrl(Core::SDK_LICENSE_URL);
+            if (ImGui::TextLink(Platform::Tr("View License Terms..."))) {
+                Platform::OpenUrl(Core::SDK_LICENSE_URL);
             }
             if (busy) {
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Core::Tr("Recording acceptance with the SDK Manager..."));
+                ImGui::TextDisabled("%s", Platform::Tr("Recording acceptance with the SDK Manager..."));
             }
 
             if (!work.Error.empty()) {
@@ -63,7 +63,7 @@ namespace CoreDeck::Gui {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(busy ? Core::Tr("Accepting...") : Core::Tr("Agree"), true, ImVec2(halfWidth, 0), busy)) {
+            if (PositiveButton(busy ? Platform::Tr("Accepting...") : Platform::Tr("Agree"), true, ImVec2(halfWidth, 0), busy)) {
                 work.Error.clear();
                 work.Busy = true;
                 const Core::SdkInfo sdk = context.Host.Sdk;
@@ -72,7 +72,7 @@ namespace CoreDeck::Gui {
                 });
             }
             ImGui::SameLine();
-            if (NegativeButton(Core::Tr("Cancel"), !busy, ImVec2(halfWidth, 0))) {
+            if (NegativeButton(Platform::Tr("Cancel"), !busy, ImVec2(halfWidth, 0))) {
                 context.UI.ShowAcceptLicensesDialog = false;
                 work.Error.clear();
                 ImGui::CloseCurrentPopup();
@@ -97,7 +97,7 @@ namespace CoreDeck::Gui {
             if (ok) {
                 work.Accepted = true;
             } else {
-                work.Error = Core::Tr("License acceptance failed. Try again or accept via Android Studio.");
+                work.Error = Platform::Tr("License acceptance failed. Try again or accept via Android Studio.");
             }
         }
 
@@ -105,7 +105,7 @@ namespace CoreDeck::Gui {
             return;
         }
 
-        const std::string title = Core::TrWindow("Accept SDK Licenses", "AcceptLicensesDialog");
+        const std::string title = Platform::TrWindow("Accept SDK Licenses", "AcceptLicensesDialog");
         const bool busy = work.Busy.load();
         bool *pOpen = busy ? nullptr : &context.UI.ShowAcceptLicensesDialog;
         if (BeginCenteredModal(title.c_str(), pOpen, EmV(56.0F, 14.0F), WINDOW_AUTO_RESIZE_FLAGS)) {

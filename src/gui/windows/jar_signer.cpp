@@ -17,11 +17,12 @@
 #include "../theme.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/file_dialog.h"
-#include "../../core/i18n.h"
+#include "app/file_dialog.h"
+#include "platform/i18n.h"
 #include "../../core/jar_signer.h"
 #include "../../core/keytool.h"
-#include "../../core/paths.h"
+#include "platform/paths.h"
+#include "app/paths.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -29,7 +30,7 @@ namespace CoreDeck::Gui {
             std::string Value;
 
             explicit StorePassword(std::string value) : Value(std::move(value)) {
-                Core::WipeSecret(value);
+                Platform::WipeSecret(value);
             }
 
             StorePassword(const StorePassword &) = delete;
@@ -37,11 +38,11 @@ namespace CoreDeck::Gui {
             StorePassword &operator=(StorePassword &&) = delete;
 
             StorePassword(StorePassword &&other) noexcept : Value(std::move(other.Value)) {
-                Core::WipeSecret(other.Value);
+                Platform::WipeSecret(other.Value);
             }
 
             ~StorePassword() {
-                Core::WipeSecret(Value);
+                Platform::WipeSecret(Value);
             }
         };
 
@@ -50,8 +51,8 @@ namespace CoreDeck::Gui {
 
             explicit SignLaunch(Core::JarSignRequest request) : Request(std::move(request)) {
                 // Moved-from small strings can retain the secret in their inline buffer.
-                Core::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
-                Core::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
+                Platform::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
+                Platform::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
             }
 
             SignLaunch(const SignLaunch &) = delete;
@@ -59,19 +60,19 @@ namespace CoreDeck::Gui {
             SignLaunch &operator=(SignLaunch &&) = delete;
 
             SignLaunch(SignLaunch &&other) noexcept : Request(std::move(other.Request)) {
-                Core::WipeSecret(other.Request.StorePassword);
-                Core::WipeSecret(other.Request.KeyPassword);
+                Platform::WipeSecret(other.Request.StorePassword);
+                Platform::WipeSecret(other.Request.KeyPassword);
             }
 
             ~SignLaunch() {
-                Core::WipeSecret(Request.StorePassword);
-                Core::WipeSecret(Request.KeyPassword);
+                Platform::WipeSecret(Request.StorePassword);
+                Platform::WipeSecret(Request.KeyPassword);
             }
 
             Core::JarSignResult Run() {
                 Core::JarSignResult result = Core::SignJar(std::move(Request));
-                Core::WipeSecret(Request.StorePassword);
-                Core::WipeSecret(Request.KeyPassword);
+                Platform::WipeSecret(Request.StorePassword);
+                Platform::WipeSecret(Request.KeyPassword);
                 return result;
             }
         };
@@ -128,8 +129,8 @@ namespace CoreDeck::Gui {
         }
 
         void WipePasswordBuffers(JarSignerWork &work) {
-            Core::WipeSecret(work.StorePassword, sizeof work.StorePassword);
-            Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+            Platform::WipeSecret(work.StorePassword, sizeof work.StorePassword);
+            Platform::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
             work.SecretEpoch += 1;
         }
 
@@ -171,15 +172,15 @@ namespace CoreDeck::Gui {
         const char *RefusalText(const Core::JarSignRefusal refusal) {
             switch (refusal) {
                 case Core::JarSignRefusal::MissingJarsigner:
-                    return Core::Tr("jarsigner was not found in the JDK.");
+                    return Platform::Tr("jarsigner was not found in the JDK.");
                 case Core::JarSignRefusal::MissingJdk:
-                    return Core::Tr("A JDK is required.");
+                    return Platform::Tr("A JDK is required.");
                 case Core::JarSignRefusal::MissingOutput:
-                    return Core::Tr("Choose an output path for the signed archive.");
+                    return Platform::Tr("Choose an output path for the signed archive.");
                 case Core::JarSignRefusal::OutputSameAsInput:
-                    return Core::Tr("The output path is the same as the archive. The original archive is left unchanged.");
+                    return Platform::Tr("The output path is the same as the archive. The original archive is left unchanged.");
                 case Core::JarSignRefusal::PasswordFileFailed:
-                    return Core::Tr("The password could not be passed to jarsigner.");
+                    return Platform::Tr("The password could not be passed to jarsigner.");
                 case Core::JarSignRefusal::None:
                     break;
             }
@@ -196,7 +197,7 @@ namespace CoreDeck::Gui {
             if (work.OutputPath.empty()) {
                 return Core::JarSignRefusal::MissingOutput;
             }
-            if (Paths::SameFilePath(work.InputPath, work.OutputPath)) {
+            if (Platform::SameFilePath(work.InputPath, work.OutputPath)) {
                 return Core::JarSignRefusal::OutputSameAsInput;
             }
             return Core::JarSignRefusal::None;
@@ -297,7 +298,7 @@ namespace CoreDeck::Gui {
                 return;
             }
             const std::string archive = work.InputPath;
-            const Core::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
+            const Platform::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
             RetireJobs(work);
             work.HasVerify = false;
             work.Verify = {};
@@ -327,16 +328,16 @@ namespace CoreDeck::Gui {
 
             std::string storePassword(work.StorePassword);
             StorePassword secret{std::move(storePassword)};
-            Core::WipeSecret(storePassword);
+            Platform::WipeSecret(storePassword);
             const Core::JdkInfo jdk = context.Host.Jdk;
             const std::string keystore = work.KeystorePath;
-            const Core::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
+            const Platform::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
             RetireJobs(work);
             work.AliasFuture = std::async(
                 std::launch::async,
                 [secret = std::move(secret), jdk, keystore, toolEnv]() mutable {
                     Core::KeytoolAliasListResult result = Core::ListKeystoreAliases(jdk, keystore, std::move(secret.Value), toolEnv);
-                    Core::WipeSecret(secret.Value);
+                    Platform::WipeSecret(secret.Value);
                     return result;
                 }
             );
@@ -361,13 +362,13 @@ namespace CoreDeck::Gui {
             request.Jdk = context.Host.Jdk;
             request.ToolEnv = context.Host.Sdk.ToolEnv;
             request.StorePassword = std::move(storePassword);
-            Core::WipeSecret(storePassword);
+            Platform::WipeSecret(storePassword);
             request.KeyPassword = std::move(keyPassword);
-            Core::WipeSecret(keyPassword);
+            Platform::WipeSecret(keyPassword);
 
             SignLaunch launch{std::move(request)};
-            Core::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
-            Core::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
+            Platform::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
+            Platform::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
 
             RetireJobs(work);
             ClearSignResult(work);
@@ -380,12 +381,12 @@ namespace CoreDeck::Gui {
 
         std::array<const char *, 6> ReportColumns() {
             return {
-                Core::Tr("File Name"),
-                Core::Tr("Full Path"),
-                Core::Tr("Signed By"),
-                Core::Tr("Digest Algorithm"),
-                Core::Tr("Signature Algorithm"),
-                Core::Tr("Timestamp"),
+                Platform::Tr("File Name"),
+                Platform::Tr("Full Path"),
+                Platform::Tr("Signed By"),
+                Platform::Tr("Digest Algorithm"),
+                Platform::Tr("Signature Algorithm"),
+                Platform::Tr("Timestamp"),
             };
         }
 
@@ -394,13 +395,13 @@ namespace CoreDeck::Gui {
                 return;
             }
             const auto columns = ReportColumns();
-            LabeledValue(Core::Tr("Signed By"), result.Report.Signer, columns);
+            LabeledValue(Platform::Tr("Signed By"), result.Report.Signer, columns);
             ImGui::Spacing();
-            LabeledValue(Core::Tr("Digest Algorithm"), result.Report.DigestAlgorithm, columns);
+            LabeledValue(Platform::Tr("Digest Algorithm"), result.Report.DigestAlgorithm, columns);
             ImGui::Spacing();
-            LabeledValue(Core::Tr("Signature Algorithm"), result.Report.SignatureAlgorithm, columns);
+            LabeledValue(Platform::Tr("Signature Algorithm"), result.Report.SignatureAlgorithm, columns);
             ImGui::Spacing();
-            LabeledValue(Core::Tr("Timestamp"), result.Report.Timestamp, columns);
+            LabeledValue(Platform::Tr("Timestamp"), result.Report.Timestamp, columns);
         }
 
         void SignatureReport(const char *title, const std::string &path, const Core::JarVerifyResult &verify) {
@@ -415,9 +416,9 @@ namespace CoreDeck::Gui {
 
         void AliasCombo(JarSignerWork &work, const float width) {
             const bool reading = work.Busy.load() && work.Task == JarSignerTask::Aliases;
-            const char *preview = Core::Tr("Select an Alias");
+            const char *preview = Platform::Tr("Select an Alias");
             if (reading) {
-                preview = Core::Tr("Reading keystore aliases...");
+                preview = Platform::Tr("Reading keystore aliases...");
             } else if (!work.SelectedAlias.empty()) {
                 preview = work.SelectedAlias.c_str();
             }
@@ -432,7 +433,7 @@ namespace CoreDeck::Gui {
                 }
             }
             ImGui::BeginDisabled(work.Aliases.empty());
-            if (RoundedCombo("##Alias", preview, labels.data(), static_cast<int>(labels.size()), selected, width, Core::Tr("Alias")) && selected >= 0 && std::cmp_less(selected, work.Aliases.size())) {
+            if (RoundedCombo("##Alias", preview, labels.data(), static_cast<int>(labels.size()), selected, width, Platform::Tr("Alias")) && selected >= 0 && std::cmp_less(selected, work.Aliases.size())) {
                 const std::string &alias = work.Aliases.at(static_cast<std::size_t>(selected));
                 if (work.SelectedAlias != alias) {
                     ClearSignResult(work);
@@ -454,15 +455,15 @@ namespace CoreDeck::Gui {
                     return nullptr;
                 }
                 tone = StatusBarTone::Error;
-                return Core::Tr("keytool was not found in the JDK.");
+                return Platform::Tr("keytool was not found in the JDK.");
             }
             if (work.AliasResult.Status != Core::KeytoolAliasStatus::Ok) {
                 tone = StatusBarTone::Error;
-                return Core::Tr("The keystore aliases could not be read.");
+                return Platform::Tr("The keystore aliases could not be read.");
             }
             if (work.Aliases.empty()) {
                 tone = StatusBarTone::Warning;
-                return Core::Tr("No private-key aliases were found in this keystore.");
+                return Platform::Tr("No private-key aliases were found in this keystore.");
             }
             return nullptr;
         }
@@ -471,22 +472,22 @@ namespace CoreDeck::Gui {
             if (SubtitledCheckbox(
                     "##KeyPasswordMatches",
                     &work.KeyPasswordMatches,
-                    Core::Tr("Key password matches keystore password"),
-                    Core::Tr("Turn this off if the key entry has a different password.")
+                    Platform::Tr("Key password matches keystore password"),
+                    Platform::Tr("Turn this off if the key entry has a different password.")
                 ) &&
                 work.KeyPasswordMatches) {
-                Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+                Platform::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
                 work.ShowKeyPassword = false;
                 work.SecretEpoch += 1;
             }
 
             ImGui::Spacing();
-            if (BrowseRow("##OutputPathField", work.OutputPath, Core::Tr("No output path"), "OutputPath", Core::Tr("Save As..."), -1.0F, Core::Tr("Signed archive"))) {
+            if (BrowseRow("##OutputPathField", work.OutputPath, Platform::Tr("No output path"), "OutputPath", Platform::Tr("Save As..."), -1.0F, Platform::Tr("Signed archive"))) {
                 const std::string suggested = work.OutputPath.empty() ? Core::SuggestedSignedJarPath(work.InputPath) : work.OutputPath;
-                if (const auto picked = Core::FileDialog::SaveFile(
-                        Core::Tr("Save signed archive"),
+                if (const auto picked = App::FileDialog::SaveFile(
+                        Platform::Tr("Save signed archive"),
                         suggested,
-                        Core::Tr("Java archives"),
+                        Platform::Tr("Java archives"),
                         Core::JarArchivePatterns()
                     )) {
                     work.OutputPath = *picked;
@@ -500,8 +501,8 @@ namespace CoreDeck::Gui {
             auto &work = context.JarSignerWork;
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const char *idleLabel = Core::Tr("Sign");
-            const char *busyLabel = Core::Tr("Signing...");
+            const char *idleLabel = Platform::Tr("Sign");
+            const char *busyLabel = Platform::Tr("Signing...");
             const float signW = BusyActionWidth(idleLabel, busyLabel);
             const float pathW = std::max(1.0F, (avail - signW - (spacing * 2.0F)) * 0.5F);
 
@@ -509,9 +510,9 @@ namespace CoreDeck::Gui {
             SecretEdit storePassword;
             {
                 const FormDisabled disabled(work.Busy.load());
-                if (BrowseRow("##ArchivePathField", work.InputPath, Core::Tr("Choose an archive..."), "ArchivePath", Core::Tr("Browse..."), pathW, Core::Tr("Archive"))) {
+                if (BrowseRow("##ArchivePathField", work.InputPath, Platform::Tr("Choose an archive..."), "ArchivePath", Platform::Tr("Browse..."), pathW, Platform::Tr("Archive"))) {
                     const std::string start = DirectoryOf(work.InputPath);
-                    if (const auto picked = Core::FileDialog::PickFile(Core::Tr("Open Archive"), Core::Tr("Java archives"), Core::JarArchivePatterns(), start)) {
+                    if (const auto picked = App::FileDialog::PickFile(Platform::Tr("Open Archive"), Platform::Tr("Java archives"), Core::JarArchivePatterns(), start)) {
                         work.InputPath = *picked;
                         if (!work.OutputCustomized) {
                             work.OutputPath = Core::SuggestedSignedJarPath(work.InputPath);
@@ -526,14 +527,14 @@ namespace CoreDeck::Gui {
                 if (BrowseRow(
                         "##KeystorePathField",
                         work.KeystorePath,
-                        Core::Tr("Choose a keystore file..."),
+                        Platform::Tr("Choose a keystore file..."),
                         "KeystorePath",
-                        Core::Tr("Browse..."),
+                        Platform::Tr("Browse..."),
                         pathW,
-                        Core::Tr("Keystore")
+                        Platform::Tr("Keystore")
                     )) {
                     const std::string start = work.KeystorePath.empty() ? DirectoryOf(work.InputPath) : DirectoryOf(work.KeystorePath);
-                    if (const auto picked = Core::FileDialog::PickFile(Core::Tr("Open Keystore"), Core::Tr("Keystores"), Core::KeystoreFilePatterns(), start)) {
+                    if (const auto picked = App::FileDialog::PickFile(Platform::Tr("Open Keystore"), Platform::Tr("Keystores"), Core::KeystoreFilePatterns(), start)) {
                         work.KeystorePath = *picked;
                         work.KeystoreType = Core::DetectKeystoreType(*picked);
                         ClearSignResult(work);
@@ -565,7 +566,7 @@ namespace CoreDeck::Gui {
                     work.StorePassword,
                     sizeof work.StorePassword,
                     work.ShowStorePassword,
-                    Core::Tr("Keystore Password"),
+                    Platform::Tr("Keystore Password"),
                     secretW
                 );
                 ImGui::PopID();
@@ -586,7 +587,7 @@ namespace CoreDeck::Gui {
                         work.KeyPassword,
                         sizeof work.KeyPassword,
                         work.ShowKeyPassword,
-                        Core::Tr("Key Password"),
+                        Platform::Tr("Key Password"),
                         secretW
                     );
                     ImGui::PopID();
@@ -605,26 +606,26 @@ namespace CoreDeck::Gui {
                 case Core::JarSignStatus::Refused:
                     return RefusalText(result.Refusal);
                 case Core::JarSignStatus::SignFailed:
-                    return Core::Tr("Signing failed.");
+                    return Platform::Tr("Signing failed.");
                 case Core::JarSignStatus::Signed:
                     break;
             }
-            return Core::Tr("Signing failed.");
+            return Platform::Tr("Signing failed.");
         }
 
         void SignerStatus(const Context &context, const std::string &jarsigner) {
             const auto &work = context.JarSignerWork;
             const bool busy = work.Busy.load();
             if (busy && work.Task == JarSignerTask::Sign) {
-                StatusBar(StatusBarTone::Busy, Core::Tr("Signing the archive."));
+                StatusBar(StatusBarTone::Busy, Platform::Tr("Signing the archive."));
                 return;
             }
             if (busy && work.Task == JarSignerTask::Verify) {
-                StatusBar(StatusBarTone::Busy, Core::Tr("Checking the signature."));
+                StatusBar(StatusBarTone::Busy, Platform::Tr("Checking the signature."));
                 return;
             }
             if (busy && work.Task == JarSignerTask::Aliases) {
-                StatusBar(StatusBarTone::Busy, Core::Tr("Reading the keystore aliases."));
+                StatusBar(StatusBarTone::Busy, Platform::Tr("Reading the keystore aliases."));
                 return;
             }
             if (work.HasSignResult && work.SignResult.Status != Core::JarSignStatus::Signed) {
@@ -633,14 +634,14 @@ namespace CoreDeck::Gui {
             }
             if (work.HasSignResult) {
                 if (!work.SignResult.Verify.Started || work.SignResult.Verify.ToolMissing) {
-                    StatusBar(StatusBarTone::Error, Core::Tr("The signature could not be checked."));
+                    StatusBar(StatusBarTone::Error, Platform::Tr("The signature could not be checked."));
                     return;
                 }
-                StatusBar(StatusBarTone::Success, Core::Tr("Archive signed."));
+                StatusBar(StatusBarTone::Success, Platform::Tr("Archive signed."));
                 return;
             }
             if (!work.InputPath.empty() && work.HasVerify && (!work.Verify.Started || work.Verify.ToolMissing)) {
-                StatusBar(StatusBarTone::Error, Core::Tr("The signature could not be checked."));
+                StatusBar(StatusBarTone::Error, Platform::Tr("The signature could not be checked."));
                 return;
             }
             StatusBarTone aliasTone = StatusBarTone::Error;
@@ -654,20 +655,20 @@ namespace CoreDeck::Gui {
                 return;
             }
             if (work.InputPath.empty()) {
-                StatusBar(StatusBarTone::Idle, Core::Tr("Choose an archive to see its signature."));
+                StatusBar(StatusBarTone::Idle, Platform::Tr("Choose an archive to see its signature."));
                 return;
             }
             if (work.HasVerify && work.Verify.Started && !work.Verify.ToolMissing && work.Verify.Report.Verified) {
                 StatusBar(
                     StatusBarTone::Warning,
-                    Core::Tr(
+                    Platform::Tr(
                         "This archive is already signed. The new file carries a different signature, "
                         "and the original archive is left unchanged."
                     )
                 );
                 return;
             }
-            StatusBar(StatusBarTone::Idle, Core::Tr("Ready to sign an archive."));
+            StatusBar(StatusBarTone::Idle, Platform::Tr("Ready to sign an archive."));
         }
 
         float ReportCardHeight() {
@@ -678,45 +679,45 @@ namespace CoreDeck::Gui {
 
         void InputDetail(const JarSignerWork &work) {
             if (work.InputPath.empty()) {
-                CenteredMessage(Core::Tr("No Archive Selected"), Core::Tr("Choose an archive to see its signature."));
+                CenteredMessage(Platform::Tr("No Archive Selected"), Platform::Tr("Choose an archive to see its signature."));
                 return;
             }
             if (work.Busy.load() && work.Task == JarSignerTask::Verify) {
-                CenteredMessage(Core::Tr("Checking the signature..."), nullptr);
+                CenteredMessage(Platform::Tr("Checking the signature..."), nullptr);
                 return;
             }
             if (!work.HasVerify || !work.Verify.Started || work.Verify.ToolMissing) {
-                CenteredMessage(Core::Tr("Something Went Wrong!"), Core::Tr("The signature could not be checked."), Colors::NEGATIVE);
+                CenteredMessage(Platform::Tr("Something Went Wrong!"), Platform::Tr("The signature could not be checked."), Colors::NEGATIVE);
                 return;
             }
-            SignatureReport(Core::Tr("Archive"), work.InputPath, work.Verify);
+            SignatureReport(Platform::Tr("Archive"), work.InputPath, work.Verify);
         }
 
         void OutputDetail(const JarSignerWork &work) {
             const bool signing = work.Busy.load() && work.Task == JarSignerTask::Sign;
             if (signing) {
-                CenteredMessage(Core::Tr("Signing..."), nullptr);
+                CenteredMessage(Platform::Tr("Signing..."), nullptr);
                 return;
             }
             if (!work.HasSignResult && work.OutputPath.empty()) {
-                CenteredMessage(Core::Tr("No Signed Archive"), Core::Tr("Sign an archive to see the result here."));
+                CenteredMessage(Platform::Tr("No Signed Archive"), Platform::Tr("Sign an archive to see the result here."));
                 return;
             }
             if (work.HasSignResult && work.SignResult.Status != Core::JarSignStatus::Signed) {
-                CenteredMessage(Core::Tr("Something Went Wrong!"), SignFailure(work.SignResult), Colors::NEGATIVE);
+                CenteredMessage(Platform::Tr("Something Went Wrong!"), SignFailure(work.SignResult), Colors::NEGATIVE);
                 return;
             }
             if (!work.HasSignResult) {
-                ReportHeading(Core::Tr("Signed Archive"));
+                ReportHeading(Platform::Tr("Signed Archive"));
                 ImGui::Spacing();
                 const auto columns = ReportColumns();
                 FileRows(work.OutputPath, columns);
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Core::Tr("Sign the archive to see its signature here."));
+                ImGui::TextDisabled("%s", Platform::Tr("Sign the archive to see its signature here."));
                 return;
             }
 
-            SignatureReport(Core::Tr("Signed Archive"), work.OutputPath, work.SignResult.Verify);
+            SignatureReport(Platform::Tr("Signed Archive"), work.OutputPath, work.SignResult.Verify);
         }
 
         void SignerForm(Context &context, const std::string &jarsigner) {
@@ -733,9 +734,9 @@ namespace CoreDeck::Gui {
             const bool jdkMissing = context.Host.Jdk.JavaHome.empty();
             if (NoticeCard(
                     NoticeCardTone::Error,
-                    jdkMissing ? Core::Tr("A JDK is required.") : Core::Tr("jarsigner was not found in the JDK."),
-                    Core::Tr("Java Jar Signer signs and verifies archives with the JDK's jarsigner."),
-                    Core::Tr("Choose a JDK...")
+                    jdkMissing ? Platform::Tr("A JDK is required.") : Platform::Tr("jarsigner was not found in the JDK."),
+                    Platform::Tr("Java Jar Signer signs and verifies archives with the JDK's jarsigner."),
+                    Platform::Tr("Choose a JDK...")
                 )) {
                 context.UI.OpenPreferencesToJava = true;
                 context.UI.ShowPreferences = true;
@@ -748,7 +749,7 @@ namespace CoreDeck::Gui {
         if (context.UI.Workspace != WorkspacePage::JarSigner) {
             return;
         }
-        SetNativeWindowPage(context, Core::Tr("Java Jar Signer"));
+        SetNativeWindowPage(context, Platform::Tr("Java Jar Signer"));
 
         const ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);

@@ -8,7 +8,7 @@
 #include "../application.h"
 #include "../widgets.h"
 #include "../../core/avd_manager.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     void StartDeleteAvdAsync(Context &context, const std::string &avdName) {
@@ -39,16 +39,16 @@ namespace CoreDeck::Gui {
         }
 
         const auto &avdName = context.Catalog.Avds.at(context.Catalog.SelectedAvd).Name;
-        const std::string title = Core::TrFormat("Delete \"{0}\"?", avdName);
+        const std::string title = Platform::TrFormat("Delete \"{0}\"?", avdName);
         const bool isDeleting = context.Jobs.AvdDeletion.Busy.load();
         const DialogResult result = SimpleDialog({
             .Id = "Delete###DeleteAvdDialog",
             .IsOpen = context.UI.ShowDeleteAvdDialog,
             .Title = title.c_str(),
-            .Message = Core::Tr("This will permanently remove the AVD and all its data. This action cannot be undone."),
-            .ConfirmButtonTitle = Core::Tr("Delete"),
-            .CancelButtonTitle = Core::Tr("Cancel"),
-            .BusyButtonTitle = Core::Tr("Deleting..."),
+            .Message = Platform::Tr("This will permanently remove the AVD and all its data. This action cannot be undone."),
+            .ConfirmButtonTitle = Platform::Tr("Delete"),
+            .CancelButtonTitle = Platform::Tr("Cancel"),
+            .BusyButtonTitle = Platform::Tr("Deleting..."),
             .Type = DialogType::Negative,
             .IsBusy = isDeleting,
         }, true);

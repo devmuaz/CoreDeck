@@ -154,6 +154,19 @@ Each release artifact ships with a matching `.sha256` checksum for download veri
 
 CoreDeck builds with **CMake + Ninja** on all platforms. Output is single-config: `build-debug/` and `build-release/` contain the binary directly, with a `compile_commands.json` for editor tooling.
 
+### Source layout
+
+The code under `src/` is four layers. Each layer is its own `static library`, and it can only include the layer below it.
+
+| Layer        | Folder         | Responsibility                                                                                 |
+| ------------ | -------------- | ---------------------------------------------------------------------------------------------- |
+| **Platform** | `src/platform` | Processes, HTTP, archives, hashing, logging, translation, and generic paths and strings        |
+| **Core**     | `src/core`     | The Android toolchain: the SDK, AVDs, the emulator, system images, skins, the JDK, and signing |
+| **App**      | `src/app`      | Settings, the saved language, update checks, crash reporting, file dialogs, and app paths      |
+| **GUI**      | `src/gui`      | Windows, widgets, and the running screen session                                               |
+
+The GUI may call all three. Core and App may call Platform, and they stay independent of each other. A call from the `GUI` names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppSettings`. A new Android feature is another pair of files in `Core`. A new operating-system helper goes in `Platform`. A new preference or app service goes in `App`.
+
 ### Prerequisites
 
 All platforms need **CMake 3.23+**, **Ninja**, and **Git** (with submodule support). Per-platform compiler:

@@ -1,0 +1,32 @@
+//
+// Created by AbdulMuaz Aqeel on 27/04/2026.
+//
+
+#ifndef COREDECK_CRASH_REPORTER_H
+#define COREDECK_CRASH_REPORTER_H
+
+#include <string_view>
+
+namespace CoreDeck::App::CrashReporter {
+    enum class Level : uint8_t {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Fatal,
+    };
+
+    bool Init(bool isEnabled);
+
+    void Shutdown(bool isEnabled);
+
+    bool IsEnabled();
+
+    void CaptureMessage(Level level, std::string_view message);
+
+    void CaptureException(std::string_view type, std::string_view message);
+
+    void AddBreadcrumb(std::string_view category, std::string_view message);
+}
+
+#endif // COREDECK_CRASH_REPORTER_H

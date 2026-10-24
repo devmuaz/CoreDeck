@@ -36,9 +36,10 @@
 #include "application.h"
 #include "theme.h"
 #include "utilities.h"
-#include "../core/app_settings.h"
-#include "../core/i18n.h"
-#include "../core/paths.h"
+#include "app/app_settings.h"
+#include "platform/i18n.h"
+#include "platform/paths.h"
+#include "app/paths.h"
 #include "windows/about.h"
 #include "windows/apk_analyzer.h"
 #include "windows/apk_signer.h"
@@ -58,7 +59,7 @@
 #include "windows/preferences.h"
 #include "windows/storage.h"
 #include "windows/update.h"
-#include "../core/version_check.h"
+#include "app/version_check.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -78,16 +79,16 @@ namespace CoreDeck::Gui {
         }
     }
 
-    Application::Application() : m_Context(Core::DetectAndroidSdk()) {
-        Core::EnsureOptionsConfigDirectoryExists();
-        ApplyAppSettingsToContext(m_Context, Core::LoadAppSettings());
-        Core::SetLocalesDirectory(Paths::JoinPaths({Paths::GetAssetsDirectory(), "locales"}));
-        Core::SetLanguage(m_Context.Prefs.Language);
+    Application::Application() : m_Context(Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath)) {
+        App::EnsureOptionsConfigDirectoryExists();
+        ApplyAppSettingsToContext(m_Context, App::LoadAppSettings());
+        Platform::SetLocalesDirectory(Platform::JoinPaths({App::GetAssetsDirectory(), "locales"}));
+        Platform::SetLanguage(m_Context.Prefs.Language);
 
-        m_Context.Host.Jdk = Core::DetectJdk();
+        m_Context.Host.Jdk = Core::DetectJdk(App::LoadAppSettings().JdkPath);
         Core::ApplyJdkToSdk(m_Context.Host.Sdk, m_Context.Host.Jdk);
 
-        if (!Paths::Onboarding::IsFirstRunComplete() || !m_Context.Host.Sdk.IsFound) {
+        if (!App::LoadAppSettings().FirstRunComplete || !m_Context.Host.Sdk.IsFound) {
             m_Context.Flow.CurrentScreen = Screen::Onboarding;
         } else {
             m_Context.Flow.CurrentScreen = Screen::Main;
@@ -147,7 +148,19 @@ namespace CoreDeck::Gui {
             return;
         }
 
-        Core::RefreshAndroidSdk(m_Context.Host.Sdk);
+        if (m_Context.Host.Sdk.SdkPath.empty()) {
+            const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
+            m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            m_Context.Host.Sdk.ToolEnv = toolEnv;
+        } else {
+            if (m_Context.Host.Sdk.SdkPath.empty()) {
+            const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
+            m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            m_Context.Host.Sdk.ToolEnv = toolEnv;
+        } else {
+            Core::RefreshAndroidSdk(m_Context.Host.Sdk);
+        }
+        }
 
 #ifdef NDEBUG
         m_PollUpdateCheckIfNeeded();
@@ -242,7 +255,7 @@ namespace CoreDeck::Gui {
 
     bool Application::m_InitPlatform() {
         if (!glfwInit()) {
-            ShowFatalError(COREDECK_TITLE, Core::Tr("Failed to initialize GLFW."));
+            ShowFatalError(COREDECK_TITLE, Platform::Tr("Failed to initialize GLFW."));
             return false;
         }
         m_GlfwInitialized = true;
@@ -265,7 +278,7 @@ namespace CoreDeck::Gui {
     bool Application::m_CreateMainWindow() {
         m_Window = glfwCreateWindow(1200, 900, COREDECK_TITLE, nullptr, nullptr);
         if (!m_Window) {
-            ShowFatalError(COREDECK_TITLE, Core::Tr("Failed to create window.\nYour system may not support OpenGL 3.3."));
+            ShowFatalError(COREDECK_TITLE, Platform::Tr("Failed to create window.\nYour system may not support OpenGL 3.3."));
             return false;
         }
 
@@ -301,21 +314,21 @@ namespace CoreDeck::Gui {
         // per-viewport rectangle math for multi-monitor docking, not fonts.
         io.ConfigDpiScaleViewports = true;
 
-        static const std::string IMGUI_INI_PATH = Paths::GetAppConfigPath("imgui.ini");
+        static const std::string IMGUI_INI_PATH = App::GetAppConfigPath("imgui.ini");
         io.IniFilename = IMGUI_INI_PATH.c_str();
     }
 
     void Application::m_LoadFonts() const {
         const ImGuiIO &io = ImGui::GetIO();
 
-        const std::string assetsDir = Paths::GetAssetsDirectory();
-        const std::string textFontPath = Paths::JoinPaths(
+        const std::string assetsDir = App::GetAssetsDirectory();
+        const std::string textFontPath = Platform::JoinPaths(
             {assetsDir, "fonts", "JetBrainsMono-Regular.ttf"}
         );
-        const std::string cjkFontPath = Paths::JoinPaths(
+        const std::string cjkFontPath = Platform::JoinPaths(
             {assetsDir, "fonts", "NotoSansCJKsc-Regular.otf"}
         );
-        const std::string iconFontPath = Paths::JoinPaths(
+        const std::string iconFontPath = Platform::JoinPaths(
             {assetsDir, "fonts", "FontAwesome7Free-Solid-900.otf"}
         );
 
@@ -498,7 +511,7 @@ namespace CoreDeck::Gui {
                 return;
             }
 
-            std::optional<Core::RemoteRelease> newer = m_UpdateCheckFuture.get();
+            std::optional<App::RemoteRelease> newer = m_UpdateCheckFuture.get();
             m_Context.Updates.UpdateCheckInFlight = false;
 
             if (newer) {
@@ -525,9 +538,9 @@ namespace CoreDeck::Gui {
 
         if (start) {
             m_Context.Updates.UpdateCheckInFlight = true;
-            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<Core::RemoteRelease> {
+            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<App::RemoteRelease> {
                 try {
-                    return Core::QueryRemoteNewerVersion();
+                    return App::QueryRemoteNewerVersion();
                 } catch (...) {
                     return std::nullopt;
                 }
@@ -535,8 +548,8 @@ namespace CoreDeck::Gui {
         }
     }
 
-    Core::AppSettings CaptureAppSettingsFromContext(const Context &context) {
-        Core::AppSettings s = Core::LoadAppSettings();
+    App::AppSettings CaptureAppSettingsFromContext(const Context &context) {
+        App::AppSettings s = App::LoadAppSettings();
         s.SchemaVersion = 1;
         s.AutoScroll = context.Prefs.AutoScroll;
         s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
@@ -553,7 +566,7 @@ namespace CoreDeck::Gui {
         return s;
     }
 
-    void ApplyAppSettingsToContext(Context &context, const Core::AppSettings &settings) {
+    void ApplyAppSettingsToContext(Context &context, const App::AppSettings &settings) {
         context.Prefs.AutoScroll = settings.AutoScroll;
         context.Prefs.ConfirmBeforeDeleteAvd = settings.ConfirmBeforeDeleteAvd;
         context.Prefs.CrashReportingEnabled = settings.CrashReportingEnabled;
@@ -569,10 +582,10 @@ namespace CoreDeck::Gui {
         context.Catalog.SortAscending = settings.AvdSortAscending;
 
         const int theme = settings.Theme;
-        const auto preference = theme >= static_cast<int>(Core::ThemePreference::System) &&
-                                        theme <= static_cast<int>(Core::ThemePreference::Light)
-                                    ? static_cast<Core::ThemePreference>(theme)
-                                    : Core::ThemePreference::System;
+        const auto preference = theme >= static_cast<int>(App::ThemePreference::System) &&
+                                        theme <= static_cast<int>(App::ThemePreference::Light)
+                                    ? static_cast<App::ThemePreference>(theme)
+                                    : App::ThemePreference::System;
         context.Prefs.Theme = preference;
         context.Prefs.Language = settings.Language;
         SetThemePreference(preference);
@@ -608,7 +621,7 @@ namespace CoreDeck::Gui {
     }
 
     void PersistAppSettings(const Context &context) {
-        Core::SaveAppSettings(CaptureAppSettingsFromContext(context));
+        App::SaveAppSettings(CaptureAppSettingsFromContext(context));
     }
 
     namespace {
@@ -631,7 +644,7 @@ namespace CoreDeck::Gui {
         snapshot.Avds = Core::LoadAvds(snapshot.Names);
         snapshot.Options.reserve(snapshot.Names.size());
         for (const std::string &avdName: snapshot.Names) {
-            snapshot.Options.emplace(avdName, Core::LoadOptionsFromFile(Core::GetOptionsConfigPath(avdName)));
+            snapshot.Options.emplace(avdName, Core::LoadOptionsFromFile(App::GetOptionsConfigPath(avdName)));
         }
         return snapshot;
     }
@@ -703,7 +716,7 @@ namespace CoreDeck::Gui {
     }
 
     void LoadAvdOptions(Context &context, const std::string &avdName) {
-        const std::string configPath = Core::GetOptionsConfigPath(avdName);
+        const std::string configPath = App::GetOptionsConfigPath(avdName);
         context.Catalog.PerAvdOptions[avdName] = Core::LoadOptionsFromFile(configPath);
     }
 
@@ -712,7 +725,7 @@ namespace CoreDeck::Gui {
             return;
         }
 
-        const std::string configPath = Core::GetOptionsConfigPath(avdName);
+        const std::string configPath = App::GetOptionsConfigPath(avdName);
         Core::SaveOptionsToFile(configPath, context.Catalog.PerAvdOptions[avdName]);
     }
 

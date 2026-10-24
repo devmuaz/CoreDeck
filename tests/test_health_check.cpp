@@ -3,6 +3,7 @@
 #include "core/health_check.h"
 
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 namespace {
     SdkInfo FullSdk() {

@@ -16,7 +16,7 @@
 #include "../widgets.h"
 #include "../theme.h"
 #include "../application.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -49,7 +49,7 @@ namespace CoreDeck::Gui {
                 return;
             }
 
-            const std::string label = Core::Tr("Close Workspace");
+            const std::string label = Platform::Tr("Close Workspace");
             const float dpi = GetDpiScale();
             const ImVec2 text = ImGui::CalcTextSize(label.c_str());
             const ImVec2 windowPos = ImGui::GetWindowPos();
@@ -85,67 +85,67 @@ namespace CoreDeck::Gui {
         const MenuStyle ms;
 
         if (ImGui::BeginMainMenuBar()) {
-            if (RoundedBeginMenu(Core::Tr("File"))) {
-                if (RoundedMenuItem(IconWithLabel(Icons::GEAR, Core::Tr("Preferences...")).c_str())) {
+            if (RoundedBeginMenu(Platform::Tr("File"))) {
+                if (RoundedMenuItem(IconWithLabel(Icons::GEAR, Platform::Tr("Preferences...")).c_str())) {
                     context.UI.ShowPreferences = true;
                 }
                 ImGui::Separator();
-                if (RoundedMenuItem(IconWithLabel(Icons::POWER_OFF, Core::Tr("Quit")).c_str(), nullptr, false, context.UI.MainWindow != nullptr)) {
+                if (RoundedMenuItem(IconWithLabel(Icons::POWER_OFF, Platform::Tr("Quit")).c_str(), nullptr, false, context.UI.MainWindow != nullptr)) {
                     glfwSetWindowShouldClose(context.UI.MainWindow, GLFW_TRUE);
                 }
                 ImGui::EndMenu();
             }
 
-            if (RoundedBeginMenu(Core::Tr("View"))) {
-                if (RoundedMenuItem(IconWithLabel(Icons::LIST, context.UI.ShowAvdListPanel ? Core::Tr("Hide AVD List") : Core::Tr("Show AVD List")).c_str())) {
+            if (RoundedBeginMenu(Platform::Tr("View"))) {
+                if (RoundedMenuItem(IconWithLabel(Icons::LIST, context.UI.ShowAvdListPanel ? Platform::Tr("Hide AVD List") : Platform::Tr("Show AVD List")).c_str())) {
                     context.UI.ShowAvdListPanel = !context.UI.ShowAvdListPanel;
                     PersistAppSettings(context);
                 }
-                if (RoundedMenuItem(IconWithLabel(Icons::SLIDERS, context.UI.ShowOptionsPanel ? Core::Tr("Hide Options") : Core::Tr("Show Options")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::SLIDERS, context.UI.ShowOptionsPanel ? Platform::Tr("Hide Options") : Platform::Tr("Show Options")).c_str())) {
                     context.UI.ShowOptionsPanel = !context.UI.ShowOptionsPanel;
                     PersistAppSettings(context);
                 }
-                if (RoundedMenuItem(IconWithLabel(Icons::FILE_LINES, context.UI.ShowDetailsPanel ? Core::Tr("Hide Details") : Core::Tr("Show Details")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::FILE_LINES, context.UI.ShowDetailsPanel ? Platform::Tr("Hide Details") : Platform::Tr("Show Details")).c_str())) {
                     context.UI.ShowDetailsPanel = !context.UI.ShowDetailsPanel;
                     PersistAppSettings(context);
                 }
-                if (RoundedMenuItem(IconWithLabel(Icons::TERMINAL, context.UI.ShowLogPanel ? Core::Tr("Hide Output Log") : Core::Tr("Show Output Log")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::TERMINAL, context.UI.ShowLogPanel ? Platform::Tr("Hide Output Log") : Platform::Tr("Show Output Log")).c_str())) {
                     context.UI.ShowLogPanel = !context.UI.ShowLogPanel;
                     PersistAppSettings(context);
                 }
                 ImGui::EndMenu();
             }
 
-            if (RoundedBeginMenu(Core::Tr("Tools"))) {
-                if (RoundedMenuItem(IconWithLabel(Icons::HEART_PULSE, Core::Tr("Health Check...")).c_str())) {
+            if (RoundedBeginMenu(Platform::Tr("Tools"))) {
+                if (RoundedMenuItem(IconWithLabel(Icons::HEART_PULSE, Platform::Tr("Health Check...")).c_str())) {
                     OpenHealthCheckDialog(context);
                 }
                 ImGui::Separator();
-                if (RoundedMenuItem(IconWithLabel(Icons::FILE_LINES, Core::Tr("APK Analyzer")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::FILE_LINES, Platform::Tr("APK Analyzer")).c_str())) {
                     context.UI.Workspace = WorkspacePage::ApkAnalyzer;
                 }
-                if (RoundedMenuItem(IconWithLabel(Icons::SIGNATURE, Core::Tr("APK Signer")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::SIGNATURE, Platform::Tr("APK Signer")).c_str())) {
                     context.UI.Workspace = WorkspacePage::ApkSigner;
                 }
                 ImGui::Separator();
-                if (RoundedMenuItem(IconWithLabel(Icons::KEY, Core::Tr("Java Keytool")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::KEY, Platform::Tr("Java Keytool")).c_str())) {
                     context.UI.Workspace = WorkspacePage::Keytool;
                 }
-                if (RoundedMenuItem(IconWithLabel(Icons::SIGNATURE, Core::Tr("Java Jar Signer")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::SIGNATURE, Platform::Tr("Java Jar Signer")).c_str())) {
                     context.UI.Workspace = WorkspacePage::JarSigner;
                 }
                 ImGui::Separator();
-                if (RoundedMenuItem(IconWithLabel(Icons::HARD_DRIVE, Core::Tr("Storage Overview")).c_str())) {
+                if (RoundedMenuItem(IconWithLabel(Icons::HARD_DRIVE, Platform::Tr("Storage Overview")).c_str())) {
                     context.UI.ShowStorageDialog = true;
                 }
                 ImGui::EndMenu();
             }
 
-            if (RoundedBeginMenu(Core::Tr("Help"))) {
-                if (RoundedMenuItem(IconWithLabel(Icons::INFO, Core::Tr("About CoreDeck")).c_str())) {
+            if (RoundedBeginMenu(Platform::Tr("Help"))) {
+                if (RoundedMenuItem(IconWithLabel(Icons::INFO, Platform::Tr("About CoreDeck")).c_str())) {
                     context.UI.ShowAboutDialog = true;
                 }
-                if (RoundedMenuItem(IconWithLabel(Icons::REFRESH, Core::Tr("Check for Updates...")).c_str(), nullptr, false, !context.Updates.UpdateCheckInFlight)) {
+                if (RoundedMenuItem(IconWithLabel(Icons::REFRESH, Platform::Tr("Check for Updates...")).c_str(), nullptr, false, !context.Updates.UpdateCheckInFlight)) {
                     context.Updates.RequestManualUpdateCheck = true;
                 }
                 ImGui::EndMenu();

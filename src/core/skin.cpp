@@ -122,7 +122,7 @@ namespace CoreDeck::Core {
 
         std::unordered_map<std::string, size_t> bestByName;
         for (size_t i = 0; i < all.size(); ++i) {
-            const std::string key = LowerCopy(all.at(i).Name);
+            const std::string key = Platform::LowerCopy(all.at(i).Name);
             const auto it = bestByName.find(key);
             if (it == bestByName.end()) {
                 bestByName.emplace(key, i);
@@ -138,7 +138,7 @@ namespace CoreDeck::Core {
         }
 
         std::ranges::sort(deduped, [](const Skin &a, const Skin &b) {
-            return LowerCopy(a.DisplayName) < LowerCopy(b.DisplayName);
+            return Platform::LowerCopy(a.DisplayName) < Platform::LowerCopy(b.DisplayName);
         });
 
         return deduped;
@@ -149,15 +149,15 @@ namespace CoreDeck::Core {
             return std::nullopt;
         }
 
-        const std::string needle = LowerCopy(deviceId);
+        const std::string needle = Platform::LowerCopy(deviceId);
 
         for (const auto &s: skins) {
-            if (LowerCopy(s.Name) == needle) {
+            if (Platform::LowerCopy(s.Name) == needle) {
                 return s;
             }
         }
         for (const auto &s: skins) {
-            const std::string lower = LowerCopy(s.Name);
+            const std::string lower = Platform::LowerCopy(s.Name);
             if (lower.find(needle) != std::string::npos || needle.find(lower) != std::string::npos) {
                 return s;
             }
@@ -168,11 +168,11 @@ namespace CoreDeck::Core {
     const char *SkinSourceLabel(const SkinSource &source) {
         switch (source) {
             case SkinSource::Sdk:
-                return Tr("SDK");
+                return Platform::Tr("SDK");
             case SkinSource::SystemImage:
-                return Tr("System Image");
+                return Platform::Tr("System Image");
             case SkinSource::Platform:
-                return Tr("Platform");
+                return Platform::Tr("Platform");
         }
         return "";
     }

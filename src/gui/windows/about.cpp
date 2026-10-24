@@ -8,12 +8,12 @@
 #include "../context.h"
 #include "../theme.h"
 #include "about.h"
-#include "../../core/constants.h"
-#include "../../core/i18n.h"
+#include "app/constants.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     void BuildAboutWindow(Context &context) {
-        const std::string title = Core::TrWindow("About CoreDeck", "About CoreDeck");
+        const std::string title = Platform::TrWindow("About CoreDeck", "About CoreDeck");
         if (!context.UI.ShowAboutDialog && !ImGui::IsPopupOpen(title.c_str())) {
             return;
         }
@@ -30,7 +30,7 @@ namespace CoreDeck::Gui {
             ImGui::TextColored(HexColor(Colors::TEXT_PRIMARY), COREDECK_TITLE);
             ImGui::PopFont();
 
-            const std::string version = Core::TrFormat("Version {0} (Build {1})", COREDECK_VERSION, COREDECK_BUILD_NUMBER);
+            const std::string version = Platform::TrFormat("Version {0} (Build {1})", COREDECK_VERSION, COREDECK_BUILD_NUMBER);
             centerCursor(ImGui::CalcTextSize(version.c_str()).x);
             ImGui::TextColored(HexColor(Colors::TEXT_MUTED), "%s", version.c_str());
 
@@ -45,17 +45,17 @@ namespace CoreDeck::Gui {
             ImGui::Spacing();
             ImGui::Spacing();
 
-            if (PropertyText(Core::Tr("Author"), COREDECK_VENDOR, true)) {
-                Core::OpenUrl(Core::AUTHOR_WEBSITE_URL);
+            if (PropertyText(Platform::Tr("Author"), COREDECK_VENDOR, true)) {
+                Platform::OpenUrl(App::AUTHOR_WEBSITE_URL);
             }
-            PropertyText(Core::Tr("License"), Core::Tr("MIT"));
-            if (PropertyText(Core::Tr("Website"), Core::WEBSITE_URL, true)) {
-                Core::OpenUrl(Core::WEBSITE_URL);
+            PropertyText(Platform::Tr("License"), Platform::Tr("MIT"));
+            if (PropertyText(Platform::Tr("Website"), App::WEBSITE_URL, true)) {
+                Platform::OpenUrl(App::WEBSITE_URL);
             }
-            if (PropertyText(Core::Tr("GitHub"), Core::GITHUB_URL, true)) {
-                Core::OpenUrl(Core::GITHUB_URL);
+            if (PropertyText(Platform::Tr("GitHub"), App::GITHUB_URL, true)) {
+                Platform::OpenUrl(App::GITHUB_URL);
             }
-            PropertyText(Core::Tr("Built with"), Core::Tr("C++20, Dear ImGui, GLFW, OpenGL"));
+            PropertyText(Platform::Tr("Built with"), Platform::Tr("C++20, Dear ImGui, GLFW, OpenGL"));
 
             ImGui::Spacing();
             ImGui::Separator();

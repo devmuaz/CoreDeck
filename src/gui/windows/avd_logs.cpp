@@ -17,19 +17,19 @@
 #include "../theme.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/log_filter.h"
-#include "../../core/i18n.h"
+#include "platform/log_filter.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     namespace {
         struct PanelInputs {
-            std::shared_ptr<Core::LogBuffer> Log;
+            std::shared_ptr<Platform::LogBuffer> Log;
             std::string AvdName;
             bool HasSelection = false;
         };
 
         struct PanelView {
-            Core::LogFilterResult Filter;
+            Platform::LogFilterResult Filter;
             std::string Placeholder;
             bool HasContent = false;
         };
@@ -57,23 +57,23 @@ namespace CoreDeck::Gui {
         PanelView BuildView(const PanelInputs &inputs, const Context::LogViewState &state) {
             PanelView view;
             if (!inputs.HasSelection) {
-                view.Placeholder = Core::Tr("Select an AVD to view logs");
+                view.Placeholder = Platform::Tr("Select an AVD to view logs");
                 return view;
             }
             if (!inputs.Log) {
-                view.Placeholder = Core::TrFormat("Run the \"{0}\" AVD to view logs", inputs.AvdName);
+                view.Placeholder = Platform::TrFormat("Run the \"{0}\" AVD to view logs", inputs.AvdName);
                 return view;
             }
 
             const auto lines = inputs.Log->GetLines();
-            Core::LogFilterOptions options;
+            Platform::LogFilterOptions options;
             options.Query = state.Search;
             options.UseRegex = state.UseRegex;
-            view.Filter = Core::FilterLog(lines, options);
+            view.Filter = Platform::FilterLog(lines, options);
             view.HasContent = !view.Filter.Joined.empty();
 
             if (!view.HasContent) {
-                view.Placeholder = lines.empty() ? Core::Tr("No available logs to view") : Core::Tr("No matching log entries found");
+                view.Placeholder = lines.empty() ? Platform::Tr("No available logs to view") : Platform::Tr("No matching log entries found");
             }
             return view;
         }
@@ -140,7 +140,7 @@ namespace CoreDeck::Gui {
             char searchBuffer[256];
             CopyToBuffer(searchBuffer, sizeof(searchBuffer), state.Search);
 
-            const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? Core::Tr("Regex") : Core::Tr("Search logs..."));
+            const std::string hint = IconWithLabel(Icons::SEARCH, state.UseRegex ? Platform::Tr("Regex") : Platform::Tr("Search logs..."));
             ImGui::SetNextItemWidth(searchWidth);
             if (regexInvalid) {
                 ImGui::PushStyleColor(ImGuiCol_Border, HexColor(Colors::NEGATIVE));
@@ -157,7 +157,7 @@ namespace CoreDeck::Gui {
                 ImGui::PopStyleColor();
             }
             if (regexInvalid && ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("%s", Core::TrFormat("Invalid regex: {0}", view.Filter.RegexError).c_str());
+                ImGui::SetTooltip("%s", Platform::TrFormat("Invalid regex: {0}", view.Filter.RegexError).c_str());
             }
             if (edited) {
                 state.Search = searchBuffer;
@@ -310,7 +310,7 @@ namespace CoreDeck::Gui {
             return;
         }
 
-        const std::string title = Core::TrWindow("Output Log", "Output Log");
+        const std::string title = Platform::TrWindow("Output Log", "Output Log");
         ImGui::Begin(title.c_str());
 
         const PanelInputs inputs = ResolveInputs(context);

@@ -7,7 +7,7 @@
 
 #include "imgui.h"
 
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 #include "../widgets.h"
 
 namespace CoreDeck::Gui {
@@ -96,7 +96,7 @@ namespace CoreDeck::Gui {
         ImGui::InputText("##Value", buffer.data(), buffer.size(), ImGuiInputTextFlags_ReadOnly);
         ImGui::SameLine(0.0F, spacing);
         ImGui::BeginDisabled(value.empty());
-        const std::string tip = Core::TrFormat("Copy {0}", title);
+        const std::string tip = Platform::TrFormat("Copy {0}", title);
         if (PrimaryButton(Icons::COPY, !value.empty(), ImVec2(buttonSide, 0.0F))) {
             ImGui::SetClipboardText(value.c_str());
         }
@@ -153,8 +153,8 @@ namespace CoreDeck::Gui {
         if (path.empty()) {
             return;
         }
-        LabeledValue(Core::Tr("File Name"), FileNameOf(path), columnLabels);
-        LabeledValue(Core::Tr("Full Path"), path, columnLabels);
+        LabeledValue(Platform::Tr("File Name"), FileNameOf(path), columnLabels);
+        LabeledValue(Platform::Tr("Full Path"), path, columnLabels);
     }
 
     void ReportHeading(const char *title, const bool *verified) {
@@ -163,7 +163,7 @@ namespace CoreDeck::Gui {
         if (verified == nullptr) {
             return;
         }
-        const char *label = *verified ? Core::Tr("Verified") : Core::Tr("Not Verified");
+        const char *label = *verified ? Platform::Tr("Verified") : Platform::Tr("Not Verified");
         const char *icon = *verified ? Icons::CHECK_CIRCLE : Icons::TIMES_CIRCLE;
         const float dpi = GetDpiScale();
         const float messageWidth = (16.0F * dpi) + ImGui::CalcTextSize(icon).x + (6.0F * dpi) + ImGui::CalcTextSize(label).x;

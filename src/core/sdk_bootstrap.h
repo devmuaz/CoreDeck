@@ -12,12 +12,14 @@
 #include <string>
 #include <vector>
 
-#include "constants.h"
 #include "jdk.h"
 #include "sdk.h"
 #include "sdk_manager.h"
 
 namespace CoreDeck::Core {
+    constexpr const char *ENV_COREDECK_CMDLINE_TOOLS_URL = "COREDECK_CMDLINE_TOOLS_URL";
+    constexpr const char *ENV_COREDECK_CMDLINE_TOOLS_SHA256 = "COREDECK_CMDLINE_TOOLS_SHA256";
+
     enum class BootstrapStage : uint8_t {
         Idle,
         Preparing,

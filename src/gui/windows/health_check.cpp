@@ -14,7 +14,8 @@
 #include "onboarding.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
+#include "app/app_settings.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -43,17 +44,17 @@ namespace CoreDeck::Gui {
         const char *FixButtonLabel(const Core::HealthFix fix) {
             switch (fix) {
                 case Core::HealthFix::InstallSdk:
-                    return Core::Tr("Install SDK...");
+                    return Platform::Tr("Install SDK...");
                 case Core::HealthFix::InstallCmdlineTools:
-                    return Core::Tr("Install Tools...");
+                    return Platform::Tr("Install Tools...");
                 case Core::HealthFix::InstallBuildTools:
-                    return Core::Tr("Install Build Tools...");
+                    return Platform::Tr("Install Build Tools...");
                 case Core::HealthFix::ConfigureJdk:
-                    return Core::Tr("Configure JDK...");
+                    return Platform::Tr("Configure JDK...");
                 case Core::HealthFix::AcceptLicenses:
-                    return Core::Tr("Accept Licenses...");
+                    return Platform::Tr("Accept Licenses...");
                 case Core::HealthFix::InstallSystemImage:
-                    return Core::Tr("Install Image...");
+                    return Platform::Tr("Install Image...");
                 case Core::HealthFix::None:
                 default:
                     return "";
@@ -188,7 +189,13 @@ namespace CoreDeck::Gui {
     void OpenHealthCheckDialog(Context &context) {
         auto &work = context.HealthCheckWork;
         context.UI.ShowHealthCheckDialog = true;
-        Core::RefreshAndroidSdk(context.Host.Sdk);
+        if (context.Host.Sdk.SdkPath.empty()) {
+            const auto toolEnv = context.Host.Sdk.ToolEnv;
+            context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            context.Host.Sdk.ToolEnv = toolEnv;
+        } else {
+            Core::RefreshAndroidSdk(context.Host.Sdk);
+        }
         const Core::SdkInfo &sdk = context.Host.Sdk;
         work.ObservedTools = ObservedSdkTools(sdk);
         if (work.Busy.load()) {
@@ -218,7 +225,7 @@ namespace CoreDeck::Gui {
             OpenHealthCheckDialog(context);
         }
 
-        const std::string title = Core::TrWindow("Health Check", "HealthCheckDialog");
+        const std::string title = Platform::TrWindow("Health Check", "HealthCheckDialog");
         const bool licenseOpen = context.UI.ShowAcceptLicensesDialog || context.AcceptLicensesWork.Busy.load();
         bool *healthOpen = licenseOpen ? nullptr : &context.UI.ShowHealthCheckDialog;
         if (BeginCenteredModal(
@@ -244,11 +251,11 @@ namespace CoreDeck::Gui {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(busy ? Core::Tr("Checking...") : Core::Tr("Run Again"), !busy && !licenseOpen, ImVec2(halfWidth, 0), busy)) {
+            if (PositiveButton(busy ? Platform::Tr("Checking...") : Platform::Tr("Run Again"), !busy && !licenseOpen, ImVec2(halfWidth, 0), busy)) {
                 OpenHealthCheckDialog(context);
             }
             ImGui::SameLine();
-            if (PrimaryButton(Core::Tr("Close"), !licenseOpen, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Platform::Tr("Close"), !licenseOpen, ImVec2(halfWidth, 0))) {
                 CloseDialog(context);
             }
 

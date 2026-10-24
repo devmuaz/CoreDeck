@@ -9,7 +9,7 @@
 #include "../application.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     void BuildAvdOptionsWindow(Context &context) {
@@ -21,13 +21,13 @@ namespace CoreDeck::Gui {
 
         const bool hasSelection = context.Catalog.SelectedAvd >= 0 && context.Catalog.SelectedAvd < context.Catalog.Avds.size();
         const std::string panelTitle = hasSelection
-                                           ? Core::StrConcat(Core::TrFormat("Options - {0}", context.Catalog.Avds.at(context.Catalog.SelectedAvd).DisplayName), "###Options")
-                                           : Core::TrWindow("Options", "Options");
+                                           ? Platform::StrConcat(Platform::TrFormat("Options - {0}", context.Catalog.Avds.at(context.Catalog.SelectedAvd).DisplayName), "###Options")
+                                           : Platform::TrWindow("Options", "Options");
 
         ImGui::Begin(panelTitle.c_str(), nullptr, FLAGS);
 
         if (!hasSelection) {
-            ImGui::TextDisabled("%s", Core::Tr("Select an AVD to configure options"));
+            ImGui::TextDisabled("%s", Platform::Tr("Select an AVD to configure options"));
             ImGui::End();
             return;
         }
@@ -43,7 +43,7 @@ namespace CoreDeck::Gui {
         }
 
         for (const auto &categoryItem: categories) {
-            if (CollapsingHeader(Core::Tr(categoryItem.c_str()), ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (CollapsingHeader(Platform::Tr(categoryItem.c_str()), ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::Indent(20.0F);
 
                 for (auto &[flag, displayName, description, enabled, type, category, hint, textInput, items, selectedItem]: options) {
@@ -54,7 +54,7 @@ namespace CoreDeck::Gui {
                     ImGui::PushID(flag.c_str());
 
                     const bool wasEnabled = enabled;
-                    SubtitledCheckbox(flag.c_str(), &enabled, Core::Tr(displayName.c_str()), nullptr, description.empty() ? nullptr : Core::Tr(description.c_str()));
+                    SubtitledCheckbox(flag.c_str(), &enabled, Platform::Tr(displayName.c_str()), nullptr, description.empty() ? nullptr : Platform::Tr(description.c_str()));
                     if (wasEnabled != enabled) {
                         optionsChanged = true;
                     }
@@ -65,7 +65,7 @@ namespace CoreDeck::Gui {
                                 ImGui::SetNextItemWidth(-1.0F);
                                 char buffer[256];
                                 CopyToBuffer(buffer, sizeof(buffer), textInput);
-                                if (ImGui::InputTextWithHint("##val", Core::Tr(hint.c_str()), buffer, sizeof(buffer))) {
+                                if (ImGui::InputTextWithHint("##val", Platform::Tr(hint.c_str()), buffer, sizeof(buffer))) {
                                     textInput = buffer;
                                     optionsChanged = true;
                                 }

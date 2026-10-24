@@ -11,15 +11,15 @@
 #include "install_image.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../../core/constants.h"
+#include "core/sdk.h"
 #include "../../core/sdk_manager.h"
-#include "../../core/utilities.h"
-#include "../../core/i18n.h"
+#include "platform/utilities.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     namespace {
         ImageCategory CategoryForImage(const Core::RemoteSystemImage &img) {
-            const std::string searchable = Core::LowerCopy(Core::StrConcat(img.PackagePath, " ", img.Variant, " ", img.DisplayName));
+            const std::string searchable = Platform::LowerCopy(Platform::StrConcat(img.PackagePath, " ", img.Variant, " ", img.DisplayName));
 
             if (searchable.find("wear") != std::string::npos) {
                 return ImageCategory::Wear;
@@ -53,7 +53,7 @@ namespace CoreDeck::Gui {
         }
 
         const char *SystemImagePageSizeLabel(const std::string &variant) {
-            return variant.find("ps16k") != std::string::npos ? Core::Tr("16 KB") : Core::Tr("4 KB");
+            return variant.find("ps16k") != std::string::npos ? Platform::Tr("16 KB") : Platform::Tr("4 KB");
         }
 
         bool MatchesImageFilter(const Core::RemoteSystemImage &img, const char *filter) {
@@ -61,7 +61,7 @@ namespace CoreDeck::Gui {
                 return true;
             }
 
-            const auto searchable = Core::StrConcat(
+            const auto searchable = Platform::StrConcat(
                 img.DisplayName,
                 " ",
                 img.ApiLevel,
@@ -74,7 +74,7 @@ namespace CoreDeck::Gui {
                 " ",
                 SystemImagePageSizeLabel(img.Variant)
             );
-            return Core::ContainsIgnoreCase(searchable, filter);
+            return Platform::ContainsIgnoreCase(searchable, filter);
         }
 
         bool MatchesImageFilters(const Core::RemoteSystemImage &img, const char *filter, const ImageCategory category) {
@@ -252,7 +252,7 @@ namespace CoreDeck::Gui {
                 case InstallImageStatus::Installing:
                     StatusBar(
                         StatusBarTone::Busy,
-                        status.Detail.empty() ? Core::Tr("Installing the system image.") : status.Detail.c_str()
+                        status.Detail.empty() ? Platform::Tr("Installing the system image.") : status.Detail.c_str()
                     );
                     return;
                 case InstallImageStatus::InstallSucceeded:
@@ -262,31 +262,31 @@ namespace CoreDeck::Gui {
                     StatusBar(StatusBarTone::Error, status.Detail.c_str());
                     return;
                 case InstallImageStatus::Removing:
-                    StatusBar(StatusBarTone::Busy, Core::Tr("Removing the system image."));
+                    StatusBar(StatusBarTone::Busy, Platform::Tr("Removing the system image."));
                     return;
                 case InstallImageStatus::CheckingLicenses:
-                    StatusBar(StatusBarTone::Busy, Core::Tr("Checking licenses..."));
+                    StatusBar(StatusBarTone::Busy, Platform::Tr("Checking licenses..."));
                     return;
                 case InstallImageStatus::Loading:
-                    StatusBar(StatusBarTone::Busy, Core::Tr("Loading..."));
+                    StatusBar(StatusBarTone::Busy, Platform::Tr("Loading..."));
                     return;
                 case InstallImageStatus::NoRemoteImages:
                     StatusBar(
                         StatusBarTone::Error,
-                        Core::Tr("No remote system images found. Check your SDK and internet connection.")
+                        Platform::Tr("No remote system images found. Check your SDK and internet connection.")
                     );
                     return;
                 case InstallImageStatus::NoMatches:
-                    StatusBar(StatusBarTone::Idle, Core::Tr("No system images available."));
+                    StatusBar(StatusBarTone::Idle, Platform::Tr("No system images available."));
                     return;
                 case InstallImageStatus::Installed:
-                    StatusBar(StatusBarTone::Idle, Core::Tr("This system image is installed."));
+                    StatusBar(StatusBarTone::Idle, Platform::Tr("This system image is installed."));
                     return;
                 case InstallImageStatus::ReadyToInstall:
-                    StatusBar(StatusBarTone::Idle, Core::Tr("Ready to install this system image."));
+                    StatusBar(StatusBarTone::Idle, Platform::Tr("Ready to install this system image."));
                     return;
                 case InstallImageStatus::SelectImage:
-                    StatusBar(StatusBarTone::Idle, Core::Tr("Select a system image to install."));
+                    StatusBar(StatusBarTone::Idle, Platform::Tr("Select a system image to install."));
                     return;
             }
         }
@@ -294,15 +294,15 @@ namespace CoreDeck::Gui {
 
     LabeledIconStyle SystemImageTypeStyleForVariant(const std::string &variant) {
         if (variant.starts_with("google_apis_playstore")) {
-            return {.Icon = Icons::PLAY, .Label = Core::Tr("Google Play"), .Color = Colors::POSITIVE};
+            return {.Icon = Icons::PLAY, .Label = Platform::Tr("Google Play"), .Color = Colors::POSITIVE};
         }
         if (variant.starts_with("google_apis")) {
-            return {.Icon = Icons::GEAR, .Label = Core::Tr("Google APIs"), .Color = Colors::ACCENT_PHONE};
+            return {.Icon = Icons::GEAR, .Label = Platform::Tr("Google APIs"), .Color = Colors::ACCENT_PHONE};
         }
         if (variant.starts_with("aosp_atd") || variant.starts_with("google_atd")) {
             return {.Icon = Icons::MOBILE, .Label = "ATD", .Color = Colors::ACCENT_WEAR};
         }
-        return {.Icon = Icons::MOBILE, .Label = Core::Tr("Default"), .Color = Colors::TEXT_SUBTLE};
+        return {.Icon = Icons::MOBILE, .Label = Platform::Tr("Default"), .Color = Colors::TEXT_SUBTLE};
     }
 
     LabeledIconStyle SystemImageTypeStyleFor(const Core::SystemImage &img) {
@@ -315,14 +315,14 @@ namespace CoreDeck::Gui {
 
     std::string SystemImageDisplayName(const std::string &apiLevel, const std::string &fallback) {
         if (!apiLevel.empty()) {
-            return Core::TrFormat("Android {0}", apiLevel);
+            return Platform::TrFormat("Android {0}", apiLevel);
         }
         return fallback;
     }
 
     std::string SystemImagePreviewLabel(const Core::SystemImage &img) {
         const auto style = SystemImageTypeStyleFor(img);
-        return Core::StrConcat(
+        return Platform::StrConcat(
             SystemImageDisplayName(img.ApiLevel, img.DisplayName),
             " - ",
             style.Label,
@@ -356,7 +356,7 @@ namespace CoreDeck::Gui {
     // NOLINTNEXTLINE(readability-function-size)
     void BuildInstallImageWindow(Context &context) {
         if (context.UI.ShowInstallImageDialog) {
-            const std::string title = Core::TrWindow("Install System Image", "InstallImageDialog");
+            const std::string title = Platform::TrWindow("Install System Image", "InstallImageDialog");
             const bool installing = context.ImageInstallationWork.Installing.load();
             const bool removalBusy = context.AvdCreationWork.SystemImageRemoval.Busy.load();
             bool *pOpen = (installing || removalBusy) ? nullptr : &context.UI.ShowInstallImageDialog;
@@ -376,7 +376,7 @@ namespace CoreDeck::Gui {
                     } else if (query.Status == Core::LicenseStatus::SomeUnaccepted) {
                         work.AwaitingLicenseConsent = true;
                     } else {
-                        work.LicenseError = Core::Tr("Could not query license state. Check that the SDK Manager is working.");
+                        work.LicenseError = Platform::Tr("Could not query license state. Check that the SDK Manager is working.");
                         if (!query.FailureDetail.empty()) {
                             work.LicenseError.push_back('\n');
                             work.LicenseError += query.FailureDetail;
@@ -394,7 +394,7 @@ namespace CoreDeck::Gui {
                         StartInstall(context, work.PendingPackagePath);
                         work.PendingPackagePath.clear();
                     } else {
-                        work.LicenseError = Core::Tr("License acceptance failed. Try again or accept via Android Studio.");
+                        work.LicenseError = Platform::Tr("License acceptance failed. Try again or accept via Android Studio.");
                         work.PendingPackagePath.clear();
                     }
                 }
@@ -402,11 +402,11 @@ namespace CoreDeck::Gui {
                 if (work.AwaitingLicenseConsent) {
                     const bool licenseBusy = work.LicenseBusy.load();
 
-                    ImGui::Text("%s", Core::Tr("Accept Android SDK License Terms"));
+                    ImGui::Text("%s", Platform::Tr("Accept Android SDK License Terms"));
                     ImGui::Spacing();
                     ImGui::TextWrapped(
                         "%s",
-                        Core::Tr(
+                        Platform::Tr(
                             "Some Android SDK package licenses have not been accepted yet. "
                             "To install this system image, you must agree to Google's Android "
                             "SDK license terms. By clicking Agree, you confirm that you have "
@@ -414,12 +414,12 @@ namespace CoreDeck::Gui {
                         )
                     );
                     ImGui::Spacing();
-                    if (ImGui::TextLink(Core::Tr("View License Terms..."))) {
-                        Core::OpenUrl(Core::SDK_LICENSE_URL);
+                    if (ImGui::TextLink(Platform::Tr("View License Terms..."))) {
+                        Platform::OpenUrl(Core::SDK_LICENSE_URL);
                     }
                     if (licenseBusy) {
                         ImGui::Spacing();
-                        ImGui::TextDisabled("%s", Core::Tr("Recording acceptance with the SDK Manager..."));
+                        ImGui::TextDisabled("%s", Platform::Tr("Recording acceptance with the SDK Manager..."));
                     }
 
                     ImGui::Spacing();
@@ -428,7 +428,7 @@ namespace CoreDeck::Gui {
 
                     const float halfWidth2 = EqualButtonWidth(2);
 
-                    if (PositiveButton(Core::Tr("Agree & Install"), !licenseBusy, ImVec2(halfWidth2, 0))) {
+                    if (PositiveButton(Platform::Tr("Agree & Install"), !licenseBusy, ImVec2(halfWidth2, 0))) {
                         work.LicenseBusy = true;
                         const Core::SdkInfo sdk = context.Host.Sdk;
                         work.LicenseAcceptFuture = std::async(std::launch::async, [sdk] {
@@ -436,7 +436,7 @@ namespace CoreDeck::Gui {
                         });
                     }
                     ImGui::SameLine();
-                    if (NegativeButton(Core::Tr("Cancel"), !licenseBusy, ImVec2(halfWidth2, 0))) {
+                    if (NegativeButton(Platform::Tr("Cancel"), !licenseBusy, ImVec2(halfWidth2, 0))) {
                         work.AwaitingLicenseConsent = false;
                         work.PendingPackagePath.clear();
                     }
@@ -467,20 +467,20 @@ namespace CoreDeck::Gui {
                     ImGui::BeginDisabled();
                 }
 
-                SearchField("##RemoteImageSearch", Core::Tr("Search for a system image by name"), work.SearchFilter, sizeof(work.SearchFilter));
+                SearchField("##RemoteImageSearch", Platform::Tr("Search for a system image by name"), work.SearchFilter, sizeof(work.SearchFilter));
 
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Core::Tr("Categories"));
+                ImGui::TextDisabled("%s", Platform::Tr("Categories"));
 
                 const char *categoryLabels[] = {
-                    Core::Tr("All"),
-                    Core::Tr("Phone / Tablet"),
-                    Core::Tr("Wear OS"),
-                    Core::Tr("TV"),
-                    Core::Tr("Automotive"),
-                    Core::Tr("Desktop"),
-                    Core::Tr("XR"),
-                    Core::Tr("Other"),
+                    Platform::Tr("All"),
+                    Platform::Tr("Phone / Tablet"),
+                    Platform::Tr("Wear OS"),
+                    Platform::Tr("TV"),
+                    Platform::Tr("Automotive"),
+                    Platform::Tr("Desktop"),
+                    Platform::Tr("XR"),
+                    Platform::Tr("Other"),
                 };
                 static_assert(IM_ARRAYSIZE(categoryLabels) == static_cast<int>(ImageCategory::Other) + 1);
                 int selectedCategory = static_cast<int>(work.SelectedCategory);
@@ -490,20 +490,20 @@ namespace CoreDeck::Gui {
                 }
 
                 ImGui::Spacing();
-                ImGui::Text("%s", Core::Tr("Available System Images"));
+                ImGui::Text("%s", Platform::Tr("Available System Images"));
                 ImGui::Spacing();
 
                 {
                     const PickerTableStyle pts;
                     const bool tableOpen = BeginPickerTable("##RemoteImageTableFrame", "##RemoteImageTable", 6, Eh(14.0F));
                     if (tableOpen) {
-                        const std::string nameColumn = Core::StrConcat(" ", Core::Tr("Name"));
+                        const std::string nameColumn = Platform::StrConcat(" ", Platform::Tr("Name"));
                         ImGui::TableSetupColumn(nameColumn.c_str(), ImGuiTableColumnFlags_WidthStretch, 2.4F);
-                        ImGui::TableSetupColumn(Core::Tr("Type"), ImGuiTableColumnFlags_WidthStretch, 1.5F);
-                        ImGui::TableSetupColumn(Core::Tr("API"), ImGuiTableColumnFlags_WidthStretch, 1.2F);
-                        ImGui::TableSetupColumn(Core::Tr("ABI"), ImGuiTableColumnFlags_WidthStretch, 1.3F);
-                        ImGui::TableSetupColumn(Core::Tr("Page Size"), ImGuiTableColumnFlags_WidthFixed, Em(10.0F));
-                        ImGui::TableSetupColumn(Core::Tr("Status"), ImGuiTableColumnFlags_WidthStretch, 1.2F);
+                        ImGui::TableSetupColumn(Platform::Tr("Type"), ImGuiTableColumnFlags_WidthStretch, 1.5F);
+                        ImGui::TableSetupColumn(Platform::Tr("API"), ImGuiTableColumnFlags_WidthStretch, 1.2F);
+                        ImGui::TableSetupColumn(Platform::Tr("ABI"), ImGuiTableColumnFlags_WidthStretch, 1.3F);
+                        ImGui::TableSetupColumn(Platform::Tr("Page Size"), ImGuiTableColumnFlags_WidthFixed, Em(10.0F));
+                        ImGui::TableSetupColumn(Platform::Tr("Status"), ImGuiTableColumnFlags_WidthStretch, 1.2F);
                         ImGui::TableHeadersRow();
 
                         if (!work.RemoteImages.empty()) {
@@ -519,7 +519,7 @@ namespace CoreDeck::Gui {
                                 ImGui::TableNextRow();
                                 ImGui::TableNextColumn();
 
-                                const std::string label = Core::StrConcat(
+                                const std::string label = Platform::StrConcat(
                                     " ",
                                     SystemImageDisplayName(img.ApiLevel, img.DisplayName),
                                     "##RemoteImage",
@@ -546,9 +546,9 @@ namespace CoreDeck::Gui {
 
                                 ImGui::TableNextColumn();
                                 if (img.IsInstalled) {
-                                    ImGui::TextColored(HexColor(Colors::POSITIVE), "%s", Core::Tr("Installed"));
+                                    ImGui::TextColored(HexColor(Colors::POSITIVE), "%s", Platform::Tr("Installed"));
                                 } else {
-                                    ImGui::TextDisabled("%s", Core::Tr("Available"));
+                                    ImGui::TextDisabled("%s", Platform::Tr("Available"));
                                 }
                             }
                         }
@@ -597,9 +597,9 @@ namespace CoreDeck::Gui {
                 if (selectedInstalled || removalBusy) {
                     if (removalBusy) {
                         ImGui::BeginDisabled();
-                        PositiveButton(Core::Tr("Use Selected Image"), false, ImVec2(thirdWidth, 0));
+                        PositiveButton(Platform::Tr("Use Selected Image"), false, ImVec2(thirdWidth, 0));
                         ImGui::EndDisabled();
-                    } else if (PositiveButton(Core::Tr("Use Selected Image"), canUseSelected, ImVec2(thirdWidth, 0))) {
+                    } else if (PositiveButton(Platform::Tr("Use Selected Image"), canUseSelected, ImVec2(thirdWidth, 0))) {
                         const auto &img = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage));
                         if (SelectInstalledSystemImage(context, img.PackagePath)) {
                             work.Progress.reset();
@@ -609,8 +609,8 @@ namespace CoreDeck::Gui {
 
                     ImGui::SameLine();
                     if (removalBusy) {
-                        NegativeButton(Core::Tr("Removing..."), true, ImVec2(thirdWidth, 0), true);
-                    } else if (NegativeButton(Core::Tr("Remove Image"), canRemove, ImVec2(thirdWidth, 0))) {
+                        NegativeButton(Platform::Tr("Removing..."), true, ImVec2(thirdWidth, 0), true);
+                    } else if (NegativeButton(Platform::Tr("Remove Image"), canRemove, ImVec2(thirdWidth, 0))) {
                         const std::string pkg = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage)).PackagePath;
                         removal.Busy = true;
                         const Core::SdkInfo sdk = context.Host.Sdk;
@@ -624,26 +624,26 @@ namespace CoreDeck::Gui {
                     }
 
                     ImGui::SameLine();
-                    if (PrimaryButton(Core::Tr("Close"), !isInstalling && !removalBusy, ImVec2(thirdWidth, 0))) {
+                    if (PrimaryButton(Platform::Tr("Close"), !isInstalling && !removalBusy, ImVec2(thirdWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else if (isInstalling) {
-                    PositiveButton(Core::Tr("Installing..."), true, ImVec2(halfWidth, 0), true);
+                    PositiveButton(Platform::Tr("Installing..."), true, ImVec2(halfWidth, 0), true);
                     ImGui::SameLine();
-                    if (PrimaryButton(Core::Tr("Close"), false, ImVec2(halfWidth, 0))) {
+                    if (PrimaryButton(Platform::Tr("Close"), false, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else if (licenseBusy) {
-                    PositiveButton(Core::Tr("Checking licenses..."), true, ImVec2(halfWidth, 0), true);
+                    PositiveButton(Platform::Tr("Checking licenses..."), true, ImVec2(halfWidth, 0), true);
                     ImGui::SameLine();
-                    if (PrimaryButton(Core::Tr("Close"), false, ImVec2(halfWidth, 0))) {
+                    if (PrimaryButton(Platform::Tr("Close"), false, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }
                 } else {
-                    if (PositiveButton(Core::Tr("Install"), canInstall, ImVec2(halfWidth, 0))) {
+                    if (PositiveButton(Platform::Tr("Install"), canInstall, ImVec2(halfWidth, 0))) {
                         const auto &img = work.RemoteImages.at(static_cast<std::size_t>(work.SelectedImage));
                         work.PendingPackagePath = img.PackagePath;
                         work.LicenseError.clear();
@@ -655,7 +655,7 @@ namespace CoreDeck::Gui {
                     }
 
                     ImGui::SameLine();
-                    if (PrimaryButton(Core::Tr("Close"), !isInstalling && !removalBusy, ImVec2(halfWidth, 0))) {
+                    if (PrimaryButton(Platform::Tr("Close"), !isInstalling && !removalBusy, ImVec2(halfWidth, 0))) {
                         work.Progress.reset();
                         context.UI.ShowInstallImageDialog = false;
                     }

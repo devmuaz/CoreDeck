@@ -23,7 +23,7 @@ namespace CoreDeck::Core {
         int ConsolePort = 0;
         bool IsRunning = false;
         bool Stopping = false;
-        std::shared_ptr<LogBuffer> Log;
+        std::shared_ptr<Platform::LogBuffer> Log;
         std::thread ReaderThread;
         std::thread StopThread;
         std::shared_ptr<std::atomic<bool>> StopRequested;
@@ -47,11 +47,11 @@ namespace CoreDeck::Core {
 
         bool IsRunning(const std::string &avdName) const;
 
-        std::shared_ptr<LogBuffer> GetLog(const std::string &avdName);
+        std::shared_ptr<Platform::LogBuffer> GetLog(const std::string &avdName);
 
         ProcessId GetPid(const std::string &avdName) const;
 
-        const ProcessStatsSampler &Stats() const {
+        const Platform::ProcessStatsSampler &Stats() const {
             return m_Stats;
         }
 
@@ -65,7 +65,7 @@ namespace CoreDeck::Core {
         SdkInfo m_Sdk;
         mutable std::mutex m_Mutex;
         std::unordered_map<std::string, EmulatorInstance> m_Instances;
-        ProcessStatsSampler m_Stats;
+        Platform::ProcessStatsSampler m_Stats;
     };
 }
 

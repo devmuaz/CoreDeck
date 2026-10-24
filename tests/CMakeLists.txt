@@ -24,9 +24,11 @@ add_executable(coredeck_tests
 )
 
 target_link_libraries(coredeck_tests PRIVATE
+        coredeck_app
         coredeck_core
         Catch2::Catch2WithMain
 )
+target_include_directories(coredeck_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 file(TO_CMAKE_PATH "${COREDECK_LOCALE_DIR}" _coredeck_locales_dir)
 file(TO_CMAKE_PATH "${GETTEXT_MSGFMT_EXECUTABLE}" _coredeck_msgfmt)

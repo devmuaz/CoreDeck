@@ -6,8 +6,8 @@
 #define COREDECK_APPLICATION_H
 
 #include "context.h"
-#include "../core/app_settings_types.h"
-#include "../core/version_check.h"
+#include "app/app_settings_types.h"
+#include "app/version_check.h"
 
 #include <future>
 #include <optional>
@@ -67,16 +67,16 @@ namespace CoreDeck::Gui {
         float m_FontPixelScale = 1.0F;
 
         std::string m_AppliedWindowPage;
-        std::future<std::optional<Core::RemoteRelease>> m_UpdateCheckFuture;
+        std::future<std::optional<App::RemoteRelease>> m_UpdateCheckFuture;
         bool m_AutoUpdateCheckStarted = false;
         bool m_UpdateCheckWasManual = false;
     };
 
     void ApplyWindowChrome(GLFWwindow *window);
 
-    Core::AppSettings CaptureAppSettingsFromContext(const Context &context);
+    App::AppSettings CaptureAppSettingsFromContext(const Context &context);
 
-    void ApplyAppSettingsToContext(Context &context, const Core::AppSettings &settings);
+    void ApplyAppSettingsToContext(Context &context, const App::AppSettings &settings);
 
     void PersistAppSettings(const Context &context);
 

@@ -8,9 +8,10 @@
 
 #include <miniz.h>
 
-#include "core/archive.h"
+#include "platform/archive.h"
 
-using namespace CoreDeck::Core;
+using namespace CoreDeck::Platform;
+using namespace CoreDeck;
 
 namespace {
     using ZipEntry = std::pair<std::string, std::string>;
@@ -46,7 +47,7 @@ namespace {
 }
 
 TEST_CASE("IsSafeArchiveEntry rejects traversal and absolute paths", "[archive][safety]") {
-    using namespace CoreDeck::Core::detail;
+    using namespace CoreDeck::Platform::detail;
 
     REQUIRE(IsSafeArchiveEntry("cmdline-tools/bin/sdkmanager"));
     REQUIRE(IsSafeArchiveEntry("./cmdline-tools/NOTICE.txt"));
@@ -61,7 +62,7 @@ TEST_CASE("IsSafeArchiveEntry rejects traversal and absolute paths", "[archive][
 }
 
 TEST_CASE("StripLeadingComponent drops the first path segment", "[archive][safety]") {
-    using namespace CoreDeck::Core::detail;
+    using namespace CoreDeck::Platform::detail;
 
     REQUIRE(StripLeadingComponent("cmdline-tools/bin/sdkmanager") == "bin/sdkmanager");
     REQUIRE(StripLeadingComponent("cmdline-tools/").empty());
@@ -76,7 +77,7 @@ TEST_CASE("ExtractZip writes entries relative to the destination", "[archive][ex
     REQUIRE(WriteZip(zipPath, {{"root/a.txt", "alpha"}, {"root/sub/b.txt", "beta"}}));
 
     std::string error;
-    REQUIRE(ExtractZip(zipPath.string(), dest.string(), ExtractOptions{}, nullptr, error));
+    REQUIRE(Platform::ExtractZip(zipPath.string(), dest.string(), Platform::ExtractOptions{}, nullptr, error));
     REQUIRE(error.empty());
 
     REQUIRE(std::filesystem::exists(dest / "root" / "a.txt"));
@@ -94,10 +95,10 @@ TEST_CASE("ExtractZip can strip the archive's top-level directory", "[archive][e
     REQUIRE(WriteZip(zipPath, {{"cmdline-tools/bin/sdkmanager", "#!/bin/sh"}, {"cmdline-tools/lib/x.jar", "jar"}}));
 
     std::string error;
-    REQUIRE(ExtractZip(
+    REQUIRE(Platform::ExtractZip(
         zipPath.string(),
         dest.string(),
-        ExtractOptions{.StripTopLevelDir = true},
+        Platform::ExtractOptions{.StripTopLevelDir = true},
         nullptr,
         error
     ));
@@ -117,7 +118,7 @@ TEST_CASE("ExtractZip refuses entries that escape the destination", "[archive][s
     REQUIRE(WriteZip(zipPath, {{"safe.txt", "fine"}, {"../escape.txt", "pwned"}}));
 
     std::string error;
-    REQUIRE_FALSE(ExtractZip(zipPath.string(), dest.string(), ExtractOptions{}, nullptr, error));
+    REQUIRE_FALSE(Platform::ExtractZip(zipPath.string(), dest.string(), Platform::ExtractOptions{}, nullptr, error));
     REQUIRE_FALSE(error.empty());
     REQUIRE_FALSE(std::filesystem::exists(scratch / "escape.txt"));
 
@@ -133,10 +134,10 @@ TEST_CASE("ExtractZip reports progress and honours cancellation", "[archive][ext
 
     int calls = 0;
     std::string error;
-    const bool ok = ExtractZip(
+    const bool ok = Platform::ExtractZip(
         zipPath.string(),
         dest.string(),
-        ExtractOptions(),
+        Platform::ExtractOptions(),
         [&calls](const float progress) {
             ++calls;
             REQUIRE(progress > 0.0F);
@@ -162,10 +163,10 @@ TEST_CASE("ExtractZip marks bin/ entries executable", "[archive][permissions]") 
     REQUIRE(WriteZip(zipPath, {{"cmdline-tools/bin/sdkmanager", "#!/bin/sh\n"}, {"cmdline-tools/lib/x.jar", "jar"}}));
 
     std::string error;
-    REQUIRE(ExtractZip(
+    REQUIRE(Platform::ExtractZip(
         zipPath.string(),
         dest.string(),
-        ExtractOptions{.StripTopLevelDir = true},
+        Platform::ExtractOptions{.StripTopLevelDir = true},
         nullptr,
         error
     ));

@@ -14,7 +14,7 @@
 #include "../theme.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/i18n.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -31,9 +31,9 @@ namespace CoreDeck::Gui {
         };
 
         constexpr SidebarItem SIDEBAR_ITEMS[] = {
-            {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = Core::TrNoop("General")},
-            {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = Core::TrNoop("Android SDK")},
-            {.Section = PrefsSection::Java, .Icon = Icons::COFFEE, .Label = Core::TrNoop("Java (JDK)")},
+            {.Section = PrefsSection::General, .Icon = Icons::GEAR, .Label = Platform::TrNoop("General")},
+            {.Section = PrefsSection::AndroidSdk, .Icon = Icons::MOBILE, .Label = Platform::TrNoop("Android SDK")},
+            {.Section = PrefsSection::Java, .Icon = Icons::COFFEE, .Label = Platform::TrNoop("Java (JDK)")},
         };
 
         bool SidebarRow(const SidebarItem &item, const bool selected) {
@@ -75,7 +75,7 @@ namespace CoreDeck::Gui {
             const ImU32 textColor = ImGui::GetColorU32(selected ? HexColor(Colors::TEXT_PRIMARY) : HexColor(Colors::TEXT_SUBTLE));
             const float textY = bb.Min.y + ((height - ImGui::GetTextLineHeight()) * 0.5F);
             window->DrawList->AddText(ImVec2(bb.Min.x + 14.0F, textY), textColor, item.Icon);
-            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0F, textY), textColor, Core::Tr(item.Label));
+            window->DrawList->AddText(ImVec2(bb.Min.x + 38.0F, textY), textColor, Platform::Tr(item.Label));
 
             ImGui::PopID();
             return pressed;
@@ -109,7 +109,7 @@ namespace CoreDeck::Gui {
         static char sdkPathBuffer[2048];
         static char jdkPathBuffer[2048];
 
-        const std::string title = Core::TrWindow("Preferences", "CoreDeckPrefs");
+        const std::string title = Platform::TrWindow("Preferences", "CoreDeckPrefs");
         if (!context.UI.ShowPreferences && !ImGui::IsPopupOpen(title.c_str())) {
             return;
         }

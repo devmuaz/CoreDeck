@@ -99,7 +99,7 @@ namespace CoreDeck::Core {
         img.ApiLevel = parts.at(1).substr(8);
         img.Variant = parts.at(2);
         img.Abi = parts.at(3);
-        img.DisplayName = StrConcat("Android ", img.ApiLevel, " (", img.Variant, ", ", img.Abi, ")");
+        img.DisplayName = Platform::StrConcat("Android ", img.ApiLevel, " (", img.Variant, ", ", img.Abi, ")");
         return img;
     }
 
@@ -109,7 +109,7 @@ namespace CoreDeck::Core {
             return images;
         }
 
-        const std::string sysImgRoot = Paths::JoinPaths({sdk.SdkPath, "system-images"});
+        const std::string sysImgRoot = Platform::JoinPaths({sdk.SdkPath, "system-images"});
         if (!std::filesystem::exists(sysImgRoot)) {
             return images;
         }
@@ -140,7 +140,7 @@ namespace CoreDeck::Core {
                     }
                     const std::string abi = abiEntry.path().filename().string();
 
-                    const std::string sysImg = Paths::JoinPaths({abiEntry.path().string(), "system.img"});
+                    const std::string sysImg = Platform::JoinPaths({abiEntry.path().string(), "system.img"});
                     if (!std::filesystem::exists(sysImg)) {
                         continue;
                     }
@@ -149,8 +149,8 @@ namespace CoreDeck::Core {
                     img.ApiLevel = apiLevel;
                     img.Variant = variant;
                     img.Abi = abi;
-                    img.PackagePath = StrConcat("system-images;", apiDirName, ";", variant, ";", abi);
-                    img.DisplayName = StrConcat("Android ", apiLevel, " (", variant, ", ", abi, ")");
+                    img.PackagePath = Platform::StrConcat("system-images;", apiDirName, ";", variant, ";", abi);
+                    img.DisplayName = Platform::StrConcat("Android ", apiLevel, " (", variant, ", ", abi, ")");
                     images.push_back(img);
                 }
             }
@@ -227,9 +227,9 @@ namespace CoreDeck::Core {
             return sdkStatus;
         }
         if (sdkStatus.starts_with("Unzipping")) {
-            return TrFormat("Unzipping {0}", name);
+            return Platform::TrFormat("Unzipping {0}", name);
         }
-        return TrFormat("Downloading {0}", name);
+        return Platform::TrFormat("Downloading {0}", name);
     }
 
     bool InstallSystemImage(
@@ -261,7 +261,7 @@ namespace CoreDeck::Core {
                 const std::scoped_lock lock(progress->Mutex);
                 progress->Finished = true;
                 progress->Succeeded = false;
-                progress->StatusText = Tr("Installation Failed!");
+                progress->StatusText = Platform::Tr("Installation Failed!");
             }
             return false;
         }
@@ -269,7 +269,7 @@ namespace CoreDeck::Core {
         // Verify
         std::string fsPath = packagePath;
         std::ranges::replace(fsPath, ';', '/');
-        const std::string sysImg = Paths::JoinPaths({sdk.SdkPath, fsPath, "system.img"});
+        const std::string sysImg = Platform::JoinPaths({sdk.SdkPath, fsPath, "system.img"});
         const bool ok = std::filesystem::exists(sysImg);
 
         if (progress) {
@@ -277,7 +277,7 @@ namespace CoreDeck::Core {
             progress->Finished = true;
             progress->Succeeded = ok;
             progress->Percent = ok ? 1.0F : progress->Percent;
-            progress->StatusText = ok ? Tr("Installation Completed!") : Tr("Installation Failed!");
+            progress->StatusText = ok ? Platform::Tr("Installation Completed!") : Platform::Tr("Installation Failed!");
         }
 
         return ok;
@@ -294,7 +294,7 @@ namespace CoreDeck::Core {
 
         std::string fsPath = packagePath;
         std::ranges::replace(fsPath, ';', '/');
-        const std::string sysImg = Paths::JoinPaths({sdk.SdkPath, fsPath, "system.img"});
+        const std::string sysImg = Platform::JoinPaths({sdk.SdkPath, fsPath, "system.img"});
         return !std::filesystem::exists(sysImg);
     }
 }

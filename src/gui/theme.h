@@ -7,7 +7,7 @@
 
 #include "imgui.h"
 
-#include "../core/app_settings_types.h"
+#include "app/app_settings_types.h"
 
 namespace CoreDeck::Gui {
     namespace Icons {
@@ -108,7 +108,7 @@ namespace CoreDeck::Gui {
 
     bool IsLightColorScheme();
 
-    void SetThemePreference(Core::ThemePreference preference);
+    void SetThemePreference(App::ThemePreference preference);
 
     bool SyncSystemColorScheme();
 

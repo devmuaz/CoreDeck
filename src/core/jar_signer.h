@@ -52,7 +52,7 @@ namespace CoreDeck::Core {
         std::string StorePassword;
         std::string KeyPassword;
         JdkInfo Jdk;
-        EnvVars ToolEnv;
+        Platform::EnvVars ToolEnv;
     };
 
     struct JarSignResult {
@@ -75,7 +75,7 @@ namespace CoreDeck::Core {
     JarVerifyResult VerifyJar(
         const std::string &jarsignerPath,
         const std::string &jarPath,
-        const EnvVars &toolEnv
+        const Platform::EnvVars &toolEnv
     );
 
     std::vector<std::string> BuildJarSignArguments(

@@ -5,6 +5,7 @@
 #include "core/jar_signer.h"
 
 using namespace CoreDeck::Core;
+using namespace CoreDeck;
 
 TEST_CASE("ParseJarVerifyOutput reads the signer, algorithms, and timestamp", "[jar-signer]") {
     const auto report = ParseJarVerifyOutput(

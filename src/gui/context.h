@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../core/app_settings_types.h"
+#include "app/app_settings_types.h"
 #include "../core/avd_manager.h"
 #include "../core/emulator.h"
 #include "../core/health_check.h"
@@ -145,7 +145,7 @@ namespace CoreDeck::Gui {
             bool ConfirmBeforeDeleteAvd = true;
             bool CrashReportingEnabled = true;
             bool CheckForUpdatesOnLaunch = true;
-            Core::ThemePreference Theme = Core::ThemePreference::System;
+            App::ThemePreference Theme = App::ThemePreference::System;
             std::string Language;
         } Prefs;
 
