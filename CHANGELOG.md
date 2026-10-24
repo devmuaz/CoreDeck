@@ -1,7 +1,13 @@
-## [Unreleased]
+## [v0.14.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.1) — 2026-10-24
 
 - Add Java Jar Signer (Tools, Java Jar Signer) so a JAR archive, including an Android App Bundle, can be verified and signed with the JDK's `jarsigner`. Signing writes a new file and leaves the original unchanged
 - A private-key entry in Java Keytool can be opened in Java Jar Signer as well as APK Signer
+- Create AVD shows a loading card while its options are prepared (thanks [@flysoftsystems](https://github.com/flysoftsystems), [#43](https://github.com/devmuaz/CoreDeck/issues/43))
+- Install System Image shows one status at a time, such as loading, installing, or already installed
+- Creating an AVD updates RAM, storage, graphics, the skin, the display name, and the hardware keyboard in place, instead of adding a second copy of each setting
+- Fix AVD logs on Windows so auto-scroll follows new lines
+- Install on Arch Linux from the AUR package `coredeck-bin` (thanks [@RaafatTurki](https://github.com/RaafatTurki), [#53](https://github.com/devmuaz/CoreDeck/issues/53))
+- The macOS disk image window has an updated background, with the app and Applications icons centered
 
 ## [v0.14.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.0) — 2026-10-16
 
