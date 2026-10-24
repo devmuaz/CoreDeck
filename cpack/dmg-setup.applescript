@@ -17,7 +17,10 @@ on run argv
             set current view of container window to icon view
             set toolbar visible of container window to false
             set statusbar visible of container window to false
-            set the bounds of container window to {400, 100, 1000, 500}
+            
+            -- NATIVE CORRECTION: Adjust window height to 430 to accommodate the native title bar.
+            -- Width: 1000 - 400 = 600px | Height: 530 - 100 = 430px (400px canvas + 30px native title bar)
+            set the bounds of container window to {400, 100, 1000, 530}
 
             set viewOptions to the icon view options of container window
             set arrangement of viewOptions to not arranged
@@ -33,8 +36,10 @@ on run argv
                 end try
             end try
 
-            set position of item "CoreDeck.app" of container window to {150, 185}
-            set position of item "Applications" of container window to {450, 185}
+            -- NATIVE CORRECTION: Vertically center the icons on the true 400px usable canvas height.
+            -- X coordinates are perfectly mirrored at 150px inward from the left and right edges.
+            set position of item "CoreDeck.app" of container window to {150, 230}
+            set position of item "Applications" of container window to {450, 230}
 
             -- Force Finder to write the layout to .DS_Store before CPack snapshots it.
             close
