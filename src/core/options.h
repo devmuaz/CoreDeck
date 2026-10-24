@@ -11,7 +11,7 @@
 
 #include "i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class OptionType : uint8_t {
         Default = 0,
         TextInput,

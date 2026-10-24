@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <chrono>
 #include <cstring>
-#include <filesystem>
 #include <future>
 #include <string>
 #include <utility>
@@ -22,7 +21,7 @@
 #include "../../core/keytool.h"
 #include "../../core/utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         constexpr const char *UNAVAILABLE = "\u2014";
 
@@ -32,12 +31,7 @@ namespace CoreDeck {
 
         struct CreateTemplateOption {
             const char *Label;
-            bool Applies;
-            KeystoreType StoreType;
             const char *Extension;
-            KeyAlgorithm Algorithm;
-            int KeySize;
-            int ValidityDays;
             const char *Alias;
             const char *FileName;
             const char *CommonName;
@@ -46,13 +40,82 @@ namespace CoreDeck {
             const char *Locality;
             const char *State;
             const char *Country;
+            int KeySize;
+            int ValidityDays;
+            bool Applies;
+            Core::KeystoreType StoreType;
+            Core::KeyAlgorithm Algorithm;
         };
 
         constexpr CreateTemplateOption CREATE_TEMPLATES[] = {
-            {.Label = "None", .Applies = false, .StoreType = KeystoreType::Pkcs12, .Extension = ".jks", .Algorithm = KeyAlgorithm::Rsa, .KeySize = 2048, .ValidityDays = 10000, .Alias = "", .FileName = "", .CommonName = "", .OrganizationalUnit = "", .Organization = "", .Locality = "", .State = "", .Country = ""},
-            {.Label = "Flutter Upload", .Applies = true, .StoreType = KeystoreType::Jks, .Extension = ".jks", .Algorithm = KeyAlgorithm::Rsa, .KeySize = 2048, .ValidityDays = 10000, .Alias = "upload", .FileName = "upload-keystore.jks", .CommonName = "", .OrganizationalUnit = "", .Organization = "", .Locality = "", .State = "", .Country = ""},
-            {.Label = "Android Release", .Applies = true, .StoreType = KeystoreType::Pkcs12, .Extension = ".jks", .Algorithm = KeyAlgorithm::Rsa, .KeySize = 2048, .ValidityDays = 10000, .Alias = "my-alias", .FileName = "my-release-key.jks", .CommonName = "", .OrganizationalUnit = "", .Organization = "", .Locality = "", .State = "", .Country = ""},
-            {.Label = "Android Debug", .Applies = true, .StoreType = KeystoreType::Pkcs12, .Extension = ".keystore", .Algorithm = KeyAlgorithm::Rsa, .KeySize = 2048, .ValidityDays = 10000, .Alias = "androiddebugkey", .FileName = "debug.keystore", .CommonName = "Android Debug", .OrganizationalUnit = "", .Organization = "Android", .Locality = "", .State = "", .Country = "US"},
+            {
+                .Label = "None",
+                .Extension = ".jks",
+                .Alias = "",
+                .FileName = "",
+                .CommonName = "",
+                .OrganizationalUnit = "",
+                .Organization = "",
+                .Locality = "",
+                .State = "",
+                .Country = "",
+                .KeySize = 2048,
+                .ValidityDays = 10000,
+                .Applies = false,
+                .StoreType = Core::KeystoreType::Pkcs12,
+                .Algorithm = Core::KeyAlgorithm::Rsa,
+            },
+            {
+                .Label = "Flutter Upload",
+                .Extension = ".jks",
+                .Alias = "upload",
+                .FileName = "upload-keystore.jks",
+                .CommonName = "",
+                .OrganizationalUnit = "",
+                .Organization = "",
+                .Locality = "",
+                .State = "",
+                .Country = "",
+                .KeySize = 2048,
+                .ValidityDays = 10000,
+                .Applies = true,
+                .StoreType = Core::KeystoreType::Jks,
+                .Algorithm = Core::KeyAlgorithm::Rsa,
+            },
+            {
+                .Label = "Android Release",
+                .Extension = ".jks",
+                .Alias = "my-alias",
+                .FileName = "my-release-key.jks",
+                .CommonName = "",
+                .OrganizationalUnit = "",
+                .Organization = "",
+                .Locality = "",
+                .State = "",
+                .Country = "",
+                .KeySize = 2048,
+                .ValidityDays = 10000,
+                .Applies = true,
+                .StoreType = Core::KeystoreType::Pkcs12,
+                .Algorithm = Core::KeyAlgorithm::Rsa,
+            },
+            {
+                .Label = "Android Debug",
+                .Extension = ".keystore",
+                .Alias = "androiddebugkey",
+                .FileName = "debug.keystore",
+                .CommonName = "Android Debug",
+                .OrganizationalUnit = "",
+                .Organization = "Android",
+                .Locality = "",
+                .State = "",
+                .Country = "US",
+                .KeySize = 2048,
+                .ValidityDays = 10000,
+                .Applies = true,
+                .StoreType = Core::KeystoreType::Pkcs12,
+                .Algorithm = Core::KeyAlgorithm::Rsa,
+            },
         };
 
         struct KeySizeOption {
@@ -61,30 +124,31 @@ namespace CoreDeck {
         };
 
         constexpr KeySizeOption RSA_SIZES[] = {
-            {1024, "1024-bit"},
-            {2048, "2048-bit"},
-            {3072, "3072-bit"},
-            {4096, "4096-bit"},
+            {.Size = 1024, .Label = "1024-bit"},
+            {.Size = 2048, .Label = "2048-bit"},
+            {.Size = 3072, .Label = "3072-bit"},
+            {.Size = 4096, .Label = "4096-bit"},
         };
 
         constexpr KeySizeOption EC_SIZES[] = {
-            {256, "256-bit"},
-            {384, "384-bit"},
-            {521, "521-bit"},
+            {.Size = 256, .Label = "256-bit"},
+            {.Size = 384, .Label = "384-bit"},
+            {.Size = 521, .Label = "521-bit"},
         };
 
         constexpr KeySizeOption DSA_SIZES[] = {
-            {1024, "1024-bit"},
-            {2048, "2048-bit"},
-            {3072, "3072-bit"},
+            {.Size = 1024, .Label = "1024-bit"},
+            {.Size = 2048, .Label = "2048-bit"},
+            {.Size = 3072, .Label = "3072-bit"},
         };
 
         struct CreateLaunch {
-            CreateKeystoreRequest Request;
+            Core::CreateKeystoreRequest Request;
 
-            explicit CreateLaunch(CreateKeystoreRequest request) : Request(std::move(request)) {
-                WipeSecret(request.StorePassword);
-                WipeSecret(request.KeyPassword);
+            explicit CreateLaunch(Core::CreateKeystoreRequest request) : Request(std::move(request)) {
+                // Moved-from small strings can retain the secret in their inline buffer.
+                Core::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
+                Core::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
             }
 
             CreateLaunch(const CreateLaunch &) = delete;
@@ -92,19 +156,19 @@ namespace CoreDeck {
             CreateLaunch &operator=(CreateLaunch &&) = delete;
 
             CreateLaunch(CreateLaunch &&other) noexcept : Request(std::move(other.Request)) {
-                WipeSecret(other.Request.StorePassword);
-                WipeSecret(other.Request.KeyPassword);
+                Core::WipeSecret(other.Request.StorePassword);
+                Core::WipeSecret(other.Request.KeyPassword);
             }
 
             ~CreateLaunch() {
-                WipeSecret(Request.StorePassword);
-                WipeSecret(Request.KeyPassword);
+                Core::WipeSecret(Request.StorePassword);
+                Core::WipeSecret(Request.KeyPassword);
             }
 
-            CreateKeystoreResult Run() {
-                CreateKeystoreResult result = CreateKeystore(std::move(Request));
-                WipeSecret(Request.StorePassword);
-                WipeSecret(Request.KeyPassword);
+            Core::CreateKeystoreResult Run() {
+                Core::CreateKeystoreResult result = Core::CreateKeystore(std::move(Request));
+                Core::WipeSecret(Request.StorePassword);
+                Core::WipeSecret(Request.KeyPassword);
                 return result;
             }
         };
@@ -113,7 +177,7 @@ namespace CoreDeck {
             std::string Value;
 
             explicit SecretText(std::string value) : Value(std::move(value)) {
-                WipeSecret(value);
+                Core::WipeSecret(value);
             }
 
             SecretText(const SecretText &) = delete;
@@ -121,17 +185,17 @@ namespace CoreDeck {
             SecretText &operator=(SecretText &&) = delete;
 
             SecretText(SecretText &&other) noexcept : Value(std::move(other.Value)) {
-                WipeSecret(other.Value);
+                Core::WipeSecret(other.Value);
             }
 
             ~SecretText() {
-                WipeSecret(Value);
+                Core::WipeSecret(Value);
             }
         };
 
         struct RetiredJobs {
-            std::vector<std::future<KeystoreDescription>> Inspect;
-            std::vector<std::future<CreateKeystoreResult>> Create;
+            std::vector<std::future<Core::KeystoreDescription>> Inspect;
+            std::vector<std::future<Core::CreateKeystoreResult>> Create;
         };
 
         RetiredJobs &Graveyard() {
@@ -148,7 +212,7 @@ namespace CoreDeck {
                 result = job.get();
             } catch (...) {
                 result = {};
-                result.Status = KeytoolStatus::Failed;
+                result.Status = Core::KeytoolStatus::Failed;
             }
             hasResult = true;
             return true;
@@ -167,11 +231,11 @@ namespace CoreDeck {
         }
 
         struct CreateCheck {
-            KeytoolRefusal Refusal = KeytoolRefusal::None;
+            Core::KeytoolRefusal Refusal = Core::KeytoolRefusal::None;
             bool PasswordMismatch = false;
 
             bool Ready() const {
-                return Refusal == KeytoolRefusal::None && !PasswordMismatch;
+                return Refusal == Core::KeytoolRefusal::None && !PasswordMismatch;
             }
         };
 
@@ -209,7 +273,7 @@ namespace CoreDeck {
         }
 
         int ExtensionIndexOf(const std::string &path) {
-            const std::string lower = LowerCopy(path);
+            const std::string lower = Core::LowerCopy(path);
             for (int index = 0; index < IM_ARRAYSIZE(KEYSTORE_SUFFIXES); ++index) {
                 if (lower.ends_with(KEYSTORE_SUFFIXES[index])) {
                     return index;
@@ -284,7 +348,7 @@ namespace CoreDeck {
             CopyTextField(work.StateName, sizeof work.StateName, option.State);
             CopyTextField(work.Country, sizeof work.Country, option.Country);
             work.KeyPasswordMatches = true;
-            WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+            Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
             work.ShowKeyPassword = false;
             work.SecretEpoch += 1;
             if (!work.CreatePath.empty()) {
@@ -305,10 +369,10 @@ namespace CoreDeck {
         }
 
         void WipePasswords(struct Context::KeytoolWork &work) {
-            WipeSecret(work.InspectPassword, sizeof work.InspectPassword);
-            WipeSecret(work.CreatePassword, sizeof work.CreatePassword);
-            WipeSecret(work.ConfirmPassword, sizeof work.ConfirmPassword);
-            WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+            Core::WipeSecret(work.InspectPassword, sizeof work.InspectPassword);
+            Core::WipeSecret(work.CreatePassword, sizeof work.CreatePassword);
+            Core::WipeSecret(work.ConfirmPassword, sizeof work.ConfirmPassword);
+            Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
             work.ShowInspectPassword = false;
             work.ShowCreatePassword = false;
             work.ShowConfirmPassword = false;
@@ -322,12 +386,12 @@ namespace CoreDeck {
             work.InspectPath.clear();
             work.CreatePath.clear();
             work.KeyPasswordMatches = true;
-            work.StoreType = KeystoreType::Pkcs12;
+            work.StoreType = Core::KeystoreType::Pkcs12;
             work.CreateExtension = 0;
             work.CreateTemplate = 0;
-            work.Algorithm = KeyAlgorithm::Rsa;
-            work.KeySize = DefaultKeySize(KeyAlgorithm::Rsa);
-            work.ValidityDays = DEFAULT_KEY_VALIDITY_DAYS;
+            work.Algorithm = Core::KeyAlgorithm::Rsa;
+            work.KeySize = Core::DefaultKeySize(Core::KeyAlgorithm::Rsa);
+            work.ValidityDays = Core::DEFAULT_KEY_VALIDITY_DAYS;
             work.Alias[0] = '\0';
             work.CommonName[0] = '\0';
             work.OrganizationalUnit[0] = '\0';
@@ -352,7 +416,7 @@ namespace CoreDeck {
             if (destination == nullptr || destinationSize == 0) {
                 return;
             }
-            WipeSecret(destination, destinationSize);
+            Core::WipeSecret(destination, destinationSize);
             if (source == nullptr) {
                 return;
             }
@@ -373,31 +437,31 @@ namespace CoreDeck {
         float TemplateComboWidth() {
             float width = 0.0F;
             for (const CreateTemplateOption &option: CREATE_TEMPLATES) {
-                width = std::max(width, ComboTextWidth(Tr(option.Label)));
+                width = std::max(width, ComboTextWidth(Core::Tr(option.Label)));
             }
             return width;
         }
 
-        const KeySizeOption *SizesFor(const KeyAlgorithm algorithm, int &count) {
+        const KeySizeOption *SizesFor(const Core::KeyAlgorithm algorithm, int &count) {
             switch (algorithm) {
-                case KeyAlgorithm::Rsa:
+                case Core::KeyAlgorithm::Rsa:
                     count = IM_ARRAYSIZE(RSA_SIZES);
                     return RSA_SIZES;
-                case KeyAlgorithm::Ec:
+                case Core::KeyAlgorithm::Ec:
                     count = IM_ARRAYSIZE(EC_SIZES);
                     return EC_SIZES;
-                case KeyAlgorithm::Dsa:
+                case Core::KeyAlgorithm::Dsa:
                     count = IM_ARRAYSIZE(DSA_SIZES);
                     return DSA_SIZES;
-                case KeyAlgorithm::Ed25519:
-                case KeyAlgorithm::Ed448:
+                case Core::KeyAlgorithm::Ed25519:
+                case Core::KeyAlgorithm::Ed448:
                     break;
             }
             count = 0;
             return nullptr;
         }
 
-        int FindSizeIndex(const KeyAlgorithm algorithm, const int keySize) {
+        int FindSizeIndex(const Core::KeyAlgorithm algorithm, const int keySize) {
             int count = 0;
             const KeySizeOption *sizes = SizesFor(algorithm, count);
             for (int index = 0; index < count; ++index) {
@@ -409,12 +473,12 @@ namespace CoreDeck {
         }
 
         void SnapKeySize(struct Context::KeytoolWork &work) {
-            if (!KeyAlgorithmUsesSize(work.Algorithm)) {
+            if (!Core::KeyAlgorithmUsesSize(work.Algorithm)) {
                 work.KeySize = 0;
                 return;
             }
             if (FindSizeIndex(work.Algorithm, work.KeySize) < 0) {
-                work.KeySize = DefaultKeySize(work.Algorithm);
+                work.KeySize = Core::DefaultKeySize(work.Algorithm);
             }
         }
 
@@ -423,8 +487,8 @@ namespace CoreDeck {
             return index < 0 ? 0 : index;
         }
 
-        CreateKeystoreRequest IdentityRequest(const struct Context::KeytoolWork &work) {
-            CreateKeystoreRequest request;
+        Core::CreateKeystoreRequest IdentityRequest(const struct Context::KeytoolWork &work) {
+            Core::CreateKeystoreRequest request;
             request.KeystorePath = work.CreatePath;
             request.StoreType = work.StoreType;
             request.Alias = work.Alias;
@@ -440,24 +504,24 @@ namespace CoreDeck {
             return request;
         }
 
-        CreateKeystoreRequest CreateRequest(const struct Context::KeytoolWork &work) {
-            CreateKeystoreRequest request = IdentityRequest(work);
+        Core::CreateKeystoreRequest CreateRequest(const struct Context::KeytoolWork &work) {
+            Core::CreateKeystoreRequest request = IdentityRequest(work);
             request.StorePassword = work.CreatePassword;
-            if (work.StoreType != KeystoreType::Pkcs12 && !work.KeyPasswordMatches) {
+            if (work.StoreType != Core::KeystoreType::Pkcs12 && !work.KeyPasswordMatches) {
                 request.KeyPassword = work.KeyPassword;
             }
             return request;
         }
 
         CreateCheck CheckCreate(const struct Context::KeytoolWork &work) {
-            CreateKeystoreRequest request = CreateRequest(work);
+            Core::CreateKeystoreRequest request = CreateRequest(work);
             CreateCheck check;
-            check.Refusal = ValidateCreateKeystore(request);
-            if (check.Refusal == KeytoolRefusal::None && std::strcmp(work.CreatePassword, work.ConfirmPassword) != 0) {
+            check.Refusal = Core::ValidateCreateKeystore(request);
+            if (check.Refusal == Core::KeytoolRefusal::None && std::strcmp(work.CreatePassword, work.ConfirmPassword) != 0) {
                 check.PasswordMismatch = true;
             }
-            WipeSecret(request.StorePassword);
-            WipeSecret(request.KeyPassword);
+            Core::WipeSecret(request.StorePassword);
+            Core::WipeSecret(request.KeyPassword);
             return check;
         }
 
@@ -465,36 +529,36 @@ namespace CoreDeck {
             return !work.CreatePath.empty() || work.Alias[0] != '\0' || work.CommonName[0] != '\0' || work.CreatePassword[0] != '\0' || work.Country[0] != '\0';
         }
 
-        const char *RefusalText(const KeytoolRefusal refusal) {
+        const char *RefusalText(const Core::KeytoolRefusal refusal) {
             switch (refusal) {
-                case KeytoolRefusal::MissingKeytool:
-                    return Tr("keytool was not found in the JDK.");
-                case KeytoolRefusal::EmptyPath:
-                    return Tr("Choose a destination file.");
-                case KeytoolRefusal::MissingFile:
-                    return Tr("The keystore file could not be found.");
-                case KeytoolRefusal::PathExists:
-                    return Tr("A keystore already exists at this path.");
-                case KeytoolRefusal::ParentMissing:
-                    return Tr("The destination folder does not exist.");
-                case KeytoolRefusal::EmptyAlias:
-                    return Tr("Enter an alias.");
-                case KeytoolRefusal::PasswordTooShort:
-                case KeytoolRefusal::KeyPasswordTooShort:
-                    return Tr("The password must be at least 6 characters.");
-                case KeytoolRefusal::KeyPasswordDiffers:
-                    return Tr("PKCS12 uses the keystore password for the key.");
-                case KeytoolRefusal::InvalidValidity:
-                    return Tr("Enter a validity of at least one day.");
-                case KeytoolRefusal::InvalidKeySize:
-                    return Tr("Choose a key size for this algorithm.");
-                case KeytoolRefusal::InvalidCountry:
-                    return Tr("Enter a two-letter country code.");
-                case KeytoolRefusal::EmptyDistinguishedName:
-                    return Tr("Enter a name for the certificate.");
-                case KeytoolRefusal::PasswordFileFailed:
-                    return Tr("The password could not be passed to keytool.");
-                case KeytoolRefusal::None:
+                case Core::KeytoolRefusal::MissingKeytool:
+                    return Core::Tr("keytool was not found in the JDK.");
+                case Core::KeytoolRefusal::EmptyPath:
+                    return Core::Tr("Choose a destination file.");
+                case Core::KeytoolRefusal::MissingFile:
+                    return Core::Tr("The keystore file could not be found.");
+                case Core::KeytoolRefusal::PathExists:
+                    return Core::Tr("A keystore already exists at this path.");
+                case Core::KeytoolRefusal::ParentMissing:
+                    return Core::Tr("The destination folder does not exist.");
+                case Core::KeytoolRefusal::EmptyAlias:
+                    return Core::Tr("Enter an alias.");
+                case Core::KeytoolRefusal::PasswordTooShort:
+                case Core::KeytoolRefusal::KeyPasswordTooShort:
+                    return Core::Tr("The password must be at least 6 characters.");
+                case Core::KeytoolRefusal::KeyPasswordDiffers:
+                    return Core::Tr("PKCS12 uses the keystore password for the key.");
+                case Core::KeytoolRefusal::InvalidValidity:
+                    return Core::Tr("Enter a validity of at least one day.");
+                case Core::KeytoolRefusal::InvalidKeySize:
+                    return Core::Tr("Choose a key size for this algorithm.");
+                case Core::KeytoolRefusal::InvalidCountry:
+                    return Core::Tr("Enter a two-letter country code.");
+                case Core::KeytoolRefusal::EmptyDistinguishedName:
+                    return Core::Tr("Enter a name for the certificate.");
+                case Core::KeytoolRefusal::PasswordFileFailed:
+                    return Core::Tr("The password could not be passed to keytool.");
+                case Core::KeytoolRefusal::None:
                     break;
             }
             return "";
@@ -502,33 +566,33 @@ namespace CoreDeck {
 
         const char *CreateFormMessage(const CreateCheck &check) {
             if (check.PasswordMismatch) {
-                return Tr("The passwords do not match.");
+                return Core::Tr("The passwords do not match.");
             }
-            if (check.Refusal == KeytoolRefusal::None) {
+            if (check.Refusal == Core::KeytoolRefusal::None) {
                 return nullptr;
             }
             return RefusalText(check.Refusal);
         }
 
-        const char *FailureMessage(const bool toolMissing, const KeytoolRefusal refusal, const std::string &output, const char *fallback) {
-            if (toolMissing || refusal == KeytoolRefusal::MissingKeytool) {
-                return Tr("keytool was not found in the JDK.");
+        const char *FailureMessage(const bool toolMissing, const Core::KeytoolRefusal refusal, const std::string &output, const char *fallback) {
+            if (toolMissing || refusal == Core::KeytoolRefusal::MissingKeytool) {
+                return Core::Tr("keytool was not found in the JDK.");
             }
-            if (refusal != KeytoolRefusal::None) {
+            if (refusal != Core::KeytoolRefusal::None) {
                 return RefusalText(refusal);
             }
-            if (KeystorePasswordRejected(output)) {
-                return Tr("The keystore password was incorrect.");
+            if (Core::KeystorePasswordRejected(output)) {
+                return Core::Tr("The keystore password was incorrect.");
             }
             return fallback;
         }
 
-        const char *DescribeFailure(const KeystoreDescription &description) {
-            return FailureMessage(description.ToolMissing, description.Refusal, description.Output, Tr("The keystore could not be read."));
+        const char *DescribeFailure(const Core::KeystoreDescription &description) {
+            return FailureMessage(description.ToolMissing, description.Refusal, description.Output, Core::Tr("The keystore could not be read."));
         }
 
-        const char *CreateFailure(const CreateKeystoreResult &result) {
-            return FailureMessage(result.ToolMissing, result.Refusal, result.Output, Tr("The keystore could not be created."));
+        const char *CreateFailure(const Core::CreateKeystoreResult &result) {
+            return FailureMessage(result.ToolMissing, result.Refusal, result.Output, Core::Tr("The keystore could not be created."));
         }
 
         void PollKeytool(Context &context) {
@@ -567,15 +631,15 @@ namespace CoreDeck {
 
             std::string storePassword(work.InspectPassword);
             SecretText secret{std::move(storePassword)};
-            WipeSecret(storePassword);
-            const JdkInfo jdk = context.Host.Jdk;
+            Core::WipeSecret(storePassword);
+            const Core::JdkInfo jdk = context.Host.Jdk;
             const std::string keystore = work.InspectPath;
-            const EnvVars toolEnv = context.Host.Sdk.ToolEnv;
+            const Core::EnvVars toolEnv = context.Host.Sdk.ToolEnv;
             RetireJobs(work);
             ClearInspect(work);
             work.InspectFuture = std::async(std::launch::async, [secret = std::move(secret), jdk, keystore, toolEnv]() mutable {
-                KeystoreDescription result = DescribeKeystore(jdk, keystore, std::move(secret.Value), toolEnv);
-                WipeSecret(secret.Value);
+                Core::KeystoreDescription result = Core::DescribeKeystore(jdk, keystore, std::move(secret.Value), toolEnv);
+                Core::WipeSecret(secret.Value);
                 return result;
             });
             work.Task = KeytoolTask::Inspect;
@@ -588,12 +652,12 @@ namespace CoreDeck {
                 return;
             }
 
-            CreateKeystoreRequest request = CreateRequest(work);
+            Core::CreateKeystoreRequest request = CreateRequest(work);
             request.Jdk = context.Host.Jdk;
             request.ToolEnv = context.Host.Sdk.ToolEnv;
             CreateLaunch launch{std::move(request)};
-            WipeSecret(request.StorePassword);
-            WipeSecret(request.KeyPassword);
+            Core::WipeSecret(request.StorePassword); // NOLINT(bugprone-use-after-move)
+            Core::WipeSecret(request.KeyPassword); // NOLINT(bugprone-use-after-move)
             RetireJobs(work);
             ClearCreate(work);
             work.CreateFuture = std::async(std::launch::async, [launch = std::move(launch)]() mutable {
@@ -609,7 +673,7 @@ namespace CoreDeck {
             Signer &signer,
             const WorkspacePage page,
             const std::string &path,
-            const KeystoreDescription &description,
+            const Core::KeystoreDescription &description,
             const std::string &alias
         ) {
             auto &work = context.KeytoolWork;
@@ -620,10 +684,10 @@ namespace CoreDeck {
             signer.KeystorePath = path;
             signer.KeystoreType = description.StoreType;
             if (signer.KeystoreType.empty() && work.Page == KeytoolPage::Create) {
-                signer.KeystoreType = KeystoreTypeName(work.StoreType);
+                signer.KeystoreType = Core::KeystoreTypeName(work.StoreType);
             }
             signer.Aliases.clear();
-            for (const KeystoreEntry &entry: description.Entries) {
+            for (const Core::KeystoreEntry &entry: description.Entries) {
                 if (entry.EntryType == "PrivateKeyEntry" && !entry.Alias.empty()) {
                     signer.Aliases.push_back(entry.Alias);
                 }
@@ -631,7 +695,7 @@ namespace CoreDeck {
             signer.SelectedAlias = alias;
             signer.HasAliasResult = true;
             signer.AliasResult = {};
-            signer.AliasResult.Status = KeytoolAliasStatus::Ok;
+            signer.AliasResult.Status = Core::KeytoolAliasStatus::Ok;
             signer.AliasResult.Started = true;
             signer.AliasListScheduled = false;
             signer.AliasRefreshPending = false;
@@ -640,12 +704,12 @@ namespace CoreDeck {
 
             const char *storePassword = work.Page == KeytoolPage::Inspect ? work.InspectPassword : work.CreatePassword;
             CopySecretBuffer(signer.StorePassword, sizeof signer.StorePassword, storePassword);
-            const bool distinctKey = work.Page == KeytoolPage::Create && work.StoreType != KeystoreType::Pkcs12 && !work.KeyPasswordMatches;
+            const bool distinctKey = work.Page == KeytoolPage::Create && work.StoreType != Core::KeystoreType::Pkcs12 && !work.KeyPasswordMatches;
             signer.KeyPasswordMatches = !distinctKey;
             if (distinctKey) {
                 CopySecretBuffer(signer.KeyPassword, sizeof signer.KeyPassword, work.KeyPassword);
             } else {
-                WipeSecret(signer.KeyPassword, sizeof signer.KeyPassword);
+                Core::WipeSecret(signer.KeyPassword, sizeof signer.KeyPassword);
                 signer.ShowKeyPassword = false;
             }
             signer.ShowStorePassword = false;
@@ -655,13 +719,13 @@ namespace CoreDeck {
 
         const char *EntryTypeLabel(const std::string &type) {
             if (type == "PrivateKeyEntry") {
-                return Tr("Private Key");
+                return Core::Tr("Private Key");
             }
             if (type == "trustedCertEntry") {
-                return Tr("Trusted certificate");
+                return Core::Tr("Trusted certificate");
             }
             if (type == "SecretKeyEntry") {
-                return Tr("Secret key");
+                return Core::Tr("Secret key");
             }
             return type.c_str();
         }
@@ -693,33 +757,33 @@ namespace CoreDeck {
             if (path.empty()) {
                 return;
             }
-            AddDetail(details, Tr("File Name"), FileNameOf(path));
-            AddDetail(details, Tr("Full Path"), path);
+            AddDetail(details, Core::Tr("File Name"), FileNameOf(path));
+            AddDetail(details, Core::Tr("Full Path"), path);
         }
 
-        void AppendCertificateReport(std::vector<SplitDetail> &details, std::vector<CopyableValue> &copies, const KeystoreEntry &entry) {
+        void AppendCertificateReport(std::vector<SplitDetail> &details, std::vector<CopyableValue> &copies, const Core::KeystoreEntry &entry) {
             const int count = static_cast<int>(entry.Certificates.size());
             for (int index = 0; index < count; ++index) {
-                const KeystoreCertificate &certificate = entry.Certificates.at(static_cast<std::size_t>(index));
+                const Core::KeystoreCertificate &certificate = entry.Certificates.at(static_cast<std::size_t>(index));
                 std::string section;
                 if (count > 1) {
-                    section = TrFormat("Certificate {0}", std::to_string(index + 1));
+                    section = Core::TrFormat("Certificate {0}", std::to_string(index + 1));
                     details.push_back({.Label = section, .Kind = SplitDetailKind::Section});
                 }
-                AddDetailIf(details, Tr("Owner"), certificate.Owner);
-                AddDetailIf(details, Tr("Issuer"), certificate.Issuer);
-                AddDetailIf(details, Tr("Serial Number"), certificate.SerialNumber);
-                AddDetail(details, Tr("Valid From"), certificate.ValidFrom);
-                AddDetail(details, Tr("Valid Until"), certificate.ValidUntil);
-                AddDetailIf(details, Tr("Signature"), certificate.SignatureAlgorithm);
-                AddDetailIf(details, Tr("Public Key"), certificate.PublicKey);
-                for (const KeystoreFingerprint &fingerprint: certificate.Fingerprints) {
+                AddDetailIf(details, Core::Tr("Owner"), certificate.Owner);
+                AddDetailIf(details, Core::Tr("Issuer"), certificate.Issuer);
+                AddDetailIf(details, Core::Tr("Serial Number"), certificate.SerialNumber);
+                AddDetail(details, Core::Tr("Valid From"), certificate.ValidFrom);
+                AddDetail(details, Core::Tr("Valid Until"), certificate.ValidUntil);
+                AddDetailIf(details, Core::Tr("Signature"), certificate.SignatureAlgorithm);
+                AddDetailIf(details, Core::Tr("Public Key"), certificate.PublicKey);
+                for (const Core::KeystoreFingerprint &fingerprint: certificate.Fingerprints) {
                     copies.push_back({.Label = fingerprint.Algorithm, .Value = fingerprint.Value, .Section = section});
                 }
             }
         }
 
-        const KeystoreEntry *SelectedEntry(const KeystoreDescription &description, int &selected) {
+        const Core::KeystoreEntry *SelectedEntry(const Core::KeystoreDescription &description, int &selected) {
             if (description.Entries.empty()) {
                 return nullptr;
             }
@@ -727,20 +791,20 @@ namespace CoreDeck {
             return &description.Entries.at(static_cast<std::size_t>(selected));
         }
 
-        void DrawEntryPicker(const KeystoreDescription &description, int &selected) {
+        void EntryPicker(const Core::KeystoreDescription &description, int &selected) {
             if (description.Entries.size() < 2) {
                 return;
             }
             selected = std::clamp(selected, 0, static_cast<int>(description.Entries.size()) - 1);
             std::vector<const char *> labels;
             labels.reserve(description.Entries.size());
-            for (const KeystoreEntry &entry: description.Entries) {
+            for (const Core::KeystoreEntry &entry: description.Entries) {
                 labels.push_back(entry.Alias.empty() ? UNAVAILABLE : entry.Alias.c_str());
             }
             const std::string &alias = description.Entries.at(static_cast<std::size_t>(selected)).Alias;
-            const char *preview = alias.empty() ? Tr("Select an alias") : alias.c_str();
-            FieldLabel(Tr("Alias"));
-            RoundedCombo("##EntryAlias", preview, labels.data(), static_cast<int>(labels.size()), selected, -1.0F, Tr("Alias"));
+            const char *preview = alias.empty() ? Core::Tr("Select an alias") : alias.c_str();
+            FieldLabel(Core::Tr("Alias"));
+            RoundedCombo("##EntryAlias", preview, labels.data(), static_cast<int>(labels.size()), selected, -1.0F, Core::Tr("Alias"));
             ImGui::Spacing();
         }
 
@@ -748,17 +812,17 @@ namespace CoreDeck {
             return ImGui::CalcTextSize(label).x + (ImGui::GetStyle().FramePadding.x * 2.0F);
         }
 
-        void DrawKeystoreHeading(Context &context, const std::string &path, const KeystoreDescription &description, const KeystoreEntry *entry) {
+        void KeystoreHeading(Context &context, const std::string &path, const Core::KeystoreDescription &description, const Core::KeystoreEntry *entry) {
             const bool handoff = entry != nullptr && entry->EntryType == "PrivateKeyEntry" && !entry->Alias.empty();
 
             ImGui::AlignTextToFramePadding();
-            ImGui::TextDisabled("%s", Tr("Keystore"));
+            ImGui::TextDisabled("%s", Core::Tr("Keystore"));
             if (!handoff) {
                 return;
             }
 
-            const char *apkLabel = Tr("Use in APK Signer");
-            const char *jarLabel = Tr("Use in Jar Signer");
+            const char *apkLabel = Core::Tr("Use in APK Signer");
+            const char *jarLabel = Core::Tr("Use in Jar Signer");
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float apkW = SignerButtonWidth(apkLabel);
             const float jarW = SignerButtonWidth(jarLabel);
@@ -770,69 +834,69 @@ namespace CoreDeck {
             }
             const bool keytoolBusy = context.KeytoolWork.Busy.load();
             const std::string &alias = entry->Alias;
-            if (PrimaryButton(StrConcat(apkLabel, "##UseInApkSigner").c_str(), !context.ApkSignerWork.Busy.load() && !keytoolBusy, ImVec2(apkW, 0.0F))) {
+            if (PrimaryButton(Core::StrConcat(apkLabel, "##UseInApkSigner").c_str(), !context.ApkSignerWork.Busy.load() && !keytoolBusy, ImVec2(apkW, 0.0F))) {
                 UseInSigner(context, context.ApkSignerWork, WorkspacePage::ApkSigner, path, description, alias);
             }
             ImGui::SameLine(0.0F, spacing);
-            if (PrimaryButton(StrConcat(jarLabel, "##UseInJarSigner").c_str(), !context.JarSignerWork.Busy.load() && !keytoolBusy, ImVec2(jarW, 0.0F))) {
+            if (PrimaryButton(Core::StrConcat(jarLabel, "##UseInJarSigner").c_str(), !context.JarSignerWork.Busy.load() && !keytoolBusy, ImVec2(jarW, 0.0F))) {
                 UseInSigner(context, context.JarSignerWork, WorkspacePage::JarSigner, path, description, alias);
             }
         }
 
-        void DrawDescription(Context &context, const std::string &path, const KeystoreDescription &description, int &selected) {
-            const KeystoreEntry *entry = SelectedEntry(description, selected);
-            DrawKeystoreHeading(context, path, description, entry);
+        void KeystoreDetails(Context &context, const std::string &path, const Core::KeystoreDescription &description, int &selected) {
+            const Core::KeystoreEntry *entry = SelectedEntry(description, selected);
+            KeystoreHeading(context, path, description, entry);
             ImGui::Spacing();
             if (description.Entries.size() > 1) {
-                DrawEntryPicker(description, selected);
+                EntryPicker(description, selected);
                 entry = SelectedEntry(description, selected);
             }
 
             std::vector<SplitDetail> details;
             std::vector<CopyableValue> copies;
             AppendFileDetails(details, path);
-            AddDetail(details, Tr("Store Type"), description.StoreType);
-            AddDetail(details, Tr("Provider"), description.Provider);
+            AddDetail(details, Core::Tr("Store Type"), description.StoreType);
+            AddDetail(details, Core::Tr("Provider"), description.Provider);
             const int count = static_cast<int>(description.Entries.size());
-            AddDetail(details, Tr("Entries"), TrFormatN("{0} Entry", "{0} Entries", count, std::to_string(count)));
+            AddDetail(details, Core::Tr("Entries"), Core::TrFormatN("{0} Entry", "{0} Entries", count, std::to_string(count)));
             if (entry != nullptr) {
                 const std::string typeLabel = entry->EntryType.empty() ? std::string(UNAVAILABLE) : EntryTypeLabel(entry->EntryType);
-                details.push_back({.Label = Tr("Type"), .Value = typeLabel, .Accent = EntryTypeAccent(entry->EntryType), .Kind = SplitDetailKind::Chip});
-                AddDetailIf(details, Tr("Alias"), entry->Alias);
-                AddDetail(details, Tr("Created"), entry->CreationDate);
+                details.push_back({.Label = Core::Tr("Type"), .Value = typeLabel, .Accent = EntryTypeAccent(entry->EntryType), .Kind = SplitDetailKind::Chip});
+                AddDetailIf(details, Core::Tr("Alias"), entry->Alias);
+                AddDetail(details, Core::Tr("Created"), entry->CreationDate);
                 AppendCertificateReport(details, copies, *entry);
             }
             SplitDetailReport(details, copies);
             if (description.Entries.empty()) {
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Tr("No entries were found in this keystore."));
+                ImGui::TextDisabled("%s", Core::Tr("No entries were found in this keystore."));
             } else if (entry != nullptr && entry->Certificates.empty()) {
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Tr("This entry has no certificate."));
+                ImGui::TextDisabled("%s", Core::Tr("This entry has no certificate."));
             }
         }
 
-        void DrawInspectReport(Context &context) {
+        void InspectReport(Context &context) {
             auto &work = context.KeytoolWork;
             const bool reading = work.Busy.load() && work.Task == KeytoolTask::Inspect;
             if (reading) {
-                CenteredMessage(Tr("Reading Keystore..."), Tr("Keytool is listing the entries."));
+                CenteredMessage(Core::Tr("Reading Keystore..."), Core::Tr("Keytool is listing the entries."));
                 return;
             }
             if (!work.HasInspect) {
-                CenteredMessage(Tr("No Keystore Inspected"), Tr("Choose a keystore and read its entries."));
+                CenteredMessage(Core::Tr("No Keystore Inspected"), Core::Tr("Choose a keystore and read its entries."));
                 return;
             }
-            if (work.InspectResult.Status != KeytoolStatus::Ok) {
-                CenteredMessage(Tr("Something Went Wrong!"), DescribeFailure(work.InspectResult), Colors::NEGATIVE);
+            if (work.InspectResult.Status != Core::KeytoolStatus::Ok) {
+                CenteredMessage(Core::Tr("Something Went Wrong!"), DescribeFailure(work.InspectResult), Colors::NEGATIVE);
                 return;
             }
-            DrawDescription(context, work.InspectPath, work.InspectResult, work.InspectEntry);
+            KeystoreDetails(context, work.InspectPath, work.InspectResult, work.InspectEntry);
         }
 
         std::string AlgorithmSummary(const struct Context::KeytoolWork &work) {
-            std::string algorithm = KeyAlgorithmName(work.Algorithm);
-            if (KeyAlgorithmUsesSize(work.Algorithm) && work.KeySize > 0) {
+            std::string algorithm = Core::KeyAlgorithmName(work.Algorithm);
+            if (Core::KeyAlgorithmUsesSize(work.Algorithm) && work.KeySize > 0) {
                 algorithm += ' ';
                 algorithm += std::to_string(work.KeySize);
                 algorithm += "-bit";
@@ -840,43 +904,43 @@ namespace CoreDeck {
             return algorithm;
         }
 
-        void DrawCreatePreview(const struct Context::KeytoolWork &work) {
+        void CreatePreview(const struct Context::KeytoolWork &work) {
             ImGui::AlignTextToFramePadding();
-            ImGui::TextDisabled("%s", Tr("New Keystore"));
+            ImGui::TextDisabled("%s", Core::Tr("New Keystore"));
             ImGui::Spacing();
             std::vector<SplitDetail> details;
             AppendFileDetails(details, work.CreatePath);
-            AddDetail(details, Tr("Store Type"), KeystoreTypeName(work.StoreType));
-            AddDetail(details, Tr("Alias"), work.Alias);
-            AddDetail(details, Tr("Key Algorithm"), AlgorithmSummary(work));
-            AddDetail(details, Tr("Validity"), TrFormat("{0} Days", std::to_string(work.ValidityDays)));
-            AddDetail(details, Tr("Distinguished Name"), BuildDistinguishedName(IdentityRequest(work)));
+            AddDetail(details, Core::Tr("Store Type"), Core::KeystoreTypeName(work.StoreType));
+            AddDetail(details, Core::Tr("Alias"), work.Alias);
+            AddDetail(details, Core::Tr("Key Algorithm"), AlgorithmSummary(work));
+            AddDetail(details, Core::Tr("Validity"), Core::TrFormat("{0} Days", std::to_string(work.ValidityDays)));
+            AddDetail(details, Core::Tr("Distinguished Name"), Core::BuildDistinguishedName(IdentityRequest(work)));
             SplitDetailReport(details);
         }
 
-        void DrawCreateReport(Context &context) {
+        void CreateReport(Context &context) {
             auto &work = context.KeytoolWork;
             if (work.Busy.load() && work.Task == KeytoolTask::Create) {
-                CenteredMessage(Tr("Creating keystore..."), Tr("Keytool is generating the key pair."));
+                CenteredMessage(Core::Tr("Creating keystore..."), Core::Tr("Keytool is generating the key pair."));
                 return;
             }
             if (!work.HasCreate) {
-                DrawCreatePreview(work);
+                CreatePreview(work);
                 return;
             }
-            if (work.CreateResult.Status != KeytoolStatus::Ok) {
-                CenteredMessage(Tr("Something Went Wrong!"), CreateFailure(work.CreateResult), Colors::NEGATIVE);
+            if (work.CreateResult.Status != Core::KeytoolStatus::Ok) {
+                CenteredMessage(Core::Tr("Something Went Wrong!"), CreateFailure(work.CreateResult), Colors::NEGATIVE);
                 return;
             }
-            if (work.CreateResult.Description.Status != KeytoolStatus::Ok) {
+            if (work.CreateResult.Description.Status != Core::KeytoolStatus::Ok) {
                 CenteredMessage(
-                    Tr("Something Went Wrong!"),
-                    Tr("The keystore was created, but its entries could not be read."),
+                    Core::Tr("Something Went Wrong!"),
+                    Core::Tr("The keystore was created, but its entries could not be read."),
                     Colors::NEGATIVE
                 );
                 return;
             }
-            DrawDescription(context, work.CreatePath, work.CreateResult.Description, work.CreateEntry);
+            KeystoreDetails(context, work.CreatePath, work.CreateResult.Description, work.CreateEntry);
         }
 
         std::string UpperExtension(std::string extension) {
@@ -899,13 +963,13 @@ namespace CoreDeck {
             return patterns;
         }
 
-        void DrawInspectBar(Context &context) {
+        void InspectBar(Context &context) {
             auto &work = context.KeytoolWork;
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
             const float eye = ImGui::GetFrameHeight();
-            const char *idleLabel = Tr("Inspect");
-            const char *busyLabel = Tr("Reading...");
+            const char *idleLabel = Core::Tr("Inspect");
+            const char *busyLabel = Core::Tr("Reading...");
             const float inspectW = BusyActionWidth(idleLabel, busyLabel);
             float passwordW = Em(22.0F);
             float pathW = avail - (passwordW + spacing + eye) - inspectW - (spacing * 2.0F);
@@ -917,10 +981,10 @@ namespace CoreDeck {
             const float secretW = passwordW + spacing + eye;
 
             {
-                FormDisabled disabled(work.Busy.load());
-                if (BrowseRow("##InspectPath", work.InspectPath, Tr("Choose a keystore file..."), "InspectPath", Tr("Browse..."), pathW, Tr("Keystore"))) {
+                const FormDisabled disabled(work.Busy.load());
+                if (BrowseRow("##InspectPath", work.InspectPath, Core::Tr("Choose a keystore file..."), "InspectPath", Core::Tr("Browse..."), pathW, Core::Tr("Keystore"))) {
                     const std::string start = DirectoryOf(work.InspectPath);
-                    if (const auto picked = FileDialog::PickFile(Tr("Open Keystore"), Tr("Keystores"), KeystorePatterns(), start)) {
+                    if (const auto picked = Core::FileDialog::PickFile(Core::Tr("Open Keystore"), Core::Tr("Keystores"), KeystorePatterns(), start)) {
                         work.InspectPath = *picked;
                         ClearInspect(work);
                     }
@@ -932,7 +996,7 @@ namespace CoreDeck {
                     work.InspectPassword,
                     sizeof work.InspectPassword,
                     work.ShowInspectPassword,
-                    Tr("Keystore Password"),
+                    Core::Tr("Keystore Password"),
                     secretW
                 );
                 ImGui::PopID();
@@ -951,30 +1015,213 @@ namespace CoreDeck {
             }
         }
 
-        void DrawCreateForm(Context &context) {
+        void ClearCreateUnlessBusy(struct Context::KeytoolWork &work) {
+            if (!work.Busy.load()) {
+                ClearCreate(work);
+            }
+        }
+
+        void TouchCreate(struct Context::KeytoolWork &work) {
+            ClearCreateUnlessBusy(work);
+            work.CreateTemplate = 0;
+        }
+
+        void CreateHint(
+            struct Context::KeytoolWork &work,
+            const char *id,
+            char *buffer,
+            const std::size_t size,
+            const char *hint,
+            const float width,
+            const char *tooltip = nullptr
+        ) {
+            ImGui::SetNextItemWidth(width);
+            if (ImGui::InputTextWithHint(id, hint, buffer, size)) {
+                TouchCreate(work);
+            }
+            HoverTooltip(tooltip != nullptr ? tooltip : hint);
+        }
+
+        void CreateKeyOptions(struct Context::KeytoolWork &work, const float avail, const float spacing) {
+            const bool usesSize = Core::KeyAlgorithmUsesSize(work.Algorithm);
+            const int gaps = usesSize ? 5 : 4;
+            const float usable = std::max(1.0F, avail - (spacing * static_cast<float>(gaps)));
+            float storeW = ComboTextWidth("PKCS12");
+            float extensionW = ComboTextWidth(".keystore");
+            float aliasW = Em(12.0F);
+            float algW = ComboTextWidth("Ed25519");
+            float sizeW = usesSize ? KeySizeComboWidth() : 0.0F;
+            float validW = std::max(Em(8.0F), ImGui::CalcTextSize("10000").x + (ImGui::GetStyle().FramePadding.x * 2.0F));
+            const float minimum = storeW + extensionW + aliasW + algW + sizeW + validW;
+            const float extra = usable - minimum;
+            if (extra > 0.0F) {
+                const float storeWeight = 1.15F;
+                const float extensionWeight = 1.25F;
+                const float aliasWeight = 1.6F;
+                const float algWeight = 1.25F;
+                const float sizeWeight = usesSize ? 1.35F : 0.0F;
+                const float validWeight = 1.0F;
+                const float weightSum = storeWeight + extensionWeight + aliasWeight + algWeight + sizeWeight + validWeight;
+                storeW += extra * (storeWeight / weightSum);
+                extensionW += extra * (extensionWeight / weightSum);
+                aliasW += extra * (aliasWeight / weightSum);
+                algW += extra * (algWeight / weightSum);
+                sizeW += extra * (sizeWeight / weightSum);
+                validW += extra * (validWeight / weightSum);
+            } else if (extra < 0.0F) {
+                aliasW = std::max(Em(8.0F), aliasW + extra);
+            }
+
+            int storeType = static_cast<int>(work.StoreType);
+            if (RoundedCombo("##StoreType", STORE_TYPE_LABELS[storeType], STORE_TYPE_LABELS, IM_ARRAYSIZE(STORE_TYPE_LABELS), storeType, storeW, Core::Tr("Store Type"))) {
+                work.StoreType = static_cast<Core::KeystoreType>(storeType);
+                if (work.StoreType == Core::KeystoreType::Pkcs12) {
+                    work.KeyPasswordMatches = true;
+                    Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+                    work.ShowKeyPassword = false;
+                    work.SecretEpoch += 1;
+                }
+                TouchCreate(work);
+            }
+            ImGui::SameLine(0.0F, spacing);
+            int extension = std::clamp(work.CreateExtension, 0, IM_ARRAYSIZE(KEYSTORE_SUFFIXES) - 1);
+            if (RoundedCombo("##CreateExtension", KEYSTORE_SUFFIXES[extension], KEYSTORE_SUFFIXES, IM_ARRAYSIZE(KEYSTORE_SUFFIXES), extension, extensionW, Core::Tr("File Extension"))) {
+                work.CreateExtension = extension;
+                work.CreatePath = ApplyCreateExtension(work.CreatePath, CreateExtensionOf(work));
+                TouchCreate(work);
+            }
+            ImGui::SameLine(0.0F, spacing);
+            CreateHint(work, "##Alias", work.Alias, sizeof work.Alias, Core::Tr("Alias"), aliasW);
+            ImGui::SameLine(0.0F, spacing);
+            int algorithm = static_cast<int>(work.Algorithm);
+            if (RoundedCombo("##Algorithm", ALGORITHM_LABELS[algorithm], ALGORITHM_LABELS, IM_ARRAYSIZE(ALGORITHM_LABELS), algorithm, algW, Core::Tr("Key Algorithm"))) {
+                work.Algorithm = static_cast<Core::KeyAlgorithm>(algorithm);
+                SnapKeySize(work);
+                TouchCreate(work);
+            }
+            if (usesSize) {
+                ImGui::SameLine(0.0F, spacing);
+                int count = 0;
+                const KeySizeOption *sizes = SizesFor(work.Algorithm, count);
+                int selected = SizeIndex(work);
+                const char *labels[IM_ARRAYSIZE(RSA_SIZES)] = {};
+                const char *preview = UNAVAILABLE;
+                if (count > 0 && sizes != nullptr) {
+                    preview = sizes[selected].Label;
+                    for (int index = 0; index < count; ++index) {
+                        labels[index] = sizes[index].Label;
+                    }
+                }
+                if (RoundedCombo("##KeySize", preview, labels, count, selected, sizeW, Core::Tr("Key Size")) && sizes != nullptr) {
+                    work.KeySize = sizes[selected].Size;
+                    TouchCreate(work);
+                }
+            }
+            ImGui::SameLine(0.0F, spacing);
+            ImGui::SetNextItemWidth(validW);
+            if (ImGui::InputInt("##Validity", &work.ValidityDays, 0, 0)) {
+                work.ValidityDays = std::clamp(work.ValidityDays, Core::KEYSTORE_VALIDITY_MIN_DAYS, Core::KEYSTORE_VALIDITY_MAX_DAYS);
+                TouchCreate(work);
+            }
+            HoverTooltip(Core::Tr("Validity (days)"));
+        }
+
+        void CreateSecrets(
+            struct Context::KeytoolWork &work,
+            const float avail,
+            const float spacing,
+            SecretEdit &storePassword,
+            SecretEdit &confirmPassword
+        ) {
+            if (work.StoreType != Core::KeystoreType::Pkcs12) {
+                ImGui::Spacing();
+                if (SubtitledCheckbox(
+                        "##KeyPasswordMatches",
+                        &work.KeyPasswordMatches,
+                        Core::Tr("Key password matches keystore password"),
+                        Core::Tr("Turn this off if the key entry has a different password.")
+                    )) {
+                    if (work.KeyPasswordMatches) {
+                        Core::WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
+                        work.ShowKeyPassword = false;
+                        work.SecretEpoch += 1;
+                    }
+                    ClearCreateUnlessBusy(work);
+                }
+            }
+            const bool distinctKey = work.StoreType != Core::KeystoreType::Pkcs12 && !work.KeyPasswordMatches;
+
+            ImGui::Spacing();
+            const int secretCount = distinctKey ? 3 : 2;
+            const float secretW = std::max(1.0F, (avail - (spacing * static_cast<float>(secretCount - 1))) / static_cast<float>(secretCount));
+            ImGui::PushID(static_cast<int>(work.SecretEpoch));
+            storePassword = SecretField(
+                "##CreateStorePassword",
+                work.CreatePassword,
+                sizeof work.CreatePassword,
+                work.ShowCreatePassword,
+                Core::Tr("Keystore Password"),
+                secretW
+            );
+            ImGui::PopID();
+            if (storePassword.Edited) {
+                ClearCreateUnlessBusy(work);
+            }
+            ImGui::SameLine(0.0F, spacing);
+            ImGui::PushID(static_cast<int>(work.SecretEpoch) + 1);
+            confirmPassword = SecretField(
+                "##ConfirmPassword",
+                work.ConfirmPassword,
+                sizeof work.ConfirmPassword,
+                work.ShowConfirmPassword,
+                Core::Tr("Confirm Password"),
+                secretW
+            );
+            ImGui::PopID();
+            if (confirmPassword.Edited) {
+                ClearCreateUnlessBusy(work);
+            }
+            if (distinctKey) {
+                ImGui::SameLine(0.0F, spacing);
+                ImGui::PushID(static_cast<int>(work.SecretEpoch) + 2);
+                const SecretEdit keyPassword = SecretField(
+                    "##CreateKeyPassword",
+                    work.KeyPassword,
+                    sizeof work.KeyPassword,
+                    work.ShowKeyPassword,
+                    Core::Tr("Key Password"),
+                    secretW
+                );
+                ImGui::PopID();
+                if (keyPassword.Edited) {
+                    ClearCreateUnlessBusy(work);
+                }
+            }
+
+            SectionLabel(Core::Tr("Distinguished Name"));
+            const float countryW = Em(8.0F);
+            const float nameW = std::max(1.0F, (avail - countryW - (spacing * 5.0F)) / 5.0F);
+            CreateHint(work, "##CommonName", work.CommonName, sizeof work.CommonName, Core::Tr("Common Name"), nameW);
+            ImGui::SameLine(0.0F, spacing);
+            CreateHint(work, "##OrganizationalUnit", work.OrganizationalUnit, sizeof work.OrganizationalUnit, Core::Tr("Organizational Unit"), nameW);
+            ImGui::SameLine(0.0F, spacing);
+            CreateHint(work, "##Organization", work.Organization, sizeof work.Organization, Core::Tr("Organization"), nameW);
+            ImGui::SameLine(0.0F, spacing);
+            CreateHint(work, "##Locality", work.Locality, sizeof work.Locality, Core::Tr("City"), nameW);
+            ImGui::SameLine(0.0F, spacing);
+            CreateHint(work, "##State", work.StateName, sizeof work.StateName, Core::Tr("State"), nameW);
+            ImGui::SameLine(0.0F, spacing);
+            CreateHint(work, "##Country", work.Country, sizeof work.Country, "US", countryW, Core::Tr("Country"));
+        }
+
+        void CreateForm(Context &context) {
             auto &work = context.KeytoolWork;
             SnapKeySize(work);
-            const auto clearResult = [&work] {
-                if (!work.Busy.load()) {
-                    ClearCreate(work);
-                }
-            };
-            const auto touch = [&work, &clearResult] {
-                clearResult();
-                work.CreateTemplate = 0;
-            };
-            const auto drawHint = [&touch](const char *id, char *buffer, const std::size_t size, const char *hint, const float width, const char *tooltip = nullptr) {
-                ImGui::SetNextItemWidth(width);
-                if (ImGui::InputTextWithHint(id, hint, buffer, size)) {
-                    touch();
-                }
-                HoverTooltip(tooltip != nullptr ? tooltip : hint);
-            };
 
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
-            const char *idleLabel = Tr("Create keystore");
-            const char *busyLabel = Tr("Creating...");
+            const char *idleLabel = Core::Tr("Create keystore");
+            const char *busyLabel = Core::Tr("Creating...");
             const float createW = BusyActionWidth(idleLabel, busyLabel);
             const float templateW = TemplateComboWidth();
             const float pathW = std::max(1.0F, avail - templateW - createW - (spacing * 2.0F));
@@ -982,27 +1229,27 @@ namespace CoreDeck {
             SecretEdit storePassword;
             SecretEdit confirmPassword;
             {
-                FormDisabled disabled(work.Busy.load());
+                const FormDisabled disabled(work.Busy.load());
                 const char *templateLabels[IM_ARRAYSIZE(CREATE_TEMPLATES)];
                 for (int index = 0; index < IM_ARRAYSIZE(CREATE_TEMPLATES); ++index) {
-                    templateLabels[index] = Tr(CREATE_TEMPLATES[index].Label);
+                    templateLabels[index] = Core::Tr(CREATE_TEMPLATES[index].Label);
                 }
                 int templateIndex = std::clamp(work.CreateTemplate, 0, IM_ARRAYSIZE(CREATE_TEMPLATES) - 1);
-                if (RoundedCombo("##CreateTemplate", templateLabels[templateIndex], templateLabels, IM_ARRAYSIZE(CREATE_TEMPLATES), templateIndex, templateW, Tr("Template"))) {
+                if (RoundedCombo("##CreateTemplate", templateLabels[templateIndex], templateLabels, IM_ARRAYSIZE(CREATE_TEMPLATES), templateIndex, templateW, Core::Tr("Template"))) {
                     ApplyCreateTemplate(work, templateIndex);
                 }
                 ImGui::SameLine(0.0F, spacing);
-                if (BrowseRow("##CreatePath", work.CreatePath, Tr("Choose a destination file..."), "CreatePath", Tr("Save As..."), pathW, Tr("Destination"))) {
+                if (BrowseRow("##CreatePath", work.CreatePath, Core::Tr("Choose a destination file..."), "CreatePath", Core::Tr("Save As..."), pathW, Core::Tr("Destination"))) {
                     const char *extension = CreateExtensionOf(work);
                     const std::string upperExtension = UpperExtension(extension);
-                    if (const auto picked = FileDialog::SaveFile(
-                            Tr("Save Keystore"),
+                    if (const auto picked = Core::FileDialog::SaveFile(
+                            Core::Tr("Save Keystore"),
                             SuggestedKeystore(work),
-                            Tr("Keystores"),
+                            Core::Tr("Keystores"),
                             {std::string("*") + extension, std::string("*") + upperExtension}
                         )) {
                         AssignCreatePath(work, *picked);
-                        clearResult();
+                        ClearCreateUnlessBusy(work);
                         if (work.CreateTemplate > 0) {
                             const int wanted = SuffixIndex(CREATE_TEMPLATES[work.CreateTemplate].Extension);
                             if (work.CreateExtension != wanted) {
@@ -1021,209 +1268,51 @@ namespace CoreDeck {
 
             ImGui::Spacing();
             {
-                FormDisabled disabled(work.Busy.load());
-                const bool usesSize = KeyAlgorithmUsesSize(work.Algorithm);
-                const int gaps = usesSize ? 5 : 4;
-                const float usable = std::max(1.0F, avail - (spacing * static_cast<float>(gaps)));
-                float storeW = ComboTextWidth("PKCS12");
-                float extensionW = ComboTextWidth(".keystore");
-                float aliasW = Em(12.0F);
-                float algW = ComboTextWidth("Ed25519");
-                float sizeW = usesSize ? KeySizeComboWidth() : 0.0F;
-                float validW = std::max(Em(8.0F), ImGui::CalcTextSize("10000").x + (ImGui::GetStyle().FramePadding.x * 2.0F));
-                const float minimum = storeW + extensionW + aliasW + algW + sizeW + validW;
-                const float extra = usable - minimum;
-                if (extra > 0.0F) {
-                    const float storeWeight = 1.15F;
-                    const float extensionWeight = 1.25F;
-                    const float aliasWeight = 1.6F;
-                    const float algWeight = 1.25F;
-                    const float sizeWeight = usesSize ? 1.35F : 0.0F;
-                    const float validWeight = 1.0F;
-                    const float weightSum = storeWeight + extensionWeight + aliasWeight + algWeight + sizeWeight + validWeight;
-                    storeW += extra * (storeWeight / weightSum);
-                    extensionW += extra * (extensionWeight / weightSum);
-                    aliasW += extra * (aliasWeight / weightSum);
-                    algW += extra * (algWeight / weightSum);
-                    sizeW += extra * (sizeWeight / weightSum);
-                    validW += extra * (validWeight / weightSum);
-                } else if (extra < 0.0F) {
-                    aliasW = std::max(Em(8.0F), aliasW + extra);
-                }
-
-                int storeType = static_cast<int>(work.StoreType);
-                if (RoundedCombo("##StoreType", STORE_TYPE_LABELS[storeType], STORE_TYPE_LABELS, IM_ARRAYSIZE(STORE_TYPE_LABELS), storeType, storeW, Tr("Store Type"))) {
-                    work.StoreType = static_cast<KeystoreType>(storeType);
-                    if (work.StoreType == KeystoreType::Pkcs12) {
-                        work.KeyPasswordMatches = true;
-                        WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
-                        work.ShowKeyPassword = false;
-                        work.SecretEpoch += 1;
-                    }
-                    touch();
-                }
-                ImGui::SameLine(0.0F, spacing);
-                int extension = std::clamp(work.CreateExtension, 0, IM_ARRAYSIZE(KEYSTORE_SUFFIXES) - 1);
-                if (RoundedCombo("##CreateExtension", KEYSTORE_SUFFIXES[extension], KEYSTORE_SUFFIXES, IM_ARRAYSIZE(KEYSTORE_SUFFIXES), extension, extensionW, Tr("File Extension"))) {
-                    work.CreateExtension = extension;
-                    work.CreatePath = ApplyCreateExtension(work.CreatePath, CreateExtensionOf(work));
-                    touch();
-                }
-                ImGui::SameLine(0.0F, spacing);
-                drawHint("##Alias", work.Alias, sizeof work.Alias, Tr("Alias"), aliasW);
-                ImGui::SameLine(0.0F, spacing);
-                int algorithm = static_cast<int>(work.Algorithm);
-                if (RoundedCombo("##Algorithm", ALGORITHM_LABELS[algorithm], ALGORITHM_LABELS, IM_ARRAYSIZE(ALGORITHM_LABELS), algorithm, algW, Tr("Key Algorithm"))) {
-                    work.Algorithm = static_cast<KeyAlgorithm>(algorithm);
-                    SnapKeySize(work);
-                    touch();
-                }
-                if (usesSize) {
-                    ImGui::SameLine(0.0F, spacing);
-                    int count = 0;
-                    const KeySizeOption *sizes = SizesFor(work.Algorithm, count);
-                    int selected = SizeIndex(work);
-                    const char *labels[IM_ARRAYSIZE(RSA_SIZES)] = {};
-                    const char *preview = UNAVAILABLE;
-                    if (count > 0 && sizes != nullptr) {
-                        preview = sizes[selected].Label;
-                        for (int index = 0; index < count; ++index) {
-                            labels[index] = sizes[index].Label;
-                        }
-                    }
-                    if (RoundedCombo("##KeySize", preview, labels, count, selected, sizeW, Tr("Key Size")) && sizes != nullptr) {
-                        work.KeySize = sizes[selected].Size;
-                        touch();
-                    }
-                }
-                ImGui::SameLine(0.0F, spacing);
-                ImGui::SetNextItemWidth(validW);
-                if (ImGui::InputInt("##Validity", &work.ValidityDays, 0, 0)) {
-                    work.ValidityDays = std::clamp(work.ValidityDays, KEYSTORE_VALIDITY_MIN_DAYS, KEYSTORE_VALIDITY_MAX_DAYS);
-                    touch();
-                }
-                HoverTooltip(Tr("Validity (days)"));
-
-                if (work.StoreType != KeystoreType::Pkcs12) {
-                    ImGui::Spacing();
-                    if (SubtitledCheckbox(
-                            "##KeyPasswordMatches",
-                            &work.KeyPasswordMatches,
-                            Tr("Key password matches keystore password"),
-                            Tr("Turn this off if the key entry has a different password.")
-                        )) {
-                        if (work.KeyPasswordMatches) {
-                            WipeSecret(work.KeyPassword, sizeof work.KeyPassword);
-                            work.ShowKeyPassword = false;
-                            work.SecretEpoch += 1;
-                        }
-                        clearResult();
-                    }
-                }
-                const bool distinctKey = work.StoreType != KeystoreType::Pkcs12 && !work.KeyPasswordMatches;
-
-                ImGui::Spacing();
-                const int secretCount = distinctKey ? 3 : 2;
-                const float secretW = std::max(1.0F, (avail - (spacing * static_cast<float>(secretCount - 1))) / static_cast<float>(secretCount));
-                ImGui::PushID(static_cast<int>(work.SecretEpoch));
-                storePassword = SecretField(
-                    "##CreateStorePassword",
-                    work.CreatePassword,
-                    sizeof work.CreatePassword,
-                    work.ShowCreatePassword,
-                    Tr("Keystore Password"),
-                    secretW
-                );
-                ImGui::PopID();
-                if (storePassword.Edited) {
-                    clearResult();
-                }
-                ImGui::SameLine(0.0F, spacing);
-                ImGui::PushID(static_cast<int>(work.SecretEpoch) + 1);
-                confirmPassword = SecretField(
-                    "##ConfirmPassword",
-                    work.ConfirmPassword,
-                    sizeof work.ConfirmPassword,
-                    work.ShowConfirmPassword,
-                    Tr("Confirm Password"),
-                    secretW
-                );
-                ImGui::PopID();
-                if (confirmPassword.Edited) {
-                    clearResult();
-                }
-                if (distinctKey) {
-                    ImGui::SameLine(0.0F, spacing);
-                    ImGui::PushID(static_cast<int>(work.SecretEpoch) + 2);
-                    const SecretEdit keyPassword = SecretField(
-                        "##CreateKeyPassword",
-                        work.KeyPassword,
-                        sizeof work.KeyPassword,
-                        work.ShowKeyPassword,
-                        Tr("Key Password"),
-                        secretW
-                    );
-                    ImGui::PopID();
-                    if (keyPassword.Edited) {
-                        clearResult();
-                    }
-                }
-
-                SectionLabel(Tr("Distinguished Name"));
-                const float countryW = Em(8.0F);
-                const float nameW = std::max(1.0F, (avail - countryW - (spacing * 5.0F)) / 5.0F);
-                drawHint("##CommonName", work.CommonName, sizeof work.CommonName, Tr("Common Name"), nameW);
-                ImGui::SameLine(0.0F, spacing);
-                drawHint("##OrganizationalUnit", work.OrganizationalUnit, sizeof work.OrganizationalUnit, Tr("Organizational Unit"), nameW);
-                ImGui::SameLine(0.0F, spacing);
-                drawHint("##Organization", work.Organization, sizeof work.Organization, Tr("Organization"), nameW);
-                ImGui::SameLine(0.0F, spacing);
-                drawHint("##Locality", work.Locality, sizeof work.Locality, Tr("City"), nameW);
-                ImGui::SameLine(0.0F, spacing);
-                drawHint("##State", work.StateName, sizeof work.StateName, Tr("State"), nameW);
-                ImGui::SameLine(0.0F, spacing);
-                drawHint("##Country", work.Country, sizeof work.Country, "US", countryW, Tr("Country"));
+                const FormDisabled disabled(work.Busy.load());
+                CreateKeyOptions(work, avail, spacing);
+                CreateSecrets(work, avail, spacing, storePassword, confirmPassword);
             }
             if (storePassword.Submitted || confirmPassword.Submitted) {
                 StartCreate(context);
             }
         }
 
-        void DrawKeytoolStatus(Context &context) {
-            auto &work = context.KeytoolWork;
+
+        void KeytoolStatus(const Context &context) {
+            const auto &work = context.KeytoolWork;
             if (work.Page == KeytoolPage::Inspect) {
                 const bool reading = work.Busy.load() && work.Task == KeytoolTask::Inspect;
                 if (reading) {
-                    StatusBar(StatusBarTone::Busy, Tr("Keytool is listing the entries."));
+                    StatusBar(StatusBarTone::Busy, Core::Tr("Keytool is listing the entries."));
                     return;
                 }
                 if (!work.HasInspect) {
-                    StatusBar(StatusBarTone::Idle, Tr("Choose a keystore and read its entries."));
+                    StatusBar(StatusBarTone::Idle, Core::Tr("Choose a keystore and read its entries."));
                     return;
                 }
-                if (work.InspectResult.Status != KeytoolStatus::Ok) {
+                if (work.InspectResult.Status != Core::KeytoolStatus::Ok) {
                     StatusBar(StatusBarTone::Error, DescribeFailure(work.InspectResult));
                     return;
                 }
-                StatusBar(StatusBarTone::Success, Tr("Keystore read."));
+                StatusBar(StatusBarTone::Success, Core::Tr("Keystore read."));
                 return;
             }
 
             const bool creating = work.Busy.load() && work.Task == KeytoolTask::Create;
             if (creating) {
-                StatusBar(StatusBarTone::Busy, Tr("Keytool is generating the key pair."));
+                StatusBar(StatusBarTone::Busy, Core::Tr("Keytool is generating the key pair."));
                 return;
             }
-            if (work.HasCreate && work.CreateResult.Status == KeytoolStatus::Ok && work.CreateResult.Description.Status == KeytoolStatus::Ok) {
-                StatusBar(StatusBarTone::Success, Tr("Keystore created."));
+            if (work.HasCreate && work.CreateResult.Status == Core::KeytoolStatus::Ok && work.CreateResult.Description.Status == Core::KeytoolStatus::Ok) {
+                StatusBar(StatusBarTone::Success, Core::Tr("Keystore created."));
                 return;
             }
-            if (work.HasCreate && work.CreateResult.Status != KeytoolStatus::Ok) {
+            if (work.HasCreate && work.CreateResult.Status != Core::KeytoolStatus::Ok) {
                 StatusBar(StatusBarTone::Error, CreateFailure(work.CreateResult));
                 return;
             }
             if (work.HasCreate) {
-                StatusBar(StatusBarTone::Error, Tr("The keystore was created, but its entries could not be read."));
+                StatusBar(StatusBarTone::Error, Core::Tr("The keystore was created, but its entries could not be read."));
                 return;
             }
             if (CreateDirty(work)) {
@@ -1235,7 +1324,7 @@ namespace CoreDeck {
                     }
                 }
             }
-            StatusBar(StatusBarTone::Idle, Tr("Ready to create a keystore."));
+            StatusBar(StatusBarTone::Idle, Core::Tr("Ready to create a keystore."));
         }
 
         float ReportCardHeight() {
@@ -1243,21 +1332,21 @@ namespace CoreDeck {
             return std::max(1.0F, ImGui::GetContentRegionAvail().y - StatusBarHeight() - gap);
         }
 
-        void DrawMissingJdk(Context &context) {
+        void MissingJdk(Context &context) {
             if (NoticeCard(
                     NoticeCardTone::Error,
-                    Tr("A JDK is required."),
-                    Tr("Keytool creates and reads keystores with the JDK's keytool."),
-                    Tr("Choose a JDK...")
+                    Core::Tr("A JDK is required."),
+                    Core::Tr("Keytool creates and reads keystores with the JDK's keytool."),
+                    Core::Tr("Choose a JDK...")
                 )) {
                 context.UI.OpenPreferencesToJava = true;
                 context.UI.ShowPreferences = true;
             }
         }
 
-        void DrawKeytoolBody(Context &context) {
+        void KeytoolBody(Context &context) {
             auto &work = context.KeytoolWork;
-            const char *pageLabels[] = {Tr("Inspect"), Tr("Create")};
+            const char *pageLabels[] = {Core::Tr("Inspect"), Core::Tr("Create")};
             int page = static_cast<int>(work.Page);
             ImGui::BeginDisabled(work.Busy.load());
             if (CategoryChipRow(pageLabels, IM_ARRAYSIZE(pageLabels), page)) {
@@ -1267,21 +1356,21 @@ namespace CoreDeck {
             ImGui::Spacing();
 
             if (work.Page == KeytoolPage::Inspect) {
-                DrawInspectBar(context);
+                InspectBar(context);
                 ImGui::Spacing();
                 DetailCard("##InspectDetail", ReportCardHeight(), [&context] {
-                    DrawInspectReport(context);
+                    InspectReport(context);
                 });
-                DrawKeytoolStatus(context);
+                KeytoolStatus(context);
                 return;
             }
 
-            DrawCreateForm(context);
+            CreateForm(context);
             ImGui::Spacing();
             DetailCard("##CreateDetail", ReportCardHeight(), [&context] {
-                DrawCreateReport(context);
+                CreateReport(context);
             });
-            DrawKeytoolStatus(context);
+            KeytoolStatus(context);
         }
     }
 
@@ -1294,7 +1383,7 @@ namespace CoreDeck {
         if (context.UI.Workspace != WorkspacePage::Keytool) {
             return;
         }
-        SetNativeWindowPage(context, Tr("Keytool"));
+        SetNativeWindowPage(context, Core::Tr("Keytool"));
 
         const ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -1310,9 +1399,9 @@ namespace CoreDeck {
         const float bodyHeight = std::max(Eh(12.0F), ImGui::GetContentRegionAvail().y);
         ImGui::BeginChild("##KeytoolBody", ImVec2(0.0F, bodyHeight), ImGuiChildFlags_None, ImGuiWindowFlags_NoScrollbar);
         if (context.Host.Jdk.JavaHome.empty()) {
-            DrawMissingJdk(context);
+            MissingJdk(context);
         } else {
-            DrawKeytoolBody(context);
+            KeytoolBody(context);
         }
         ImGui::EndChild();
         ImGui::End();
@@ -1320,5 +1409,11 @@ namespace CoreDeck {
 
     void CloseKeytool(Context &context) {
         LeaveKeytool(context);
+    }
+}
+
+namespace CoreDeck::Core {
+    std::vector<std::string> KeystoreFilePatterns() {
+        return Gui::KeystoreFilePatterns();
     }
 }

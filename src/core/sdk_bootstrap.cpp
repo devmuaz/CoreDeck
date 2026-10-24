@@ -14,7 +14,7 @@
 #include "sha256.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         constexpr const char *STAGING_DIR_NAME = ".coredeck-bootstrap";
 
@@ -35,7 +35,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->Stage = stage;
             progress->Percent = percent;
             progress->StatusText = status;
@@ -46,7 +46,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->DetailText = detail;
         }
 
@@ -54,7 +54,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->Percent = percent;
         }
 
@@ -62,7 +62,7 @@ namespace CoreDeck {
             if (!progress) {
                 return false;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             return progress->CancelRequested;
         }
 
@@ -81,7 +81,7 @@ namespace CoreDeck {
             }
 
             if (progress) {
-                std::scoped_lock lock(progress->Mutex);
+                const std::scoped_lock lock(progress->Mutex);
                 progress->Stage = finalStage;
                 progress->Error = error;
                 progress->ErrorDetail = detail;

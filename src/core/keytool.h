@@ -8,12 +8,13 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "constants.h"
 #include "jdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class KeytoolAliasStatus : uint8_t {
         Ok,
         Refused,
@@ -162,7 +163,7 @@ namespace CoreDeck {
 
     int DefaultKeySize(KeyAlgorithm algorithm);
 
-    std::string KeystoreTypeFromMagic(const std::uint8_t *bytes, std::size_t size);
+    std::string_view KeystoreTypeFromMagic(const std::uint8_t *bytes, std::size_t size);
 
     std::string DetectKeystoreType(const std::string &keystorePath);
 

@@ -11,7 +11,7 @@
 
 #include "jdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct ApkVerifyReport {
         bool Verified = false;
         bool SchemeV1 = false;

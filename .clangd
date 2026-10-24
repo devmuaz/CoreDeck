@@ -2,6 +2,10 @@
 CompileFlags:
   CompilationDatabase: build-debug
 
+Diagnostics:
+  ClangTidy:
+    FastCheckFilter: None
+
 ---
 # src/gui/context.h shares its filename with extern/glfw/src/context.c.
 # clangd's header inference prefers that C file, then parses the header as C

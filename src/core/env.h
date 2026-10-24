@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct EnvVar {
         std::string Name;
         std::string Value;

@@ -15,9 +15,9 @@
 #include "../../core/utilities.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
-        StorageScanResult ScanStorageUsage(const std::vector<AvdInfo> &avds, const std::string &sdkPath) {
+        StorageScanResult ScanStorageUsage(const std::vector<Core::AvdInfo> &avds, const std::string &sdkPath) {
             StorageScanResult result;
 
             for (const auto &avd: avds) {
@@ -25,14 +25,14 @@ namespace CoreDeck {
                     continue;
                 }
                 if (std::filesystem::exists(avd.Path)) {
-                    result.TotalAvdSize += GetDirectorySize(avd.Path);
+                    result.TotalAvdSize += Core::GetDirectorySize(avd.Path);
                 }
             }
 
             if (!sdkPath.empty()) {
                 const auto sysImgRoot = std::filesystem::path(sdkPath) / "system-images";
                 if (std::filesystem::exists(sysImgRoot)) {
-                    result.SystemImagesSize = GetDirectorySize(sysImgRoot.string());
+                    result.SystemImagesSize = Core::GetDirectorySize(sysImgRoot.string());
                 }
             }
 
@@ -51,7 +51,7 @@ namespace CoreDeck {
             });
         }
 
-        void DrawStorageSummaryCard(const char *title, const std::string &value, const char *accentColor, const float width) {
+        void StorageSummaryCard(const char *title, const std::string &value, const char *accentColor, const float width) {
             StyleColor sc;
             StyleVar sv;
             sc.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
@@ -67,7 +67,7 @@ namespace CoreDeck {
             ImGui::EndChild();
         }
 
-        void DrawStorageBreakdownBar(const std::uintmax_t avdSize, const std::uintmax_t systemImageSize) {
+        void StorageBreakdownBar(const std::uintmax_t avdSize, const std::uintmax_t systemImageSize) {
             const std::uintmax_t total = avdSize + systemImageSize;
             const float width = ImGui::GetContentRegionAvail().x;
             constexpr float HEIGHT = 14.0F;
@@ -99,7 +99,7 @@ namespace CoreDeck {
     }
 
     void BuildStorageWindow(Context &context) {
-        const std::string title = TrWindow("Storage Overview", "StorageDialog");
+        const std::string title = Core::TrWindow("Storage Overview", "StorageDialog");
         if (!context.UI.ShowStorageDialog && !ImGui::IsPopupOpen(title.c_str())) {
             return;
         }
@@ -122,41 +122,41 @@ namespace CoreDeck {
             const auto &[totalAvdSize, systemImagesSize] = disk.LastScan;
             const std::uintmax_t grandTotal = totalAvdSize + systemImagesSize;
 
-            ImGui::Text("%s", Tr("Statistics"));
-            ImGui::TextDisabled("%s", isLoading ? Tr("Calculating...") : Tr("Calculated from local SDK and AVD folders"));
+            ImGui::Text("%s", Core::Tr("Statistics"));
+            ImGui::TextDisabled("%s", isLoading ? Core::Tr("Calculating...") : Core::Tr("Calculated from local SDK and AVD folders"));
 
             ImGui::Spacing();
 
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float cardWidth = (ImGui::GetContentRegionAvail().x - (spacing * 2.0F)) / 3.0F;
-            DrawStorageSummaryCard(Tr("Total Storage"), isLoading && !disk.Ready ? std::string(Tr("Calculating...")) : FormatFileSize(grandTotal), Colors::TEXT_PRIMARY, cardWidth);
+            StorageSummaryCard(Core::Tr("Total Storage"), isLoading && !disk.Ready ? std::string(Core::Tr("Calculating...")) : Core::FormatFileSize(grandTotal), Colors::TEXT_PRIMARY, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard(Tr("AVDs"), isLoading && !disk.Ready ? std::string(Tr("Calculating...")) : FormatFileSize(totalAvdSize), Colors::STORAGE_AVD, cardWidth);
+            StorageSummaryCard(Core::Tr("AVDs"), isLoading && !disk.Ready ? std::string(Core::Tr("Calculating...")) : Core::FormatFileSize(totalAvdSize), Colors::STORAGE_AVD, cardWidth);
             ImGui::SameLine();
-            DrawStorageSummaryCard(Tr("System Images"), isLoading && !disk.Ready ? std::string(Tr("Calculating...")) : FormatFileSize(systemImagesSize), Colors::STORAGE_SYSTEM_IMAGE, cardWidth);
+            StorageSummaryCard(Core::Tr("System Images"), isLoading && !disk.Ready ? std::string(Core::Tr("Calculating...")) : Core::FormatFileSize(systemImagesSize), Colors::STORAGE_SYSTEM_IMAGE, cardWidth);
 
             ImGui::Spacing();
-            ImGui::TextDisabled("%s", Tr("Breakdown"));
-            DrawStorageBreakdownBar(totalAvdSize, systemImagesSize);
+            ImGui::TextDisabled("%s", Core::Tr("Breakdown"));
+            StorageBreakdownBar(totalAvdSize, systemImagesSize);
             ImGui::Spacing();
-            ImGui::TextColored(HexColor(Colors::STORAGE_AVD), "%s", Tr("AVDs"));
+            ImGui::TextColored(HexColor(Colors::STORAGE_AVD), "%s", Core::Tr("AVDs"));
             ImGui::SameLine();
-            ImGui::TextDisabled("%s", FormatFileSize(totalAvdSize).c_str());
+            ImGui::TextDisabled("%s", Core::FormatFileSize(totalAvdSize).c_str());
             ImGui::SameLine();
-            ImGui::TextColored(HexColor(Colors::STORAGE_SYSTEM_IMAGE), "%s", Tr("System Images"));
+            ImGui::TextColored(HexColor(Colors::STORAGE_SYSTEM_IMAGE), "%s", Core::Tr("System Images"));
             ImGui::SameLine();
-            ImGui::TextDisabled("%s", FormatFileSize(systemImagesSize).c_str());
+            ImGui::TextDisabled("%s", Core::FormatFileSize(systemImagesSize).c_str());
 
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
 
             const float halfWidth = EqualButtonWidth(2);
-            if (PositiveButton(isLoading ? Tr("Refreshing...") : Tr("Refresh"), !isLoading, ImVec2(halfWidth, 0))) {
+            if (PositiveButton(isLoading ? Core::Tr("Refreshing...") : Core::Tr("Refresh"), !isLoading, ImVec2(halfWidth, 0))) {
                 StartStorageScan(context);
             }
             ImGui::SameLine();
-            if (PrimaryButton(Tr("Close"), !isLoading, ImVec2(halfWidth, 0))) {
+            if (PrimaryButton(Core::Tr("Close"), !isLoading, ImVec2(halfWidth, 0))) {
                 context.UI.ShowStorageDialog = false;
                 ImGui::CloseCurrentPopup();
             }

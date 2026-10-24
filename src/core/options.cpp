@@ -11,7 +11,7 @@
 #include "log.h"
 #include "paths.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         const char *FindDisplayLabel(const std::vector<OptionValueLabel> &options, const std::string &value) {
             for (const auto &[label, rawValue]: options) {

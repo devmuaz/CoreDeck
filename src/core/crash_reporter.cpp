@@ -11,7 +11,7 @@
 
 #include "paths.h"
 
-namespace CoreDeck::CrashReporter {
+namespace CoreDeck::Core::CrashReporter {
     namespace {
         sentry_level_t ToSentryLevel(const Level level) {
             switch (level) {
@@ -102,7 +102,7 @@ namespace CoreDeck::CrashReporter {
 
 #else
 
-namespace CoreDeck::CrashReporter {
+namespace CoreDeck::Core::CrashReporter {
     bool Init(bool /*unused*/) {
         return false;
     }

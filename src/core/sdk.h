@@ -8,7 +8,7 @@
 
 #include "env.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct SdkInfo {
         std::string SdkPath;
         std::string EmulatorPath;

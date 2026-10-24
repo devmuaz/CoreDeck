@@ -3,20 +3,22 @@
 //
 
 #include "delete_avd.h"
+
+#include <utility>
 #include "../application.h"
 #include "../widgets.h"
 #include "../../core/avd_manager.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void StartDeleteAvdAsync(Context &context, const std::string &avdName) {
         if (context.Jobs.AvdDeletion.Busy.load()) {
             return;
         }
 
         context.Jobs.AvdDeletion.Busy = true;
-        context.Jobs.AvdDeletion.Future = std::async(std::launch::async, [&context, avdName]() {
-            DeleteAvd(context.Host.Sdk, avdName);
+        context.Jobs.AvdDeletion.Future = std::async(std::launch::async, [&context, avdName] {
+            Core::DeleteAvd(context.Host.Sdk, avdName);
             context.Jobs.AvdDeletion.Busy = false;
         });
     }
@@ -29,7 +31,7 @@ namespace CoreDeck {
             return;
         }
 
-        if (context.Catalog.SelectedAvd < 0 || context.Catalog.SelectedAvd >= static_cast<int>(context.Catalog.Avds.size())) {
+        if (context.Catalog.SelectedAvd < 0 || std::cmp_greater_equal(context.Catalog.SelectedAvd, context.Catalog.Avds.size())) {
             return;
         }
         if (!context.UI.ShowDeleteAvdDialog) {
@@ -37,16 +39,16 @@ namespace CoreDeck {
         }
 
         const auto &avdName = context.Catalog.Avds.at(context.Catalog.SelectedAvd).Name;
-        const std::string title = TrFormat("Delete \"{0}\"?", avdName);
+        const std::string title = Core::TrFormat("Delete \"{0}\"?", avdName);
         const bool isDeleting = context.Jobs.AvdDeletion.Busy.load();
         const DialogResult result = SimpleDialog({
             .Id = "Delete###DeleteAvdDialog",
             .IsOpen = context.UI.ShowDeleteAvdDialog,
             .Title = title.c_str(),
-            .Message = Tr("This will permanently remove the AVD and all its data. This action cannot be undone."),
-            .ConfirmButtonTitle = Tr("Delete"),
-            .CancelButtonTitle = Tr("Cancel"),
-            .BusyButtonTitle = Tr("Deleting..."),
+            .Message = Core::Tr("This will permanently remove the AVD and all its data. This action cannot be undone."),
+            .ConfirmButtonTitle = Core::Tr("Delete"),
+            .CancelButtonTitle = Core::Tr("Cancel"),
+            .BusyButtonTitle = Core::Tr("Deleting..."),
             .Type = DialogType::Negative,
             .IsBusy = isDeleting,
         }, true);

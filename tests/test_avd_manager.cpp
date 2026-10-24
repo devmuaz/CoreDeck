@@ -2,7 +2,7 @@
 
 #include "core/avd_manager.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 TEST_CASE("ParseAvdManagerDeviceList keeps device ids and drops avdmanager logs", "[avd]") {
     const auto list = ParseAvdManagerDeviceList(
@@ -16,12 +16,12 @@ TEST_CASE("ParseAvdManagerDeviceList keeps device ids and drops avdmanager logs"
 
     REQUIRE(list.SkippedDeviceDefinitions);
     REQUIRE(list.Profiles.size() == 3);
-    REQUIRE(list.Profiles[0].Id == "pixel_7");
-    REQUIRE(list.Profiles[0].Name == "Pixel 7");
-    REQUIRE(list.Profiles[1].Id == "medium_phone");
-    REQUIRE(list.Profiles[1].Name == "Medium phone");
-    REQUIRE(list.Profiles[2].Id == "Nexus 5");
-    REQUIRE(list.Profiles[2].Name == "Nexus 5");
+    REQUIRE(list.Profiles.at(0).Id == "pixel_7");
+    REQUIRE(list.Profiles.at(0).Name == "Pixel 7");
+    REQUIRE(list.Profiles.at(1).Id == "medium_phone");
+    REQUIRE(list.Profiles.at(1).Name == "Medium phone");
+    REQUIRE(list.Profiles.at(2).Id == "Nexus 5");
+    REQUIRE(list.Profiles.at(2).Name == "Nexus 5");
 }
 
 TEST_CASE("ParseAvdManagerDeviceList ignores unrelated diagnostics", "[avd]") {
@@ -29,7 +29,7 @@ TEST_CASE("ParseAvdManagerDeviceList ignores unrelated diagnostics", "[avd]") {
 
     REQUIRE_FALSE(list.SkippedDeviceDefinitions);
     REQUIRE(list.Profiles.size() == 1);
-    REQUIRE(list.Profiles[0].Id == "pixel_7");
+    REQUIRE(list.Profiles.at(0).Id == "pixel_7");
 }
 
 TEST_CASE("ParseAvdManagerDeviceList leaves an empty list when only device-load errors are present", "[avd]") {
@@ -48,8 +48,8 @@ TEST_CASE("ParseAvdManagerAvdList keeps compact avd ids and drops diagnostics", 
     );
 
     REQUIRE(names.size() == 2);
-    REQUIRE(names[0] == "Pixel_7_Pro");
-    REQUIRE(names[1] == "My Phone");
+    REQUIRE(names.at(0) == "Pixel_7_Pro");
+    REQUIRE(names.at(1) == "My Phone");
 }
 
 TEST_CASE("ParseAvdManagerAvdList leaves an empty list when only diagnostics are present", "[avd]") {

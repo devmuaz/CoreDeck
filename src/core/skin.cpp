@@ -13,7 +13,7 @@
 
 #include <ranges>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace Fs = std::filesystem;
 
     namespace {
@@ -58,7 +58,7 @@ namespace CoreDeck {
                     continue;
                 }
 
-                std::string dirName = dir.filename().string();
+                const std::string dirName = dir.filename().string();
                 out.emplace_back(
                     dirName,
                     PrettifyName(dirName),
@@ -123,7 +123,7 @@ namespace CoreDeck {
         std::unordered_map<std::string, size_t> bestByName;
         for (size_t i = 0; i < all.size(); ++i) {
             const std::string key = LowerCopy(all.at(i).Name);
-            auto it = bestByName.find(key);
+            const auto it = bestByName.find(key);
             if (it == bestByName.end()) {
                 bestByName.emplace(key, i);
             } else if (SourcePriority(all.at(i).Source) < SourcePriority(all.at(it->second).Source)) {
@@ -133,7 +133,7 @@ namespace CoreDeck {
 
         std::vector<Skin> deduped;
         deduped.reserve(bestByName.size());
-        for (auto &idx: bestByName | std::views::values) {
+        for (const auto &idx: bestByName | std::views::values) {
             deduped.push_back(std::move(all.at(idx)));
         }
 

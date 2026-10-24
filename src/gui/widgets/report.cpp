@@ -10,11 +10,11 @@
 #include "../../core/i18n.h"
 #include "../widgets.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         constexpr const char *UNAVAILABLE = "\u2014";
 
-        void DrawTextDetail(const SplitDetail &detail, const float width, const float labelColumn) {
+        void TextDetail(const SplitDetail &detail, const float width, const float labelColumn) {
             const char *shown = detail.Value.empty() ? UNAVAILABLE : detail.Value.c_str();
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float valueWidth = std::max(1.0F, width - labelColumn - spacing);
@@ -38,7 +38,7 @@ namespace CoreDeck {
             );
         }
 
-        void DrawChipDetail(const SplitDetail &detail, const float width, const float labelColumn) {
+        void ChipDetail(const SplitDetail &detail, const float width, const float labelColumn) {
             const char *shown = detail.Value.empty() ? UNAVAILABLE : detail.Value.c_str();
             const char *accent = detail.Accent != nullptr && detail.Accent[0] != '\0' ? detail.Accent : Colors::TEXT_MUTED;
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
@@ -68,7 +68,7 @@ namespace CoreDeck {
             draw->AddText(ImVec2(chipX + padX, chipY + ((chipH - text.y) * 0.5F)), ink, shown);
         }
 
-        void DrawSectionDetail(const SplitDetail &detail, const float width) {
+        void SectionDetail(const SplitDetail &detail, const float width) {
             if (detail.Label.empty()) {
                 return;
             }
@@ -91,12 +91,12 @@ namespace CoreDeck {
         const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
         const float fieldWidth = std::max(1.0F, avail - buttonSide - spacing);
         std::vector<char> buffer(std::max<std::size_t>(value.size() + 1, 1), '\0');
-        std::copy(value.begin(), value.end(), buffer.begin());
+        std::ranges::copy(value, buffer.begin());
         ImGui::SetNextItemWidth(fieldWidth);
         ImGui::InputText("##Value", buffer.data(), buffer.size(), ImGuiInputTextFlags_ReadOnly);
         ImGui::SameLine(0.0F, spacing);
         ImGui::BeginDisabled(value.empty());
-        const std::string tip = TrFormat("Copy {0}", title);
+        const std::string tip = Core::TrFormat("Copy {0}", title);
         if (PrimaryButton(Icons::COPY, !value.empty(), ImVec2(buttonSide, 0.0F))) {
             ImGui::SetClipboardText(value.c_str());
         }
@@ -153,8 +153,8 @@ namespace CoreDeck {
         if (path.empty()) {
             return;
         }
-        LabeledValue(Tr("File Name"), FileNameOf(path), columnLabels);
-        LabeledValue(Tr("Full Path"), path, columnLabels);
+        LabeledValue(Core::Tr("File Name"), FileNameOf(path), columnLabels);
+        LabeledValue(Core::Tr("Full Path"), path, columnLabels);
     }
 
     void ReportHeading(const char *title, const bool *verified) {
@@ -163,7 +163,7 @@ namespace CoreDeck {
         if (verified == nullptr) {
             return;
         }
-        const char *label = *verified ? Tr("Verified") : Tr("Not Verified");
+        const char *label = *verified ? Core::Tr("Verified") : Core::Tr("Not Verified");
         const char *icon = *verified ? Icons::CHECK_CIRCLE : Icons::TIMES_CIRCLE;
         const float dpi = GetDpiScale();
         const float messageWidth = (16.0F * dpi) + ImGui::CalcTextSize(icon).x + (6.0F * dpi) + ImGui::CalcTextSize(label).x;
@@ -191,16 +191,16 @@ namespace CoreDeck {
             const float labelColumn = std::min(labelWidth, std::max(Em(8.0F), column * 0.45F));
             const auto drawRange = [&](const int begin, const int end) {
                 for (int index = begin; index < end; ++index) {
-                    const SplitDetail &detail = details[static_cast<std::size_t>(index)];
+                    const SplitDetail &detail = details[static_cast<std::size_t>(index)]; // NOLINT(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
                     switch (detail.Kind) {
                         case SplitDetailKind::Text:
-                            DrawTextDetail(detail, column, labelColumn);
+                            TextDetail(detail, column, labelColumn);
                             break;
                         case SplitDetailKind::Chip:
-                            DrawChipDetail(detail, column, labelColumn);
+                            ChipDetail(detail, column, labelColumn);
                             break;
                         case SplitDetailKind::Section:
-                            DrawSectionDetail(detail, column);
+                            SectionDetail(detail, column);
                             break;
                     }
                 }
@@ -219,7 +219,7 @@ namespace CoreDeck {
         ImGui::Spacing();
         std::string section;
         for (int index = 0; std::cmp_less(index, copies.size()); ++index) {
-            const CopyableValue &copy = copies[static_cast<std::size_t>(index)];
+            const CopyableValue &copy = copies[static_cast<std::size_t>(index)]; // NOLINT(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
             if (!copy.Section.empty() && copy.Section != section) {
                 ImGui::Spacing();
                 ImGui::TextDisabled("%s", copy.Section.c_str());

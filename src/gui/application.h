@@ -17,7 +17,7 @@
 
 struct GLFWwindow;
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     class Application {
     public:
         Application(const Application &) = delete;
@@ -67,32 +67,32 @@ namespace CoreDeck {
         float m_FontPixelScale = 1.0F;
 
         std::string m_AppliedWindowPage;
-        std::future<std::optional<RemoteRelease>> m_UpdateCheckFuture;
+        std::future<std::optional<Core::RemoteRelease>> m_UpdateCheckFuture;
         bool m_AutoUpdateCheckStarted = false;
         bool m_UpdateCheckWasManual = false;
     };
 
     void ApplyWindowChrome(GLFWwindow *window);
 
-    AppSettings CaptureAppSettingsFromContext(const Context &context);
+    Core::AppSettings CaptureAppSettingsFromContext(const Context &context);
 
-    void ApplyAppSettingsToContext(Context &context, const AppSettings &settings);
+    void ApplyAppSettingsToContext(Context &context, const Core::AppSettings &settings);
 
     void PersistAppSettings(const Context &context);
 
     struct AvdCatalogSnapshot {
         std::vector<std::string> Names;
-        std::vector<AvdInfo> Avds;
-        std::unordered_map<std::string, std::vector<EmulatorOption>> Options;
+        std::vector<Core::AvdInfo> Avds;
+        std::unordered_map<std::string, std::vector<Core::EmulatorOption>> Options;
     };
 
-    AvdCatalogSnapshot LoadAvdCatalog(const SdkInfo &sdk);
+    AvdCatalogSnapshot LoadAvdCatalog(const Core::SdkInfo &sdk);
 
     void ApplyAvdCatalog(Context &context, AvdCatalogSnapshot snapshot);
 
     void RefreshAvds(Context &context);
 
-    void RequestAvdListRefresh(Context &context);
+    void RequestAvdListRefresh(const Context &context);
 
     void PollAvdListRefresh(Context &context);
 
@@ -103,7 +103,7 @@ namespace CoreDeck {
 
     void SaveAvdOptions(Context &context, const std::string &avdName);
 
-    std::vector<EmulatorOption> &GetDefaultAvdOptions(Context &context);
+    std::vector<Core::EmulatorOption> &GetDefaultAvdOptions(Context &context);
 }
 
 #endif // COREDECK_APPLICATION_H

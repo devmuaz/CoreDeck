@@ -15,7 +15,7 @@
 #include "sdk_manager.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string CanonicalSystemImagePackagePath(std::string packagePath) {
             if (packagePath.starts_with("system-images/")) {
@@ -47,7 +47,7 @@ namespace CoreDeck {
                 return;
             }
 
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             if (parsed.HasPercent) {
                 progress->Percent = static_cast<float>(parsed.Percent) / 100.0F;
                 if (!parsed.Status.empty()) {
@@ -156,10 +156,11 @@ namespace CoreDeck {
             }
         }
 
-        // Sort by API level descending (newest first)
+        // std::sort moves elements while comparing them. The analyzer reports
+        // those members as moved-from even though the comparator only reads them.
         std::ranges::sort(images, [](const SystemImage &a, const SystemImage &b) {
-            const int apiA = static_cast<int>(std::strtol(a.ApiLevel.c_str(), nullptr, 10));
-            const int apiB = static_cast<int>(std::strtol(b.ApiLevel.c_str(), nullptr, 10));
+            const int apiA = static_cast<int>(std::strtol(a.ApiLevel.c_str(), nullptr, 10)); // NOLINT(clang-analyzer-cplusplus.Move)
+            const int apiB = static_cast<int>(std::strtol(b.ApiLevel.c_str(), nullptr, 10)); // NOLINT(clang-analyzer-cplusplus.Move)
             return apiA > apiB;
         });
 
@@ -241,7 +242,7 @@ namespace CoreDeck {
         }
 
         if (progress) {
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->StatusText = DescribeInstallProgress(packagePath, "Starting download...");
             progress->Percent = 0.0F;
         }
@@ -257,7 +258,7 @@ namespace CoreDeck {
                 }
             )) {
             if (progress) {
-                std::scoped_lock lock(progress->Mutex);
+                const std::scoped_lock lock(progress->Mutex);
                 progress->Finished = true;
                 progress->Succeeded = false;
                 progress->StatusText = Tr("Installation Failed!");
@@ -272,7 +273,7 @@ namespace CoreDeck {
         const bool ok = std::filesystem::exists(sysImg);
 
         if (progress) {
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->Finished = true;
             progress->Succeeded = ok;
             progress->Percent = ok ? 1.0F : progress->Percent;

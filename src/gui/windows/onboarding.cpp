@@ -24,7 +24,7 @@
 #include "../../core/utilities.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         enum class Step : uint8_t {
             Welcome,
@@ -49,8 +49,8 @@ namespace CoreDeck {
             bool AcceptSdkLicense = false;
             bool Initialized = false;
             bool JdksLoaded = false;
-            std::vector<JdkInfo> InstalledJdks;
-            std::future<std::vector<JdkInfo>> JdkScan;
+            std::vector<Core::JdkInfo> InstalledJdks;
+            std::future<std::vector<Core::JdkInfo>> JdkScan;
         };
 
         WizardState &Wizard() {
@@ -135,7 +135,7 @@ namespace CoreDeck {
             window->DC.Indent.x += panel.Pad;
         }
 
-        void EndWizardPanel(WizardPanel &panel) {
+        void EndWizardPanel(const WizardPanel &panel) {
             ImGuiWindow *window = ImGui::GetCurrentWindow();
             window->DC.Indent.x -= panel.Pad;
             window->DC.CursorMaxPos.x = ImMax(window->DC.CursorMaxPos.x, panel.Origin.x + panel.Width);
@@ -327,8 +327,8 @@ namespace CoreDeck {
             ImGui::TextColored(WizardLabelColor(), "%s", label);
             ImGui::Spacing();
 
-            const char *browseText = Tr("Browse...");
-            const std::string browseLabel = StrConcat(browseText, "##", id);
+            const char *browseText = Core::Tr("Browse...");
+            const std::string browseLabel = Core::StrConcat(browseText, "##", id);
             const float browseWidth = std::max(
                 Em(11.0F),
                 ImGui::CalcTextSize(browseText).x + (ImGui::GetStyle().FramePadding.x * 2.0F)
@@ -339,21 +339,21 @@ namespace CoreDeck {
             ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
             ImGui::SameLine();
             if (PrimaryButton(browseLabel.c_str(), true, ImVec2(browseWidth, 0))) {
-                if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer)) {
+                if (const auto picked = Core::FileDialog::PickDirectory(dialogTitle, buffer)) {
                     CopyToBuffer(buffer, bufferSize, *picked);
                 }
             }
             return buffer[0] != '\0';
         }
 
-        JdkInfo InspectTypedJdk(const std::string &javaHome) {
+        Core::JdkInfo InspectTypedJdk(const std::string &javaHome) {
             static std::string cachedPath;
-            static JdkInfo cached;
+            static Core::JdkInfo cached;
             if (javaHome == cachedPath) {
                 return cached;
             }
             cachedPath = javaHome;
-            cached = javaHome.empty() ? JdkInfo{} : InspectJdk(javaHome);
+            cached = javaHome.empty() ? Core::JdkInfo{} : Core::InspectJdk(javaHome);
             return cached;
         }
 
@@ -363,7 +363,7 @@ namespace CoreDeck {
                 return;
             }
             wizard.JdkScan = std::async(std::launch::async, [] {
-                return ListInstalledJdks();
+                return Core::ListInstalledJdks();
             });
         }
 
@@ -383,21 +383,21 @@ namespace CoreDeck {
             return true;
         }
 
-        void UseInstalledJdk(Context &context, const JdkInfo &jdk) {
+        void UseInstalledJdk(Context &context, const Core::JdkInfo &jdk) {
             Paths::Onboarding::SaveJdkPathOverride(jdk.JavaHome);
             context.Host.Jdk = jdk;
-            context.Host.Jdk.Source = JdkSource::Override;
-            ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
+            context.Host.Jdk.Source = Core::JdkSource::Override;
+            Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
             context.Host.Manager.SetSdk(context.Host.Sdk);
             CopyToBuffer(Wizard().JdkPathBuffer, sizeof(Wizard().JdkPathBuffer), context.Host.Jdk.JavaHome);
         }
 
-        bool DrawJavaChoices(Context &context) {
+        bool JavaChoices(Context &context) {
             if (!PollJdkScan()) {
                 BeginJdkScan();
                 const float width = WizardContentWidth();
                 ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + width);
-                ImGui::TextColored(WizardLabelColor(), "%s", Tr("Looking for installed JDKs..."));
+                ImGui::TextColored(WizardLabelColor(), "%s", Core::Tr("Looking for installed JDKs..."));
                 ImGui::PopTextWrapPos();
                 ImGui::Dummy(ImVec2(0.0F, 8.0F * GetDpiScale()));
                 return false;
@@ -411,8 +411,8 @@ namespace CoreDeck {
                 const std::string title = JavaRuntimeLabel(jdk);
                 const std::string body = jdk.IsValid
                                              ? jdk.JavaHome
-                                             : TrFormat("Older than JDK {0}. {1}", std::to_string(JDK_MINIMUM_MAJOR), jdk.JavaHome);
-                const std::string id = StrConcat("##jdk_", jdk.JavaHome);
+                                             : Core::TrFormat("Older than JDK {0}. {1}", std::to_string(Core::JDK_MINIMUM_MAJOR), jdk.JavaHome);
+                const std::string id = Core::StrConcat("##jdk_", jdk.JavaHome);
                 if (SetupOptionCard(id.c_str(), title.c_str(), body.c_str(), width, selected, jdk.IsValid)) {
                     UseInstalledJdk(context, jdk);
                 }
@@ -421,14 +421,14 @@ namespace CoreDeck {
 
             if (!anyValid) {
                 ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + width);
-                const std::string message = TrFormat(
+                const std::string message = Core::TrFormat(
                     "No JDK was found. Install JDK {0} separately, then come back to this step.",
-                    std::to_string(JDK_RECOMMENDED_MAJOR)
+                    std::to_string(Core::JDK_RECOMMENDED_MAJOR)
                 );
                 StatusMessage(StatusMessageTone::Error, message.c_str());
                 ImGui::PopTextWrapPos();
-                if (ImGui::TextLink(Tr("Download Java..."))) {
-                    OpenUrl(JAVA_JDK21_DOWNLOAD_URL);
+                if (ImGui::TextLink(Core::Tr("Download Java..."))) {
+                    Core::OpenUrl(Core::JAVA_JDK21_DOWNLOAD_URL);
                 }
                 ImGui::Dummy(ImVec2(0.0F, 8.0F * GetDpiScale()));
             }
@@ -440,9 +440,9 @@ namespace CoreDeck {
             Paths::Onboarding::SaveSdkPathOverride(sdkPath);
             Paths::Onboarding::MarkFirstRunComplete();
 
-            context.Host.Sdk = DetectAndroidSdk();
-            context.Host.Jdk = DetectJdk();
-            ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
+            context.Host.Sdk = Core::DetectAndroidSdk();
+            context.Host.Jdk = Core::DetectJdk();
+            Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
 
             RefreshAvds(context);
             context.Flow.CurrentScreen = Screen::Main;
@@ -453,27 +453,27 @@ namespace CoreDeck {
         void StartBootstrap(Context &context, const std::string &installRoot) {
             auto &work = context.SdkBootstrapWork;
 
-            work.Plan = BootstrapPlan{.InstallRoot = installRoot};
+            work.Plan = Core::BootstrapPlan{.InstallRoot = installRoot};
             if (Wizard().BuildToolsOnly) {
-                work.Plan.Packages = {BOOTSTRAP_BUILD_TOOLS_PACKAGE};
+                work.Plan.Packages = {Core::BOOTSTRAP_BUILD_TOOLS_PACKAGE};
                 work.Plan.UseExistingCmdlineTools = true;
             } else if (Wizard().CommandLineToolsOnly) {
                 work.Plan.Packages.clear();
             }
-            work.Progress = std::make_shared<BootstrapProgressData>();
-            work.LastError = BootstrapError::None;
+            work.Progress = std::make_shared<Core::BootstrapProgressData>();
+            work.LastError = Core::BootstrapError::None;
             work.LastErrorDetail.clear();
             work.Busy = true;
 
             work.Future = std::async(
                 std::launch::async,
                 [plan = work.Plan, jdk = context.Host.Jdk, progress = work.Progress] {
-                    return BootstrapAndroidSdk(plan, jdk, progress);
+                    return Core::BootstrapAndroidSdk(plan, jdk, progress);
                 }
             );
         }
 
-        void DrawWelcomeStep() {
+        void WelcomeStep() {
             WizardPanel panel;
             BeginWizardPanel("##welcome", panel, true);
 
@@ -481,14 +481,14 @@ namespace CoreDeck {
             const float innerWidth = WizardContentWidth();
             ImGui::TextColored(WizardLabelColor(), "%s", COREDECK_TITLE);
             ImGui::Dummy(ImVec2(0.0F, 4.0F * dpi));
-            WizardHeading(Tr("Welcome!"), Tr("Your Android emulator command center."), innerWidth);
+            WizardHeading(Core::Tr("Welcome!"), Core::Tr("Your Android emulator command center."), innerWidth);
 
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
             ImGui::TextColored(
                 WizardLabelColor(),
                 "%s",
-                Tr("CoreDeck helps you manage Android emulators faster and cleaner than the default tooling.")
+                Core::Tr("CoreDeck helps you manage Android emulators faster and cleaner than the default tooling.")
             );
             ImGui::PopTextWrapPos();
 
@@ -496,10 +496,10 @@ namespace CoreDeck {
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const float startWidth = ImGui::CalcTextSize(Tr("Get Started")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float startWidth = ImGui::CalcTextSize(Core::Tr("Get Started")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
             ImGui::SetCursorPosX(rowStart + innerWidth - startWidth);
-            if (PositiveButton(Tr("Get Started"), true, ImVec2(startWidth, 0))) {
+            if (PositiveButton(Core::Tr("Get Started"), true, ImVec2(startWidth, 0))) {
                 Wizard().AcceptSdkLicense = false;
                 Wizard().CurrentStep = Step::SdkChoice;
             }
@@ -508,29 +508,29 @@ namespace CoreDeck {
         }
 
         void BuildWelcomeStep() {
-            PresentWizardStep(DrawWelcomeStep);
+            PresentWizardStep(WelcomeStep);
         }
 
-        void DrawSdkChoiceStep(Context &context) {
+        void SdkChoiceStep(Context &context) {
             WizardPanel panel;
             BeginWizardPanel("##sdk_choice", panel, false);
 
             const float width = WizardContentWidth();
             WizardHeading(
-                Tr("Set up the Android SDK"),
-                Tr("CoreDeck runs the official emulator, avdmanager, and sdkmanager tools."),
+                Core::Tr("Set up the Android SDK"),
+                Core::Tr("CoreDeck runs the official emulator, avdmanager, and sdkmanager tools."),
                 width
             );
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * GetDpiScale()));
 
-            const bool platformSupported = !GetBundledCmdlineToolsRelease().DownloadUrl.empty();
+            const bool platformSupported = !Core::GetBundledCmdlineToolsRelease().DownloadUrl.empty();
             if (SetupOptionCard(
                     "##install_sdk",
-                    Tr("Install Android SDK Automatically"),
+                    Core::Tr("Install Android SDK Automatically"),
                     platformSupported
-                        ? Tr("Downloads Google's official command-line tools, platform-tools, build-tools, and emulator.")
-                        : Tr("Google does not publish command-line tools for this platform."),
+                        ? Core::Tr("Downloads Google's official command-line tools, platform-tools, build-tools, and emulator.")
+                        : Core::Tr("Google does not publish command-line tools for this platform."),
                     width,
                     platformSupported,
                     platformSupported
@@ -544,8 +544,8 @@ namespace CoreDeck {
 
             if (SetupOptionCard(
                     "##use_existing_sdk",
-                    Tr("Use Existing Android SDK"),
-                    Tr("Point CoreDeck to an existing SDK directory (e.g., Android Studio installation)."),
+                    Core::Tr("Use Existing Android SDK"),
+                    Core::Tr("Point CoreDeck to an existing SDK directory (e.g., Android Studio installation)."),
                     width,
                     false,
                     true
@@ -558,7 +558,7 @@ namespace CoreDeck {
             {
                 StyleVar rounding;
                 rounding.Push(ImGuiStyleVar_FrameRounding, WIZARD_ROUND_PX * GetDpiScale());
-                if (PrimaryButton(Tr("Back"), true, ImVec2(Em(10.0F), 0))) {
+                if (PrimaryButton(Core::Tr("Back"), true, ImVec2(Em(10.0F), 0))) {
                     if (Wizard().ReturnToMainOnCancel) {
                         Wizard().ReturnToMainOnCancel = false;
                         Wizard().CurrentStep = Step::Welcome;
@@ -574,27 +574,27 @@ namespace CoreDeck {
 
         void BuildSdkChoiceStep(Context &context) {
             BeginJdkScan();
-            PresentWizardStep([&] { DrawSdkChoiceStep(context); });
+            PresentWizardStep([&] { SdkChoiceStep(context); });
         }
 
-        void DrawSdkLocateStep(Context &context) {
+        void SdkLocateStep(Context &context) {
             WizardPanel panel;
             BeginWizardPanel("##sdk_locate", panel, true);
 
             const float dpi = GetDpiScale();
             const float innerWidth = WizardContentWidth();
             WizardHeading(
-                Tr("Locate your Android SDK"),
-                Tr("Choose the folder that contains emulator, avdmanager, and your system images."),
+                Core::Tr("Locate your Android SDK"),
+                Core::Tr("Choose the folder that contains emulator, avdmanager, and your system images."),
                 innerWidth
             );
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
             WizardPathField(
                 "##sdk_path",
-                Tr("SDK location"),
-                Tr("e.g. /Users/you/Library/Android/sdk"),
-                Tr("Select your Android SDK folder"),
+                Core::Tr("SDK location"),
+                Core::Tr("e.g. /Users/you/Library/Android/sdk"),
+                Core::Tr("Select your Android SDK folder"),
                 Wizard().SdkPathBuffer,
                 sizeof(Wizard().SdkPathBuffer)
             );
@@ -606,17 +606,17 @@ namespace CoreDeck {
             if (currentPath.empty()) {
                 StatusMessage(
                     StatusMessageTone::Info,
-                    Tr("Choose the folder containing your Android SDK (cmdline-tools, emulator, platform-tools, and so on).")
+                    Core::Tr("Choose the folder containing your Android SDK (cmdline-tools, emulator, platform-tools, and so on).")
                 );
             } else if (isValid) {
                 StatusMessage(
                     StatusMessageTone::Positive,
-                    Tr("Looks good. Found the Android emulator at this location.")
+                    Core::Tr("Looks good. Found the Android emulator at this location.")
                 );
             } else {
                 StatusMessage(
                     StatusMessageTone::Error,
-                    Tr("Couldn't find the Android emulator here. Make sure this is your SDK root folder.")
+                    Core::Tr("Couldn't find the Android emulator here. Make sure this is your SDK root folder.")
                 );
             }
             ImGui::PopTextWrapPos();
@@ -625,15 +625,15 @@ namespace CoreDeck {
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const float backWidth = ImGui::CalcTextSize(Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
-            const float continueWidth = ImGui::CalcTextSize(Tr("Continue")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float backWidth = ImGui::CalcTextSize(Core::Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float continueWidth = ImGui::CalcTextSize(Core::Tr("Continue")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
-            if (PrimaryButton(Tr("Back"), true, ImVec2(backWidth, 0))) {
+            if (PrimaryButton(Core::Tr("Back"), true, ImVec2(backWidth, 0))) {
                 Wizard().CurrentStep = Step::SdkChoice;
             }
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - continueWidth);
-            if (PositiveButton(Tr("Continue"), isValid, ImVec2(continueWidth, 0))) {
+            if (PositiveButton(Core::Tr("Continue"), isValid, ImVec2(continueWidth, 0))) {
                 CommitSdkPath(context, currentPath);
             }
 
@@ -641,36 +641,36 @@ namespace CoreDeck {
         }
 
         void BuildSdkLocateStep(Context &context) {
-            PresentWizardStep([&] { DrawSdkLocateStep(context); });
+            PresentWizardStep([&] { SdkLocateStep(context); });
         }
 
-        void DrawSdkJdkSelectStep(Context &context) {
+        void SdkJdkSelectStep(Context &context) {
             WizardPanel panel;
             BeginWizardPanel("##sdk_jdk_select", panel, true);
 
             const float dpi = GetDpiScale();
             const float innerWidth = WizardContentWidth();
-            const std::string jdkSubtitle = TrFormat(
+            const std::string jdkSubtitle = Core::TrFormat(
                 "The Android command-line tools run on Java. JDK {0} is recommended.",
-                std::to_string(JDK_RECOMMENDED_MAJOR)
+                std::to_string(Core::JDK_RECOMMENDED_MAJOR)
             );
-            WizardHeading(Tr("Select a JDK"), jdkSubtitle.c_str(), innerWidth);
+            WizardHeading(Core::Tr("Select a JDK"), jdkSubtitle.c_str(), innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
 
-            const bool hasJdk = DrawJavaChoices(context);
+            const bool hasJdk = JavaChoices(context);
 
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const float backWidth = ImGui::CalcTextSize(Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
-            const float continueWidth = ImGui::CalcTextSize(Tr("Continue")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float backWidth = ImGui::CalcTextSize(Core::Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float continueWidth = ImGui::CalcTextSize(Core::Tr("Continue")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
-            if (PrimaryButton(Tr("Back"), true, ImVec2(backWidth, 0))) {
+            if (PrimaryButton(Core::Tr("Back"), true, ImVec2(backWidth, 0))) {
                 Wizard().CurrentStep = Step::SdkChoice;
             }
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - continueWidth);
-            if (PositiveButton(Tr("Continue"), hasJdk, ImVec2(continueWidth, 0))) {
+            if (PositiveButton(Core::Tr("Continue"), hasJdk, ImVec2(continueWidth, 0))) {
                 Wizard().CurrentStep = Step::SdkInstallRoot;
             }
 
@@ -678,10 +678,10 @@ namespace CoreDeck {
         }
 
         void BuildSdkJdkSelectStep(Context &context) {
-            PresentWizardStep([&] { DrawSdkJdkSelectStep(context); });
+            PresentWizardStep([&] { SdkJdkSelectStep(context); });
         }
 
-        void DrawDiskRequirement(const std::string &text, const float width) {
+        void DiskRequirement(const std::string &text, const float width) {
             const float dpi = GetDpiScale();
             const float pad = WIZARD_PAD_PX * dpi;
             const float rounding = WIZARD_ROUND_PX * dpi;
@@ -711,63 +711,63 @@ namespace CoreDeck {
             ImGui::Dummy(ImVec2(width, boxHeight));
         }
 
-        void DrawSdkInstallRootStep(Context &context) {
+        void SdkInstallRootStep(Context &context) {
             WizardPanel panel;
             BeginWizardPanel("##sdk_install_card", panel, true);
 
-            const CmdlineToolsRelease release = GetBundledCmdlineToolsRelease();
+            const Core::CmdlineToolsRelease release = Core::GetBundledCmdlineToolsRelease();
             const float dpi = GetDpiScale();
             const float innerWidth = WizardContentWidth();
 
-            WizardHeading(Tr("Install Android SDK"), nullptr, innerWidth);
+            WizardHeading(Core::Tr("Install Android SDK"), nullptr, innerWidth);
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
             const bool hasRoot = WizardPathField(
                 "##install_root",
-                Tr("Install Location"),
-                Tr("SDK install folder"),
-                Tr("Select where the Android SDK should be installed"),
+                Core::Tr("Install Location"),
+                Core::Tr("SDK install folder"),
+                Core::Tr("Select where the Android SDK should be installed"),
                 Wizard().InstallRootBuffer,
                 sizeof(Wizard().InstallRootBuffer)
             );
 
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
-            const std::string diskLine = StrConcat(
+            const std::string diskLine = Core::StrConcat(
                 Icons::HARD_DRIVE,
                 "  ",
-                TrFormat(
+                Core::TrFormat(
                     "Download: ~{0}  |  Free Space Recommended: {1}",
-                    FormatFileSize(release.DownloadSize),
-                    FormatFileSize(BOOTSTRAP_REQUIRED_BYTES)
+                    Core::FormatFileSize(release.DownloadSize),
+                    Core::FormatFileSize(Core::BOOTSTRAP_REQUIRED_BYTES)
                 )
             );
-            DrawDiskRequirement(diskLine, innerWidth);
+            DiskRequirement(diskLine, innerWidth);
 
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
             SubtitledCheckbox(
                 "##accept_sdk_license",
                 &Wizard().AcceptSdkLicense,
-                Tr("I accept the Android SDK Terms and Conditions")
+                Core::Tr("I accept the Android SDK Terms and Conditions")
             );
-            if (ImGui::TextLink(Tr("View License Terms..."))) {
-                OpenUrl(SDK_LICENSE_URL);
+            if (ImGui::TextLink(Core::Tr("View License Terms..."))) {
+                Core::OpenUrl(Core::SDK_LICENSE_URL);
             }
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const float backWidth = ImGui::CalcTextSize(Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
-            const float agreeWidth = ImGui::CalcTextSize(Tr("Agree & Install")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (8.0F * dpi);
+            const float backWidth = ImGui::CalcTextSize(Core::Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float agreeWidth = ImGui::CalcTextSize(Core::Tr("Agree & Install")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (8.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
-            if (PrimaryButton(Tr("Back"), true, ImVec2(backWidth, 0))) {
+            if (PrimaryButton(Core::Tr("Back"), true, ImVec2(backWidth, 0))) {
                 Wizard().CurrentStep = Step::SdkJdkSelect;
             }
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - agreeWidth);
             const bool hasJdk = context.Host.Jdk.IsFound && context.Host.Jdk.IsValid;
             const bool canInstall = Wizard().AcceptSdkLicense && hasRoot && hasJdk && !release.DownloadUrl.empty();
-            if (PositiveButton(Tr("Agree & Install"), canInstall, ImVec2(agreeWidth, 0))) {
+            if (PositiveButton(Core::Tr("Agree & Install"), canInstall, ImVec2(agreeWidth, 0))) {
                 StartBootstrap(context, Wizard().InstallRootBuffer);
                 Wizard().CurrentStep = Step::SdkInstalling;
             }
@@ -776,51 +776,51 @@ namespace CoreDeck {
         }
 
         void BuildSdkInstallRootStep(Context &context) {
-            PresentWizardStep([&] { DrawSdkInstallRootStep(context); });
+            PresentWizardStep([&] { SdkInstallRootStep(context); });
         }
 
-        void DrawSdkInstallJdkStep(Context &context) {
+        void SdkInstallJdkStep(Context &context) {
             WizardPanel panel;
             BeginWizardPanel("##sdk_install_jdk", panel, true);
 
             const float dpi = GetDpiScale();
             const float innerWidth = WizardContentWidth();
-            const std::string jdkSubtitle = TrFormat(
+            const std::string jdkSubtitle = Core::TrFormat(
                 "Choose a JDK {0} or newer so CoreDeck can run sdkmanager and avdmanager.",
-                std::to_string(JDK_MINIMUM_MAJOR)
+                std::to_string(Core::JDK_MINIMUM_MAJOR)
             );
-            WizardHeading(Tr("Select a JDK folder"), jdkSubtitle.c_str(), innerWidth);
+            WizardHeading(Core::Tr("Select a JDK folder"), jdkSubtitle.c_str(), innerWidth);
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
             WizardPathField(
                 "##jdk_home",
-                Tr("JDK location"),
-                Tr("Path to a JDK 17+ installation"),
-                Tr("Select a JDK directory"),
+                Core::Tr("JDK location"),
+                Core::Tr("Path to a JDK 17+ installation"),
+                Core::Tr("Select a JDK directory"),
                 Wizard().JdkPathBuffer,
                 sizeof(Wizard().JdkPathBuffer)
             );
 
             const std::string javaHome = Wizard().JdkPathBuffer;
-            const JdkInfo candidate = InspectTypedJdk(javaHome);
+            const Core::JdkInfo candidate = InspectTypedJdk(javaHome);
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
             if (javaHome.empty()) {
                 StatusMessage(
                     StatusMessageTone::Info,
-                    Tr("Pick the folder that contains bin/java. Android Studio ships one under its jbr folder.")
+                    Core::Tr("Pick the folder that contains bin/java. Android Studio ships one under its jbr folder.")
                 );
             } else if (!candidate.IsFound) {
-                StatusMessage(StatusMessageTone::Error, Tr("No Java runtime was found in this folder."));
+                StatusMessage(StatusMessageTone::Error, Core::Tr("No Java runtime was found in this folder."));
             } else if (!candidate.IsValid) {
-                const std::string message = TrFormat(
+                const std::string message = Core::TrFormat(
                     "Found {0}, which is older than JDK {1}.",
                     candidate.VersionString,
-                    std::to_string(JDK_MINIMUM_MAJOR)
+                    std::to_string(Core::JDK_MINIMUM_MAJOR)
                 );
                 StatusMessage(StatusMessageTone::Error, message.c_str());
             } else {
-                const std::string message = TrFormat("Found {0}.", candidate.VersionString);
+                const std::string message = Core::TrFormat("Found {0}.", candidate.VersionString);
                 StatusMessage(StatusMessageTone::Positive, message.c_str());
             }
             ImGui::PopTextWrapPos();
@@ -829,19 +829,19 @@ namespace CoreDeck {
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const float backWidth = ImGui::CalcTextSize(Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
-            const float useWidth = ImGui::CalcTextSize(Tr("Use this JDK")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float backWidth = ImGui::CalcTextSize(Core::Tr("Back")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float useWidth = ImGui::CalcTextSize(Core::Tr("Use this JDK")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
-            if (PrimaryButton(Tr("Back"), true, ImVec2(backWidth, 0))) {
+            if (PrimaryButton(Core::Tr("Back"), true, ImVec2(backWidth, 0))) {
                 Wizard().CurrentStep = ExistingSdkInstall() ? Step::SdkInstallTools : Step::SdkInstallRoot;
             }
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - useWidth);
-            if (PositiveButton(Tr("Use this JDK"), candidate.IsValid, ImVec2(useWidth, 0))) {
+            if (PositiveButton(Core::Tr("Use this JDK"), candidate.IsValid, ImVec2(useWidth, 0))) {
                 Paths::Onboarding::SaveJdkPathOverride(javaHome);
                 context.Host.Jdk = candidate;
-                context.Host.Jdk.Source = JdkSource::Override;
-                ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
+                context.Host.Jdk.Source = Core::JdkSource::Override;
+                Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
                 context.Host.Manager.SetSdk(context.Host.Sdk);
                 Wizard().CurrentStep = ExistingSdkInstall() ? Step::SdkInstallTools : Step::SdkInstallRoot;
             }
@@ -850,7 +850,7 @@ namespace CoreDeck {
         }
 
         void BuildSdkInstallJdkStep(Context &context) {
-            PresentWizardStep([&] { DrawSdkInstallJdkStep(context); });
+            PresentWizardStep([&] { SdkInstallJdkStep(context); });
         }
 
         void BuildSdkInstallingStep(Context &context) {
@@ -862,7 +862,7 @@ namespace CoreDeck {
                 work.Busy = false;
 
                 if (work.Progress) {
-                    std::scoped_lock lock(work.Progress->Mutex);
+                    const std::scoped_lock lock(work.Progress->Mutex);
                     work.LastError = work.Progress->Error;
                     work.LastErrorDetail = work.Progress->ErrorDetail;
                 }
@@ -875,12 +875,12 @@ namespace CoreDeck {
                 return;
             }
 
-            BootstrapStage stage = BootstrapStage::Preparing;
+            Core::BootstrapStage stage = Core::BootstrapStage::Preparing;
             float percent = 0.0F;
             std::string status;
             std::string detail;
             if (work.Progress) {
-                std::scoped_lock lock(work.Progress->Mutex);
+                const std::scoped_lock lock(work.Progress->Mutex);
                 stage = work.Progress->Stage;
                 percent = work.Progress->Percent;
                 status = work.Progress->StatusText;
@@ -889,48 +889,48 @@ namespace CoreDeck {
 
             bool cancelRequested = false;
             if (work.Progress) {
-                std::scoped_lock lock(work.Progress->Mutex);
+                const std::scoped_lock lock(work.Progress->Mutex);
                 cancelRequested = work.Progress->CancelRequested;
             }
 
-            const char *installTitle = Tr("Installing the Android SDK");
+            const char *installTitle = Core::Tr("Installing the Android SDK");
             if (Wizard().BuildToolsOnly) {
-                installTitle = Tr("Installing build-tools");
+                installTitle = Core::Tr("Installing build-tools");
             } else if (Wizard().CommandLineToolsOnly) {
-                installTitle = Tr("Installing command-line tools");
+                installTitle = Core::Tr("Installing command-line tools");
             }
 
             const TaskProgress task{
                 .Title = installTitle,
-                .Subtitle = cancelRequested ? Tr("Cancelling...") : BootstrapStageLabel(stage),
+                .Subtitle = cancelRequested ? Core::Tr("Cancelling...") : Core::BootstrapStageLabel(stage),
                 .Fraction = percent,
                 .Status = status.empty() ? nullptr : status.c_str(),
                 .Detail = detail.empty() ? nullptr : detail.c_str(),
-                .CancelLabel = cancelRequested ? Tr("Cancelling...") : Tr("Cancel"),
-                .CancelSizingLabel = Tr("Cancelling..."),
+                .CancelLabel = cancelRequested ? Core::Tr("Cancelling...") : Core::Tr("Cancel"),
+                .CancelSizingLabel = Core::Tr("Cancelling..."),
                 .CancelEnabled = !cancelRequested,
                 .CenterVertically = true,
             };
             if (TaskProgressPanel(task)) {
                 if (work.Progress) {
-                    std::scoped_lock lock(work.Progress->Mutex);
+                    const std::scoped_lock lock(work.Progress->Mutex);
                     work.Progress->CancelRequested = true;
                 }
             }
         }
 
-        void DrawSdkInstallFailedStep(Context &context) {
+        void SdkInstallFailedStep(Context &context) {
             WizardPanel panel;
             BeginWizardPanel("##sdk_install_failed", panel, true);
 
             const auto &work = context.SdkBootstrapWork;
             const float dpi = GetDpiScale();
             const float innerWidth = WizardContentWidth();
-            WizardHeading(Tr("The installation didn't finish"), nullptr, innerWidth);
+            WizardHeading(Core::Tr("The installation didn't finish"), nullptr, innerWidth);
 
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
-            StatusMessage(StatusMessageTone::Error, BootstrapErrorMessage(work.LastError));
+            StatusMessage(StatusMessageTone::Error, Core::BootstrapErrorMessage(work.LastError));
             if (!work.LastErrorDetail.empty()) {
                 ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
                 ImGui::TextColored(WizardLabelColor(), "%s", work.LastErrorDetail.c_str());
@@ -941,9 +941,9 @@ namespace CoreDeck {
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const char *leftLabel = ExistingSdkInstall() ? Tr("Close") : Tr("Locate an SDK instead");
+            const char *leftLabel = ExistingSdkInstall() ? Core::Tr("Close") : Core::Tr("Locate an SDK instead");
             const float leftWidth = ImGui::CalcTextSize(leftLabel).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
-            const float tryWidth = ImGui::CalcTextSize(Tr("Try again")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float tryWidth = ImGui::CalcTextSize(Core::Tr("Try again")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
             if (PrimaryButton(leftLabel, true, ImVec2(leftWidth, 0))) {
                 if (ExistingSdkInstall()) {
@@ -954,8 +954,8 @@ namespace CoreDeck {
             }
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - tryWidth);
-            if (PositiveButton(Tr("Try again"), true, ImVec2(tryWidth, 0))) {
-                if (work.LastError == BootstrapError::JdkRequired) {
+            if (PositiveButton(Core::Tr("Try again"), true, ImVec2(tryWidth, 0))) {
+                if (work.LastError == Core::BootstrapError::JdkRequired) {
                     if (ExistingSdkInstall()) {
                         Wizard().CurrentStep = Step::SdkInstallJdk;
                     } else {
@@ -972,7 +972,7 @@ namespace CoreDeck {
         }
 
         void BuildSdkInstallFailedStep(Context &context) {
-            PresentWizardStep([&] { DrawSdkInstallFailedStep(context); });
+            PresentWizardStep([&] { SdkInstallFailedStep(context); });
         }
 
         void ReturnToMain(Context &context) {
@@ -983,33 +983,33 @@ namespace CoreDeck {
             context.Flow.CurrentScreen = Screen::Main;
         }
 
-        void DrawSdkInstallToolsStep(Context &context) {
+        void SdkInstallToolsStep(Context &context) {
             WizardPanel panel;
             BeginWizardPanel("##sdk_install_tools", panel, true);
 
             const bool buildToolsOnly = Wizard().BuildToolsOnly;
-            const CmdlineToolsRelease release = GetBundledCmdlineToolsRelease();
+            const Core::CmdlineToolsRelease release = Core::GetBundledCmdlineToolsRelease();
             const bool platformSupported = buildToolsOnly
                                                ? !context.Host.Sdk.SdkManagerPath.empty()
                                                : !release.DownloadUrl.empty();
             const float dpi = GetDpiScale();
             const float innerWidth = WizardContentWidth();
-            const JdkInfo &jdk = context.Host.Jdk;
+            const Core::JdkInfo &jdk = context.Host.Jdk;
 
             WizardHeading(
-                buildToolsOnly ? Tr("Install build-tools") : Tr("Install command-line tools"),
+                buildToolsOnly ? Core::Tr("Install build-tools") : Core::Tr("Install command-line tools"),
                 buildToolsOnly
-                    ? Tr("aapt2, zipalign, or apksigner are missing. CoreDeck will install build-tools into this SDK so APK Analyzer and APK Signer can use them.")
-                    : Tr("avdmanager and sdkmanager are missing. CoreDeck will download Google's official tools into this SDK."),
+                    ? Core::Tr("aapt2, zipalign, or apksigner are missing. CoreDeck will install build-tools into this SDK so APK Analyzer and APK Signer can use them.")
+                    : Core::Tr("avdmanager and sdkmanager are missing. CoreDeck will download Google's official tools into this SDK."),
                 innerWidth
             );
 
             ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
-            ImGui::TextColored(WizardLabelColor(), "%s", Tr("SDK location"));
+            ImGui::TextColored(WizardLabelColor(), "%s", Core::Tr("SDK location"));
             ImGui::Dummy(ImVec2(0.0F, 4.0F * dpi));
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + innerWidth);
             if (context.Host.Sdk.SdkPath.empty()) {
-                StatusMessage(StatusMessageTone::Error, Tr("No SDK folder is selected."));
+                StatusMessage(StatusMessageTone::Error, Core::Tr("No SDK folder is selected."));
             } else {
                 ImGui::TextColored(WizardHeadingColor(), "%s", context.Host.Sdk.SdkPath.c_str());
             }
@@ -1017,12 +1017,12 @@ namespace CoreDeck {
 
             if (!buildToolsOnly) {
                 ImGui::Dummy(ImVec2(0.0F, 12.0F * dpi));
-                const std::string diskLine = StrConcat(
+                const std::string diskLine = Core::StrConcat(
                     Icons::HARD_DRIVE,
                     "  ",
-                    TrFormat("Download: ~{0}", FormatFileSize(release.DownloadSize))
+                    Core::TrFormat("Download: ~{0}", Core::FormatFileSize(release.DownloadSize))
                 );
-                DrawDiskRequirement(diskLine, innerWidth);
+                DiskRequirement(diskLine, innerWidth);
             }
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
@@ -1030,19 +1030,19 @@ namespace CoreDeck {
             ImGui::TextColored(
                 WizardLabelColor(),
                 "%s",
-                Tr("The emulator and system images already in this folder are left in place.")
+                Core::Tr("The emulator and system images already in this folder are left in place.")
             );
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
             if (jdk.IsFound && jdk.IsValid) {
-                const std::string javaLine = TrFormat(
+                const std::string javaLine = Core::TrFormat(
                     "Using {0}.",
                     jdk.VersionString.empty() ? jdk.JavaHome : jdk.VersionString
                 );
                 StatusMessage(StatusMessageTone::Positive, javaLine.c_str());
             } else {
-                const std::string message = TrFormat(
+                const std::string message = Core::TrFormat(
                     "A JDK {0} or newer is required. You'll be asked for one next.",
-                    std::to_string(JDK_MINIMUM_MAJOR)
+                    std::to_string(Core::JDK_MINIMUM_MAJOR)
                 );
                 StatusMessage(StatusMessageTone::Error, message.c_str());
             }
@@ -1051,8 +1051,8 @@ namespace CoreDeck {
                 StatusMessage(
                     StatusMessageTone::Error,
                     buildToolsOnly
-                        ? Tr("sdkmanager is not in this SDK. Install the command-line tools first.")
-                        : Tr("Google does not publish command-line tools for this platform.")
+                        ? Core::Tr("sdkmanager is not in this SDK. Install the command-line tools first.")
+                        : Core::Tr("Google does not publish command-line tools for this platform.")
                 );
             }
             ImGui::PopTextWrapPos();
@@ -1061,26 +1061,26 @@ namespace CoreDeck {
             SubtitledCheckbox(
                 "##accept_sdk_license",
                 &Wizard().AcceptSdkLicense,
-                Tr("I accept the Android SDK Terms and Conditions")
+                Core::Tr("I accept the Android SDK Terms and Conditions")
             );
-            if (ImGui::TextLink(Tr("View License Terms..."))) {
-                OpenUrl(SDK_LICENSE_URL);
+            if (ImGui::TextLink(Core::Tr("View License Terms..."))) {
+                Core::OpenUrl(Core::SDK_LICENSE_URL);
             }
 
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
             WizardSeparator(innerWidth);
             ImGui::Dummy(ImVec2(0.0F, 8.0F * dpi));
 
-            const float cancelWidth = ImGui::CalcTextSize(Tr("Cancel")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
-            const float agreeWidth = ImGui::CalcTextSize(Tr("Agree & Install")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (8.0F * dpi);
+            const float cancelWidth = ImGui::CalcTextSize(Core::Tr("Cancel")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (24.0F * dpi);
+            const float agreeWidth = ImGui::CalcTextSize(Core::Tr("Agree & Install")).x + (ImGui::GetStyle().FramePadding.x * 2.0F) + (8.0F * dpi);
             const float rowStart = ImGui::GetCursorPosX();
-            if (PrimaryButton(Tr("Cancel"), true, ImVec2(cancelWidth, 0))) {
+            if (PrimaryButton(Core::Tr("Cancel"), true, ImVec2(cancelWidth, 0))) {
                 ReturnToMain(context);
             }
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - agreeWidth);
             const bool canInstall = Wizard().AcceptSdkLicense && platformSupported && !context.Host.Sdk.SdkPath.empty();
-            if (PositiveButton(Tr("Agree & Install"), canInstall, ImVec2(agreeWidth, 0))) {
+            if (PositiveButton(Core::Tr("Agree & Install"), canInstall, ImVec2(agreeWidth, 0))) {
                 if (!jdk.IsFound || !jdk.IsValid) {
                     Wizard().CurrentStep = Step::SdkInstallJdk;
                 } else {
@@ -1093,7 +1093,7 @@ namespace CoreDeck {
         }
 
         void BuildSdkInstallToolsStep(Context &context) {
-            PresentWizardStep([&] { DrawSdkInstallToolsStep(context); });
+            PresentWizardStep([&] { SdkInstallToolsStep(context); });
         }
 
         void EnsureInitialized(const Context &context) {

@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct LogFilterOptions {
         std::string Query;
         bool UseRegex = false;

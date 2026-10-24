@@ -8,7 +8,7 @@
 
 #include "file_dialog.h"
 
-namespace CoreDeck::FileDialog {
+namespace CoreDeck::Core::FileDialog {
     namespace {
         // macOS `choose folder` aborts the whole dialog when default location
         // does not exist. Walk up to the nearest real directory so Browse still opens.

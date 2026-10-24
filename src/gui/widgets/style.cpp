@@ -6,7 +6,7 @@
 
 #include "../widgets.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void StyleColor::Push(ImGuiCol idx, const ImVec4 &color) {
         ImGui::PushStyleColor(idx, color);
         m_Count++;

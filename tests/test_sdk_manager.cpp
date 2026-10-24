@@ -3,7 +3,7 @@
 #include "core/constants.h"
 #include "core/sdk_manager.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 TEST_CASE("InterpretSdkLicenseOutput accepts the cmdline-tools 23 license warning", "[sdk-manager]") {
     const std::string output =

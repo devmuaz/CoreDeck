@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 using CoreDeckSocket = SOCKET;
@@ -16,6 +16,7 @@ static constexpr CoreDeckSocket COREDECK_INVALID_SOCKET = INVALID_SOCKET;
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <cerrno>
@@ -23,7 +24,7 @@ using CoreDeckSocket = int;
 static constexpr CoreDeckSocket COREDECK_INVALID_SOCKET = -1;
 #endif
 
-namespace CoreDeck::EmulatorConsole {
+namespace CoreDeck::Core::EmulatorConsole {
     namespace {
 #ifdef _WIN32
         struct WsaInit {
@@ -82,15 +83,15 @@ namespace CoreDeck::EmulatorConsole {
         std::string ReadAuthToken() {
             const char *home =
 #ifdef _WIN32
-                std::getenv(ENV_USERPROFILE);
+                std::getenv(Core::ENV_USERPROFILE);
 #else
-                std::getenv(ENV_HOME); // NOLINT(concurrency-mt-unsafe)
+                std::getenv(Core::ENV_HOME); // NOLINT(concurrency-mt-unsafe)
 #endif
             if (!home) {
                 return "";
             }
             const std::filesystem::path p = std::filesystem::path(home) / ".emulator_console_auth_token";
-            std::ifstream f(p);
+            const std::ifstream f(p);
             if (!f) {
                 return "";
             }
@@ -104,11 +105,16 @@ namespace CoreDeck::EmulatorConsole {
         }
 
         bool WaitWritable(const CoreDeckSocket s, const int timeoutMs) {
+#ifdef _WIN32
             fd_set wf;
             FD_ZERO(&wf);
             FD_SET(s, &wf);
             timeval tv{.tv_sec = timeoutMs / 1000, .tv_usec = (timeoutMs % 1000) * 1000};
             return select(static_cast<int>(s) + 1, nullptr, &wf, nullptr, &tv) > 0;
+#else
+            pollfd ready{.fd = s, .events = POLLOUT, .revents = 0};
+            return poll(&ready, 1, timeoutMs) > 0;
+#endif
         }
 
         bool ConnectLocalhost(const CoreDeckSocket s, const int port, const int timeoutMs) {

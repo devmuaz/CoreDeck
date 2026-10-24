@@ -9,7 +9,7 @@
 
 #include "../core/app_settings_types.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace Icons {
         constexpr const char *PLAY = "\xef\x81\x8b";
         constexpr const char *STOP = "\xef\x81\x8d";
@@ -108,7 +108,7 @@ namespace CoreDeck {
 
     bool IsLightColorScheme();
 
-    void SetThemePreference(ThemePreference preference);
+    void SetThemePreference(Core::ThemePreference preference);
 
     bool SyncSystemColorScheme();
 

@@ -10,7 +10,7 @@
 #include "http_download.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         struct GitHubLatestRelease {
             std::string tag_name; // NOLINT(readability-identifier-naming)
@@ -32,7 +32,7 @@ namespace CoreDeck {
         };
 
         bool IsDigits(const std::string &text) {
-            return !text.empty() && std::all_of(text.begin(), text.end(), [](const unsigned char c) {
+            return !text.empty() && std::ranges::all_of(text, [](const unsigned char c) {
                 return c >= '0' && c <= '9';
             });
         }

@@ -13,7 +13,7 @@
 
 #include "sdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     // Reads one sdkmanager output line. Understands both progress formats:
     // Legacy sdkmanager: "[====] 42% Fetch remote repository..."
     // cmdline-tools 23: "message #### 42% (1.2 MB/80.0 MB) ETA: 12s"

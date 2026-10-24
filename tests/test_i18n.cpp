@@ -7,7 +7,7 @@
 
 #include "core/i18n.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 namespace {
     class CatalogFixture {
@@ -70,7 +70,7 @@ namespace {
 }
 
 TEST_CASE("Missing translations fall back to the source text", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     SetLanguage("en");
     REQUIRE(std::string(Tr("Stop")) == "Stop");
     REQUIRE(TrFormat("Hello {0}", "Ada") == "Hello Ada");
@@ -78,7 +78,7 @@ TEST_CASE("Missing translations fall back to the source text", "[i18n]") {
 }
 
 TEST_CASE("Catalog lookup keeps context, escapes, and multiline strings", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     fixture.Write(
         "fr",
         Header("nplurals=2; plural=(n > 1);") +
@@ -106,7 +106,7 @@ TEST_CASE("Catalog lookup keeps context, escapes, and multiline strings", "[i18n
 }
 
 TEST_CASE("Plural formulas select the translated form", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     fixture.Write(
         "fr",
         Header("nplurals=2; plural=(n > 1);") +
@@ -150,7 +150,7 @@ TEST_CASE("Plural formulas select the translated form", "[i18n]") {
 }
 
 TEST_CASE("Broken placeholders fall back to the English pattern", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     fixture.Write(
         "fr",
         Header("nplurals=2; plural=(n > 1);") +
@@ -166,7 +166,7 @@ TEST_CASE("Broken placeholders fall back to the English pattern", "[i18n]") {
 }
 
 TEST_CASE("Placeholders can be reordered", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     fixture.Write(
         "fr",
         Header("nplurals=2; plural=(n > 1);") +
@@ -179,7 +179,7 @@ TEST_CASE("Placeholders can be reordered", "[i18n]") {
 }
 
 TEST_CASE("Region tags do not cross Chinese scripts", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     fixture.Write(
         "zh-Hans",
         Header("nplurals=1; plural=0;") +
@@ -212,7 +212,7 @@ TEST_CASE("Region tags do not cross Chinese scripts", "[i18n]") {
 }
 
 TEST_CASE("Shipped French and German catalogs translate the interface", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     SetLocalesDirectory(COREDECK_LOCALES_DIR);
 
     SetLanguage("fr");
@@ -268,7 +268,7 @@ TEST_CASE("Shipped French and German catalogs translate the interface", "[i18n]"
 }
 
 TEST_CASE("Available languages lists catalog files", "[i18n]") {
-    CatalogFixture fixture;
+    const CatalogFixture fixture;
     fixture.Write("fr", Header("nplurals=2; plural=(n > 1);"));
     fixture.Write("zh-CN", Header("nplurals=1; plural=0;"));
     const std::vector<std::string> tags = AvailableLanguages();

@@ -7,7 +7,7 @@
 #include "log_filter.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         void AppendLine(std::string &out, const std::string &line) {
             out.append(line);
@@ -36,7 +36,7 @@ namespace CoreDeck {
             const auto end = std::sregex_iterator{};
             for (auto it = std::sregex_iterator(line.begin(), line.end(), re); it != end; ++it) {
                 // empty() is true only when the match failed. A zero-width hit such as "^" still has one submatch.
-                if (it->length() == 0) {
+                if (it->length() == 0) { // NOLINT(readability-container-size-empty)
                     continue;
                 }
                 LogMatch m;

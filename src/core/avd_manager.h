@@ -10,7 +10,7 @@
 
 #include "sdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct DeviceProfile {
         std::string Id;
         std::string Name;

@@ -14,7 +14,7 @@
 #include "../utilities.h"
 #include "../widgets.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void HoverTooltip(const char *text) {
         if (text == nullptr || text[0] == '\0' || !ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
             return;
@@ -67,7 +67,7 @@ namespace CoreDeck {
             revealed = !revealed;
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-            ImGui::SetTooltip("%s", revealed ? Tr("Hide Password") : Tr("Show Password"));
+            ImGui::SetTooltip("%s", revealed ? Core::Tr("Hide Password") : Core::Tr("Show Password"));
         }
         ImGui::PopID();
         return edit;
@@ -95,7 +95,7 @@ namespace CoreDeck {
         ImGui::InputTextWithHint(fieldId, placeholder, buffer.data(), buffer.size(), ImGuiInputTextFlags_ReadOnly);
         HoverTooltip(tooltip);
         ImGui::SameLine();
-        const std::string button = StrConcat(browseLabel, "##", browseId);
+        const std::string button = Core::StrConcat(browseLabel, "##", browseId);
         return PrimaryButton(button.c_str(), true, ImVec2(buttonWidth, 0.0F));
     }
 
@@ -115,7 +115,7 @@ namespace CoreDeck {
         const bool enabled,
         const float width
     ) {
-        const std::string label = StrConcat(busy ? busyLabel : idleLabel, id);
+        const std::string label = Core::StrConcat(busy ? busyLabel : idleLabel, id);
         if (busy) {
             PrimaryButton(label.c_str(), true, ImVec2(width, 0.0F), true);
             return false;
@@ -174,7 +174,7 @@ namespace CoreDeck {
         ImGui::SetNextItemWidth(width);
         bool changed = false;
         {
-            ComboStyle cs;
+            const ComboStyle cs;
             if (ImGui::BeginCombo(id, preview != nullptr ? preview : "")) {
                 for (int index = 0; index < count; ++index) {
                     const char *label = labels != nullptr && labels[index] != nullptr ? labels[index] : "";
@@ -211,8 +211,8 @@ namespace CoreDeck {
         const std::size_t bufferSize,
         const float fieldWidth
     ) {
-        const char *browseText = Tr("Browse...");
-        const std::string browseLabel = StrConcat(browseText, "##", id);
+        const char *browseText = Core::Tr("Browse...");
+        const std::string browseLabel = Core::StrConcat(browseText, "##", id);
         const float browseWidth = std::max(
             Em(11.0F),
             ImGui::CalcTextSize(browseText).x + (ImGui::GetStyle().FramePadding.x * 2.0F)
@@ -224,7 +224,7 @@ namespace CoreDeck {
         ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
         ImGui::SameLine();
         if (PrimaryButton(browseLabel.c_str(), true, ImVec2(browseWidth, 0))) {
-            if (const auto picked = FileDialog::PickDirectory(dialogTitle, buffer)) {
+            if (const auto picked = Core::FileDialog::PickDirectory(dialogTitle, buffer)) {
                 CopyToBuffer(buffer, bufferSize, *picked);
             }
         }

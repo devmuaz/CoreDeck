@@ -4,12 +4,12 @@
 #include "core/app_settings.h"
 
 int main() {
-    const CoreDeck::AppSettings settings = CoreDeck::LoadAppSettings();
+    const CoreDeck::Core::AppSettings settings = CoreDeck::Core::LoadAppSettings();
     const bool isCrashReportingEnabled = settings.CrashReportingEnabled;
 
-    CoreDeck::CrashReporter::Init(isCrashReportingEnabled);
-    CoreDeck::Application app;
+    CoreDeck::Core::CrashReporter::Init(isCrashReportingEnabled);
+    CoreDeck::Gui::Application app;
     const int code = app.Run();
-    CoreDeck::CrashReporter::Shutdown(isCrashReportingEnabled);
+    CoreDeck::Core::CrashReporter::Shutdown(isCrashReportingEnabled);
     return code;
 }

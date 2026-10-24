@@ -17,7 +17,7 @@
 #include "apk_analyzer.h"
 #include "process.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string TrimLine(std::string line) {
             while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t')) {

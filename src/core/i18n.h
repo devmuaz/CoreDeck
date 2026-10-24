@@ -13,7 +13,7 @@
 
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     void SetLocalesDirectory(std::string directory);
 
     void SetLanguage(const std::string &preference);

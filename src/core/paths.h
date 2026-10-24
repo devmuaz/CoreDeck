@@ -6,6 +6,7 @@
 #define COREDECK_PATHS_H
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace CoreDeck::Paths {
@@ -30,9 +31,15 @@ namespace CoreDeck::Paths {
 
     std::string GetAppConfigPath(const std::string &subPath = "");
 
-    std::string GetNullDevice();
+    std::string_view GetNullDevice();
 
-    std::string GetExecutableExtension();
+    std::string_view GetExecutableExtension();
+
+    inline std::string WithExecutableExtension(const std::string_view name) {
+        std::string result(name);
+        result.append(GetExecutableExtension());
+        return result;
+    }
 
     std::string GetExecutableDirectory();
 

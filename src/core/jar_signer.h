@@ -11,7 +11,7 @@
 
 #include "jdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct JarVerifyReport {
         bool Verified = false;
         std::string Signer;

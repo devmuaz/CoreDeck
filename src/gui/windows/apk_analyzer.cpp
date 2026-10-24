@@ -7,7 +7,6 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
-#include <cstdio>
 #include <filesystem>
 #include <future>
 #include <numbers>
@@ -32,7 +31,7 @@
 #include "../../core/utilities.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         constexpr const char *UNAVAILABLE = "\u2014";
 
@@ -44,7 +43,8 @@ namespace CoreDeck {
             std::uint32_t Expected = 0;
         };
 
-        bool ReportLoadProgress(void *user, const float progress, const int stage) {
+        // ApkLoadProgressFn is bool (*)(void *, float, int).
+        bool ReportLoadProgress(void *user, const float progress, const int stage) { // NOLINT(misc-const-correctness)
             const auto *watch = static_cast<const LoadWatch *>(user);
             if (watch == nullptr || watch->Epoch == nullptr || watch->Epoch->load() != watch->Expected) {
                 return false;
@@ -63,9 +63,9 @@ namespace CoreDeck {
 
         const char *LoadStageText(const int stage) {
             if (stage == 1) {
-                return Tr("Reading APK archive headers...");
+                return Core::Tr("Reading APK archive headers...");
             }
-            return Tr("Building file tree structure...");
+            return Core::Tr("Building file tree structure...");
         }
 
         struct FileNode {
@@ -96,8 +96,8 @@ namespace CoreDeck {
 
 
         struct RetiredJobs {
-            std::vector<std::future<ApkReport>> Reports;
-            std::vector<std::future<ApkAnalyzerQuery<std::vector<ApkCompareEntry>>>> Compares;
+            std::vector<std::future<Core::ApkReport>> Reports;
+            std::vector<std::future<Core::ApkAnalyzerQuery<std::vector<Core::ApkCompareEntry>>>> Compares;
         };
 
         RetiredJobs &Graveyard() {
@@ -165,9 +165,9 @@ namespace CoreDeck {
 
         std::string FormatBytes(const std::int64_t bytes) {
             if (bytes < 0) {
-                return StrConcat("-", FormatFileSize(static_cast<std::uintmax_t>(-bytes)));
+                return Core::StrConcat("-", Core::FormatFileSize(static_cast<std::uintmax_t>(-bytes)));
             }
-            return FormatFileSize(static_cast<std::uintmax_t>(bytes));
+            return Core::FormatFileSize(static_cast<std::uintmax_t>(bytes));
         }
 
         std::string FormatCount(const std::int64_t value) {
@@ -197,7 +197,7 @@ namespace CoreDeck {
 
 
         std::optional<std::string> PickApk(const std::string &title, const std::string &defaultDirectory) {
-            return FileDialog::PickFile(title, Tr("Android packages"), {"*.apk", "*.APK"}, defaultDirectory);
+            return Core::FileDialog::PickFile(title, Core::Tr("Android packages"), {"*.apk", "*.APK"}, defaultDirectory);
         }
 
         void LoadRecentApks(Context &context) {
@@ -206,12 +206,12 @@ namespace CoreDeck {
                 return;
             }
             work.RecentLoaded = true;
-            work.RecentApks = LoadAppSettings().RecentApks;
+            work.RecentApks = Core::LoadAppSettings().RecentApks;
         }
 
         void SaveRecentApks(const Context &context) {
             const auto &recent = context.ApkAnalyzerWork.RecentApks;
-            UpdateAppSettings([&recent](AppSettings &settings) {
+            Core::UpdateAppSettings([&recent](Core::AppSettings &settings) {
                 settings.RecentApks = recent;
             });
         }
@@ -221,8 +221,8 @@ namespace CoreDeck {
             auto &recent = context.ApkAnalyzerWork.RecentApks;
             std::erase(recent, apkPath);
             recent.insert(recent.begin(), apkPath);
-            if (static_cast<int>(recent.size()) > RECENT_APK_LIMIT) {
-                recent.resize(RECENT_APK_LIMIT);
+            if (static_cast<int>(recent.size()) > Core::RECENT_APK_LIMIT) {
+                recent.resize(Core::RECENT_APK_LIMIT);
             }
             SaveRecentApks(context);
         }
@@ -233,7 +233,7 @@ namespace CoreDeck {
             SaveRecentApks(context);
         }
 
-        void DrawDashedRoundedRect(const ImVec2 min, const ImVec2 max, const float rounding, const ImU32 color, const float thickness) {
+        void DashedRoundedRect(const ImVec2 min, const ImVec2 max, const float rounding, const ImU32 color, const float thickness) {
             ImDrawList *draw = ImGui::GetWindowDrawList();
             const float radius = std::min(rounding, std::min(max.x - min.x, max.y - min.y) * 0.5F);
             constexpr float PI = std::numbers::pi_v<float>;
@@ -295,7 +295,7 @@ namespace CoreDeck {
             }
         }
 
-        void DrawUploadMark(const ImVec2 center, const ImU32 color) {
+        void UploadMark(const ImVec2 center, const ImU32 color) {
             ImDrawList *draw = ImGui::GetWindowDrawList();
             const float s = ImGui::GetTextLineHeight();
             draw->AddLine(ImVec2(center.x, center.y - s), ImVec2(center.x, center.y + (s * 0.15F)), color, 2.0F);
@@ -354,7 +354,7 @@ namespace CoreDeck {
             work.Busy = true;
             RememberApk(context, apkPath);
 
-            const SdkInfo sdk = context.Host.Sdk;
+            const Core::SdkInfo sdk = context.Host.Sdk;
             work.Future = std::async(std::launch::async, [&work, epoch, sdk, apkPath = std::move(apkPath)] {
                 LoadWatch watch{
                     .Progress = &work.Progress,
@@ -363,7 +363,7 @@ namespace CoreDeck {
                     .Epoch = &work.LoadEpoch,
                     .Expected = epoch,
                 };
-                return LoadApkReport(sdk, apkPath, ReportLoadProgress, &watch);
+                return Core::LoadApkReport(sdk, apkPath, ReportLoadProgress, &watch);
             });
         }
 
@@ -379,10 +379,10 @@ namespace CoreDeck {
             work.Compare = {};
             work.CompareBusy = true;
 
-            const SdkInfo sdk = context.Host.Sdk;
+            const Core::SdkInfo sdk = context.Host.Sdk;
             const std::string baseline = work.Report.ApkPath;
             work.CompareFuture = std::async(std::launch::async, [sdk, baseline, otherPath = std::move(otherPath)] {
-                return LoadApkCompare(sdk, baseline, otherPath);
+                return Core::LoadApkCompare(sdk, baseline, otherPath);
             });
         }
 
@@ -435,7 +435,7 @@ namespace CoreDeck {
             return &parent.Children.back();
         }
 
-        void AddFileEntry(FileNode &root, const ApkFileEntry &entry) {
+        void AddFileEntry(FileNode &root, const Core::ApkFileEntry &entry) {
             if (entry.Path.empty() || entry.Path == "/") {
                 root.FullPath = "/";
                 root.Directory = true;
@@ -521,7 +521,7 @@ namespace CoreDeck {
 
         bool MarkFile(FileNode &node, const char *filter, const bool ancestorMatched) {
             const bool filtering = filter != nullptr && filter[0] != '\0';
-            const bool self = !filtering || ContainsIgnoreCase(node.Name, filter) || ContainsIgnoreCase(node.FullPath, filter);
+            const bool self = !filtering || Core::ContainsIgnoreCase(node.Name, filter) || Core::ContainsIgnoreCase(node.FullPath, filter);
             bool descendant = false;
             for (auto &child: node.Children) {
                 if (MarkFile(child, filter, ancestorMatched || self)) {
@@ -551,9 +551,9 @@ namespace CoreDeck {
             }
         }
 
-        FileCache &CachedFiles(const ApkReport &report, const std::uint32_t epoch) {
+        FileCache &CachedFiles(const Core::ApkReport &report, const std::uint32_t epoch) {
             auto &cache = FilesCache();
-            const std::string key = StrConcat(std::to_string(epoch), ":", report.ApkPath, ":", std::to_string(report.Files.Value.size()));
+            const std::string key = Core::StrConcat(std::to_string(epoch), ":", report.ApkPath, ":", std::to_string(report.Files.Value.size()));
             if (cache.Key == key) {
                 return cache;
             }
@@ -561,7 +561,7 @@ namespace CoreDeck {
             FileNode root;
             root.Name = FileNameOf(report.ApkPath);
             if (root.Name.empty()) {
-                root.Name = Tr("APK");
+                root.Name = Core::Tr("APK");
             }
             root.FullPath = "/";
             root.Directory = true;
@@ -586,7 +586,7 @@ namespace CoreDeck {
         }
 
 
-        void DrawDisclosure(const ImVec2 pos, const float size, const bool open) {
+        void Disclosure(const ImVec2 pos, const float size, const bool open) {
             ImDrawList *draw = ImGui::GetWindowDrawList();
             const ImU32 color = ImGui::ColorConvertFloat4ToU32(HexColor(Colors::TEXT_SUBTLE));
             const float midY = pos.y + (size * 0.5F);
@@ -612,7 +612,7 @@ namespace CoreDeck {
             bool Toggle = false;
         };
 
-        LabelClick DrawTreeLabel(
+        LabelClick TreeLabel(
             const char *id,
             const char *label,
             const char *tooltip,
@@ -635,7 +635,7 @@ namespace CoreDeck {
                 if (ImGui::InvisibleButton("##arrow", ImVec2(line, line))) {
                     click.Toggle = true;
                 }
-                DrawDisclosure(arrowPos, line, isOpen);
+                Disclosure(arrowPos, line, isOpen);
                 ImGui::SameLine(0.0F, 4.0F);
             } else {
                 ImGui::Dummy(ImVec2(line, line));
@@ -662,7 +662,7 @@ namespace CoreDeck {
             return click;
         }
 
-        void DrawAlignedText(const std::string &text, const char *color = nullptr) {
+        void AlignedText(const std::string &text, const char *color = nullptr) {
             const float width = ImGui::CalcTextSize(text.c_str()).x;
             const float start = ImGui::GetCursorPosX();
             const float avail = ImGui::GetContentRegionAvail().x;
@@ -684,23 +684,23 @@ namespace CoreDeck {
             }
         }
 
-        void DrawQueryMiss(Context &context, const char *sentence, const std::string &output, const bool mayNeedAapt) {
+        void QueryMiss(Context &context, const char *sentence, const std::string &output, const bool mayNeedAapt) {
             const std::string line = FirstOutputLine(output);
             const bool exception = line.find("Exception in thread") != std::string::npos;
             const bool mentionsAapt = line.find("aapt") != std::string::npos;
 
             const char *detail = nullptr;
             if (mayNeedAapt && (exception || mentionsAapt || line.empty())) {
-                detail = Tr("This command needs aapt from Android SDK build-tools. The rest of this APK is still shown.");
+                detail = Core::Tr("This command needs aapt from Android SDK build-tools. The rest of this APK is still shown.");
             } else if (line.find("not a binary XML") != std::string::npos) {
-                detail = Tr("This file is not a compiled Android XML resource.");
+                detail = Core::Tr("This file is not a compiled Android XML resource.");
             } else if (!line.empty() && !exception) {
                 detail = line.c_str();
             } else if (exception) {
-                detail = Tr("'apkanalyzer' did not return a result for this section.");
+                detail = Core::Tr("'apkanalyzer' did not return a result for this section.");
             }
 
-            if (NoticeCard(NoticeCardTone::Error, sentence, detail, Tr("Open Health Check"))) {
+            if (NoticeCard(NoticeCardTone::Error, sentence, detail, Core::Tr("Open Health Check"))) {
                 OpenHealthCheckDialog(context);
             }
         }
@@ -725,15 +725,15 @@ namespace CoreDeck {
 
         std::string AlignmentLabel(const FileNode &node) {
             if (node.Directory || node.Alignment >= 16384U) {
-                return node.Directory ? Tr("N/A") : Tr("16 KB");
+                return node.Directory ? Core::Tr("N/A") : Core::Tr("16 KB");
             }
             if (node.Alignment >= 4096U) {
                 return "4 KB";
             }
-            return Tr("N/A");
+            return Core::Tr("N/A");
         }
 
-        void DrawCenteredText(const std::string &text) {
+        void CenteredText(const std::string &text) {
             const float width = ImGui::CalcTextSize(text.c_str()).x;
             const float start = ImGui::GetCursorPosX();
             const float avail = ImGui::GetContentRegionAvail().x;
@@ -743,7 +743,7 @@ namespace CoreDeck {
             ImGui::TextUnformatted(text.c_str());
         }
 
-        void DrawShareBar(const std::int64_t part, const std::int64_t total) {
+        void ShareBar(const std::int64_t part, const std::int64_t total) {
             const float fraction = total <= 0 || part <= 0 ? 0.0F : std::min(1.0F, static_cast<float>(part) / static_cast<float>(total));
             char label[32];
             if (total <= 0 || part < 0) {
@@ -765,50 +765,50 @@ namespace CoreDeck {
             ImGui::PopStyleColor(3);
         }
 
-        void DrawInfoChip(const char *label, const bool first) {
+        void InfoChip(const char *label, const bool first) {
             if (!first) {
                 ImGui::SameLine();
             }
             CategoryChip(label, false);
         }
 
-        void DrawApkHeader(Context &context) {
-            auto &work = context.ApkAnalyzerWork;
-            const ApkReport &report = work.Report;
+        void ApkHeader(const Context &context) {
+            const auto &work = context.ApkAnalyzerWork;
+            const Core::ApkReport &report = work.Report;
             bool first = true;
             if (!report.Summary.Ok || report.Summary.Value.ApplicationId.empty()) {
                 const std::string name = FileNameOf(report.ApkPath);
-                DrawInfoChip(name.empty() ? Tr("APK") : name.c_str(), first);
+                InfoChip(name.empty() ? Core::Tr("APK") : name.c_str(), first);
                 first = false;
             } else {
-                const ApkSummary &summary = report.Summary.Value;
+                const Core::ApkSummary &summary = report.Summary.Value;
                 const std::string versionName = summary.VersionName.empty() ? UNAVAILABLE : summary.VersionName;
                 const std::string versionCode = summary.VersionCode.empty() ? UNAVAILABLE : summary.VersionCode;
-                const std::string packageLabel = TrFormat("Package Name: {0}", summary.ApplicationId);
-                const std::string versionNameLabel = TrFormat("Version Name: {0}", versionName);
-                const std::string versionCodeLabel = TrFormat("Version Code: {0}", versionCode);
-                DrawInfoChip(packageLabel.c_str(), first);
-                DrawInfoChip(versionNameLabel.c_str(), false);
-                DrawInfoChip(versionCodeLabel.c_str(), false);
+                const std::string packageLabel = Core::TrFormat("Package Name: {0}", summary.ApplicationId);
+                const std::string versionNameLabel = Core::TrFormat("Version Name: {0}", versionName);
+                const std::string versionCodeLabel = Core::TrFormat("Version Code: {0}", versionCode);
+                InfoChip(packageLabel.c_str(), first);
+                InfoChip(versionNameLabel.c_str(), false);
+                InfoChip(versionCodeLabel.c_str(), false);
                 first = false;
             }
 
             const std::string apkSize = report.FileSize.Ok ? FormatBytes(report.FileSize.Value) : UNAVAILABLE;
             const std::string downloadSize = report.DownloadSize.Ok ? FormatBytes(report.DownloadSize.Value) : UNAVAILABLE;
-            const std::string apkSizeLabel = TrFormat("APK Size: {0}", apkSize);
-            const std::string downloadSizeLabel = TrFormat("Download Size: {0}", downloadSize);
+            const std::string apkSizeLabel = Core::TrFormat("APK Size: {0}", apkSize);
+            const std::string downloadSizeLabel = Core::TrFormat("Download Size: {0}", downloadSize);
             const char *debuggableValue = UNAVAILABLE;
             if (report.Debuggable.Ok) {
-                debuggableValue = report.Debuggable.Value ? Tr("Yes") : Tr("No");
+                debuggableValue = report.Debuggable.Value ? Core::Tr("Yes") : Core::Tr("No");
             }
-            const std::string debuggableLabel = TrFormat("Debuggable: {0}", debuggableValue);
-            DrawInfoChip(apkSizeLabel.c_str(), first);
-            DrawInfoChip(downloadSizeLabel.c_str(), false);
-            DrawInfoChip(debuggableLabel.c_str(), false);
+            const std::string debuggableLabel = Core::TrFormat("Debuggable: {0}", debuggableValue);
+            InfoChip(apkSizeLabel.c_str(), first);
+            InfoChip(downloadSizeLabel.c_str(), false);
+            InfoChip(debuggableLabel.c_str(), false);
             ImGui::Spacing();
         }
 
-        void DrawFileTree(Context &context, FileCache &cache) {
+        void FileTree(Context &context, FileCache &cache) {
             auto &work = context.ApkAnalyzerWork;
             const bool filtering = work.TreeFilter[0] != '\0';
             MarkFile(cache.Root, work.TreeFilter, false);
@@ -820,26 +820,26 @@ namespace CoreDeck {
             const std::int64_t downloadTotal = cache.Root.DownloadSize;
             if (ImGui::BeginTable("##ApkFileTree", 6, PICKER_TABLE_FLAGS, ImVec2(-1.0F, -1.0F))) {
                 ImGui::TableSetupScrollFreeze(0, 1);
-                const std::string fileColumn = StrConcat(" ", Tr("File"));
+                const std::string fileColumn = Core::StrConcat(" ", Core::Tr("File"));
                 ImGui::TableSetupColumn(fileColumn.c_str(), ImGuiTableColumnFlags_WidthStretch, 3.2F);
-                ImGui::TableSetupColumn(Tr("Raw Size"), ImGuiTableColumnFlags_WidthFixed, Em(11.0F));
-                ImGui::TableSetupColumn(Tr("Download Size"), ImGuiTableColumnFlags_WidthFixed, Em(13.0F));
-                ImGui::TableSetupColumn(Tr("% of Download Size"), ImGuiTableColumnFlags_WidthFixed, Em(16.0F));
-                ImGui::TableSetupColumn(Tr("Compressed"), ImGuiTableColumnFlags_WidthFixed, Em(11.0F));
-                ImGui::TableSetupColumn(Tr("Alignment"), ImGuiTableColumnFlags_WidthFixed, Em(10.0F));
+                ImGui::TableSetupColumn(Core::Tr("Raw Size"), ImGuiTableColumnFlags_WidthFixed, Em(11.0F));
+                ImGui::TableSetupColumn(Core::Tr("Download Size"), ImGuiTableColumnFlags_WidthFixed, Em(13.0F));
+                ImGui::TableSetupColumn(Core::Tr("% of Download Size"), ImGuiTableColumnFlags_WidthFixed, Em(16.0F));
+                ImGui::TableSetupColumn(Core::Tr("Compressed"), ImGuiTableColumnFlags_WidthFixed, Em(11.0F));
+                ImGui::TableSetupColumn(Core::Tr("Alignment"), ImGuiTableColumnFlags_WidthFixed, Em(10.0F));
                 ImGui::TableHeadersRow();
 
                 if (rows.empty()) {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    ImGui::TextDisabled("%s", Tr("No files match."));
+                    ImGui::TextDisabled("%s", Core::Tr("No files match."));
                 } else {
                     ImGuiListClipper clipper;
                     clipper.Begin(static_cast<int>(rows.size()));
                     while (clipper.Step()) {
                         for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
                             const FlatFile &file = rows.at(static_cast<std::size_t>(row));
-                            FileNode *node = file.Node;
+                            const FileNode *node = file.Node;
                             const int depth = file.Depth;
                             const bool hasChildren = !node->Children.empty();
                             const bool isOpen = filtering || cache.Open.contains(node->FullPath);
@@ -847,7 +847,7 @@ namespace CoreDeck {
 
                             ImGui::TableNextRow();
                             ImGui::TableNextColumn();
-                            const LabelClick click = DrawTreeLabel(
+                            const LabelClick click = TreeLabel(
                                 node->FullPath.c_str(),
                                 node->Name.c_str(),
                                 node->FullPath.c_str(),
@@ -864,21 +864,21 @@ namespace CoreDeck {
                                 SelectFile(context, node->FullPath);
                             }
                             ImGui::TableNextColumn();
-                            DrawAlignedText(FormatBytes(node->RawSize));
+                            AlignedText(FormatBytes(node->RawSize));
                             ImGui::TableNextColumn();
-                            DrawAlignedText(FormatBytes(node->DownloadSize));
+                            AlignedText(FormatBytes(node->DownloadSize));
                             ImGui::TableNextColumn();
-                            DrawShareBar(node->DownloadSize, downloadTotal);
+                            ShareBar(node->DownloadSize, downloadTotal);
                             ImGui::TableNextColumn();
-                            const char *compressed = Tr("Yes");
+                            const char *compressed = Core::Tr("Yes");
                             if (node->Directory) {
-                                compressed = Tr("N/A");
+                                compressed = Core::Tr("N/A");
                             } else if (node->Stored) {
-                                compressed = Tr("No");
+                                compressed = Core::Tr("No");
                             }
-                            DrawCenteredText(compressed);
+                            CenteredText(compressed);
                             ImGui::TableNextColumn();
-                            DrawCenteredText(AlignmentLabel(*node));
+                            CenteredText(AlignmentLabel(*node));
                         }
                     }
                 }
@@ -886,21 +886,21 @@ namespace CoreDeck {
             }
         }
 
-        void DrawBrowser(Context &context) {
-            auto &work = context.ApkAnalyzerWork;
-            const ApkReport &report = work.Report;
-            DrawApkHeader(context);
+        void ApkBrowser(Context &context) {
+            const auto &work = context.ApkAnalyzerWork;
+            const Core::ApkReport &report = work.Report;
+            ApkHeader(context);
 
             if (!report.Files.Ok) {
-                DrawQueryMiss(context, Tr("The file list could not be read."), report.Files.Output, false);
+                QueryMiss(context, Core::Tr("The file list could not be read."), report.Files.Output, false);
                 return;
             }
 
             FileCache &cache = CachedFiles(report, work.ContentEpoch);
             const float tableHeight = std::max(Eh(8.0F), ImGui::GetContentRegionAvail().y);
-            PickerTableStyle tableStyle;
+            const PickerTableStyle tableStyle;
             ImGui::BeginChild("##ApkTreeScroll", ImVec2(-1.0F, tableHeight), ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
-            DrawFileTree(context, cache);
+            FileTree(context, cache);
             ImGui::EndChild();
         }
 
@@ -958,21 +958,21 @@ namespace CoreDeck {
             }
         }
 
-        void DrawReadingState(Context &context) {
+        void ReadingState(Context &context) {
             auto &work = context.ApkAnalyzerWork;
             const std::string name = FileNameOf(work.PendingPath);
-            const float titleBudget = std::max(1.0F, Em(66.0F) - ImGui::CalcTextSize(TrFormat("Analyzing {0}", "").c_str()).x);
-            const std::string shownName = FitFileName(name.empty() ? Tr("APK") : name, titleBudget);
-            const std::string title = TrFormat("Analyzing {0}", shownName);
+            const float titleBudget = std::max(1.0F, Em(66.0F) - ImGui::CalcTextSize(Core::TrFormat("Analyzing {0}", "").c_str()).x);
+            const std::string shownName = FitFileName(name.empty() ? Core::Tr("APK") : name, titleBudget);
+            const std::string title = Core::TrFormat("Analyzing {0}", shownName);
             const bool cancelling = work.Cancel.load();
             const TaskProgress task{
                 .Title = title.c_str(),
                 .TitleTooltip = work.PendingPath.c_str(),
-                .Subtitle = cancelling ? Tr("Cancelling...") : Tr("In Progress... (This may take a while)"),
+                .Subtitle = cancelling ? Core::Tr("Cancelling...") : Core::Tr("In Progress... (This may take a while)"),
                 .Fraction = work.Progress.load(),
                 .Status = LoadStageText(work.Stage.load()),
-                .CancelLabel = cancelling ? Tr("Cancelling...") : Tr("Cancel"),
-                .CancelSizingLabel = Tr("Cancelling..."),
+                .CancelLabel = cancelling ? Core::Tr("Cancelling...") : Core::Tr("Cancel"),
+                .CancelSizingLabel = Core::Tr("Cancelling..."),
                 .CancelEnabled = !cancelling,
                 .CenterVertically = true,
             };
@@ -981,9 +981,9 @@ namespace CoreDeck {
             }
         }
 
-        void DrawEmptyState(Context &context) {
+        void EmptyState(Context &context) {
             LoadRecentApks(context);
-            auto &work = context.ApkAnalyzerWork;
+            const auto &work = context.ApkAnalyzerWork;
 
             std::vector<std::string> recent;
             recent.reserve(4);
@@ -1008,7 +1008,7 @@ namespace CoreDeck {
             const float contentH = Eh(2.4F) + lineH + spacing + lineH + spacing + ImGui::GetFrameHeight();
             const float dropH = contentH + Eh(2.6F);
             const float maxW = std::max(1.0F, width - Eh(1.0F));
-            const float preferredW = std::max(dropH * 2.1F, ImGui::CalcTextSize(Tr("Drag & Drop .apk file here")).x + Eh(6.0F));
+            const float preferredW = std::max(dropH * 2.1F, ImGui::CalcTextSize(Core::Tr("Drag & Drop .apk file here")).x + Eh(6.0F));
             const float dropW = std::min(maxW, std::clamp(preferredW, std::min(Em(28.0F), maxW), std::min(Em(40.0F), maxW)));
             const float stackH = dropH + recentBlock;
             const float stackY = origin.y + std::max(Eh(0.6F), (height - stackH) * 0.5F);
@@ -1024,13 +1024,13 @@ namespace CoreDeck {
                 ImGui::GetStyle().FrameRounding
             );
 
-            const char *title = Tr("Drag & Drop .apk file here");
-            const char *orLabel = Tr("Or");
+            const char *title = Core::Tr("Drag & Drop .apk file here");
+            const char *orLabel = Core::Tr("Or");
             const float titleW = ImGui::CalcTextSize(title).x;
             const float orW = ImGui::CalcTextSize(orLabel).x;
             const float browseW = std::min(Em(16.0F), dropW - 24.0F);
             float cursorY = dropMin.y + std::max(12.0F, (dropH - contentH) * 0.5F);
-            DrawUploadMark(
+            UploadMark(
                 ImVec2(dropMin.x + (dropW * 0.5F), cursorY + (lineH * 0.35F)),
                 ImGui::ColorConvertFloat4ToU32(HexColor(hovered ? Colors::ACCENT_INFO_SOFT : Colors::ACCENT_INFO))
             );
@@ -1042,15 +1042,15 @@ namespace CoreDeck {
             ImGui::TextDisabled("%s", orLabel);
             cursorY += lineH + spacing;
             ImGui::SetCursorScreenPos(ImVec2(dropMin.x + ((dropW - browseW) * 0.5F), cursorY));
-            if (PositiveButton(Tr("Browse File..."), !work.Busy.load(), ImVec2(browseW, 0.0F))) {
-                if (const auto picked = PickApk(Tr("Open APK"), DirectoryOf(work.PendingPath))) {
+            if (PositiveButton(Core::Tr("Browse File..."), !work.Busy.load(), ImVec2(browseW, 0.0F))) {
+                if (const auto picked = PickApk(Core::Tr("Open APK"), DirectoryOf(work.PendingPath))) {
                     StartAnalysis(context, *picked);
                 }
             }
 
             const ImU32 border = ImGui::ColorConvertFloat4ToU32(HexColor(hovered ? Colors::ACCENT_INFO : Colors::BORDER_HOVER));
             const float inset = 1.5F;
-            DrawDashedRoundedRect(
+            DashedRoundedRect(
                 ImVec2(dropMin.x + inset, dropMin.y + inset),
                 ImVec2(dropMax.x - inset, dropMax.y - inset),
                 ImGui::GetStyle().FrameRounding,
@@ -1060,12 +1060,12 @@ namespace CoreDeck {
 
             const float centerX = origin.x + (width * 0.5F);
             float rowY = dropMax.y + Eh(1.1F);
-            const char *recentTitle = Tr("Recent APKs");
+            const char *recentTitle = Core::Tr("Recent APKs");
             ImGui::SetCursorScreenPos(ImVec2(centerX - (ImGui::CalcTextSize(recentTitle).x * 0.5F), rowY));
             ImGui::TextDisabled("%s", recentTitle);
             rowY += Eh(1.4F);
             if (recent.empty()) {
-                const char *emptyRecent = Tr("No recent APKs");
+                const char *emptyRecent = Core::Tr("No recent APKs");
                 ImGui::SetCursorScreenPos(ImVec2(centerX - (ImGui::CalcTextSize(emptyRecent).x * 0.5F), rowY));
                 ImGui::TextDisabled("%s", emptyRecent);
             }
@@ -1083,29 +1083,29 @@ namespace CoreDeck {
             }
         }
 
-        void DrawMissingAnalyzer(Context &context) {
+        void MissingAnalyzer(Context &context) {
             if (NoticeCard(
                     NoticeCardTone::Error,
-                    Tr("Missing Command-line Tools (apkanalyzer)"),
-                    Tr(
+                    Core::Tr("Missing Command-line Tools (apkanalyzer)"),
+                    Core::Tr(
                         "APK Analyzer uses apkanalyzer from the Android command-line tools. Install those tools to add it. "
                         "AVDs already in this SDK stay where they are."
                     ),
-                    Tr("Install command-line tools...")
+                    Core::Tr("Install command-line tools...")
                 )) {
                 LeaveApkAnalyzer(context);
                 OpenCmdlineToolsInstall(context);
             }
         }
 
-        bool DrawAnalyzerToolbar(Context &context, const bool reportBusy, const bool toolMissing, const bool showReport) {
+        bool AnalyzerToolbar(Context &context, const bool reportBusy, const bool toolMissing, const bool showReport) {
             auto &work = context.ApkAnalyzerWork;
             bool drew = false;
             if (!toolMissing && (reportBusy || showReport)) {
                 const std::string defaultDirectory = DirectoryOf(work.HasReport ? work.Report.ApkPath : work.PendingPath);
                 drew = true;
-                if (PositiveButton(reportBusy ? Tr("Reading...") : Tr("Open APK..."), !reportBusy, ImVec2(Em(16.0F), 0.0F))) {
-                    if (const auto picked = PickApk(Tr("Open APK"), defaultDirectory)) {
+                if (PositiveButton(reportBusy ? Core::Tr("Reading...") : Core::Tr("Open APK..."), !reportBusy, ImVec2(Em(16.0F), 0.0F))) {
+                    if (const auto picked = PickApk(Core::Tr("Open APK"), defaultDirectory)) {
                         StartAnalysis(context, *picked);
                     }
                 }
@@ -1114,8 +1114,8 @@ namespace CoreDeck {
                 return drew;
             }
 
-            const char *idleLabel = Tr("Compare with previous APK...");
-            const char *busyLabel = Tr("Comparing...");
+            const char *idleLabel = Core::Tr("Compare with previous APK...");
+            const char *busyLabel = Core::Tr("Comparing...");
             const char *compareLabel = work.CompareBusy.load() ? busyLabel : idleLabel;
             const float compareW = std::max(ImGui::CalcTextSize(idleLabel).x, ImGui::CalcTextSize(busyLabel).x) + (ImGui::GetStyle().FramePadding.x * 2.0F);
             if (drew) {
@@ -1123,7 +1123,7 @@ namespace CoreDeck {
             }
             drew = true;
             if (PrimaryButton(compareLabel, !work.CompareBusy.load(), ImVec2(compareW, 0.0F))) {
-                if (const auto picked = PickApk(Tr("Compare with previous APK"), DirectoryOf(work.Report.ApkPath))) {
+                if (const auto picked = PickApk(Core::Tr("Compare with previous APK"), DirectoryOf(work.Report.ApkPath))) {
                     StartCompare(context, *picked);
                 }
             }
@@ -1133,10 +1133,10 @@ namespace CoreDeck {
 
             ImGui::SameLine();
             ImGui::SetNextItemWidth(Em(28.0F));
-            const std::string hint = IconWithLabel(Icons::SEARCH, Tr("Filter files..."));
+            const std::string hint = IconWithLabel(Icons::SEARCH, Core::Tr("Filter files..."));
             ImGui::InputTextWithHint("##ApkTreeFilter", hint.c_str(), work.TreeFilter, IM_ARRAYSIZE(work.TreeFilter));
             const FileCache &cache = CachedFiles(work.Report, work.ContentEpoch);
-            const std::string fileCount = TrFormatN(
+            const std::string fileCount = Core::TrFormatN(
                 "{0} file",
                 "{0} files",
                 static_cast<int>(cache.FileCount),
@@ -1151,12 +1151,12 @@ namespace CoreDeck {
                 ImGui::TextColored(
                     HexColor(Colors::ACCENT_INFO),
                     "%s",
-                    TrFormat("Comparing with {0}...", FileNameOf(work.ComparePath)).c_str()
+                    Core::TrFormat("Comparing with {0}...", FileNameOf(work.ComparePath)).c_str()
                 );
             } else if (work.HasCompare && !work.Compare.Ok) {
                 ImGui::SameLine();
                 ImGui::AlignTextToFramePadding();
-                ImGui::TextColored(HexColor(Colors::WARNING), "%s", Tr("The comparison could not be read."));
+                ImGui::TextColored(HexColor(Colors::WARNING), "%s", Core::Tr("The comparison could not be read."));
             }
             return drew;
         }
@@ -1183,7 +1183,7 @@ namespace CoreDeck {
         if (context.UI.Workspace != WorkspacePage::ApkAnalyzer) {
             return;
         }
-        SetNativeWindowPage(context, Tr("APK Analyzer"));
+        SetNativeWindowPage(context, Core::Tr("APK Analyzer"));
 
         const ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -1194,7 +1194,7 @@ namespace CoreDeck {
         ImGui::Begin("##ApkAnalyzer", nullptr, WORKSPACE_WINDOW_FLAGS);
         ImGui::PopStyleVar(2);
 
-        auto &work = context.ApkAnalyzerWork;
+        const auto &work = context.ApkAnalyzerWork;
         bool reportBusy = work.Busy.load();
         if (!reportBusy && !context.Host.Sdk.ApkAnalyzerPath.empty() && work.Report.ToolMissing &&
             !work.PendingPath.empty()) {
@@ -1204,20 +1204,20 @@ namespace CoreDeck {
         const bool toolMissing =
             context.Host.Sdk.ApkAnalyzerPath.empty() || (work.Report.ToolMissing && !work.PendingPath.empty());
         const bool showReport = work.HasReport && !reportBusy && !work.Report.ToolMissing;
-        if (DrawAnalyzerToolbar(context, reportBusy, toolMissing, showReport)) {
+        if (AnalyzerToolbar(context, reportBusy, toolMissing, showReport)) {
             ImGui::Spacing();
         }
 
         const float bodyHeight = std::max(Eh(12.0F), ImGui::GetContentRegionAvail().y);
         ImGui::BeginChild("##ApkAnalyzerBody", ImVec2(0.0F, bodyHeight), 0, ImGuiWindowFlags_NoScrollbar);
         if (reportBusy) {
-            DrawReadingState(context);
+            ReadingState(context);
         } else if (toolMissing) {
-            DrawMissingAnalyzer(context);
+            MissingAnalyzer(context);
         } else if (!showReport) {
-            DrawEmptyState(context);
+            EmptyState(context);
         } else {
-            DrawBrowser(context);
+            ApkBrowser(context);
         }
         ImGui::EndChild();
         ImGui::End();

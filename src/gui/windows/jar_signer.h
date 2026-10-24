@@ -7,7 +7,7 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void CloseJarSigner(Context &context);
 
     void BuildJarSignerWindow(Context &context);

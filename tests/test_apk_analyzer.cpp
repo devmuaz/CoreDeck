@@ -2,7 +2,7 @@
 
 #include "core/apk_analyzer.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 TEST_CASE("ParseApkSummary reads the tab-separated summary row", "[apk-analyzer]") {
     const auto summary = ParseApkSummary("com.example.helloworld\t1\t1.0\n");
@@ -95,7 +95,7 @@ TEST_CASE("QueryApkSummary does not launch when the apk path is empty", "[apk-an
 }
 
 TEST_CASE("LoadApkReport reports a missing apkanalyzer without running it", "[apk-analyzer]") {
-    const auto report = LoadApkReport(SdkInfo{}, "app.apk");
+    const auto report = LoadApkReport(SdkInfo(), "app.apk");
 
     REQUIRE(report.ToolMissing);
     REQUIRE(report.ApkPath == "app.apk");

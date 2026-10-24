@@ -18,7 +18,7 @@
 
 #include <libintl.h>
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -30,7 +30,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         constexpr const char *TEXT_DOMAIN = "coredeck";
         constexpr const char *TEXT_DOMAIN_FILE = "coredeck.mo";
@@ -424,7 +424,7 @@ namespace CoreDeck {
         std::string preference;
         {
             auto &state = GetState();
-            std::unique_lock lock(state.Mutex);
+            const std::unique_lock lock(state.Mutex);
             state.Directory = std::move(directory);
             preference = state.Preference;
         }
@@ -436,7 +436,7 @@ namespace CoreDeck {
         const std::vector<std::string> candidates = LanguageCandidates(requested);
 
         auto &state = GetState();
-        std::unique_lock lock(state.Mutex);
+        const std::unique_lock lock(state.Mutex);
         state.Preference = preference;
 
         std::string selected = "en";
@@ -458,13 +458,13 @@ namespace CoreDeck {
 
     std::string LanguagePreference() {
         auto &state = GetState();
-        std::shared_lock lock(state.Mutex);
+        const std::shared_lock lock(state.Mutex);
         return state.Preference;
     }
 
     std::string ActiveLanguage() {
         auto &state = GetState();
-        std::shared_lock lock(state.Mutex);
+        const std::shared_lock lock(state.Mutex);
         return state.Active;
     }
 
@@ -476,7 +476,7 @@ namespace CoreDeck {
         std::string directory;
         {
             auto &state = GetState();
-            std::shared_lock lock(state.Mutex);
+            const std::shared_lock lock(state.Mutex);
             directory = state.Directory;
         }
         std::vector<std::string> tags;
@@ -537,19 +537,19 @@ namespace CoreDeck {
 
     const char *Tr(const char *msgid) {
         auto &state = GetState();
-        std::shared_lock lock(state.Mutex);
+        const std::shared_lock lock(state.Mutex);
         return LookupMessage(msgid);
     }
 
     const char *TrC(const char *context, const char *msgid) {
         auto &state = GetState();
-        std::shared_lock lock(state.Mutex);
+        const std::shared_lock lock(state.Mutex);
         return LookupContext(context, msgid);
     }
 
     const char *TrN(const char *singular, const char *plural, const int count) {
         auto &state = GetState();
-        std::shared_lock lock(state.Mutex);
+        const std::shared_lock lock(state.Mutex);
         return LookupPlural(singular, plural, count);
     }
 
@@ -560,7 +560,7 @@ namespace CoreDeck {
         std::string pattern;
         {
             auto &state = GetState();
-            std::shared_lock lock(state.Mutex);
+            const std::shared_lock lock(state.Mutex);
             pattern = LookupMessage(msgid);
         }
         if (const std::optional<std::string> formatted = TryApplyPlaceholders(pattern, args)) {
@@ -587,7 +587,7 @@ namespace CoreDeck {
         std::string pattern;
         {
             auto &state = GetState();
-            std::shared_lock lock(state.Mutex);
+            const std::shared_lock lock(state.Mutex);
             pattern = LookupPlural(singular, plural, count);
         }
         if (const std::optional<std::string> formatted = TryApplyPlaceholders(pattern, args)) {

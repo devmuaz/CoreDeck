@@ -2,7 +2,7 @@
 
 #include "core/health_check.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 namespace {
     SdkInfo FullSdk() {
@@ -42,10 +42,10 @@ namespace {
     }
 
     std::vector<HealthCheckResult> Run(const SdkInfo &sdk, const JdkInfo &jdk, const HealthCheckDeps &deps) {
-        auto progress = std::make_shared<HealthCheckProgressData>();
+        const auto progress = std::make_shared<HealthCheckProgressData>();
         RunHealthChecks(sdk, jdk, progress, deps);
 
-        std::lock_guard lock(progress->Mutex);
+        const std::scoped_lock lock(progress->Mutex);
         REQUIRE(progress->Finished);
         return progress->Items;
     }
@@ -57,7 +57,7 @@ namespace {
             }
         }
         FAIL("check not found in report");
-        static HealthCheckResult unreachable;
+        static const HealthCheckResult unreachable;
         return unreachable;
     }
 }
@@ -154,7 +154,7 @@ TEST_CASE("RunHealthChecks flags missing cmdline-tools and skips checks that nee
 }
 
 TEST_CASE("RunHealthChecks treats a deleted sdkmanager as missing tools, not a JDK problem", "[health-check]") {
-    SdkInfo sdk = FullSdk();
+    const SdkInfo sdk = FullSdk();
     HealthCheckDeps deps = AllGoodDeps();
     deps.PathExists = [](const std::string &path) { return path.find("sdkmanager") == std::string::npos; };
     deps.SdkManagerVersion = [](const SdkInfo &) { return std::string{}; };
@@ -181,9 +181,15 @@ TEST_CASE("RunHealthChecks flags a missing apkanalyzer", "[health-check]") {
 
 TEST_CASE("RunHealthChecks fails when a build tool is missing", "[health-check]") {
     SdkInfo sdk = FullSdk();
-    SECTION("aapt2") { sdk.Aapt2Path.clear(); }
-    SECTION("zipalign") { sdk.ZipalignPath.clear(); }
-    SECTION("apksigner") { sdk.ApksignerPath.clear(); }
+    SECTION("aapt2") {
+        sdk.Aapt2Path.clear();
+    }
+    SECTION("zipalign") {
+        sdk.ZipalignPath.clear();
+    }
+    SECTION("apksigner") {
+        sdk.ApksignerPath.clear();
+    }
 
     const auto items = Run(sdk, ValidJdk(), AllGoodDeps());
 

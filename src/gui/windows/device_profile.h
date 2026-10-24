@@ -10,14 +10,14 @@
 #include "../context.h"
 #include "../widgets.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     DeviceCategory DeviceCategoryForText(const std::string &text);
 
-    DeviceCategory DeviceCategoryForProfile(const DeviceProfile &device);
+    DeviceCategory DeviceCategoryForProfile(const Core::DeviceProfile &device);
 
     LabeledIconStyle DeviceFormFactorStyle(DeviceCategory category);
 
-    std::string DeviceProfilePreviewLabel(const DeviceProfile &device);
+    std::string DeviceProfilePreviewLabel(const Core::DeviceProfile &device);
 
     void BuildDeviceProfileWindow(Context &context);
 }

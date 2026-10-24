@@ -24,11 +24,11 @@
 #include "../../core/sdk.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         struct InstalledJdkCatalog {
-            std::future<std::vector<JdkInfo>> Scan;
-            std::vector<JdkInfo> Items;
+            std::future<std::vector<Core::JdkInfo>> Scan;
+            std::vector<Core::JdkInfo> Items;
             bool Loaded = false;
         };
 
@@ -129,8 +129,8 @@ namespace CoreDeck {
         };
 
         struct JdkPathResult {
-            JdkInfo Jdk;
-            SdkInfo Sdk;
+            Core::JdkInfo Jdk;
+            Core::SdkInfo Sdk;
             AvdCatalogSnapshot Catalog;
         };
 
@@ -149,15 +149,15 @@ namespace CoreDeck {
             return path;
         }
 
-        void StartJdkPathJob(const JdkPathAction action, const SdkInfo &sdk) {
+        void StartJdkPathJob(const JdkPathAction action, const Core::SdkInfo &sdk) {
             SupersedeAvdListRefresh();
             JdkPathJob &job = PathJob();
             job.Action = action;
             job.Future = std::async(std::launch::async, [sdk] {
                 JdkPathResult result;
-                result.Jdk = DetectJdk();
+                result.Jdk = Core::DetectJdk();
                 result.Sdk = sdk;
-                ApplyJdkToSdk(result.Sdk, result.Jdk);
+                Core::ApplyJdkToSdk(result.Sdk, result.Jdk);
                 result.Catalog = LoadAvdCatalog(result.Sdk);
                 return result;
             });
@@ -182,12 +182,12 @@ namespace CoreDeck {
             PendingJdkPath() = context.Host.Jdk.JavaHome;
         }
 
-        void UseListedJdk(Context &context, const JdkInfo &jdk, char *jdkPathBuffer, const size_t bufferSize) {
+        void UseListedJdk(Context &context, const Core::JdkInfo &jdk, char *jdkPathBuffer, const size_t bufferSize) {
             if (jdk.JavaHome.empty() || jdkPathBuffer == nullptr || bufferSize == 0) {
                 return;
             }
             const bool alreadyApplied =
-                context.Host.Jdk.Source == JdkSource::Override && SameJdkHome(jdk.JavaHome, context.Host.Jdk.JavaHome);
+                context.Host.Jdk.Source == Core::JdkSource::Override && SameJdkHome(jdk.JavaHome, context.Host.Jdk.JavaHome);
             CopyToBuffer(jdkPathBuffer, bufferSize, jdk.JavaHome);
             if (alreadyApplied) {
                 return;
@@ -195,27 +195,27 @@ namespace CoreDeck {
 
             Paths::Onboarding::SaveJdkPathOverride(jdk.JavaHome);
             context.Host.Jdk = jdk;
-            context.Host.Jdk.Source = JdkSource::Override;
-            ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
+            context.Host.Jdk.Source = Core::JdkSource::Override;
+            Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
             context.Host.Manager.SetSdk(context.Host.Sdk);
             RequestAvdListRefresh(context);
             context.UI.HideHealthCheckBanner = false;
         }
 
-        void DrawInstalledJdkList(Context &context, char *jdkPathBuffer, const size_t bufferSize) {
+        void InstalledJdkList(Context &context, char *jdkPathBuffer, const size_t bufferSize) {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
 #ifdef _WIN32
-            ImGui::TextUnformatted(Tr("Installed on this Windows"));
+            ImGui::TextUnformatted(Core::Tr("Installed on this Windows"));
 #elif defined(__APPLE__)
-            ImGui::TextUnformatted(Tr("Installed on this macOS"));
+            ImGui::TextUnformatted(Core::Tr("Installed on this macOS"));
 #elif defined(__linux__)
-            ImGui::TextUnformatted(Tr("Installed on this Linux"));
+            ImGui::TextUnformatted(Core::Tr("Installed on this Linux"));
 #else
-            ImGui::TextUnformatted(Tr("Installed on this Unix-like system"));
+            ImGui::TextUnformatted(Core::Tr("Installed on this Unix-like system"));
 #endif
             ImGui::PopStyleColor();
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextWrapped("%s", TrFormat("Select a JDK {0} or newer.", std::to_string(JDK_MINIMUM_MAJOR)).c_str());
+            ImGui::TextWrapped("%s", Core::TrFormat("Select a JDK {0} or newer.", std::to_string(Core::JDK_MINIMUM_MAJOR)).c_str());
             ImGui::PopStyleColor();
             ImGui::Spacing();
 
@@ -223,16 +223,16 @@ namespace CoreDeck {
             if (catalog.Items.empty()) {
                 if (!catalog.Loaded) {
                     ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-                    ImGui::TextUnformatted(Tr("Looking for installed JDKs..."));
+                    ImGui::TextUnformatted(Core::Tr("Looking for installed JDKs..."));
                     ImGui::PopStyleColor();
                 } else {
-                    const std::string message = TrFormat(
+                    const std::string message = Core::TrFormat(
                         "No JDK was found. Install JDK {0} separately, or choose a folder below.",
-                        std::to_string(JDK_RECOMMENDED_MAJOR)
+                        std::to_string(Core::JDK_RECOMMENDED_MAJOR)
                     );
                     StatusMessage(StatusMessageTone::Error, message.c_str());
-                    if (ImGui::TextLink(Tr("Download Java..."))) {
-                        OpenUrl(JAVA_JDK21_DOWNLOAD_URL);
+                    if (ImGui::TextLink(Core::Tr("Download Java..."))) {
+                        Core::OpenUrl(Core::JAVA_JDK21_DOWNLOAD_URL);
                     }
                 }
                 return;
@@ -241,7 +241,7 @@ namespace CoreDeck {
             const float width = std::max(1.0F, ImGui::GetContentRegionAvail().x);
             const float gap = 4.0F * GetDpiScale();
             for (size_t index = 0; index < catalog.Items.size(); ++index) {
-                const JdkInfo &jdk = catalog.Items.at(index);
+                const Core::JdkInfo &jdk = catalog.Items.at(index);
                 if (index > 0) {
                     ImGui::Dummy(ImVec2(0.0F, gap));
                 }
@@ -249,44 +249,44 @@ namespace CoreDeck {
                 const std::string title = JavaRuntimeLabel(jdk);
                 const std::string body = jdk.IsValid
                                              ? jdk.JavaHome
-                                             : TrFormat("Older than JDK {0}. {1}", std::to_string(JDK_MINIMUM_MAJOR), jdk.JavaHome);
-                const std::string id = StrConcat("##prefs_jdk_", std::to_string(index));
+                                             : Core::TrFormat("Older than JDK {0}. {1}", std::to_string(Core::JDK_MINIMUM_MAJOR), jdk.JavaHome);
+                const std::string id = Core::StrConcat("##prefs_jdk_", std::to_string(index));
                 if (JdkChoiceCard(id.c_str(), title.c_str(), body.c_str(), width, selected, jdk.IsValid)) {
                     UseListedJdk(context, jdk, jdkPathBuffer, bufferSize);
                 }
             }
         }
 
-        const char *JdkSourceLabel(const JdkSource source) {
+        const char *JdkSourceLabel(const Core::JdkSource source) {
             switch (source) {
-                case JdkSource::Override:
-                    return Tr("Custom Path");
-                case JdkSource::JavaHomeEnv:
-                    return ENV_JAVA_HOME;
-                case JdkSource::Detected:
-                    return Tr("Auto-Detected");
-                case JdkSource::None:
+                case Core::JdkSource::Override:
+                    return Core::Tr("Custom Path");
+                case Core::JdkSource::JavaHomeEnv:
+                    return Core::ENV_JAVA_HOME;
+                case Core::JdkSource::Detected:
+                    return Core::Tr("Auto-Detected");
+                case Core::JdkSource::None:
                 default:
-                    return Tr("None");
+                    return Core::Tr("None");
             }
         }
 
-        void DrawJdkStatus(const JdkInfo &jdk) {
+        void JdkStatus(const Core::JdkInfo &jdk) {
             if (!jdk.IsFound) {
-                StatusMessage(StatusMessageTone::Error, Tr("No JDK found at this location."));
+                StatusMessage(StatusMessageTone::Error, Core::Tr("No JDK found at this location."));
                 return;
             }
 
-            const char *version = jdk.VersionString.empty() ? Tr("Java") : jdk.VersionString.c_str();
+            const char *version = jdk.VersionString.empty() ? Core::Tr("Java") : jdk.VersionString.c_str();
             if (jdk.IsValid) {
-                const std::string message = TrFormat("{0} ({1})", version, JdkSourceLabel(jdk.Source));
+                const std::string message = Core::TrFormat("{0} ({1})", version, JdkSourceLabel(jdk.Source));
                 StatusMessage(StatusMessageTone::Positive, message.c_str());
             } else {
-                const std::string message = TrFormat(
+                const std::string message = Core::TrFormat(
                     "{0} ({1}) - requires JDK {2} or newer.",
                     version,
                     JdkSourceLabel(jdk.Source),
-                    std::to_string(JDK_MINIMUM_MAJOR)
+                    std::to_string(Core::JDK_MINIMUM_MAJOR)
                 );
                 StatusMessage(StatusMessageTone::Error, message.c_str());
             }
@@ -300,7 +300,7 @@ namespace CoreDeck {
         }
         catalog.Loaded = false;
         catalog.Scan = std::async(std::launch::async, [] {
-            return ListInstalledJdks();
+            return Core::ListInstalledJdks();
         });
     }
 
@@ -309,29 +309,29 @@ namespace CoreDeck {
         PollJdkPathJob(context);
     }
 
-    void DrawPreferencesJdkSection(Context &context, char *jdkPathBuffer, const size_t bufferSize) {
-        if (PendingJdkPath()) {
-            CopyToBuffer(jdkPathBuffer, bufferSize, *PendingJdkPath());
+    void PreferencesJdkSection(Context &context, char *jdkPathBuffer, const size_t bufferSize) {
+        if (const std::optional<std::string> &pending = PendingJdkPath()) {
+            CopyToBuffer(jdkPathBuffer, bufferSize, *pending);
             PendingJdkPath().reset();
         }
 
         PreferencesSectionHeader(
-            Tr("Java (JDK)"),
-            Tr("The Android command-line tools (avdmanager, sdkmanager) run on Java and require JDK 17 or newer. Point CoreDeck at a compatible JDK if your system default is older.")
+            Core::Tr("Java (JDK)"),
+            Core::Tr("The Android command-line tools (avdmanager, sdkmanager) run on Java and require JDK 17 or newer. Point CoreDeck at a compatible JDK if your system default is older.")
         );
 
         ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_PRIMARY));
-        ImGui::TextUnformatted(Tr("Currently used"));
+        ImGui::TextUnformatted(Core::Tr("Currently used"));
         ImGui::PopStyleColor();
         if (context.Host.Jdk.IsFound) {
-            DrawJdkStatus(context.Host.Jdk);
+            JdkStatus(context.Host.Jdk);
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
             ImGui::TextWrapped("%s", context.Host.Jdk.JavaHome.c_str());
             ImGui::PopStyleColor();
         } else {
             StatusMessage(
                 StatusMessageTone::Warning,
-                Tr("No JDK detected. The command-line tools will use whatever 'java' is on your PATH.")
+                Core::Tr("No JDK detected. The command-line tools will use whatever 'java' is on your PATH.")
             );
         }
 
@@ -339,7 +339,7 @@ namespace CoreDeck {
         ImGui::Separator();
         ImGui::Spacing();
 
-        DrawInstalledJdkList(context, jdkPathBuffer, bufferSize);
+        InstalledJdkList(context, jdkPathBuffer, bufferSize);
 
         ImGui::Spacing();
         ImGui::Separator();
@@ -347,35 +347,35 @@ namespace CoreDeck {
 
         const std::string pathStr = PathPicker(
             "##JdkPrefs",
-            Tr("JDK home"),
-            Tr("Path to a JDK home directory"),
-            Tr("Select JDK home directory"),
+            Core::Tr("JDK home"),
+            Core::Tr("Path to a JDK home directory"),
+            Core::Tr("Select JDK home directory"),
             jdkPathBuffer,
             bufferSize
         );
         const bool binExists = !pathStr.empty() &&
                                (std::filesystem::exists(
-                                    Paths::JoinPaths({pathStr, "bin", "java" + Paths::GetExecutableExtension()})
+                                    Paths::JoinPaths({pathStr, "bin", Paths::WithExecutableExtension("java")})
                                 ) ||
                                 std::filesystem::exists(
-                                    Paths::JoinPaths({pathStr, "Contents", "Home", "bin", "java" + Paths::GetExecutableExtension()})
+                                    Paths::JoinPaths({pathStr, "Contents", "Home", "bin", Paths::WithExecutableExtension("java")})
                                 ));
 
         const bool matchesActive =
             context.Host.Jdk.IsFound && SameJdkHome(pathStr, context.Host.Jdk.JavaHome);
         if (pathStr.empty()) {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextUnformatted(Tr("Leave empty to auto-detect from JAVA_HOME or standard install paths."));
+            ImGui::TextUnformatted(Core::Tr("Leave empty to auto-detect from JAVA_HOME or standard install paths."));
             ImGui::PopStyleColor();
         } else if (!binExists) {
-            StatusMessage(StatusMessageTone::Error, Tr("No 'bin/java' found in this directory."));
+            StatusMessage(StatusMessageTone::Error, Core::Tr("No 'bin/java' found in this directory."));
         } else if (matchesActive) {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextUnformatted(Tr("This is the JDK CoreDeck is using."));
+            ImGui::TextUnformatted(Core::Tr("This is the JDK CoreDeck is using."));
             ImGui::PopStyleColor();
         } else {
             ImGui::PushStyleColor(ImGuiCol_Text, HexColor(Colors::TEXT_SUBTLE));
-            ImGui::TextUnformatted(Tr("Click Apply to validate the Java version and use this JDK."));
+            ImGui::TextUnformatted(Core::Tr("Click Apply to validate the Java version and use this JDK."));
             ImGui::PopStyleColor();
         }
 
@@ -387,21 +387,21 @@ namespace CoreDeck {
         const bool applyingPath = pathBusy && pathJob.Action == JdkPathAction::Apply;
         const bool discoveringPath = pathBusy && pathJob.Action == JdkPathAction::Discover;
 
-        if (PrimaryButton(Tr("Apply JDK Path"), (!pathBusy && binExists) || applyingPath, ImVec2(0, 0), applyingPath)) {
+        if (PrimaryButton(Core::Tr("Apply JDK Path"), (!pathBusy && binExists) || applyingPath, ImVec2(0, 0), applyingPath)) {
             Paths::Onboarding::SaveJdkPathOverride(pathStr);
             StartJdkPathJob(JdkPathAction::Apply, context.Host.Sdk);
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !binExists) {
-            ImGui::SetTooltip("%s", Tr("Choose a directory that contains bin/java before applying."));
+            ImGui::SetTooltip("%s", Core::Tr("Choose a directory that contains bin/java before applying."));
         }
 
         ImGui::SameLine();
-        if (PrimaryButton(Tr("Use Default Discovery"), !pathBusy || discoveringPath, ImVec2(0, 0), discoveringPath)) {
+        if (PrimaryButton(Core::Tr("Use Default Discovery"), !pathBusy || discoveringPath, ImVec2(0, 0), discoveringPath)) {
             Paths::Onboarding::ClearJdkPathOverride();
             StartJdkPathJob(JdkPathAction::Discover, context.Host.Sdk);
         }
         if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("%s", Tr("Forget the saved JDK and detect it from JAVA_HOME / standard paths."));
+            ImGui::SetTooltip("%s", Core::Tr("Forget the saved JDK and detect it from JAVA_HOME / standard paths."));
         }
     }
 }

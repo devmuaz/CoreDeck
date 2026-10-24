@@ -14,7 +14,7 @@
 #include "paths.h"
 #include "process.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
 #ifdef _WIN32
         constexpr char PATH_SEPARATOR = ';';
@@ -69,7 +69,7 @@ namespace CoreDeck {
         }
 
         std::string JavaBinaryIn(const std::string &home) {
-            return Paths::JoinPaths({home, "bin", "java" + Paths::GetExecutableExtension()});
+            return Paths::JoinPaths({home, "bin", Paths::WithExecutableExtension("java")});
         }
 
         void AddSubdirCandidates(
@@ -93,7 +93,7 @@ namespace CoreDeck {
         }
 
         bool IsHomebrewOpenJdkName(const std::string &name) {
-            return name == "openjdk" || name.rfind("openjdk@", 0) == 0;
+            return name == "openjdk" || name.starts_with("openjdk@");
         }
 
         // Homebrew's openjdk formula is not visible to /usr/libexec/java_home unless the user
@@ -343,7 +343,7 @@ namespace CoreDeck {
         if (jdk.JavaHome.empty() || tool.empty()) {
             return {};
         }
-        return Paths::JoinPaths({jdk.JavaHome, "bin", tool + Paths::GetExecutableExtension()});
+        return Paths::JoinPaths({jdk.JavaHome, "bin", Paths::WithExecutableExtension(tool)});
     }
 
     EnvVars JavaToolEnvironment(const JdkInfo &jdk) {

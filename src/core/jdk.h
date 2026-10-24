@@ -12,7 +12,7 @@
 #include "env.h"
 #include "sdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class JdkSource : uint8_t {
         None,
         Override,

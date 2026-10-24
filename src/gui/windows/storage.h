@@ -5,7 +5,7 @@
 #ifndef COREDECK_STORAGE_WINDOW_H
 #define COREDECK_STORAGE_WINDOW_H
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     struct Context;
 
     void BuildStorageWindow(Context &context);

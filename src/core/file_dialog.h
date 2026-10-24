@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace CoreDeck::FileDialog {
+namespace CoreDeck::Core::FileDialog {
     std::optional<std::string> PickDirectory(const std::string &title, const std::string &defaultPath = "");
 
     std::optional<std::string> SaveFile(

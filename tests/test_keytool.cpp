@@ -7,7 +7,7 @@
 #include "core/keytool.h"
 #include "core/utilities.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 namespace {
     CreateKeystoreRequest ValidCreateRequest(const std::filesystem::path &path) {

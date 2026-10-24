@@ -19,7 +19,7 @@ using ProcessId = DWORD;
 using ProcessId = pid_t;
 #endif
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct CommandResult {
         bool Started = false;
         int ExitCode = -1;

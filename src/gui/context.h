@@ -30,7 +30,7 @@
 
 struct GLFWwindow;
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     enum class Screen : uint8_t {
         Onboarding,
         Main,
@@ -102,11 +102,11 @@ namespace CoreDeck {
 
     struct Context {
         struct Host {
-            SdkInfo Sdk;
-            JdkInfo Jdk;
-            EmulatorManager Manager;
+            Core::SdkInfo Sdk;
+            Core::JdkInfo Jdk;
+            Core::EmulatorManager Manager;
 
-            explicit Host(SdkInfo sdk) : Sdk(std::move(sdk)), Manager(Sdk) {
+            explicit Host(Core::SdkInfo sdk) : Sdk(std::move(sdk)), Manager(Sdk) {
             }
         } Host;
 
@@ -116,10 +116,10 @@ namespace CoreDeck {
 
         struct Catalog {
             std::vector<std::string> AvdNames;
-            std::vector<AvdInfo> Avds;
+            std::vector<Core::AvdInfo> Avds;
             int SelectedAvd = -1;
             int PreviousSelectedAvd = -1;
-            std::unordered_map<std::string, std::vector<EmulatorOption>> PerAvdOptions;
+            std::unordered_map<std::string, std::vector<Core::EmulatorOption>> PerAvdOptions;
 
             char SearchFilter[128] = {};
             AvdSortMode SortMode = AvdSortMode::Name;
@@ -145,7 +145,7 @@ namespace CoreDeck {
             bool ConfirmBeforeDeleteAvd = true;
             bool CrashReportingEnabled = true;
             bool CheckForUpdatesOnLaunch = true;
-            ThemePreference Theme = ThemePreference::System;
+            Core::ThemePreference Theme = Core::ThemePreference::System;
             std::string Language;
         } Prefs;
 
@@ -174,11 +174,11 @@ namespace CoreDeck {
         } UI;
 
         struct AvdCreationWork {
-            std::vector<SystemImage> SystemImages;
-            std::vector<DeviceProfile> DeviceProfiles;
+            std::vector<Core::SystemImage> SystemImages;
+            std::vector<Core::DeviceProfile> DeviceProfiles;
             bool DeviceDefinitionsSkipped = false;
-            std::vector<Skin> Skins;
-            AvdCreationData CreationData;
+            std::vector<Core::Skin> Skins;
+            Core::AvdCreationData CreationData;
             int SelectedSystemImage = 0;
             int SelectedDevice = 0;
             int PendingSelectedDevice = 0;
@@ -199,7 +199,7 @@ namespace CoreDeck {
         } AvdCreationWork;
 
         struct ImageInstallationWork {
-            std::vector<RemoteSystemImage> RemoteImages;
+            std::vector<Core::RemoteSystemImage> RemoteImages;
             int SelectedImage = -1;
             ImageCategory SelectedCategory = ImageCategory::PhoneTablet;
             char SearchFilter[128] = {};
@@ -207,27 +207,27 @@ namespace CoreDeck {
             AsyncLoad Prefetch;
 
             std::atomic<bool> Installing{false};
-            std::shared_ptr<InstallProgressData> Progress;
+            std::shared_ptr<Core::InstallProgressData> Progress;
             std::future<bool> InstallFuture;
             bool AwaitingLicenseConsent = false;
             std::atomic<bool> LicenseBusy{false};
-            std::future<SdkLicenseQuery> LicenseCheckFuture;
+            std::future<Core::SdkLicenseQuery> LicenseCheckFuture;
             std::future<bool> LicenseAcceptFuture;
             std::string PendingPackagePath;
             std::string LicenseError;
         } ImageInstallationWork;
 
         struct SdkBootstrapWork {
-            BootstrapPlan Plan;
-            std::shared_ptr<BootstrapProgressData> Progress;
+            Core::BootstrapPlan Plan;
+            std::shared_ptr<Core::BootstrapProgressData> Progress;
             std::atomic<bool> Busy{false};
             std::future<bool> Future;
-            BootstrapError LastError = BootstrapError::None;
+            Core::BootstrapError LastError = Core::BootstrapError::None;
             std::string LastErrorDetail;
         } SdkBootstrapWork;
 
         struct HealthCheckWork {
-            std::shared_ptr<HealthCheckProgressData> Progress;
+            std::shared_ptr<Core::HealthCheckProgressData> Progress;
             std::atomic<bool> Busy{false};
             std::future<void> Future;
             std::string ObservedTools;
@@ -243,11 +243,11 @@ namespace CoreDeck {
         struct LicenseNotice {
             std::atomic<bool> Busy{false};
             bool Known = false;
-            LicenseStatus Status = LicenseStatus::AllAccepted;
+            Core::LicenseStatus Status = Core::LicenseStatus::AllAccepted;
             std::string SdkManagerPath;
             std::uint32_t Epoch = 0;
             std::uint32_t PendingEpoch = 0;
-            std::future<LicenseStatus> Future;
+            std::future<Core::LicenseStatus> Future;
         } LicenseNotice;
 
         struct Jobs {
@@ -269,15 +269,15 @@ namespace CoreDeck {
             std::atomic<bool> Cancel{false};
             std::atomic<std::uint32_t> LoadEpoch{0};
             std::string PendingPath;
-            std::future<ApkReport> Future;
+            std::future<Core::ApkReport> Future;
             bool HasReport = false;
-            ApkReport Report;
+            Core::ApkReport Report;
 
             std::atomic<bool> CompareBusy{false};
             std::string ComparePath;
-            std::future<ApkAnalyzerQuery<std::vector<ApkCompareEntry>>> CompareFuture;
+            std::future<Core::ApkAnalyzerQuery<std::vector<Core::ApkCompareEntry>>> CompareFuture;
             bool HasCompare = false;
-            ApkAnalyzerQuery<std::vector<ApkCompareEntry>> Compare;
+            Core::ApkAnalyzerQuery<std::vector<Core::ApkCompareEntry>> Compare;
 
             std::string SelectedPath;
             std::uint32_t ContentEpoch = 0;
@@ -297,8 +297,8 @@ namespace CoreDeck {
             KeytoolTask Task = KeytoolTask::None;
             KeytoolPage Page = KeytoolPage::Inspect;
 
-            std::future<KeystoreDescription> InspectFuture;
-            std::future<CreateKeystoreResult> CreateFuture;
+            std::future<Core::KeystoreDescription> InspectFuture;
+            std::future<Core::CreateKeystoreResult> CreateFuture;
 
             std::string InspectPath;
             std::string CreatePath;
@@ -314,12 +314,12 @@ namespace CoreDeck {
             bool KeyPasswordMatches = true;
             std::uint32_t SecretEpoch = 0;
 
-            KeystoreType StoreType = KeystoreType::Pkcs12;
+            Core::KeystoreType StoreType = Core::KeystoreType::Pkcs12;
             int CreateExtension = 0;
             int CreateTemplate = 0;
-            KeyAlgorithm Algorithm = KeyAlgorithm::Rsa;
-            int KeySize = DEFAULT_KEY_SIZE;
-            int ValidityDays = DEFAULT_KEY_VALIDITY_DAYS;
+            Core::KeyAlgorithm Algorithm = Core::KeyAlgorithm::Rsa;
+            int KeySize = Core::DEFAULT_KEY_SIZE;
+            int ValidityDays = Core::DEFAULT_KEY_VALIDITY_DAYS;
             char Alias[256] = {};
             char CommonName[256] = {};
             char OrganizationalUnit[256] = {};
@@ -329,11 +329,11 @@ namespace CoreDeck {
             char Country[8] = {};
 
             bool HasInspect = false;
-            KeystoreDescription InspectResult;
+            Core::KeystoreDescription InspectResult;
             int InspectEntry = 0;
 
             bool HasCreate = false;
-            CreateKeystoreResult CreateResult;
+            Core::CreateKeystoreResult CreateResult;
             int CreateEntry = 0;
         } KeytoolWork;
 
@@ -346,7 +346,7 @@ namespace CoreDeck {
             bool UpdateCheckInFlight = false;
         } Updates;
 
-        explicit Context(SdkInfo sdk) : Host(std::move(sdk)) {
+        explicit Context(Core::SdkInfo sdk) : Host(std::move(sdk)) {
         }
     };
 

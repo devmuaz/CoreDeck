@@ -139,21 +139,21 @@ namespace {
 
 TEST_CASE("GetAssetsDirectory uses COREDECK_ASSETS_DIR when set", "[paths][assets]") {
     const std::string dir = std::filesystem::temp_directory_path().string();
-    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, dir.c_str());
+    const ScopedEnvVar env(CoreDeck::Core::ENV_COREDECK_ASSETS_DIR, dir.c_str());
     REQUIRE(GetAssetsDirectory() == dir);
 }
 
 TEST_CASE("GetAssetsDirectory keeps a set path that is not a directory", "[paths][assets]") {
-    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, "/usr/share/coredeck");
+    const ScopedEnvVar env(CoreDeck::Core::ENV_COREDECK_ASSETS_DIR, "/usr/share/coredeck");
     REQUIRE(GetAssetsDirectory() == "/usr/share/coredeck");
 }
 
 TEST_CASE("GetAssetsDirectory ignores an empty COREDECK_ASSETS_DIR", "[paths][assets]") {
-    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, "");
+    const ScopedEnvVar env(CoreDeck::Core::ENV_COREDECK_ASSETS_DIR, "");
     REQUIRE(GetAssetsDirectory() == JoinPaths({GetResourcesDirectory(), "assets"}));
 }
 
 TEST_CASE("GetAssetsDirectory falls back to assets beside the resources directory", "[paths][assets]") {
-    const ScopedEnvVar env(CoreDeck::ENV_COREDECK_ASSETS_DIR, nullptr);
+    const ScopedEnvVar env(CoreDeck::Core::ENV_COREDECK_ASSETS_DIR, nullptr);
     REQUIRE(GetAssetsDirectory() == JoinPaths({GetResourcesDirectory(), "assets"}));
 }

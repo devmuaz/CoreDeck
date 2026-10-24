@@ -11,7 +11,7 @@
 #include "../widgets.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         void RenderReleaseNotes(const std::string &notes) {
             if (notes.empty()) {
@@ -68,17 +68,17 @@ namespace CoreDeck {
                 return;
             }
 
-            const std::string title = TrWindow("Up to date", "CoreDeckUpdateOk");
+            const std::string title = Core::TrWindow("Up to date", "CoreDeckUpdateOk");
             if (BeginCenteredModal(title.c_str(), &context.Updates.ShowUpToDateModal, ImVec2(Em(32.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
-                ImGui::TextWrapped("%s", Tr("You're running the latest CoreDeck release."));
+                ImGui::TextWrapped("%s", Core::Tr("You're running the latest CoreDeck release."));
                 ImGui::Spacing();
-                ImGui::Text("%s", Tr("Current: "));
+                ImGui::Text("%s", Core::Tr("Current: "));
                 ImGui::SameLine(0, 0.0F);
                 ImGui::TextColored(HexColor(Colors::POSITIVE), "v%s", COREDECK_VERSION);
                 ImGui::Spacing();
                 ImGui::Separator();
                 ImGui::Spacing();
-                if (PrimaryButton(Tr("OK"), true, ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+                if (PrimaryButton(Core::Tr("OK"), true, ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
                     context.Updates.ShowUpToDateModal = false;
                     ImGui::CloseCurrentPopup();
                 }
@@ -94,10 +94,10 @@ namespace CoreDeck {
             return;
         }
 
-        const std::string title = TrWindow("Update Available", "CoreDeckUpdate");
+        const std::string title = Core::TrWindow("Update Available", "CoreDeckUpdate");
         if (BeginCenteredModal(title.c_str(), &context.Updates.ShowNewVersionModal, ImVec2(Em(80.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
             ImGui::Spacing();
-            ImGui::TextUnformatted(Tr("You're currently running on"));
+            ImGui::TextUnformatted(Core::Tr("You're currently running on"));
             ImGui::SameLine();
             ImGui::TextColored(HexColor(Colors::WARNING), "v%s", COREDECK_VERSION);
             ImGui::Spacing();
@@ -110,13 +110,13 @@ namespace CoreDeck {
 
             const float half = EqualButtonWidth(2);
 
-            if (PositiveButton(Tr("Download"), true, ImVec2(half, 0))) {
-                OpenUrl(WEBSITE_URL);
+            if (PositiveButton(Core::Tr("Download"), true, ImVec2(half, 0))) {
+                Core::OpenUrl(Core::WEBSITE_URL);
                 context.Updates.ShowNewVersionModal = false;
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();
-            if (PrimaryButton(Tr("Later"), true, ImVec2(half, 0))) {
+            if (PrimaryButton(Core::Tr("Later"), true, ImVec2(half, 0))) {
                 context.Updates.ShowNewVersionModal = false;
                 ImGui::CloseCurrentPopup();
             }

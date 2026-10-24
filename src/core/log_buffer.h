@@ -10,7 +10,7 @@
 #include <mutex>
 #include <vector>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     class LogBuffer {
     public:
         LogBuffer(const LogBuffer &) = delete;

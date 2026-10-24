@@ -7,7 +7,7 @@
 
 #include "imgui.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void PaintSpinner(ImDrawList *draw, const ImVec2 &center, float radius, float thickness, ImU32 color);
 }
 

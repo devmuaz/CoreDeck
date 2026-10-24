@@ -14,7 +14,7 @@
 #include "process.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         bool IsAvdManagerDiagnostic(const std::string &line) {
             return line.starts_with("Error:") || line.starts_with("Warning:");
@@ -36,7 +36,7 @@ namespace CoreDeck {
                     continue;
                 }
 
-                auto eq = line.find('=');
+                const auto eq = line.find('=');
                 if (eq == std::string::npos) {
                     continue;
                 }
@@ -172,7 +172,7 @@ namespace CoreDeck {
             avd.DisplayName = avdName;
             avd.Path = path;
 
-            std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
+            const std::string configPath = Paths::JoinPaths({avd.Path, "config.ini"});
 
             if (!std::filesystem::exists(configPath)) {
                 return avd;
@@ -180,39 +180,39 @@ namespace CoreDeck {
 
             auto config = ParseConfigFile(configPath);
 
-            if (auto it = config.find("hw.device.name"); it != config.end()) {
+            if (const auto it = config.find("hw.device.name"); it != config.end()) {
                 avd.Device = it->second;
             }
 
-            if (auto it = config.find("avd.ini.displayname"); it != config.end() && !it->second.empty()) {
+            if (const auto it = config.find("avd.ini.displayname"); it != config.end() && !it->second.empty()) {
                 avd.DisplayName = it->second;
             }
 
-            if (auto it = config.find("abi.type"); it != config.end()) {
+            if (const auto it = config.find("abi.type"); it != config.end()) {
                 avd.Abi = it->second;
             }
 
             ExtractSystemImageInfo(avd, config);
 
-            if (auto it = config.find("sdcard.size"); it != config.end()) {
+            if (const auto it = config.find("sdcard.size"); it != config.end()) {
                 avd.SdCard = it->second;
             }
 
-            if (auto it = config.find("hw.ramSize"); it != config.end()) {
+            if (const auto it = config.find("hw.ramSize"); it != config.end()) {
                 avd.RamSize = it->second;
             }
 
-            if (auto it = config.find("hw.cpu.arch"); it != config.end()) {
+            if (const auto it = config.find("hw.cpu.arch"); it != config.end()) {
                 avd.Arch = it->second;
             }
 
             std::string width;
             std::string height;
-            if (auto it = config.find("hw.lcd.width"); it != config.end()) {
+            if (const auto it = config.find("hw.lcd.width"); it != config.end()) {
                 width = it->second;
             }
 
-            if (auto it = config.find("hw.lcd.height"); it != config.end()) {
+            if (const auto it = config.find("hw.lcd.height"); it != config.end()) {
                 height = it->second;
             }
 
@@ -222,11 +222,11 @@ namespace CoreDeck {
                 avd.ScreenResolution = ss.str();
             }
 
-            if (auto it = config.find("hw.gpu.mode"); it != config.end()) {
+            if (const auto it = config.find("hw.gpu.mode"); it != config.end()) {
                 avd.GpuMode = it->second;
             }
 
-            if (auto it = config.find("skin.name"); it != config.end()) {
+            if (const auto it = config.find("skin.name"); it != config.end()) {
                 avd.SkinName = it->second;
             }
 

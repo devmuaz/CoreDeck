@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <string>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     void OpenUrl(const char *url);
 
     std::uintmax_t GetDirectorySize(const std::string &path);

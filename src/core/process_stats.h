@@ -15,7 +15,7 @@
 
 #include "process.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct ProcessSample {
         double TimestampSec = 0.0;
         float CpuPercent = 0.0F;

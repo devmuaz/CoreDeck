@@ -17,7 +17,7 @@
 #include "sdk.h"
 #include "sdk_manager.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class BootstrapStage : uint8_t {
         Idle,
         Preparing,

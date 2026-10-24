@@ -9,7 +9,7 @@
 
 #include "app_settings_types.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     AppSettings LoadAppSettings();
 
     bool SaveAppSettings(const AppSettings &settings);

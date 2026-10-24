@@ -13,7 +13,7 @@
 
 #include "sha256.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         constexpr size_t BLOCK_SIZE = 64;
         constexpr size_t DIGEST_SIZE = 32;

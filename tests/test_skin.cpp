@@ -7,7 +7,7 @@
 #include "core/skin.h"
 
 namespace fs = std::filesystem;
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 namespace {
     fs::path UniqueTempDir(const std::string &prefix) {
@@ -34,7 +34,8 @@ TEST_CASE("ListSkins discovers skins from $SDK/skins", "[skin][list]") {
     const auto skins = ListSkins(info);
     REQUIRE(skins.size() == 2);
 
-    bool sawPixel = false, sawWear = false;
+    bool sawPixel = false;
+    bool sawWear = false;
     for (const auto &s: skins) {
         if (s.Name == "pixel_7") {
             sawPixel = true;
@@ -58,8 +59,8 @@ TEST_CASE("ListSkins prefers SDK-level skin over system-image-bundled duplicate"
 
     const auto skins = ListSkins(info);
     REQUIRE(skins.size() == 1);
-    REQUIRE(skins[0].Name == "pixel_7");
-    REQUIRE(skins[0].Source == SkinSource::Sdk);
+    REQUIRE(skins.at(0).Name == "pixel_7");
+    REQUIRE(skins.at(0).Source == SkinSource::Sdk);
 
     fs::remove_all(sdk);
 }
@@ -78,9 +79,9 @@ TEST_CASE("ListSkins ignores directories without a layout file", "[skin][list]")
 }
 
 TEST_CASE("FindSkinForDevice returns exact-name match when present", "[skin][match]") {
-    std::vector<Skin> skins = {
-        {"pixel_6", "Pixel 6", "/p6", SkinSource::Sdk},
-        {"pixel_7", "Pixel 7", "/p7", SkinSource::Sdk},
+    const std::vector<Skin> skins = {
+        {.Name = "pixel_6", .DisplayName = "Pixel 6", .Path = "/p6", .Source = SkinSource::Sdk},
+        {.Name = "pixel_7", .DisplayName = "Pixel 7", .Path = "/p7", .Source = SkinSource::Sdk},
     };
 
     const auto match = FindSkinForDevice(skins, "pixel_7");
@@ -90,7 +91,7 @@ TEST_CASE("FindSkinForDevice returns exact-name match when present", "[skin][mat
 
 TEST_CASE("FindSkinForDevice returns nullopt for unknown device", "[skin][match]") {
     const std::vector<Skin> skins = {
-        {"pixel_7", "Pixel 7", "/p7", SkinSource::Sdk},
+        {.Name = "pixel_7", .DisplayName = "Pixel 7", .Path = "/p7", .Source = SkinSource::Sdk},
     };
 
     const auto match = FindSkinForDevice(skins, "totally_unknown_device_xyz");
@@ -101,7 +102,7 @@ TEST_CASE("FindSkinForDevice handles empty inputs", "[skin][match]") {
     REQUIRE_FALSE(FindSkinForDevice({}, "pixel_7").has_value());
 
     const std::vector<Skin> skins = {
-        {"pixel_7", "Pixel 7", "/p7", SkinSource::Sdk}
+        {.Name = "pixel_7", .DisplayName = "Pixel 7", .Path = "/p7", .Source = SkinSource::Sdk},
     };
     REQUIRE_FALSE(FindSkinForDevice(skins, "").has_value());
 }

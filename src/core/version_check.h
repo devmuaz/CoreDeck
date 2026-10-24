@@ -8,7 +8,7 @@
 #include <optional>
 #include <string>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct RemoteRelease {
         std::string Version;
         std::string Notes;

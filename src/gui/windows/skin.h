@@ -9,7 +9,7 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     std::string SkinPreviewLabel(const Context &context);
 
     void BuildSkinWindow(Context &context);

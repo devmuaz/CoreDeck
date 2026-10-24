@@ -3,7 +3,7 @@
 #include "core/constants.h"
 #include "core/jdk.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 namespace {
     const EnvVar *FindEnv(const EnvVars &env, const std::string &name) {

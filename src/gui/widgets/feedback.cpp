@@ -12,7 +12,7 @@
 #include "../widgets.h"
 #include "internal.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         const char *NoticeAccent(const NoticeCardTone tone) {
             switch (tone) {
@@ -30,7 +30,7 @@ namespace CoreDeck {
             }
         }
 
-        float DrawCenteredWrapped(
+        float CenteredWrappedText(
             ImDrawList *draw,
             ImFont *font,
             const float fontSize,
@@ -247,8 +247,8 @@ namespace CoreDeck {
         const bool titleFits = titleW <= innerW + 0.5F;
         const float titleH = titleFits
                                  ? titleLineH
-                                 : DrawCenteredWrapped(nullptr, font, titleSize, 0, title, 0.0F, innerW, 0.0F);
-        const float bodyH = hasBody ? DrawCenteredWrapped(nullptr, font, fontSize, 0, body, 0.0F, bodyWrap, 0.0F) : 0.0F;
+                                 : CenteredWrappedText(nullptr, font, titleSize, 0, title, 0.0F, innerW, 0.0F);
+        const float bodyH = hasBody ? CenteredWrappedText(nullptr, font, fontSize, 0, body, 0.0F, bodyWrap, 0.0F) : 0.0F;
         const float buttonH = hasButton ? ImGui::GetFrameHeight() : 0.0F;
         const float buttonW = hasButton ? std::min(innerW, buttonNatural) : 0.0F;
 
@@ -282,12 +282,12 @@ namespace CoreDeck {
             draw->AddText(font, titleSize, ImVec2(titleX, textY), titleInk, title);
             textY += titleLineH;
         } else {
-            textY += DrawCenteredWrapped(draw, font, titleSize, titleInk, title, textX, innerW, textY);
+            textY += CenteredWrappedText(draw, font, titleSize, titleInk, title, textX, innerW, textY);
         }
         if (hasBody) {
             textY += gap;
             const float bodyX = textX + std::max(0.0F, (innerW - bodyWrap) * 0.5F);
-            textY += DrawCenteredWrapped(
+            textY += CenteredWrappedText(
                 draw,
                 font,
                 fontSize,
@@ -347,10 +347,10 @@ namespace CoreDeck {
         if (!active) {
             return;
         }
-        ImGuiWindow *window = ImGui::GetCurrentWindow();
+        const ImGuiWindow *window = ImGui::GetCurrentWindow();
         m_Active = true;
         m_WindowId = window->ID;
-        m_Label = label != nullptr && label[0] != '\0' ? label : Tr("Loading...");
+        m_Label = label != nullptr && label[0] != '\0' ? label : Core::Tr("Loading...");
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
         if (GImGui->ActiveId != 0 && GImGui->ActiveIdWindow == window) {
@@ -370,7 +370,7 @@ namespace CoreDeck {
         ImGui::PopItemFlag();
         ImGui::PopItemFlag();
 
-        ImGuiWindow *window = ImGui::FindWindowByID(m_WindowId);
+        const ImGuiWindow *window = ImGui::FindWindowByID(m_WindowId);
         if (window == nullptr || window->Size.x <= 1.0F || window->Size.y <= 1.0F) {
             return;
         }
@@ -410,7 +410,7 @@ namespace CoreDeck {
         PaintSpinner(draw, spinnerCenter, radius, thickness, ImGui::GetColorU32(HexColor(Colors::TEXT_PRIMARY)));
 
         const float textTop = cardMin.y + padY + spinner + gap;
-        DrawCenteredWrapped(
+        CenteredWrappedText(
             draw,
             ImGui::GetFont(),
             ImGui::GetFontSize(),

@@ -12,7 +12,7 @@
 
 #include "sdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct ApkSummary {
         std::string ApplicationId;
         std::string VersionCode;

@@ -16,7 +16,7 @@
 #include "process.h"
 #include "process_stats.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct EmulatorInstance {
         std::string AvdName;
         ProcessId Pid;

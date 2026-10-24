@@ -7,7 +7,7 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void CloseApkAnalyzer(Context &context);
 
     void BuildApkAnalyzerWindow(Context &context);

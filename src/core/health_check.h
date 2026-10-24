@@ -17,7 +17,7 @@
 #include "sdk.h"
 #include "sdk_manager.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class HealthStatus : uint8_t {
         Pending,
         Running,

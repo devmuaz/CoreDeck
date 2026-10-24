@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class LogLevel : uint8_t {
         Debug,
         Info,

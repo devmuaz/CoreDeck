@@ -15,12 +15,12 @@
 #include "../../core/i18n.h"
 #include "../../core/utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         void MarkLicensesAccepted(Context &context) {
             auto &notice = context.LicenseNotice;
             notice.Epoch += 1;
-            notice.Status = LicenseStatus::AllAccepted;
+            notice.Status = Core::LicenseStatus::AllAccepted;
             notice.Known = true;
             notice.SdkManagerPath = context.Host.Sdk.SdkManagerPath;
         }
@@ -31,25 +31,25 @@ namespace CoreDeck {
             }
         }
 
-        void DrawConsent(Context &context) {
+        void LicenseConsent(Context &context) {
             auto &work = context.AcceptLicensesWork;
             const bool busy = work.Busy.load();
 
             ImGui::TextWrapped(
                 "%s",
-                Tr(
+                Core::Tr(
                     "Some Android SDK package licenses have not been accepted yet. "
                     "By clicking Agree, you confirm that you have read and accept "
                     "Google's current Android SDK license terms."
                 )
             );
             ImGui::Spacing();
-            if (ImGui::TextLink(Tr("View License Terms..."))) {
-                OpenUrl(SDK_LICENSE_URL);
+            if (ImGui::TextLink(Core::Tr("View License Terms..."))) {
+                Core::OpenUrl(Core::SDK_LICENSE_URL);
             }
             if (busy) {
                 ImGui::Spacing();
-                ImGui::TextDisabled("%s", Tr("Recording acceptance with the SDK Manager..."));
+                ImGui::TextDisabled("%s", Core::Tr("Recording acceptance with the SDK Manager..."));
             }
 
             if (!work.Error.empty()) {
@@ -63,16 +63,16 @@ namespace CoreDeck {
 
             const float halfWidth = EqualButtonWidth(2);
 
-            if (PositiveButton(busy ? Tr("Accepting...") : Tr("Agree"), true, ImVec2(halfWidth, 0), busy)) {
+            if (PositiveButton(busy ? Core::Tr("Accepting...") : Core::Tr("Agree"), true, ImVec2(halfWidth, 0), busy)) {
                 work.Error.clear();
                 work.Busy = true;
-                const SdkInfo sdk = context.Host.Sdk;
+                const Core::SdkInfo sdk = context.Host.Sdk;
                 work.Future = std::async(std::launch::async, [sdk] {
-                    return AcceptSdkLicenses(sdk);
+                    return Core::AcceptSdkLicenses(sdk);
                 });
             }
             ImGui::SameLine();
-            if (NegativeButton(Tr("Cancel"), !busy, ImVec2(halfWidth, 0))) {
+            if (NegativeButton(Core::Tr("Cancel"), !busy, ImVec2(halfWidth, 0))) {
                 context.UI.ShowAcceptLicensesDialog = false;
                 work.Error.clear();
                 ImGui::CloseCurrentPopup();
@@ -97,7 +97,7 @@ namespace CoreDeck {
             if (ok) {
                 work.Accepted = true;
             } else {
-                work.Error = Tr("License acceptance failed. Try again or accept via Android Studio.");
+                work.Error = Core::Tr("License acceptance failed. Try again or accept via Android Studio.");
             }
         }
 
@@ -105,7 +105,7 @@ namespace CoreDeck {
             return;
         }
 
-        const std::string title = TrWindow("Accept SDK Licenses", "AcceptLicensesDialog");
+        const std::string title = Core::TrWindow("Accept SDK Licenses", "AcceptLicensesDialog");
         const bool busy = work.Busy.load();
         bool *pOpen = busy ? nullptr : &context.UI.ShowAcceptLicensesDialog;
         if (BeginCenteredModal(title.c_str(), pOpen, EmV(56.0F, 14.0F), WINDOW_AUTO_RESIZE_FLAGS)) {
@@ -125,7 +125,7 @@ namespace CoreDeck {
                 return;
             }
 
-            DrawConsent(context);
+            LicenseConsent(context);
             ImGui::EndPopup();
         }
     }

@@ -15,7 +15,7 @@
 #include <utility>
 #include <vector>
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -27,7 +27,7 @@
 #include "process.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string TrimCopy(std::string value) {
             while (!value.empty() && (value.back() == '\r' || value.back() == ' ' || value.back() == '\t')) {

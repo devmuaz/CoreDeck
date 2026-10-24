@@ -7,7 +7,7 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void PreferencesSectionHeader(const char *title, const char *subtitle);
 
     void BuildPreferencesWindow(Context &context);

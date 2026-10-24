@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <sstream>
+#include <utility>
 
 #include "health_check.h"
 #include "constants.h"
@@ -12,7 +13,7 @@
 #include "system_image.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         constexpr HealthCheckId CHECK_ORDER[] = {
             HealthCheckId::SdkRoot,
@@ -37,7 +38,7 @@ namespace CoreDeck {
             if (!progress) {
                 return;
             }
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             if (index >= progress->Items.size()) {
                 return;
             }
@@ -128,7 +129,7 @@ namespace CoreDeck {
         HealthCheckResult CheckPlatformTools(const SdkInfo &sdk, const HealthCheckDeps &deps) {
             HealthCheckResult result{.Id = HealthCheckId::PlatformTools};
             const std::string adbPath = Paths::JoinPaths(
-                {sdk.SdkPath, "platform-tools", "adb" + Paths::GetExecutableExtension()}
+                {sdk.SdkPath, "platform-tools", Paths::WithExecutableExtension("adb")}
             );
             if (!deps.PathExists(adbPath)) {
                 result.Status = HealthStatus::Warning;
@@ -357,7 +358,7 @@ namespace CoreDeck {
         deps.FreeDiskSpace = [](const std::string &root) -> std::optional<std::uint64_t> {
             std::error_code ec;
             const std::filesystem::space_info space = std::filesystem::space(root, ec);
-            if (ec || space.available == static_cast<std::uintmax_t>(-1)) {
+            if (ec || std::cmp_equal(space.available, static_cast<std::uintmax_t>(-1))) {
                 return std::nullopt;
             }
             return static_cast<std::uint64_t>(space.available);
@@ -458,7 +459,7 @@ namespace CoreDeck {
         const HealthCheckDeps &deps
     ) {
         if (progress) {
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->Items.clear();
             progress->Items.reserve(std::size(CHECK_ORDER));
             for (const HealthCheckId id: CHECK_ORDER) {
@@ -476,7 +477,7 @@ namespace CoreDeck {
         }
 
         if (progress) {
-            std::scoped_lock lock(progress->Mutex);
+            const std::scoped_lock lock(progress->Mutex);
             progress->Finished = true;
         }
     }

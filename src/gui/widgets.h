@@ -15,7 +15,7 @@
 #include "theme.h"
 #include "../core/utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     class StyleColor {
     public:
         StyleColor() = default;
@@ -84,7 +84,7 @@ namespace CoreDeck {
         ImGuiWindowFlags_NoNavFocus;
 
     inline std::string IconWithLabel(const char *icon, const char *label) {
-        return StrConcat(icon, " ", label);
+        return Core::StrConcat(icon, " ", label);
     }
 
     inline float Em(const float n = 1.0F) {

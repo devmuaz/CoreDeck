@@ -14,16 +14,16 @@
 #include "../../core/sdk_manager.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         void PollLicenseNotice(Context &context) {
             auto &notice = context.LicenseNotice;
-            const SdkInfo &sdk = context.Host.Sdk;
+            const Core::SdkInfo &sdk = context.Host.Sdk;
             const bool canCheck = sdk.IsFound && !sdk.SdkManagerPath.empty();
 
             if (notice.Busy.load() && notice.Future.valid() &&
                 notice.Future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-                const LicenseStatus status = notice.Future.get();
+                const Core::LicenseStatus status = notice.Future.get();
                 const bool current = notice.PendingEpoch == notice.Epoch;
                 notice.Busy = false;
                 if (current) {
@@ -50,7 +50,7 @@ namespace CoreDeck {
                 notice.Busy = true;
                 notice.PendingEpoch = notice.Epoch;
                 notice.Future = std::async(std::launch::async, [sdk] {
-                    return CheckSdkLicenses(sdk);
+                    return Core::CheckSdkLicenses(sdk);
                 });
             }
         }
@@ -59,8 +59,8 @@ namespace CoreDeck {
     void BuildHealthCheckBanner(Context &context) {
         PollLicenseNotice(context);
 
-        const SdkInfo &sdk = context.Host.Sdk;
-        const JdkInfo &jdk = context.Host.Jdk;
+        const Core::SdkInfo &sdk = context.Host.Sdk;
+        const Core::JdkInfo &jdk = context.Host.Jdk;
         const auto &notice = context.LicenseNotice;
 
         const bool sdkMissing = !sdk.IsFound;
@@ -71,7 +71,7 @@ namespace CoreDeck {
         const bool buildToolsMissing = sdk.IsFound && !toolsMissing && !jdkIncompatible &&
                                        (sdk.Aapt2Path.empty() || sdk.ZipalignPath.empty() || sdk.ApksignerPath.empty());
         const bool licensesUnaccepted =
-            notice.Known && notice.Status == LicenseStatus::SomeUnaccepted && !toolsMissing && !buildToolsMissing;
+            notice.Known && notice.Status == Core::LicenseStatus::SomeUnaccepted && !toolsMissing && !buildToolsMissing;
 
         if (!sdkMissing && !toolsMissing && !jdkIncompatible && !buildToolsMissing && !licensesUnaccepted) {
             context.UI.HideHealthCheckBanner = false;
@@ -81,37 +81,37 @@ namespace CoreDeck {
             return;
         }
 
-        const char *title = Tr("Android SDK not found");
+        const char *title = Core::Tr("Android SDK not found");
         std::string detail =
-            Tr("No working Android SDK was found. The emulator binary is missing, or the path is invalid.");
+            Core::Tr("No working Android SDK was found. The emulator binary is missing, or the path is invalid.");
         if (!sdkMissing && toolsMissing && jdkIncompatible) {
-            title = Tr("SDK tools and Java need attention");
-            detail = Tr("The command-line tools are missing, and the detected Java is too old to run them.");
+            title = Core::Tr("SDK tools and Java need attention");
+            detail = Core::Tr("The command-line tools are missing, and the detected Java is too old to run them.");
         } else if (!sdkMissing && managersMissing) {
-            title = Tr("Command-line tools are missing");
-            detail = Tr("avdmanager and sdkmanager are missing, so the AVD list, device profiles, and system images cannot be loaded.");
+            title = Core::Tr("Command-line tools are missing");
+            detail = Core::Tr("avdmanager and sdkmanager are missing, so the AVD list, device profiles, and system images cannot be loaded.");
         } else if (!sdkMissing && analyzerMissing) {
-            title = Tr("APK Analyzer is missing");
-            detail = Tr("apkanalyzer is missing from the command-line tools, so APK Analyzer cannot read packages.");
+            title = Core::Tr("APK Analyzer is missing");
+            detail = Core::Tr("apkanalyzer is missing from the command-line tools, so APK Analyzer cannot read packages.");
         } else if (buildToolsMissing) {
-            title = Tr("Build tools are missing");
-            detail = Tr("aapt2, zipalign, or apksigner were not found under build-tools, so APK Analyzer and APK Signer cannot use them.");
+            title = Core::Tr("Build tools are missing");
+            detail = Core::Tr("aapt2, zipalign, or apksigner were not found under build-tools, so APK Analyzer and APK Signer cannot use them.");
         } else if (!sdkMissing && jdkIncompatible) {
-            title = Tr("Java is too old for the SDK tools");
-            detail = TrFormat(
+            title = Core::Tr("Java is too old for the SDK tools");
+            detail = Core::TrFormat(
                 "The detected Java ({0}) is too old for avdmanager and sdkmanager, which need JDK {1} or newer.",
-                jdk.VersionString.empty() ? Tr("unknown version") : jdk.VersionString.c_str(),
-                std::to_string(JDK_MINIMUM_MAJOR)
+                jdk.VersionString.empty() ? Core::Tr("unknown version") : jdk.VersionString.c_str(),
+                std::to_string(Core::JDK_MINIMUM_MAJOR)
             );
         } else if (licensesUnaccepted) {
-            title = Tr("SDK licenses are not accepted");
-            detail = Tr(
+            title = Core::Tr("SDK licenses are not accepted");
+            detail = Core::Tr(
                 "Some Android SDK package licenses have not been accepted. "
                 "Run a health check to review them and accept the terms."
             );
         }
 
-        const std::string healthLabel = IconWithLabel(Icons::HEART_PULSE, Tr("Run Health Check"));
+        const std::string healthLabel = IconWithLabel(Icons::HEART_PULSE, Core::Tr("Run Health Check"));
         const Banner banner{
             .Id = "##HealthCheckBanner",
             .Tone = BannerTone::Warning,

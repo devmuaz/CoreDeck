@@ -12,7 +12,7 @@
 #include "constants.h"
 #include "paths.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string FindCmdlineTool(const std::string &binDir, const std::string &name) {
 #ifdef _WIN32
@@ -81,7 +81,7 @@ namespace CoreDeck {
                 return {};
             }
 #endif
-            std::filesystem::path candidate = versionDir / (name + Paths::GetExecutableExtension());
+            std::filesystem::path candidate = versionDir / Paths::WithExecutableExtension(name);
             if (!std::filesystem::exists(candidate, ec)) return {};
             return candidate;
         }
@@ -153,7 +153,7 @@ namespace CoreDeck {
             return sdk;
         }
 
-        sdk.EmulatorPath = Paths::JoinPaths({sdk.SdkPath, "emulator", "emulator" + Paths::GetExecutableExtension()});
+        sdk.EmulatorPath = Paths::JoinPaths({sdk.SdkPath, "emulator", Paths::WithExecutableExtension("emulator")});
 
         std::vector<std::string> binDirs;
         binDirs.push_back(Paths::JoinPaths({sdk.SdkPath, "cmdline-tools", "latest", "bin"}));

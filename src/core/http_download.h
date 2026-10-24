@@ -10,7 +10,7 @@
 #include <optional>
 #include <string>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     using DownloadProgressFn = std::function<bool(uint64_t received, uint64_t total)>;
 
     std::optional<std::string> HttpGetString(

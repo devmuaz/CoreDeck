@@ -50,13 +50,13 @@ namespace CoreDeck::Paths {
 
         switch (platform) {
             case Platform::Windows: {
-                const char *userProfile = std::getenv(ENV_USERPROFILE); // NOLINT(concurrency-mt-unsafe)
+                const char *userProfile = std::getenv(Core::ENV_USERPROFILE); // NOLINT(concurrency-mt-unsafe)
                 if (userProfile) {
                     return {userProfile};
                 }
 
-                const char *homeDrive = std::getenv(ENV_HOMEDRIVE); // NOLINT(concurrency-mt-unsafe)
-                const char *homePath = std::getenv(ENV_HOMEPATH); // NOLINT(concurrency-mt-unsafe)
+                const char *homeDrive = std::getenv(Core::ENV_HOMEDRIVE); // NOLINT(concurrency-mt-unsafe)
+                const char *homePath = std::getenv(Core::ENV_HOMEPATH); // NOLINT(concurrency-mt-unsafe)
                 if (homeDrive && homePath) {
                     return std::string(homeDrive) + std::string(homePath);
                 }
@@ -64,7 +64,7 @@ namespace CoreDeck::Paths {
             }
             case Platform::MacOS:
             case Platform::Linux: {
-                const char *home = std::getenv(ENV_HOME); // NOLINT(concurrency-mt-unsafe)
+                const char *home = std::getenv(Core::ENV_HOME); // NOLINT(concurrency-mt-unsafe)
                 if (home) {
                     return {home};
                 }
@@ -74,7 +74,7 @@ namespace CoreDeck::Paths {
                 break;
         }
 
-        Log::Error("Could not determine home directory");
+        Core::Log::Error("Could not determine home directory");
         return "";
     }
 
@@ -88,7 +88,7 @@ namespace CoreDeck::Paths {
 
         switch (platform) {
             case Platform::Windows: {
-                const char *appData = std::getenv(ENV_APPDATA); // NOLINT(concurrency-mt-unsafe)
+                const char *appData = std::getenv(Core::ENV_APPDATA); // NOLINT(concurrency-mt-unsafe)
                 if (appData) {
                     return {appData};
                 }
@@ -111,7 +111,7 @@ namespace CoreDeck::Paths {
 
         switch (platform) {
             case Platform::Windows: {
-                const char *localAppData = std::getenv(ENV_LOCALAPPDATA); // NOLINT(concurrency-mt-unsafe)
+                const char *localAppData = std::getenv(Core::ENV_LOCALAPPDATA); // NOLINT(concurrency-mt-unsafe)
                 if (localAppData) {
                     return JoinPaths({std::string(localAppData), "Android", "Sdk"});
                 }
@@ -146,7 +146,7 @@ namespace CoreDeck::Paths {
         return JoinPaths({configDir, "coredeck", subPath});
     }
 
-    std::string GetNullDevice() {
+    std::string_view GetNullDevice() {
         const auto platform = GetCurrentPlatform();
 
         switch (platform) {
@@ -159,7 +159,7 @@ namespace CoreDeck::Paths {
         }
     }
 
-    std::string GetExecutableExtension() {
+    std::string_view GetExecutableExtension() {
         const auto platform = GetCurrentPlatform();
 
         switch (platform) {
@@ -211,11 +211,11 @@ namespace CoreDeck::Paths {
     }
 
     std::string GetAssetsDirectory() {
-        const char *overrideDir = std::getenv(ENV_COREDECK_ASSETS_DIR); // NOLINT(concurrency-mt-unsafe)
+        const char *overrideDir = std::getenv(Core::ENV_COREDECK_ASSETS_DIR); // NOLINT(concurrency-mt-unsafe)
         if (overrideDir != nullptr && overrideDir[0] != '\0') {
             std::error_code error;
             if (!std::filesystem::is_directory(overrideDir, error)) {
-                Log::Warn(ENV_COREDECK_ASSETS_DIR, " is not a directory: ", overrideDir);
+                Core::Log::Warn(Core::ENV_COREDECK_ASSETS_DIR, " is not a directory: ", overrideDir);
             }
             return {overrideDir};
         }
@@ -289,18 +289,18 @@ namespace CoreDeck::Paths {
             std::filesystem::create_directories(configPath);
             return configPath;
         } catch (const std::exception &e) {
-            Log::Error("Failed to create config directory: ", e.what());
+            Core::Log::Error("Failed to create config directory: ", e.what());
             return "";
         }
     }
 
     namespace Onboarding {
         bool IsFirstRunComplete() {
-            return LoadAppSettings().FirstRunComplete;
+            return Core::LoadAppSettings().FirstRunComplete;
         }
 
         void MarkFirstRunComplete() {
-            UpdateAppSettings([](AppSettings &settings) {
+            Core::UpdateAppSettings([](Core::AppSettings &settings) {
                 settings.FirstRunComplete = true;
             });
         }
@@ -313,38 +313,38 @@ namespace CoreDeck::Paths {
                 return false;
             }
 
-            const std::string emulatorBinary = Paths::JoinPaths({path, "emulator", "emulator" + Paths::GetExecutableExtension()});
+            const std::string emulatorBinary = Paths::JoinPaths({path, "emulator", Paths::WithExecutableExtension("emulator")});
             return std::filesystem::exists(emulatorBinary);
         }
 
         std::string LoadSdkPathOverride() {
-            return LoadAppSettings().SdkPath;
+            return Core::LoadAppSettings().SdkPath;
         }
 
         void SaveSdkPathOverride(const std::string &path) {
-            UpdateAppSettings([&path](AppSettings &settings) {
+            Core::UpdateAppSettings([&path](Core::AppSettings &settings) {
                 settings.SdkPath = path;
             });
         }
 
         void ClearSdkPathOverride() {
-            UpdateAppSettings([](AppSettings &settings) {
+            Core::UpdateAppSettings([](Core::AppSettings &settings) {
                 settings.SdkPath.clear();
             });
         }
 
         std::string LoadJdkPathOverride() {
-            return LoadAppSettings().JdkPath;
+            return Core::LoadAppSettings().JdkPath;
         }
 
         void SaveJdkPathOverride(const std::string &path) {
-            UpdateAppSettings([&path](AppSettings &settings) {
+            Core::UpdateAppSettings([&path](Core::AppSettings &settings) {
                 settings.JdkPath = path;
             });
         }
 
         void ClearJdkPathOverride() {
-            UpdateAppSettings([](AppSettings &settings) {
+            Core::UpdateAppSettings([](Core::AppSettings &settings) {
                 settings.JdkPath.clear();
             });
         }

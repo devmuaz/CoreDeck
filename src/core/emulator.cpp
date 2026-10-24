@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         bool WaitForConsoleUnavailable(const int port, const int timeoutMs) {
             if (port <= 0) {
@@ -30,12 +30,12 @@ namespace CoreDeck {
 
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
             while (std::chrono::steady_clock::now() < deadline) {
-                if (!EmulatorConsole::IsAvailable(port, 200)) {
+                if (!Core::EmulatorConsole::IsAvailable(port, 200)) {
                     return true;
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-            return !EmulatorConsole::IsAvailable(port, 200);
+            return !Core::EmulatorConsole::IsAvailable(port, 200);
         }
 
 
@@ -43,11 +43,11 @@ namespace CoreDeck {
             std::array<char, 1024> buf{};
             std::string partial;
 
-            auto flushLines = [&](const char *data, const std::size_t n) {
+            const auto flushLines = [&](const char *data, const std::size_t n) {
                 partial.append(data, n);
                 std::size_t pos = 0;
                 while ((pos = partial.find('\n')) != std::string::npos) {
-                    if (auto line = partial.substr(0, pos); !line.empty()) {
+                    if (const auto line = partial.substr(0, pos); !line.empty()) {
                         log->Push(line);
                     }
                     partial.erase(0, pos + 1);
@@ -107,7 +107,7 @@ namespace CoreDeck {
         m_Stats.Stop();
         std::vector<std::thread> pendingStops;
         {
-            std::scoped_lock lock(m_Mutex);
+            const std::scoped_lock lock(m_Mutex);
             for (auto &instance: m_Instances | std::views::values) {
                 if (instance.StopThread.joinable()) {
                     pendingStops.push_back(std::move(instance.StopThread));
@@ -118,11 +118,11 @@ namespace CoreDeck {
             thread.join();
         }
 
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         for (auto &instance: m_Instances | std::views::values) {
             if (instance.IsRunning) {
                 bool exited = false;
-                if (instance.ConsolePort > 0 && EmulatorConsole::SendKill(instance.ConsolePort, 1000)) {
+                if (instance.ConsolePort > 0 && Core::EmulatorConsole::SendKill(instance.ConsolePort, 1000)) {
                     exited = WaitForConsoleUnavailable(instance.ConsolePort, 5000);
                 }
                 if (!exited) {
@@ -151,7 +151,7 @@ namespace CoreDeck {
         std::thread oldStopThread;
         std::thread oldReaderThread;
         {
-            std::scoped_lock lock(m_Mutex);
+            const std::scoped_lock lock(m_Mutex);
             if (const auto existing = m_Instances.find(avdName); existing != m_Instances.end()) {
                 if (existing->second.StopRequested) {
                     existing->second.StopRequested->store(true);
@@ -171,13 +171,13 @@ namespace CoreDeck {
 
     bool EmulatorManager::Launch(const std::string &avdName, const std::vector<std::string> &args) {
         {
-            std::scoped_lock lock(m_Mutex);
+            const std::scoped_lock lock(m_Mutex);
             if (const auto it = m_Instances.find(avdName); it != m_Instances.end() && it->second.IsRunning) {
                 return false;
             }
         }
 
-        const int consolePort = EmulatorConsole::FindFreePort();
+        const int consolePort = Core::EmulatorConsole::FindFreePort();
         std::vector<std::string> finalArgs = args;
         if (consolePort > 0) {
             finalArgs.emplace_back("-port");
@@ -203,7 +203,7 @@ namespace CoreDeck {
 
         m_EvictExistingInstance(avdName);
         {
-            std::scoped_lock lock(m_Mutex);
+            const std::scoped_lock lock(m_Mutex);
 
             EmulatorInstance instance;
             instance.AvdName = avdName;
@@ -227,7 +227,7 @@ namespace CoreDeck {
         std::thread readerThread;
         std::thread oldStopThread;
         {
-            std::scoped_lock lock(m_Mutex);
+            const std::scoped_lock lock(m_Mutex);
             const auto it = m_Instances.find(avdName);
             if (it == m_Instances.end() || !it->second.IsRunning || it->second.Stopping) {
                 return false;
@@ -246,7 +246,7 @@ namespace CoreDeck {
         std::thread worker(
             [this, avdName, pid, consolePort, stopFlag, reader = std::move(readerThread)]() mutable {
                 bool exited = false;
-                if (consolePort > 0 && EmulatorConsole::SendKill(consolePort)) {
+                if (consolePort > 0 && Core::EmulatorConsole::SendKill(consolePort)) {
                     exited = WaitForConsoleUnavailable(consolePort, 10000);
                 }
                 if (!exited) {
@@ -271,23 +271,23 @@ namespace CoreDeck {
                     }
                     m_Stats.Untrack(pid);
                 }
+                const bool handOff = !exited && reader.joinable();
                 {
-                    std::scoped_lock lock(m_Mutex);
+                    const std::scoped_lock lock(m_Mutex);
                     if (const auto it = m_Instances.find(avdName); it != m_Instances.end()) {
                         it->second.IsRunning = !exited;
                         it->second.Stopping = false;
-                        if (!exited && reader.joinable()) {
+                        if (handOff) {
                             it->second.ReaderThread = std::move(reader);
                         }
+                    } else if (handOff) {
+                        reader.detach();
                     }
-                }
-                if (!exited && reader.joinable()) {
-                    reader.detach();
                 }
             }
         );
 
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         if (const auto it = m_Instances.find(avdName); it != m_Instances.end()) {
             it->second.StopThread = std::move(worker);
         } else {
@@ -297,7 +297,7 @@ namespace CoreDeck {
     }
 
     bool EmulatorManager::IsStopping(const std::string &avdName) const {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) {
             return false;
@@ -306,7 +306,7 @@ namespace CoreDeck {
     }
 
     bool EmulatorManager::IsRunning(const std::string &avdName) const {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) {
             return false;
@@ -315,7 +315,7 @@ namespace CoreDeck {
     }
 
     std::shared_ptr<LogBuffer> EmulatorManager::GetLog(const std::string &avdName) {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end()) {
             return nullptr;
@@ -324,7 +324,7 @@ namespace CoreDeck {
     }
 
     ProcessId EmulatorManager::GetPid(const std::string &avdName) const {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         const auto it = m_Instances.find(avdName);
         if (it == m_Instances.end() || !it->second.IsRunning) {
             return 0;
@@ -335,15 +335,13 @@ namespace CoreDeck {
     void EmulatorManager::Update() {
         std::vector<ProcessId> toUntrack;
         {
-            std::scoped_lock lock(m_Mutex);
+            const std::scoped_lock lock(m_Mutex);
             for (auto &instance: m_Instances | std::views::values) {
-                if (instance.IsRunning) {
-                    if (!IsProcessRunning(instance.Pid)) {
-                        instance.IsRunning = instance.ConsolePort > 0 &&
-                                             EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
-                        if (!instance.IsRunning) {
-                            toUntrack.push_back(instance.Pid);
-                        }
+                if (instance.IsRunning && !IsProcessRunning(instance.Pid)) {
+                    instance.IsRunning = instance.ConsolePort > 0 &&
+                                         Core::EmulatorConsole::IsAvailable(instance.ConsolePort, 25);
+                    if (!instance.IsRunning) {
+                        toUntrack.push_back(instance.Pid);
                     }
                 }
             }
@@ -354,7 +352,7 @@ namespace CoreDeck {
     }
 
     void EmulatorManager::SetSdk(SdkInfo sdk) {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         m_Sdk = std::move(sdk);
     }
 }

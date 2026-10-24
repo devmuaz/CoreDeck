@@ -8,6 +8,7 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include <algorithm>
+#include <utility>
 
 #elif defined(__linux__)
 #include <cstdio>
@@ -29,7 +30,7 @@
 
 #include "process_stats.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
 
     constexpr auto TICK_INTERVAL = std::chrono::milliseconds(1000);
 
@@ -43,7 +44,7 @@ namespace CoreDeck {
         bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
             proc_taskinfo info{};
             const int rc = proc_pidinfo(pid, PROC_PIDTASKINFO, 0, &info, sizeof(info));
-            if (rc < static_cast<int>(sizeof(info))) {
+            if (std::cmp_less(rc, sizeof(info))) {
                 return false;
             }
 
@@ -222,7 +223,7 @@ namespace CoreDeck {
     }
 
     void ProcessStatsSampler::Track(ProcessId pid) {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         auto [it, inserted] = m_Entries.try_emplace(pid);
         if (inserted) {
             it->second.CpuHistory.assign(PROCESS_STATS_HISTORY, 0.0F);
@@ -232,12 +233,12 @@ namespace CoreDeck {
     }
 
     void ProcessStatsSampler::Untrack(ProcessId pid) {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         m_Entries.erase(pid);
     }
 
     ProcessSample ProcessStatsSampler::Latest(ProcessId pid) const {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         if (const auto it = m_Entries.find(pid); it != m_Entries.end()) {
             return it->second.Latest;
         }
@@ -247,7 +248,7 @@ namespace CoreDeck {
 
     void ProcessStatsSampler::CopyCpuHistory(ProcessId pid, std::vector<float> &out) const {
         out.assign(PROCESS_STATS_HISTORY, 0.0F);
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         const auto it = m_Entries.find(pid);
         if (it == m_Entries.end()) {
             return;
@@ -257,7 +258,7 @@ namespace CoreDeck {
 
     void ProcessStatsSampler::CopyRssHistoryMb(ProcessId pid, std::vector<float> &out) const {
         out.assign(PROCESS_STATS_HISTORY, 0.0F);
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         const auto it = m_Entries.find(pid);
         if (it == m_Entries.end()) {
             return;
@@ -266,7 +267,7 @@ namespace CoreDeck {
     }
 
     std::chrono::seconds ProcessStatsSampler::Uptime(ProcessId pid) const {
-        std::scoped_lock lock(m_Mutex);
+        const std::scoped_lock lock(m_Mutex);
         const auto it = m_Entries.find(pid);
         if (it == m_Entries.end()) {
             return std::chrono::seconds(0);
@@ -361,7 +362,7 @@ namespace CoreDeck {
             if (now >= nextTick) {
                 std::vector<ProcessId> pids;
                 {
-                    std::scoped_lock lock(m_Mutex);
+                    const std::scoped_lock lock(m_Mutex);
                     pids.reserve(m_Entries.size());
                     for (const auto &kv: m_Entries) {
                         pids.push_back(kv.first);
@@ -369,8 +370,8 @@ namespace CoreDeck {
                 }
 
                 for (const ProcessId pid: pids) {
-                    std::scoped_lock lock(m_Mutex);
-                    auto it = m_Entries.find(pid);
+                    const std::scoped_lock lock(m_Mutex);
+                    const auto it = m_Entries.find(pid);
                     if (it == m_Entries.end()) {
                         continue;
                     }

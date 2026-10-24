@@ -2,7 +2,7 @@
 
 #include "core/version_check.h"
 
-using namespace CoreDeck::detail;
+using namespace CoreDeck::Core::detail;
 
 TEST_CASE("CompareSemanticVersion reports equality", "[version_check][semver]") {
     REQUIRE(CompareSemanticVersion("1.0.0", "1.0.0") == 0);

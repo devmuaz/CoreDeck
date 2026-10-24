@@ -7,7 +7,7 @@
 #include <cctype>
 #include <string>
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <windows.h>
 #include <tlhelp32.h>
 #include <io.h>
@@ -25,7 +25,7 @@
 extern char **environ; // NOLINT(readability-identifier-naming)
 #endif
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
 #ifdef _WIN32
         std::vector<char> BuildEnvironmentBlock(const EnvVars &extra) {
@@ -128,11 +128,31 @@ namespace CoreDeck {
             return cmd;
         }
 #else
+        // execve and execvp require char *const[]. Keep mutable copies so the
+        // pointers refer to non-const character data.
+        std::vector<char *> MutableArgv(
+            std::vector<std::string> &storage,
+            const std::string &path,
+            const std::vector<std::string> &args
+        ) {
+            storage.clear();
+            storage.reserve(args.size() + 1);
+            storage.push_back(path);
+            storage.insert(storage.end(), args.begin(), args.end());
+            std::vector<char *> argv;
+            argv.reserve(storage.size() + 1);
+            for (std::string &arg: storage) {
+                argv.push_back(arg.data());
+            }
+            argv.push_back(nullptr);
+            return argv;
+        }
+
         std::vector<std::string> BuildMergedEnv(const EnvVars &extra) {
             std::vector<std::string> merged;
             std::vector<bool> used(extra.size(), false);
 
-            for (char **e = environ; e != nullptr && *e != nullptr; ++e) {
+            for (char *const *e = environ; e != nullptr && *e != nullptr; ++e) {
                 std::string entry(*e);
                 const auto eq = entry.find('=');
                 const std::string name = (eq == std::string::npos) ? entry : entry.substr(0, eq);
@@ -290,16 +310,12 @@ namespace CoreDeck {
                 close(outPipe[1]);
                 close(inPipe[0]);
 
-                std::vector<const char *> argv;
-                argv.push_back(path.c_str());
-                for (const auto &a: args) {
-                    argv.push_back(a.c_str());
-                }
-                argv.push_back(nullptr);
+                std::vector<std::string> argvStorage;
+                const std::vector<char *> argv = MutableArgv(argvStorage, path, args);
                 if (useEnv) {
-                    execve(path.c_str(), const_cast<char *const *>(argv.data()), envp.data());
+                    execve(path.c_str(), argv.data(), envp.data());
                 } else {
-                    execvp(path.c_str(), const_cast<char *const *>(argv.data()));
+                    execvp(path.c_str(), argv.data());
                 }
                 _exit(127);
             }
@@ -309,7 +325,7 @@ namespace CoreDeck {
             close(inPipe[0]);
 
             if (!stdinData.empty()) {
-                [[maybe_unused]] ssize_t w = write(inPipe[1], stdinData.data(), stdinData.size());
+                [[maybe_unused]] const ssize_t w = write(inPipe[1], stdinData.data(), stdinData.size());
             }
             close(inPipe[1]);
 
@@ -320,10 +336,10 @@ namespace CoreDeck {
                 partial.append(buf.data(), r);
                 std::size_t pos = 0;
                 while ((pos = partial.find_first_of("\n\r")) != std::string::npos) {
-                    if (auto line = partial.substr(0, pos); !line.empty() && onLine) {
+                    if (const auto line = partial.substr(0, pos); !line.empty() && onLine) {
                         onLine(line);
                     }
-                    auto next = partial.find_first_not_of("\n\r", pos);
+                    const auto next = partial.find_first_not_of("\n\r", pos);
                     partial = (next == std::string::npos) ? std::string() : partial.substr(next);
                 }
             }
@@ -441,14 +457,9 @@ namespace CoreDeck {
             dup2(pipeFd[1], STDERR_FILENO);
             close(pipeFd[1]);
 
-            std::vector<const char *> argv;
-            argv.push_back(path.c_str());
-            for (const auto &arg: args) {
-                argv.push_back(arg.c_str());
-            }
-            argv.push_back(nullptr);
-
-            execvp(path.c_str(), const_cast<char *const *>(argv.data()));
+            std::vector<std::string> argvStorage;
+            const std::vector<char *> argv = MutableArgv(argvStorage, path, args);
+            execvp(path.c_str(), argv.data());
             _exit(1);
         }
 

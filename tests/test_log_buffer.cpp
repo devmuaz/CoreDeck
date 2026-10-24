@@ -2,7 +2,7 @@
 
 #include "core/log_buffer.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 TEST_CASE("LogBuffer starts empty with no new content", "[log_buffer]") {
     LogBuffer buf;
@@ -18,9 +18,9 @@ TEST_CASE("LogBuffer::Push appends lines in order", "[log_buffer][push]") {
 
     const auto lines = buf.GetLines();
     REQUIRE(lines.size() == 3);
-    REQUIRE(lines[0] == "first");
-    REQUIRE(lines[1] == "second");
-    REQUIRE(lines[2] == "third");
+    REQUIRE(lines.at(0) == "first");
+    REQUIRE(lines.at(1) == "second");
+    REQUIRE(lines.at(2) == "third");
 }
 
 TEST_CASE("LogBuffer::Push flips HasNewContent to true", "[log_buffer][new-content]") {
@@ -60,9 +60,9 @@ TEST_CASE("LogBuffer evicts the oldest line when maxLines is exceeded (FIFO)", "
 
     const auto lines = buf.GetLines();
     REQUIRE(lines.size() == 3);
-    REQUIRE(lines[0] == "b");
-    REQUIRE(lines[1] == "c");
-    REQUIRE(lines[2] == "d");
+    REQUIRE(lines.at(0) == "b");
+    REQUIRE(lines.at(1) == "c");
+    REQUIRE(lines.at(2) == "d");
 }
 
 TEST_CASE("LogBuffer eviction holds steady at maxLines across many pushes", "[log_buffer][eviction]") {
@@ -84,5 +84,5 @@ TEST_CASE("LogBuffer with maxLines=1 keeps only the newest line", "[log_buffer][
 
     const auto lines = buf.GetLines();
     REQUIRE(lines.size() == 1);
-    REQUIRE(lines[0] == "new");
+    REQUIRE(lines.at(0) == "new");
 }

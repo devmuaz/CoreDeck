@@ -6,6 +6,7 @@
 #include "core/paths.h"
 
 using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 TEST_CASE("ParseApkVerifyOutput reads scheme lines, signer DN, and SHA-256", "[apk-signer]") {
     const auto report = ParseApkVerifyOutput(

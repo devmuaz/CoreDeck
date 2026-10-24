@@ -11,7 +11,7 @@
 #include "../widgets.h"
 #include "internal.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         ImVec2 PointOnCircle(const ImVec2 &center, const float radius, const float angle) {
             return {center.x + (ImCos(angle) * radius), center.y + (ImSin(angle) * radius)};

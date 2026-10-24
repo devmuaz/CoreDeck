@@ -13,7 +13,7 @@
 #include "paths.h"
 #include "log.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string GetAppSettingsFilePath() {
             return Paths::GetAppConfigPath("settings.json");
@@ -153,7 +153,7 @@ namespace CoreDeck {
                 return false;
             }
 
-            std::filesystem::path fsPath(path);
+            const std::filesystem::path fsPath(path);
             std::error_code ec;
             std::filesystem::create_directories(fsPath.parent_path(), ec);
             if (ec) {

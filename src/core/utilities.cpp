@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <string>
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <windows.h>
 #include <shellapi.h>
 #endif
@@ -17,7 +17,7 @@
 #include "process.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     void OpenUrl(const char *url) {
 #ifdef _WIN32
         ShellExecuteA(nullptr, "open", url, nullptr, nullptr, SW_SHOWNORMAL);

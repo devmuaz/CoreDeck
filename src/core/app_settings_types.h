@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class ThemePreference : uint8_t {
         System = 0,
         Dark = 1,

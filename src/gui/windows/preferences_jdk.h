@@ -9,8 +9,8 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
-    void DrawPreferencesJdkSection(Context &context, char *jdkPathBuffer, size_t bufferSize);
+namespace CoreDeck::Gui {
+    void PreferencesJdkSection(Context &context, char *jdkPathBuffer, size_t bufferSize);
 
     void RequestPreferencesJdkScan();
 

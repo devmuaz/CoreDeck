@@ -7,7 +7,7 @@
 
 #include "../context.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     void CloseApkSigner(Context &context);
 
     void BuildApkSignerWindow(Context &context);

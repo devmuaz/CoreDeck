@@ -11,7 +11,7 @@
 #include "../core/jdk.h"
 #include "../core/utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         bool g_SpinnerFrameRequested = false;
     }
@@ -44,11 +44,11 @@ namespace CoreDeck {
         return !canonicalLeft.empty() && canonicalLeft == canonicalRight;
     }
 
-    std::string JavaRuntimeLabel(const JdkInfo &jdk) {
-        const std::string lower = LowerCopy(jdk.VersionString);
-        const char *vendor = lower.find("openjdk") != std::string::npos ? Tr("OpenJDK") : Tr("Java");
+    std::string JavaRuntimeLabel(const Core::JdkInfo &jdk) {
+        const std::string lower = Core::LowerCopy(jdk.VersionString);
+        const char *vendor = lower.find("openjdk") != std::string::npos ? Core::Tr("OpenJDK") : Core::Tr("Java");
         if (jdk.MajorVersion > 0) {
-            return TrFormat("{0} {1}", vendor, std::to_string(jdk.MajorVersion));
+            return Core::TrFormat("{0} {1}", vendor, std::to_string(jdk.MajorVersion));
         }
         if (!jdk.VersionString.empty()) {
             return jdk.VersionString;

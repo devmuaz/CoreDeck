@@ -8,7 +8,7 @@
 
 #include "../widgets.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         bool CategoryChip(const char *label, const char *fill, const char *accent) {
             StyleColor sc;
@@ -86,7 +86,7 @@ namespace CoreDeck {
 
     DialogResult SimpleDialog(const DialogData &data, const bool hasSpinner) {
         auto result = DialogResult::None;
-        const std::string title = StrConcat(data.Title, "###", data.Id);
+        const std::string title = Core::StrConcat(data.Title, "###", data.Id);
 
         constexpr ImGuiWindowFlags FLAGS =
             ImGuiWindowFlags_NoCollapse |

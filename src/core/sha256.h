@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <string>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     std::string Sha256Hex(const void *data, size_t size);
 
     std::string Sha256Hex(const std::string &data);

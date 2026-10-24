@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 #endif
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace detail {
         std::string NormalizeArchiveEntry(const std::string &entryName) {
             std::string normalized = entryName;

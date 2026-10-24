@@ -2,7 +2,7 @@
 
 #include "core/utilities.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 TEST_CASE("FormatFileSize renders bytes under 1 KB as raw B", "[utilities][format]") {
     REQUIRE(FormatFileSize(0) == "0 B");

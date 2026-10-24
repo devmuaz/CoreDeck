@@ -8,7 +8,7 @@
 #include "http_download.h"
 #include "utilities.h"
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <windows.h>
 #include <winhttp.h>
 #pragma comment(lib, "winhttp.lib")
@@ -16,7 +16,7 @@
 #include <curl/curl.h>
 #endif
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace detail {
         std::optional<ParsedUrl> ParseUrl(const std::string &url) {
             const size_t schemeEnd = url.find("://");

@@ -2,6 +2,7 @@
 // Created by AbdulMuaz Aqeel on 15/04/2026.
 //
 #include <algorithm>
+#include <utility>
 #include "imgui.h"
 
 #include "avd_list.h"
@@ -14,24 +15,23 @@
 #include "../../core/utilities.h"
 #include "../../core/i18n.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         void RebuildFilteredIndices(Context &context) {
             auto &catalog = context.Catalog;
             catalog.FilteredIndices.clear();
 
             // Filter
-            for (int i = 0; i < static_cast<int>(catalog.Avds.size()); i++) {
+            for (int i = 0; std::cmp_less(i, catalog.Avds.size()); i++) {
                 const auto &avd = catalog.Avds.at(i);
-                if (catalog.SearchFilter[0] != '\0') {
-                    if (!ContainsIgnoreCase(avd.DisplayName, catalog.SearchFilter) &&
-                        !ContainsIgnoreCase(avd.Name, catalog.SearchFilter) &&
-                        !ContainsIgnoreCase(avd.Device, catalog.SearchFilter) &&
-                        !ContainsIgnoreCase(avd.ApiLevel, catalog.SearchFilter) &&
-                        !ContainsIgnoreCase(SystemImageKindLabel(avd), catalog.SearchFilter)) {
-                        continue;
-                    }
+                if (catalog.SearchFilter[0] != '\0' && !Core::ContainsIgnoreCase(avd.DisplayName, catalog.SearchFilter) &&
+                    !Core::ContainsIgnoreCase(avd.Name, catalog.SearchFilter) &&
+                    !Core::ContainsIgnoreCase(avd.Device, catalog.SearchFilter) &&
+                    !Core::ContainsIgnoreCase(avd.ApiLevel, catalog.SearchFilter) &&
+                    !Core::ContainsIgnoreCase(SystemImageKindLabel(avd), catalog.SearchFilter)) {
+                    continue;
                 }
+
                 catalog.FilteredIndices.push_back(i);
             }
 
@@ -92,9 +92,9 @@ namespace CoreDeck {
             context.UI.ShowCreateAvdDialog = true;
 
             context.AvdCreationWork.Prefetch.Future = std::async(std::launch::async, [&context] {
-                auto images = ListSystemImages(context.Host.Sdk);
-                auto devices = ListDeviceProfiles(context.Host.Sdk);
-                auto skins = ListSkins(context.Host.Sdk);
+                auto images = Core::ListSystemImages(context.Host.Sdk);
+                auto devices = Core::ListDeviceProfiles(context.Host.Sdk);
+                auto skins = Core::ListSkins(context.Host.Sdk);
                 context.AvdCreationWork.SystemImages = std::move(images);
                 context.AvdCreationWork.DeviceDefinitionsSkipped = devices.SkippedDeviceDefinitions;
                 context.AvdCreationWork.DeviceProfiles = std::move(devices.Profiles);
@@ -113,14 +113,14 @@ namespace CoreDeck {
         }
 
         constexpr ImGuiWindowFlags FLAGS = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-        const std::string windowTitle = TrWindow("Available AVDs (Android Virtual Device)", "AVDs");
+        const std::string windowTitle = Core::TrWindow("Available AVDs (Android Virtual Device)", "AVDs");
         ImGui::Begin(windowTitle.c_str(), nullptr, FLAGS);
 
         if (PrimaryButton(Icons::REFRESH)) {
             RequestAvdListRefresh(context);
         }
         if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("%s", Tr("Refresh the AVD list"));
+            ImGui::SetTooltip("%s", Core::Tr("Refresh the AVD list"));
         }
 
         ImGui::SameLine();
@@ -129,18 +129,18 @@ namespace CoreDeck {
             OpenCreateAvdDialog(context);
         }
         if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("%s", Tr("Create new AVD"));
+            ImGui::SetTooltip("%s", Core::Tr("Create new AVD"));
         }
 
         if (context.Catalog.SelectedAvd >= 0) {
             const auto &avd = context.Catalog.Avds.at(context.Catalog.SelectedAvd);
             const bool isRunning = context.Host.Manager.IsRunning(avd.Name);
-            const auto args = BuildArgs(avd.Name, GetDefaultAvdOptions(context));
+            const auto args = Core::BuildArgs(avd.Name, GetDefaultAvdOptions(context));
 
             ImGui::SameLine();
             if (isRunning) {
                 const bool isStopping = context.Host.Manager.IsStopping(avd.Name);
-                const std::string label = IconWithLabel(Icons::STOP, isStopping ? Tr("Stopping...") : Tr("Stop"));
+                const std::string label = IconWithLabel(Icons::STOP, isStopping ? Core::Tr("Stopping...") : Core::Tr("Stop"));
                 if (NegativeButton(label.c_str(), !isStopping) && !isStopping) {
                     context.Host.Manager.Stop(avd.Name);
                 }
@@ -149,10 +149,10 @@ namespace CoreDeck {
                     context.Host.Manager.Launch(avd.Name, args);
                 }
                 if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip("%s", Tr("Run the selected AVD"));
+                    ImGui::SetTooltip("%s", Core::Tr("Run the selected AVD"));
                 }
                 ImGui::SameLine();
-                if (WarningButton(IconWithLabel(Icons::TERMINAL, Tr("Wipe & Run")).c_str())) {
+                if (WarningButton(IconWithLabel(Icons::TERMINAL, Core::Tr("Wipe & Run")).c_str())) {
                     auto wipeArgs = args;
                     wipeArgs.emplace_back("-wipe-data");
                     context.Host.Manager.Launch(avd.Name, wipeArgs);
@@ -166,7 +166,7 @@ namespace CoreDeck {
                     }
                 }
                 if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip("%s", Tr("Delete currently selected AVD"));
+                    ImGui::SetTooltip("%s", Core::Tr("Delete currently selected AVD"));
                 }
             }
         }
@@ -174,11 +174,11 @@ namespace CoreDeck {
         ImGui::Separator();
 
         if (context.Catalog.Avds.empty()) {
-            const std::string createLabel = IconWithLabel(Icons::PLUS, Tr("Create AVD"));
+            const std::string createLabel = IconWithLabel(Icons::PLUS, Core::Tr("Create AVD"));
             if (NoticeCard(
                     NoticeCardTone::Default,
-                    Tr("No Android Virtual Devices Found"),
-                    Tr("Only Android Virtual Devices (AVDs) with a system image installed in this SDK are listed."),
+                    Core::Tr("No Android Virtual Devices Found"),
+                    Core::Tr("Only Android Virtual Devices (AVDs) with a system image installed in this SDK are listed."),
                     createLabel.c_str()
                 )) {
                 OpenCreateAvdDialog(context);
@@ -189,7 +189,7 @@ namespace CoreDeck {
 
         ImGui::Spacing();
         const char *sortDirIcon = context.Catalog.SortAscending ? Icons::SORT_UP : Icons::SORT_DOWN;
-        const char *sortDirTooltip = context.Catalog.SortAscending ? Tr("Ascending") : Tr("Descending");
+        const char *sortDirTooltip = context.Catalog.SortAscending ? Core::Tr("Ascending") : Core::Tr("Descending");
         if (PrimaryButton(sortDirIcon)) {
             context.Catalog.SortAscending = !context.Catalog.SortAscending;
             PersistAppSettings(context);
@@ -201,7 +201,7 @@ namespace CoreDeck {
         ImGui::SameLine();
 
         int currentSortIdx = static_cast<int>(context.Catalog.SortMode);
-        const char *sortModeLabels[] = {Tr("Name"), Tr("API Level"), Tr("Device")};
+        const char *const sortModeLabels[] = {Core::Tr("Name"), Core::Tr("API Level"), Core::Tr("Device")};
         if (RoundedCombo("##AvdSort", sortModeLabels[currentSortIdx], sortModeLabels, SORT_MODE_COUNT, currentSortIdx, Em(17.0F))) {
             context.Catalog.SortMode = static_cast<AvdSortMode>(currentSortIdx);
             PersistAppSettings(context);
@@ -210,7 +210,7 @@ namespace CoreDeck {
         ImGui::SameLine();
 
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        const auto searchHint = IconWithLabel(Icons::SEARCH, Tr("Search AVDs..."));
+        const auto searchHint = IconWithLabel(Icons::SEARCH, Core::Tr("Search AVDs..."));
         ImGui::InputTextWithHint(
             "##AvdSearch",
             searchHint.c_str(),
@@ -236,7 +236,7 @@ namespace CoreDeck {
         }
 
         if (filtered.empty()) {
-            ImGui::TextDisabled("%s", Tr("No matching AVDs"));
+            ImGui::TextDisabled("%s", Core::Tr("No matching AVDs"));
             ImGui::End();
             return;
         }
@@ -248,9 +248,9 @@ namespace CoreDeck {
             const bool isRunning = context.Host.Manager.IsRunning(avd.Name);
 
             ImGui::PushID(i);
-            const char *avdStatusText = isRunning ? Tr("Running...") : Tr("Ready");
+            const char *avdStatusText = isRunning ? Core::Tr("Running...") : Core::Tr("Ready");
             const ImVec4 avdStatusColor = isRunning ? HexColor(Colors::POSITIVE) : HexColor(Colors::TEXT_MUTED);
-            const std::string avdRightText = StrConcat(SystemImageKindLabel(avd), " - ", avdStatusText);
+            const std::string avdRightText = Core::StrConcat(SystemImageKindLabel(avd), " - ", avdStatusText);
             const auto style = DeviceFormFactorStyle(DeviceCategoryForText(avd.Device));
             if (SelectableItem(avd.DisplayName.c_str(), isSelected, avdRightText.c_str(), avdStatusColor, style.Icon, HexColor(style.Color))) {
                 context.Catalog.SelectedAvd = i;

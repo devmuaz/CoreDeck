@@ -8,7 +8,7 @@
 #include <functional>
 #include <string>
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     struct ExtractOptions {
         // Drops the first path component of every entry (e.g. "cmdline-tools/bin/x" -> "bin/x").
         bool StripTopLevelDir = false;

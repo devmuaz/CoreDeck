@@ -11,7 +11,7 @@
 
 #include "sdk.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     enum class SkinSource : uint8_t {
         Sdk,
         SystemImage,

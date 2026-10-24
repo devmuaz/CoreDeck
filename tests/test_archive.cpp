@@ -10,7 +10,7 @@
 
 #include "core/archive.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 namespace {
     using ZipEntry = std::pair<std::string, std::string>;
@@ -46,7 +46,7 @@ namespace {
 }
 
 TEST_CASE("IsSafeArchiveEntry rejects traversal and absolute paths", "[archive][safety]") {
-    using namespace CoreDeck::detail;
+    using namespace CoreDeck::Core::detail;
 
     REQUIRE(IsSafeArchiveEntry("cmdline-tools/bin/sdkmanager"));
     REQUIRE(IsSafeArchiveEntry("./cmdline-tools/NOTICE.txt"));
@@ -61,10 +61,10 @@ TEST_CASE("IsSafeArchiveEntry rejects traversal and absolute paths", "[archive][
 }
 
 TEST_CASE("StripLeadingComponent drops the first path segment", "[archive][safety]") {
-    using namespace CoreDeck::detail;
+    using namespace CoreDeck::Core::detail;
 
     REQUIRE(StripLeadingComponent("cmdline-tools/bin/sdkmanager") == "bin/sdkmanager");
-    REQUIRE(StripLeadingComponent("cmdline-tools/") == "");
+    REQUIRE(StripLeadingComponent("cmdline-tools/").empty());
     REQUIRE(StripLeadingComponent("cmdline-tools").empty());
 }
 
@@ -136,7 +136,7 @@ TEST_CASE("ExtractZip reports progress and honours cancellation", "[archive][ext
     const bool ok = ExtractZip(
         zipPath.string(),
         dest.string(),
-        ExtractOptions{},
+        ExtractOptions(),
         [&calls](const float progress) {
             ++calls;
             REQUIRE(progress > 0.0F);
@@ -153,7 +153,7 @@ TEST_CASE("ExtractZip reports progress and honours cancellation", "[archive][ext
     std::filesystem::remove_all(scratch);
 }
 
-#if !defined(_WIN32)
+#ifndef _WIN32
 TEST_CASE("ExtractZip marks bin/ entries executable", "[archive][permissions]") {
     const std::filesystem::path scratch = MakeScratchDir("perms");
     const std::filesystem::path zipPath = scratch / "tools.zip";

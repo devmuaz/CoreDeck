@@ -9,7 +9,7 @@
 
 #include "../widgets.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     namespace {
         struct BannerPalette {
             const char *Surface;
@@ -119,7 +119,7 @@ namespace CoreDeck {
             return ImGui::Button(label, size);
         }
 
-        void DrawBannerChrome(const float accentW, const BannerPalette &palette) {
+        void BannerChrome(const float accentW, const BannerPalette &palette) {
             ImDrawList *drawList = ImGui::GetWindowDrawList();
             const ImVec2 pos = ImGui::GetWindowPos();
             const ImVec2 size = ImGui::GetWindowSize();
@@ -140,7 +140,7 @@ namespace CoreDeck {
             return text != nullptr && text[0] != '\0';
         }
 
-        void DrawTaskLine(const char *text, const float width, const float columnX, const ImVec4 &color, const bool center) {
+        void TaskLine(const char *text, const float width, const float columnX, const ImVec4 &color, const bool center) {
             float x = columnX;
             if (center) {
                 const float textW = ImGui::CalcTextSize(text).x;
@@ -194,7 +194,7 @@ namespace CoreDeck {
         ImGui::BeginGroup();
 
         if (hasTitle) {
-            DrawTaskLine(task.Title, width, columnX, HexColor(Colors::TEXT_PRIMARY), center);
+            TaskLine(task.Title, width, columnX, HexColor(Colors::TEXT_PRIMARY), center);
             if (HasText(task.TitleTooltip) && ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
                 ImGui::SetTooltip("%s", task.TitleTooltip);
             }
@@ -203,7 +203,7 @@ namespace CoreDeck {
             if (hasTitle) {
                 ImGui::Spacing();
             }
-            DrawTaskLine(task.Subtitle, width, columnX, HexColor(Colors::TEXT_MUTED), center);
+            TaskLine(task.Subtitle, width, columnX, HexColor(Colors::TEXT_MUTED), center);
         }
         if (hasTitle || hasSubtitle) {
             ImGui::Spacing();
@@ -245,11 +245,59 @@ namespace CoreDeck {
         return cancelPressed;
     }
 
+    namespace {
+        BannerResult BannerButtons(
+            const Banner &banner,
+            const BannerPalette &palette,
+            const bool hasAction,
+            const bool hasDismiss,
+            const bool sideBySide,
+            const ImVec2 origin,
+            const float rowH,
+            const float buttonH,
+            const float textBlockH,
+            const float buttonsW,
+            const float avail,
+            const float actionW,
+            const float dismissW,
+            const ImVec2 tooltipPadding,
+            const float tooltipRounding,
+            const float tooltipBorder
+        ) {
+            const ImGuiStyle &style = ImGui::GetStyle();
+            const float buttonsY = sideBySide
+                                       ? origin.y + ((rowH - buttonH) * 0.5F)
+                                       : origin.y + textBlockH + style.ItemSpacing.y;
+            const float buttonsX = (buttonsW >= avail) ? origin.x : origin.x + avail - buttonsW;
+            ImGui::SetCursorScreenPos(ImVec2(buttonsX, buttonsY));
+
+            BannerResult result = BannerResult::None;
+            if (hasAction && BannerPrimaryButton(banner.ActionLabel, ImVec2(actionW, buttonH), palette)) {
+                result = BannerResult::Action;
+            }
+            if (hasDismiss) {
+                if (hasAction) {
+                    ImGui::SameLine();
+                }
+                if (BannerQuietButton(Icons::TIMES, ImVec2(dismissW, buttonH), palette)) {
+                    result = BannerResult::Dismissed;
+                }
+                if (banner.DismissTooltip != nullptr && banner.DismissTooltip[0] != '\0' && ImGui::IsItemHovered()) {
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, tooltipPadding);
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, tooltipRounding);
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, tooltipBorder);
+                    ImGui::SetTooltip("%s", banner.DismissTooltip);
+                    ImGui::PopStyleVar(3);
+                }
+            }
+            return result;
+        }
+    }
+
     BannerResult ShowBanner(const Banner &banner) {
         if (banner.Id == nullptr || banner.Id[0] == '\0' || banner.Title == nullptr || banner.Title[0] == '\0') {
             return BannerResult::None;
         }
-
         const BannerPalette palette = PaletteFor(banner.Tone);
         const bool hasIcon = banner.Icon != nullptr && banner.Icon[0] != '\0';
         const bool hasSubtitle = banner.Subtitle != nullptr && banner.Subtitle[0] != '\0';
@@ -336,36 +384,31 @@ namespace CoreDeck {
 
         BannerResult result = BannerResult::None;
         if (hasButtons) {
-            const float buttonsY = sideBySide
-                                       ? origin.y + ((rowH - buttonH) * 0.5F)
-                                       : origin.y + textBlockH + style.ItemSpacing.y;
-            const float buttonsX = (buttonsW >= avail) ? origin.x : origin.x + avail - buttonsW;
-            ImGui::SetCursorScreenPos(ImVec2(buttonsX, buttonsY));
-            if (hasAction && BannerPrimaryButton(banner.ActionLabel, ImVec2(actionW, buttonH), palette)) {
-                result = BannerResult::Action;
-            }
-            if (hasDismiss) {
-                if (hasAction) {
-                    ImGui::SameLine();
-                }
-                if (BannerQuietButton(Icons::TIMES, ImVec2(dismissW, buttonH), palette)) {
-                    result = BannerResult::Dismissed;
-                }
-                if (banner.DismissTooltip != nullptr && banner.DismissTooltip[0] != '\0' && ImGui::IsItemHovered()) {
-                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, tooltipPadding);
-                    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, tooltipRounding);
-                    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, tooltipBorder);
-                    ImGui::SetTooltip("%s", banner.DismissTooltip);
-                    ImGui::PopStyleVar(3);
-                }
-            }
+            result = BannerButtons(
+                banner,
+                palette,
+                hasAction,
+                hasDismiss,
+                sideBySide,
+                origin,
+                rowH,
+                buttonH,
+                textBlockH,
+                buttonsW,
+                avail,
+                actionW,
+                dismissW,
+                tooltipPadding,
+                tooltipRounding,
+                tooltipBorder
+            );
         }
 
         const float usedH = sideBySide ? rowH : textBlockH + style.ItemSpacing.y + buttonH;
         ImGui::SetCursorScreenPos(ImVec2(origin.x, origin.y + usedH));
         ImGui::Dummy(ImVec2(avail, 0.0F));
 
-        DrawBannerChrome(accentW, palette);
+        BannerChrome(accentW, palette);
 
         ImGui::End();
         ImGui::PopStyleVar(3);

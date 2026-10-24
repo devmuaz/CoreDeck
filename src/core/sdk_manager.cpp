@@ -9,7 +9,7 @@
 #include "constants.h"
 #include "process.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string TrimProgressText(const std::string &text) {
             const auto start = text.find_first_not_of(" \t");

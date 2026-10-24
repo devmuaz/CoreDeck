@@ -15,7 +15,7 @@
 #include "process.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         std::string TrimCopy(std::string value) {
             while (!value.empty() && (value.back() == '\r' || value.back() == ' ' || value.back() == '\t')) {

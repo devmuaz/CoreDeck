@@ -5,7 +5,7 @@
 
 #include "core/sha256.h"
 
-using namespace CoreDeck;
+using namespace CoreDeck::Core;
 
 TEST_CASE("Sha256Hex matches the NIST test vectors", "[sha256]") {
     REQUIRE(Sha256Hex(std::string("")) == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");

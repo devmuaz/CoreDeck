@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
 #include <sys/stat.h>
@@ -33,7 +33,7 @@
 #include "process.h"
 #include "utilities.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Core {
     namespace {
         constexpr std::array<std::uint8_t, 4> JKS_MAGIC{0xFE, 0xED, 0xFE, 0xED};
         constexpr std::array<std::uint8_t, 4> JCEKS_MAGIC{0xCE, 0xCE, 0xCE, 0xCE};
@@ -265,7 +265,7 @@ namespace CoreDeck {
         };
 
         bool StartsWith(const std::string &line, const std::string &label) {
-            return line.size() >= label.size() && line.compare(0, label.size(), label) == 0;
+            return line.size() >= label.size() && line.starts_with(label);
         }
 
         std::string ValueAfter(const std::string &line, const std::string &label) {
@@ -591,7 +591,7 @@ namespace CoreDeck {
         return 0;
     }
 
-    std::string KeystoreTypeFromMagic(const std::uint8_t *bytes, const std::size_t size) {
+    std::string_view KeystoreTypeFromMagic(const std::uint8_t *bytes, const std::size_t size) {
         if (bytes == nullptr || size == 0) {
             return {};
         }
@@ -614,7 +614,7 @@ namespace CoreDeck {
         }
         std::array<std::uint8_t, 4> bytes{};
         input.read(reinterpret_cast<char *>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
-        return KeystoreTypeFromMagic(bytes.data(), static_cast<std::size_t>(input.gcount()));
+        return std::string(KeystoreTypeFromMagic(bytes.data(), static_cast<std::size_t>(input.gcount())));
     }
 
     std::vector<std::string> ParseKeystoreAliases(const std::string &output) {

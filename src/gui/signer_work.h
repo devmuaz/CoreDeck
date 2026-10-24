@@ -16,7 +16,7 @@
 #include "../core/jar_signer.h"
 #include "../core/keytool.h"
 
-namespace CoreDeck {
+namespace CoreDeck::Gui {
     enum class SignerTask : uint8_t {
         None,
         Verify,
@@ -33,7 +33,7 @@ namespace CoreDeck {
         SignerTask Task = SignerTask::None;
 
         std::future<VerifyT> VerifyFuture;
-        std::future<KeytoolAliasListResult> AliasFuture;
+        std::future<Core::KeytoolAliasListResult> AliasFuture;
         std::future<SignT> SignFuture;
         bool AliasRefreshPending = false;
         bool AliasListScheduled = false;
@@ -55,7 +55,7 @@ namespace CoreDeck {
         VerifyT Verify;
 
         bool HasAliasResult = false;
-        KeytoolAliasListResult AliasResult;
+        Core::KeytoolAliasListResult AliasResult;
         std::vector<std::string> Aliases;
         std::string SelectedAlias;
 
@@ -64,11 +64,11 @@ namespace CoreDeck {
         std::string KeystoreType;
     };
 
-    struct ApkSignerWork : SignerWork<ApkVerifyResult, ApkSignResult> {
+    struct ApkSignerWork : SignerWork<Core::ApkVerifyResult, Core::ApkSignResult> {
         bool Align = true;
     };
 
-    struct JarSignerWork : SignerWork<JarVerifyResult, JarSignResult> {};
+    struct JarSignerWork : SignerWork<Core::JarVerifyResult, Core::JarSignResult> {};
 }
 
 #endif // COREDECK_SIGNER_WORK_H
