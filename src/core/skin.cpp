@@ -8,8 +8,8 @@
 #include <unordered_map>
 
 #include "skin.h"
-#include "i18n.h"
-#include "utilities.h"
+#include "platform/i18n.h"
+#include "platform/utilities.h"
 
 #include <ranges>
 

@@ -7,8 +7,8 @@
 
 #include "version_check.h"
 #include "constants.h"
-#include "http_download.h"
-#include "utilities.h"
+#include "platform/http_download.h"
+#include "platform/utilities.h"
 
 namespace CoreDeck::App {
     namespace {

@@ -10,10 +10,10 @@
 #include <sstream>
 
 #include "system_image.h"
-#include "i18n.h"
-#include "paths.h"
+#include "platform/i18n.h"
+#include "platform/paths.h"
 #include "sdk_manager.h"
-#include "utilities.h"
+#include "platform/utilities.h"
 
 namespace CoreDeck::Core {
     namespace {

@@ -10,9 +10,9 @@
 #include <unordered_map>
 
 #include "avd_manager.h"
-#include "paths.h"
-#include "process.h"
-#include "utilities.h"
+#include "platform/paths.h"
+#include "platform/process.h"
+#include "platform/utilities.h"
 
 namespace CoreDeck::Core {
     namespace {

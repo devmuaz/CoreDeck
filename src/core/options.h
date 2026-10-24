@@ -9,7 +9,7 @@
 #include <vector>
 #include <rfl.hpp>
 
-#include "i18n.h"
+#include "platform/i18n.h"
 
 namespace CoreDeck::Core {
     enum class OptionType : uint8_t {

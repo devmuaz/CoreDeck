@@ -11,10 +11,10 @@
 #include <atomic>
 #include <memory>
 
-#include "log_buffer.h"
+#include "platform/log_buffer.h"
 #include "sdk.h"
-#include "process.h"
-#include "process_stats.h"
+#include "platform/process.h"
+#include "platform/process_stats.h"
 
 namespace CoreDeck::Core {
     struct EmulatorInstance {

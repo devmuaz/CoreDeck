@@ -15,7 +15,7 @@
 #include <miniz.h>
 
 #include "apk_analyzer.h"
-#include "process.h"
+#include "platform/process.h"
 
 namespace CoreDeck::Core {
     namespace {

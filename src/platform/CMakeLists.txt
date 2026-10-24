@@ -11,7 +11,7 @@ add_library(coredeck_platform STATIC
     utilities.cpp
 )
 
-target_include_directories(coredeck_platform PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(coredeck_platform PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_precompile_headers(coredeck_platform PRIVATE ${CMAKE_SOURCE_DIR}/src/pch.h)
 target_link_libraries(coredeck_platform PUBLIC miniz)
 target_compile_definitions(coredeck_platform PUBLIC

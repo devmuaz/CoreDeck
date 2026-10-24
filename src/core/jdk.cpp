@@ -10,8 +10,8 @@
 #include <filesystem>
 #include <unordered_set>
 
-#include "paths.h"
-#include "process.h"
+#include "platform/paths.h"
+#include "platform/process.h"
 
 namespace CoreDeck::Core {
     namespace {

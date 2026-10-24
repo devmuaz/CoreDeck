@@ -12,7 +12,7 @@
 #include <cerrno>
 
 #include "emulator.h"
-#include "process.h"
+#include "platform/process.h"
 #include "emulator_console.h"
 
 #ifdef _WIN32

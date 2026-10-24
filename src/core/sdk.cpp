@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "sdk.h"
-#include "paths.h"
+#include "platform/paths.h"
 
 namespace CoreDeck::Core {
     namespace {

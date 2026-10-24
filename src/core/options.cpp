@@ -7,8 +7,8 @@
 #include <rfl/json.hpp>
 
 #include "options.h"
-#include "i18n.h"
-#include "log.h"
+#include "platform/i18n.h"
+#include "platform/log.h"
 
 namespace CoreDeck::Core {
     namespace {

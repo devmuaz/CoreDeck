@@ -6,12 +6,12 @@
 #include <filesystem>
 
 #include "sdk_bootstrap.h"
-#include "i18n.h"
-#include "archive.h"
-#include "http_download.h"
-#include "paths.h"
-#include "sha256.h"
-#include "utilities.h"
+#include "platform/i18n.h"
+#include "platform/archive.h"
+#include "platform/http_download.h"
+#include "platform/paths.h"
+#include "platform/sha256.h"
+#include "platform/utilities.h"
 
 namespace CoreDeck::Core {
     namespace {
