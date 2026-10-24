@@ -11,7 +11,7 @@
 #include <string_view>
 #include <vector>
 
-#include "jdk.h"
+#include "core/jdk.h"
 
 namespace CoreDeck::Core {
     constexpr int KEYSTORE_PASSWORD_MIN = 6;

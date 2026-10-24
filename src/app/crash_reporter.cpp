@@ -2,15 +2,15 @@
 // Created by AbdulMuaz Aqeel on 27/04/2026.
 //
 
-#include "crash_reporter.h"
+#include "app/crash_reporter.h"
 
 #if defined(COREDECK_SENTRY_DSN) && defined(NDEBUG)
 
 #include <sentry.h>
 #include <string>
 
-#include "paths.h"
-#include "../platform/paths.h"
+#include "app/paths.h"
+#include "platform/paths.h"
 
 namespace CoreDeck::App::CrashReporter {
     namespace {

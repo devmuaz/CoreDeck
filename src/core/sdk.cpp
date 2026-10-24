@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "sdk.h"
+#include "core/sdk.h"
 #include "platform/paths.h"
 
 namespace CoreDeck::Core {

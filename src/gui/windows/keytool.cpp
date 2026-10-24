@@ -18,7 +18,7 @@
 #include "../widgets.h"
 #include "app/file_dialog.h"
 #include "platform/i18n.h"
-#include "../../core/keytool.h"
+#include "core/keytool.h"
 #include "platform/utilities.h"
 
 namespace CoreDeck::Gui {

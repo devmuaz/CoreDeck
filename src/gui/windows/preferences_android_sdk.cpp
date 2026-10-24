@@ -13,10 +13,10 @@
 #include "../application.h"
 #include "../utilities.h"
 #include "../widgets.h"
-#include "../../core/jdk.h"
+#include "core/jdk.h"
 #include "platform/paths.h"
 #include "app/paths.h"
-#include "../../core/sdk.h"
+#include "core/sdk.h"
 #include "platform/i18n.h"
 #include "app/app_settings.h"
 

@@ -5,8 +5,8 @@
 #include <algorithm>
 #include <rfl/json.hpp>
 
-#include "version_check.h"
-#include "constants.h"
+#include "app/version_check.h"
+#include "app/constants.h"
 #include "platform/http_download.h"
 #include "platform/utilities.h"
 

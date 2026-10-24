@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "platform/env.h"
-#include "sdk.h"
+#include "core/sdk.h"
 
 namespace CoreDeck::Core {
     constexpr int JDK_MINIMUM_MAJOR = 17;

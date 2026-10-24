@@ -6,7 +6,7 @@
 
 #include "tinyfiledialogs.h"
 
-#include "file_dialog.h"
+#include "app/file_dialog.h"
 
 namespace CoreDeck::App::FileDialog {
     namespace {

@@ -28,7 +28,7 @@
 #include <unistd.h>
 #endif
 
-#include "keytool.h"
+#include "core/keytool.h"
 #include "platform/paths.h"
 #include "platform/process.h"
 #include "platform/utilities.h"

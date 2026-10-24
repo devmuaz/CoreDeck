@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <filesystem>
 
-#include "sdk_bootstrap.h"
+#include "core/sdk_bootstrap.h"
 #include "platform/i18n.h"
 #include "platform/archive.h"
 #include "platform/http_download.h"

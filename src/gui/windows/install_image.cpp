@@ -12,7 +12,7 @@
 #include "../widgets.h"
 #include "../theme.h"
 #include "core/sdk.h"
-#include "../../core/sdk_manager.h"
+#include "core/sdk_manager.h"
 #include "platform/utilities.h"
 #include "platform/i18n.h"
 

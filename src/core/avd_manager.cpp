@@ -9,7 +9,7 @@
 #include <sstream>
 #include <unordered_map>
 
-#include "avd_manager.h"
+#include "core/avd_manager.h"
 #include "platform/paths.h"
 #include "platform/process.h"
 #include "platform/utilities.h"

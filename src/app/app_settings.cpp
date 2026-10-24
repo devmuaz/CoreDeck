@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-#include "app_settings.h"
-#include "paths.h"
+#include "app/app_settings.h"
+#include "app/paths.h"
 #include "platform/log.h"
 
 namespace CoreDeck::App {

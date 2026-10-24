@@ -6,7 +6,7 @@
 #include <fstream>
 #include <rfl/json.hpp>
 
-#include "options.h"
+#include "core/options.h"
 #include "platform/i18n.h"
 #include "platform/log.h"
 

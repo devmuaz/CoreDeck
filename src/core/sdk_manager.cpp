@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <sstream>
 
-#include "sdk_manager.h"
+#include "core/sdk_manager.h"
 #include "platform/process.h"
 
 namespace CoreDeck::Core {

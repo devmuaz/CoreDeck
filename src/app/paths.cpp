@@ -2,13 +2,13 @@
 // Created by AbdulMuaz Aqeel on 09/04/2026.
 //
 
-#include "paths.h"
+#include "app/paths.h"
 
 #include <filesystem>
 
-#include "../platform/log.h"
-#include "../platform/paths.h"
-#include "constants.h"
+#include "platform/log.h"
+#include "platform/paths.h"
+#include "app/constants.h"
 
 namespace CoreDeck::App {
     std::string GetAppConfigPath(const std::string &subPath) {

@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
-#include "../core/apk_signer.h"
-#include "../core/jar_signer.h"
-#include "../core/keytool.h"
+#include "core/apk_signer.h"
+#include "core/jar_signer.h"
+#include "core/keytool.h"
 
 namespace CoreDeck::Gui {
     enum class SignerTask : uint8_t {

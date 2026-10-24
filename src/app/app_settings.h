@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "app_settings_types.h"
+#include "app/app_settings_types.h"
 
 namespace CoreDeck::App {
     AppSettings LoadAppSettings();

@@ -21,8 +21,8 @@
 #include <unistd.h>
 #endif
 
-#include "apk_signer.h"
-#include "keytool.h"
+#include "core/apk_signer.h"
+#include "core/keytool.h"
 #include "platform/paths.h"
 #include "platform/process.h"
 #include "platform/utilities.h"

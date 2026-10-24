@@ -8,7 +8,7 @@
 #include <filesystem>
 
 #include "platform/i18n.h"
-#include "../core/jdk.h"
+#include "core/jdk.h"
 #include "platform/utilities.h"
 
 namespace CoreDeck::Gui {

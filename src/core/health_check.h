@@ -13,9 +13,9 @@
 #include <string>
 #include <vector>
 
-#include "jdk.h"
-#include "sdk.h"
-#include "sdk_manager.h"
+#include "core/jdk.h"
+#include "core/sdk.h"
+#include "core/sdk_manager.h"
 
 namespace CoreDeck::Core {
     enum class HealthStatus : uint8_t {

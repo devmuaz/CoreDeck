@@ -7,7 +7,7 @@
 #include <utility>
 #include "../application.h"
 #include "../widgets.h"
-#include "../../core/avd_manager.h"
+#include "core/avd_manager.h"
 #include "platform/i18n.h"
 
 namespace CoreDeck::Gui {

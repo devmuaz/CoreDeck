@@ -11,9 +11,9 @@
 #include <chrono>
 #include <cerrno>
 
-#include "emulator.h"
+#include "core/emulator.h"
 #include "platform/process.h"
-#include "emulator_console.h"
+#include "core/emulator_console.h"
 
 #ifdef _WIN32
 #include <io.h>

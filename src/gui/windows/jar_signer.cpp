@@ -19,8 +19,8 @@
 #include "../widgets.h"
 #include "app/file_dialog.h"
 #include "platform/i18n.h"
-#include "../../core/jar_signer.h"
-#include "../../core/keytool.h"
+#include "core/jar_signer.h"
+#include "core/keytool.h"
 #include "platform/paths.h"
 #include "app/paths.h"
 

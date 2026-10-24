@@ -6,7 +6,7 @@ add_library(coredeck_app STATIC
     version_check.cpp
 )
 
-target_include_directories(coredeck_app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(coredeck_app PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_precompile_headers(coredeck_app PRIVATE ${CMAKE_SOURCE_DIR}/src/pch.h)
 target_link_libraries(coredeck_app PUBLIC coredeck_platform reflectcpp tinyfiledialogs)
 

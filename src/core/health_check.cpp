@@ -6,10 +6,10 @@
 #include <sstream>
 #include <utility>
 
-#include "health_check.h"
+#include "core/health_check.h"
 #include "platform/i18n.h"
 #include "platform/paths.h"
-#include "system_image.h"
+#include "core/system_image.h"
 #include "platform/utilities.h"
 
 namespace CoreDeck::Core {

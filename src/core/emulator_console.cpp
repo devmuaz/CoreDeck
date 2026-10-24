@@ -1,4 +1,4 @@
-#include "emulator_console.h"
+#include "core/emulator_console.h"
 
 #include "platform/env.h"
 

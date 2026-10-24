@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
-#include "jdk.h"
-#include "sdk.h"
-#include "sdk_manager.h"
+#include "core/jdk.h"
+#include "core/sdk.h"
+#include "core/sdk_manager.h"
 
 namespace CoreDeck::Core {
     constexpr const char *ENV_COREDECK_CMDLINE_TOOLS_URL = "COREDECK_CMDLINE_TOOLS_URL";

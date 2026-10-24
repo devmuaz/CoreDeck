@@ -16,6 +16,6 @@ add_library(coredeck_core STATIC
     system_image.cpp
 )
 
-target_include_directories(coredeck_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(coredeck_core PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_precompile_headers(coredeck_core PRIVATE ${CMAKE_SOURCE_DIR}/src/pch.h)
 target_link_libraries(coredeck_core PUBLIC coredeck_platform reflectcpp)

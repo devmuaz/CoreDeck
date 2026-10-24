@@ -10,8 +10,8 @@
 #include "health_check.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../../core/jdk.h"
-#include "../../core/sdk_manager.h"
+#include "core/jdk.h"
+#include "core/sdk_manager.h"
 #include "platform/i18n.h"
 
 namespace CoreDeck::Gui {

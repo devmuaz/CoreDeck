@@ -24,7 +24,7 @@
 #include "onboarding.h"
 #include "../widgets.h"
 #include "../theme.h"
-#include "../../core/apk_analyzer.h"
+#include "core/apk_analyzer.h"
 
 #include "app/app_settings.h"
 #include "app/file_dialog.h"

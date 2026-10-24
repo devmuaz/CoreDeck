@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <unordered_map>
 
-#include "skin.h"
+#include "core/skin.h"
 #include "platform/i18n.h"
 #include "platform/utilities.h"
 

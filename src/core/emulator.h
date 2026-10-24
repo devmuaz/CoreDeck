@@ -12,7 +12,7 @@
 #include <memory>
 
 #include "platform/log_buffer.h"
-#include "sdk.h"
+#include "core/sdk.h"
 #include "platform/process.h"
 #include "platform/process_stats.h"
 

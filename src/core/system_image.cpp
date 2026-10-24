@@ -9,10 +9,10 @@
 #include <optional>
 #include <sstream>
 
-#include "system_image.h"
+#include "core/system_image.h"
 #include "platform/i18n.h"
 #include "platform/paths.h"
-#include "sdk_manager.h"
+#include "core/sdk_manager.h"
 #include "platform/utilities.h"
 
 namespace CoreDeck::Core {

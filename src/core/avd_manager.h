@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "sdk.h"
+#include "core/sdk.h"
 
 namespace CoreDeck::Core {
     struct DeviceProfile {

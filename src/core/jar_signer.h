@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "jdk.h"
+#include "core/jdk.h"
 
 namespace CoreDeck::Core {
     struct JarVerifyReport {

@@ -9,8 +9,8 @@
 #include <utility>
 #include <vector>
 
-#include "jar_signer.h"
-#include "keytool.h"
+#include "core/jar_signer.h"
+#include "core/keytool.h"
 #include "platform/paths.h"
 #include "platform/process.h"
 #include "platform/utilities.h"
