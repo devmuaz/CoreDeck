@@ -14,7 +14,7 @@ if(COREDECK_SENTRY_ENABLED)
     target_compile_definitions(coredeck_app PUBLIC
         $<$<CONFIG:Release>:COREDECK_SENTRY_DSN="${COREDECK_SENTRY_DSN}">
     )
-    target_link_libraries(coredeck_app PUBLIC $<$CONFIG:Release>:sentry>)
+    target_link_libraries(coredeck_app PUBLIC $<$<CONFIG:Release>:sentry>)
 endif()
 
 if(WIN32)
