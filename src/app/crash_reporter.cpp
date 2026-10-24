@@ -10,6 +10,7 @@
 #include <string>
 
 #include "paths.h"
+#include "../platform/paths.h"
 
 namespace CoreDeck::App::CrashReporter {
     namespace {
