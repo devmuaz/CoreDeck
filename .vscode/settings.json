@@ -1,0 +1,33 @@
+{
+  "explorer.sortOrderLexicographicOptions": "upper",
+  "clangd.arguments": [
+    "--compile-commands-dir=${workspaceFolder}/build-debug",
+    "--header-insertion=never"
+  ],
+  "files.associations": {
+    "*.h": "cpp"
+  },
+  "[cpp]": {
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
+  },
+
+  "files.watcherExclude": {
+    "**/build/**": true,
+    "**/build-debug/**": true,
+    "**/build-release/**": true,
+    "**/cmake-build-*/**": true,
+    "**/extern/**": true,
+    "**/.cache/**": true
+  },
+  "files.exclude": {
+    "build": true,
+    "build-debug": true,
+    "build-release": true
+  },
+  "search.exclude": {
+    "**/extern": true
+  }
+}
