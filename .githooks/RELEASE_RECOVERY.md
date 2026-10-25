@@ -3,7 +3,7 @@
 The `pre-push` hook in this directory refuses to push a version tag
 (e.g. `v0.7.0`, `v0.7.0-beta.5`) unless `CHANGELOG.md` has a non-empty
 section for it. This is the same matcher used by
-`.github/workflows/release.yml`, so passing the hook means the release
+`.github/scripts/release-extract-changelog.sh`, so passing the hook means the release
 notes will populate correctly.
 
 If you've already created the tag locally and the push was blocked,

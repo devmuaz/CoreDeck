@@ -1,0 +1,83 @@
+name: Configure and build
+description: Checkout CoreDeck, install dependencies, configure CMake, and build.
+
+inputs:
+  build-type:
+    description: CMake build type and --config value
+    required: true
+    default: Release
+  build-tests:
+    description: Configure with -DCOREDECK_BUILD_TESTS=ON
+    required: false
+    default: 'false'
+  version-ref:
+    description: Tag or ref passed as -DCOREDECK_VERSION_OVERRIDE. Empty skips the flag.
+    required: false
+    default: ''
+  osx-architectures:
+    description: Explicit CMAKE_OSX_ARCHITECTURES value. Empty skips the flag unless detect-osx-arch is true.
+    required: false
+    default: ''
+  detect-osx-arch:
+    description: On macOS, set CMAKE_OSX_ARCHITECTURES from uname -m when osx-architectures is empty.
+    required: false
+    default: 'false'
+  use-ccache:
+    description: Restore and save a ccache on non-Windows runners.
+    required: false
+    default: 'false'
+  ccache-key:
+    description: Cache key used when use-ccache is true.
+    required: false
+    default: ''
+  sentry-dsn:
+    description: Value of COREDECK_SENTRY_DSN for the CMake configure step.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Set up CMake
+      if: runner.os != 'Windows'
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.23.0'
+
+    - name: Setup ccache
+      if: inputs.use-ccache == 'true' && runner.os != 'Windows'
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ inputs.ccache-key }}
+
+    - name: Install host dependencies
+      shell: bash
+      run: bash ./.github/scripts/shared-install-host-deps.sh
+
+    - name: Configure CMake
+      shell: bash
+      env:
+        COREDECK_SENTRY_DSN: ${{ inputs.sentry-dsn }}
+        COREDECK_VERSION_REF: ${{ inputs.version-ref }}
+        BUILD_TYPE: ${{ inputs.build-type }}
+        BUILD_TESTS: ${{ inputs.build-tests }}
+        OSX_ARCH: ${{ inputs.osx-architectures }}
+        DETECT_OSX_ARCH: ${{ inputs.detect-osx-arch }}
+        USE_CCACHE: ${{ inputs.use-ccache }}
+      run: bash ./.github/scripts/shared-configure-cmake.sh
+
+    - name: Build
+      if: runner.os != 'Windows'
+      shell: bash
+      run: cmake --build build --config "${{ inputs.build-type }}" --parallel
+
+    - name: Build
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: cmake --build build --config "${{ inputs.build-type }}" --parallel

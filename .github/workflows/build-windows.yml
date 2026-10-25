@@ -1,0 +1,43 @@
+name: Build and Test Windows
+
+on:
+  workflow_call:
+    secrets:
+      SENTRY_DSN:
+        required: false
+
+jobs:
+  build:
+    name: Build and Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        os: [windows-latest]
+        build_type: [Release]
+
+    steps:
+      - name: Configure and build
+        uses: ./.github/actions/cmake-build
+        with:
+          build-type: ${{ matrix.build_type }}
+          build-tests: 'true'
+          sentry-dsn: ${{ secrets.SENTRY_DSN }}
+
+      - name: Run tests
+        run: ctest --test-dir build --build-config ${{ matrix.build_type }} --output-on-failure
+
+      - name: Verify Windows install includes libintl
+        shell: pwsh
+        env:
+          BUILD_TYPE: ${{ matrix.build_type }}
+        run: ./.github/scripts/windows-verify-installation.ps1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: coredeck-${{ matrix.os }}-${{ matrix.build_type }}
+          path: |
+            build/CoreDeck*
+            build/assets/

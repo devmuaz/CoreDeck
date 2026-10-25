@@ -1,0 +1,67 @@
+name: Release macOS
+
+on:
+  workflow_call:
+    secrets:
+      SENTRY_DSN:
+        required: false
+      APPLE_CERTIFICATE_BASE64:
+        required: false
+      APPLE_CERTIFICATE_PASSWORD:
+        required: false
+      APPLE_ID:
+        required: false
+      APPLE_PASSWORD:
+        required: false
+      APPLE_TEAM_ID:
+        required: false
+
+jobs:
+  build:
+    name: ${{ matrix.artifact_name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            artifact_name: coredeck-darwin-arm64
+            asset_name: coredeck-darwin-arm64.dmg
+            cmake_osx_architectures: arm64
+          - os: macos-15-intel
+            artifact_name: coredeck-darwin-x86-64
+            asset_name: coredeck-darwin-x86-64.dmg
+            cmake_osx_architectures: x86_64
+
+    steps:
+      - name: Configure and build
+        uses: ./.github/actions/cmake-build
+        with:
+          build-type: Release
+          version-ref: ${{ github.ref_name }}
+          osx-architectures: ${{ matrix.cmake_osx_architectures }}
+          use-ccache: 'true'
+          ccache-key: ${{ matrix.os }}-${{ matrix.artifact_name }}
+          sentry-dsn: ${{ secrets.SENTRY_DSN }}
+
+      - name: Setup Apple Developer Signing (macOS)
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: bash ./.github/scripts/macos-signing-setup.sh
+
+      - name: Package and Sign (macOS)
+        env:
+          EXPECTED_ARCH: ${{ matrix.cmake_osx_architectures }}
+          ASSET_NAME: ${{ matrix.asset_name }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: bash ./.github/scripts/macos-packaging.sh
+
+      - name: Upload artifacts (macOS)
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release/${{ matrix.asset_name }}

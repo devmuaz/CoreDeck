@@ -1,0 +1,45 @@
+name: Release Linux
+
+on:
+  workflow_call:
+    secrets:
+      SENTRY_DSN:
+        required: false
+
+jobs:
+  build:
+    name: ${{ matrix.artifact_name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: coredeck-linux-x86-64
+            asset_name: coredeck-linux-x86-64.tar.gz
+          - os: ubuntu-24.04-arm
+            artifact_name: coredeck-linux-arm64
+            asset_name: coredeck-linux-arm64.tar.gz
+
+    steps:
+      - name: Configure and build
+        uses: ./.github/actions/cmake-build
+        with:
+          build-type: Release
+          version-ref: ${{ github.ref_name }}
+          use-ccache: 'true'
+          ccache-key: ${{ matrix.os }}-${{ matrix.artifact_name }}
+          sentry-dsn: ${{ secrets.SENTRY_DSN }}
+
+      - name: Package artifacts (Linux)
+        env:
+          ARTIFACT_NAME: ${{ matrix.artifact_name }}
+          ASSET_NAME: ${{ matrix.asset_name }}
+        run: bash ./.github/scripts/linux-packaging.sh
+
+      - name: Upload artifacts (Linux)
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release/${{ matrix.asset_name }}

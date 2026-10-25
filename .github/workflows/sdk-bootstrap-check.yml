@@ -30,29 +30,16 @@ jobs:
         with:
           cmake-version: '3.23.0'
 
-      - name: Install dependencies (Ubuntu)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends build-essential gettext libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
-
-      - name: Install gettext (macOS)
-        if: runner.os == 'macOS'
-        run: brew install gettext
-
-      - name: Install gettext (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./.github/scripts/install-windows-gettext.ps1
+      - name: Install host dependencies
+        shell: bash
+        run: bash ./.github/scripts/shared-install-host-deps.sh
 
       - name: Configure CMake
-        run: |
-          cmake_args=(-B build -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON)
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            cmake_args+=(-DCMAKE_PREFIX_PATH="$COREDECK_GETTEXT_ROOT")
-          fi
-          cmake "${cmake_args[@]}"
         shell: bash
+        env:
+          BUILD_TYPE: Release
+          BUILD_TESTS: 'true'
+        run: bash ./.github/scripts/shared-configure-cmake.sh
 
       - name: Build tests
         run: cmake --build build --config Release --target coredeck_tests --parallel

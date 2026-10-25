@@ -1,0 +1,70 @@
+name: Release Publish
+
+on:
+  workflow_call:
+    secrets:
+      TAP_GITHUB_TOKEN:
+        required: false
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          github-token: ${{ github.token }}
+          run-id: ${{ github.run_id }}
+
+      - name: Prepare release notes
+        id: release
+        run: bash ./.github/scripts/release-prepare-notes.sh
+
+      - name: Generate SHA256 checksums
+        run: bash ./.github/scripts/release-checksum-artifacts.sh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.release.outputs.version }}
+          name: CoreDeck ${{ steps.release.outputs.version }}
+          body: ${{ steps.release.outputs.body }}
+          files: |
+            artifacts/**/coredeck-*.msi
+            artifacts/**/coredeck-*.zip
+            artifacts/**/coredeck-*.tar.gz
+            artifacts/**/coredeck-*.dmg
+            artifacts/**/*.sha256
+          draft: false
+          prerelease: ${{ contains(github.ref, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read release checksums
+        id: checksums
+        run: bash ./.github/scripts/release-read-checksums.sh
+
+      - name: Trigger Homebrew Tap Update
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          repository: devmuaz/homebrew-tap
+          event-type: update-homebrew
+          client-payload: |
+            {
+              "version": "${{ steps.release.outputs.version }}",
+              "sha256_darwin_arm64": "${{ steps.checksums.outputs.sha256_darwin_arm64 }}",
+              "sha256_darwin_x86_64": "${{ steps.checksums.outputs.sha256_darwin_x86_64 }}",
+              "sha256_linux_arm64": "${{ steps.checksums.outputs.sha256_linux_arm64 }}",
+              "sha256_linux_x86_64": "${{ steps.checksums.outputs.sha256_linux_x86_64 }}"
+            }

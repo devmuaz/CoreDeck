@@ -3,7 +3,7 @@
 # pre-push hook: ensure CHANGELOG.md has a non-empty section for every
 # version tag being pushed.
 #
-# The release workflow (.github/workflows/release.yml) extracts the
+# The publish workflow (.github/scripts/release-extract-changelog.sh) extracts the
 # "What's New" section by scanning CHANGELOG.md for a heading shaped
 # like:
 #
@@ -36,16 +36,12 @@ yellow(){ printf '\033[33m%s\033[0m\n' "$*" >&2; }
 bold()  { printf '\033[1m%s\033[0m\n'  "$*" >&2; }
 
 # Return 0 if CHANGELOG.md has a non-empty section for "$1" (e.g. v0.7.0-beta.5).
-# Mirrors the awk in release.yml so this hook agrees with the workflow.
+# Uses the same extractor as the publish workflow.
 has_changelog_entry() {
   local ver="$1"
   [ -f "$changelog" ] || return 1
 
-  awk -v ver="$ver" '
-    $0 ~ "^## \\["ver"\\]" { found=1; next }
-    found && /^## \[/      { exit }
-    found                  { print }
-  ' "$changelog" | grep -q '[^[:space:]]'
+  GITHUB_OUTPUT= "$repo_root/.github/scripts/release-extract-changelog.sh" "$ver" "$changelog" | grep -q '[^[:space:]]'
 }
 
 missing=()
