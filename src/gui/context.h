@@ -148,6 +148,7 @@ namespace CoreDeck::Gui {
             bool ConfirmBeforeDeleteAvd = true;
             bool CrashReportingEnabled = true;
             bool CheckForUpdatesOnLaunch = true;
+            bool IncludeBetaReleases = false;
             App::ThemePreference Theme = App::ThemePreference::System;
             std::string Language;
         } Prefs;

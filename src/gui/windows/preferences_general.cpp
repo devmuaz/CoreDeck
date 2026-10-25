@@ -155,5 +155,16 @@ namespace CoreDeck::Gui {
             )) {
             PersistAppSettings(context);
         }
+
+        ImGui::Dummy(ImVec2(0, 4));
+
+        if (SubtitledCheckbox(
+                "IncludeBetaReleases",
+                &context.Prefs.IncludeBetaReleases,
+                Platform::Tr("Include beta releases"),
+                Platform::Tr("Also look for newer beta releases when checking for updates.")
+            )) {
+            PersistAppSettings(context);
+        }
     }
 }

@@ -24,6 +24,7 @@ namespace CoreDeck::App {
         bool ConfirmBeforeDeleteAvd = true;
         bool CrashReportingEnabled = true;
         bool CheckForUpdatesOnLaunch = true;
+        bool IncludeBetaReleases = false;
         bool ShowAvdListPanel = true;
         bool ShowOptionsPanel = true;
         bool ShowDetailsPanel = true;

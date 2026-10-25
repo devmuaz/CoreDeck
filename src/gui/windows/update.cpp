@@ -111,7 +111,13 @@ namespace CoreDeck::Gui {
             const float half = EqualButtonWidth(2);
 
             if (PositiveButton(Platform::Tr("Download"), true, ImVec2(half, 0))) {
-                Platform::OpenUrl(App::WEBSITE_URL);
+                const std::string &latest = context.Updates.LatestVersion;
+                if (latest.find('-') != std::string::npos) {
+                    const std::string releaseUrl = Platform::StrConcat(App::GITHUB_URL, "/releases/tag/", latest);
+                    Platform::OpenUrl(releaseUrl.c_str());
+                } else {
+                    Platform::OpenUrl(App::WEBSITE_URL);
+                }
                 context.Updates.ShowNewVersionModal = false;
                 ImGui::CloseCurrentPopup();
             }

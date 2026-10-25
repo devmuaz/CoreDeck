@@ -17,6 +17,12 @@ namespace CoreDeck::App {
             std::optional<std::string> body; // NOLINT(readability-identifier-naming)
         };
 
+        struct GitHubRelease {
+            std::string tag_name; // NOLINT(readability-identifier-naming)
+            std::optional<std::string> body; // NOLINT(readability-identifier-naming)
+            bool draft = false; // NOLINT(readability-identifier-naming)
+        };
+
         void TrimInPlace(std::string &s) {
             while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) {
                 s.erase(s.begin());
@@ -228,25 +234,67 @@ namespace CoreDeck::App {
         int CompareSemanticVersion(const std::string &newVersion, const std::string &currentVersion) {
             return CompareParsedVersion(ParseSemanticVersion(newVersion), ParseSemanticVersion(currentVersion));
         }
+
+        std::optional<RemoteRelease> SelectNewestRelease(const std::string &body) {
+            try {
+                const auto parsed = rfl::json::read<std::vector<GitHubRelease>, rfl::DefaultIfMissing>(body);
+                if (!parsed) {
+                    return std::nullopt;
+                }
+
+                std::optional<RemoteRelease> newest;
+                for (const GitHubRelease &release: parsed.value()) {
+                    if (release.draft || release.tag_name.empty()) {
+                        continue;
+                    }
+                    if (newest && CompareSemanticVersion(release.tag_name, newest->Version) <= 0) {
+                        continue;
+                    }
+
+                    RemoteRelease selected;
+                    selected.Version = release.tag_name;
+                    selected.Notes = ExtractWhatsNewSection(release.body.value_or(""));
+                    TrimInPlace(selected.Notes);
+                    newest = std::move(selected);
+                }
+                return newest;
+            } catch (...) {
+                return std::nullopt;
+            }
+        }
     }
 
-    std::optional<RemoteRelease> QueryRemoteNewerVersion() {
+    std::optional<RemoteRelease> QueryRemoteNewerVersion(const bool includeBetaReleases) {
         const std::string userAgent = Platform::StrConcat(USER_AGENT_PREFIX, COREDECK_VERSION);
-        auto fetched = Platform::HttpGetString(GITHUB_LATEST_RELEASE_URL, userAgent, "application/vnd.github+json");
-        if (!fetched) {
-            return std::nullopt;
-        }
-        std::string body = std::move(fetched.value());
-        TrimInPlace(body);
-        if (body.empty()) {
-            return std::nullopt;
+        constexpr const char *ACCEPT = "application/vnd.github+json";
+
+        std::optional<RemoteRelease> remote;
+        if (includeBetaReleases) {
+            if (auto fetched = Platform::HttpGetString(GITHUB_RELEASES_URL, userAgent, ACCEPT)) {
+                std::string body = std::move(fetched.value());
+                TrimInPlace(body);
+                if (!body.empty()) {
+                    remote = detail::SelectNewestRelease(body);
+                }
+            }
         }
 
-        auto remote = detail::ParseLatestRelease(body);
+        if (!remote) {
+            auto fetched = Platform::HttpGetString(GITHUB_LATEST_RELEASE_URL, userAgent, ACCEPT);
+            if (!fetched) {
+                return std::nullopt;
+            }
+            std::string body = std::move(fetched.value());
+            TrimInPlace(body);
+            if (body.empty()) {
+                return std::nullopt;
+            }
+            remote = detail::ParseLatestRelease(body);
+        }
+
         if (!remote) {
             return std::nullopt;
         }
-
         if (detail::CompareSemanticVersion(remote.value().Version, COREDECK_VERSION) <= 0) {
             return std::nullopt;
         }

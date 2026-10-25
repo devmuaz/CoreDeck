@@ -20,7 +20,9 @@
 
 #include <atomic>
 #include <chrono>
+#ifndef __APPLE__
 #include <cmath>
+#endif
 #include <cstdio>
 #include <filesystem>
 #include <utility>
@@ -154,12 +156,12 @@ namespace CoreDeck::Gui {
             m_Context.Host.Sdk.ToolEnv = toolEnv;
         } else {
             if (m_Context.Host.Sdk.SdkPath.empty()) {
-            const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
-            m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
-            m_Context.Host.Sdk.ToolEnv = toolEnv;
-        } else {
-            Core::RefreshAndroidSdk(m_Context.Host.Sdk);
-        }
+                const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
+                m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+                m_Context.Host.Sdk.ToolEnv = toolEnv;
+            } else {
+                Core::RefreshAndroidSdk(m_Context.Host.Sdk);
+            }
         }
 
 #ifdef NDEBUG
@@ -538,9 +540,10 @@ namespace CoreDeck::Gui {
 
         if (start) {
             m_Context.Updates.UpdateCheckInFlight = true;
-            m_UpdateCheckFuture = std::async(std::launch::async, []() -> std::optional<App::RemoteRelease> {
+            const bool includeBetaReleases = m_Context.Prefs.IncludeBetaReleases;
+            m_UpdateCheckFuture = std::async(std::launch::async, [includeBetaReleases]() -> std::optional<App::RemoteRelease> {
                 try {
-                    return App::QueryRemoteNewerVersion();
+                    return App::QueryRemoteNewerVersion(includeBetaReleases);
                 } catch (...) {
                     return std::nullopt;
                 }
@@ -555,6 +558,7 @@ namespace CoreDeck::Gui {
         s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
         s.CrashReportingEnabled = context.Prefs.CrashReportingEnabled;
         s.CheckForUpdatesOnLaunch = context.Prefs.CheckForUpdatesOnLaunch;
+        s.IncludeBetaReleases = context.Prefs.IncludeBetaReleases;
         s.ShowAvdListPanel = context.UI.ShowAvdListPanel;
         s.ShowOptionsPanel = context.UI.ShowOptionsPanel;
         s.ShowDetailsPanel = context.UI.ShowDetailsPanel;
@@ -571,6 +575,7 @@ namespace CoreDeck::Gui {
         context.Prefs.ConfirmBeforeDeleteAvd = settings.ConfirmBeforeDeleteAvd;
         context.Prefs.CrashReportingEnabled = settings.CrashReportingEnabled;
         context.Prefs.CheckForUpdatesOnLaunch = settings.CheckForUpdatesOnLaunch;
+        context.Prefs.IncludeBetaReleases = settings.IncludeBetaReleases;
         context.UI.ShowAvdListPanel = settings.ShowAvdListPanel;
         context.UI.ShowOptionsPanel = settings.ShowOptionsPanel;
         context.UI.ShowDetailsPanel = settings.ShowDetailsPanel;

@@ -1,19 +1,27 @@
 # Version Check
 
 How CoreDeck decides that a newer release exists, and which tag shapes that decision understands.
-The comparison lives in `CompareSemanticVersion` (`src/core/version_check.cpp`). Tests are in `tests/test_version_check.cpp`.
+The comparison lives in `CompareSemanticVersion` (`src/app/version_check.cpp`). Tests are in `tests/test_version_check.cpp`.
 
 ## What the running app does
 
-On startup, and again from **Check for Updates...**, the app calls `QueryRemoteNewerVersion`. That requests GitHub's latest release:
+On startup, when **Check for updates on launch** is enabled, and again from **Check for Updates...**, the app calls `QueryRemoteNewerVersion`.
+
+**Include beta releases** in **Preferences → General** is off until the user turns it on. While it is off, the check requests GitHub's latest stable release:
 
 `https://api.github.com/repos/devmuaz/CoreDeck/releases/latest`
 
-GitHub returns the newest release that is not a draft and not a pre-release. The release workflow sets `prerelease: true` for any tag that contains `-`, so `v0.14.0-beta.1` is never that response. A user on `v0.13.0` is not offered `v0.14.0-beta.1`. The prompt appears when a stable tag such as `v0.14.0` is published and becomes the latest release.
+GitHub returns the newest release that is not a draft and not a pre-release. The release workflow sets `prerelease: true` for any tag that contains `-`, so `v0.14.0-beta.1` stays out of that response. The prompt appears when a stable tag such as `v0.14.0` is published and becomes the latest release.
+
+While **Include beta releases** is on, the check requests the published releases list instead:
+
+`https://api.github.com/repos/devmuaz/CoreDeck/releases?per_page=100`
+
+That list includes pre-releases. Drafts are skipped. `SelectNewestRelease` keeps the greatest tag under the comparison below, stable or beta. Someone on `v0.14.0` is offered `v0.15.0-beta.1` when that tag is the greatest published release. A stable tag of the same core still ranks above its betas, so `v0.14.0` is chosen over `v0.14.0-beta.2`. The first 100 releases in GitHub's list are considered. If that list cannot be read, the check uses the latest stable release.
 
 The installed version is `COREDECK_VERSION`. CMake sets it from the release tag, strips one leading `v`, and keeps the pre-release suffix. A build tagged `v0.14.0-beta.1` embeds `0.14.0-beta.1`.
 
-The dialog opens when the tag GitHub returned compares greater than that embedded version. A manual check that finds nothing shows "You're running the latest CoreDeck release." The startup check stays quiet in that case. **Download** opens `https://coredeck.dev`.
+The dialog opens when the chosen tag compares greater than that embedded version. A manual check that finds nothing shows "You're running the latest CoreDeck release." The startup check stays quiet in that case. **Download** opens `https://coredeck.dev` for a stable release, and the GitHub page for that tag when the release is a beta.
 
 The notes in the dialog are the release body up to the last line that is exactly `---`. The workflow puts the changelog section above that line and the download troubleshooting below it.
 
@@ -91,18 +99,32 @@ Text after the first `+` is removed before any of this runs, so build metadata n
 
 ## What the prompt can see
 
-The comparison above is what the function does with two tags. The dialog only receives the tag from `/releases/latest`, which skips pre-releases.
+The comparison above is what the function does with two tags. Which tag reaches the dialog depends on **Include beta releases**.
+
+With the preference off, the dialog receives the tag from `/releases/latest`.
 
 | Installed | Newest published tag | What GitHub returns | Prompt |
 | --- | --- | --- | --- |
-| `v0.13.0` | `v0.14.0-beta.1` | `v0.13.0` | no |
+| `v0.13.0` | `v0.14.0-beta.1` | previous stable | no |
 | `v0.13.0` | `v0.14.0` | `v0.14.0` | yes |
 | `v0.14.0-beta.1` | `v0.14.0-beta.2` | previous stable | no |
 | `v0.14.0-beta.1` | `v0.14.0` | `v0.14.0` | yes |
 | `v0.14.0` | `v0.14.0-beta.1` | `v0.14.0` | no |
 | `v0.14.1` | `v0.14.0` | `v0.14.0` | no |
 
-A later beta is visible to people who install it themselves. It is not offered through this check. The stable tag of that version is the release that reaches both stable users and beta users.
+With the preference on, the dialog receives the greatest published tag in the releases list. A beta is offered when it compares greater than the installed version and greater than every other published tag in that list.
+
+| Installed | Greatest published tag | Prompt |
+| --- | --- | --- |
+| `v0.13.0` | `v0.14.0-beta.1` | yes |
+| `v0.14.0-beta.1` | `v0.14.0-beta.2` | yes |
+| `v0.14.0` | `v0.15.0-beta.1` | yes |
+| `v0.14.0` | `v0.14.0`, while `v0.14.0-beta.2` is also published | no |
+| `v0.14.0-beta.2` | `v0.14.0` | yes |
+| `v0.15.0-beta.2` | `v0.15.0-beta.1` | no |
+| `v0.14.9` | `v0.15.0-beta.1`, while stable `v0.14.5` is also published | yes |
+
+The stable tag of a version still reaches people who leave the preference off, and people who turn it on.
 
 ## Tags that parse and still compare wrong
 

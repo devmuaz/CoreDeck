@@ -90,3 +90,68 @@ TEST_CASE("ParseLatestReleaseTag rejects malformed JSON", "[version_check][parse
 TEST_CASE("ParseLatestReleaseTag rejects JSON missing tag_name", "[version_check][parse]") {
     REQUIRE_FALSE(ParseLatestReleaseTag(R"({"name":"Release 1.0"})").has_value());
 }
+
+TEST_CASE("SelectNewestRelease chooses the greatest tag and keeps betas", "[version_check][parse]") {
+    const char *body = R"([
+        {"tag_name":"v0.14.0","body":"stable","draft":false,"prerelease":false},
+        {"tag_name":"v0.15.0-beta.2","body":"beta two","draft":false,"prerelease":true},
+        {"tag_name":"v0.15.0-beta.10","body":"beta ten","draft":false,"prerelease":true}
+    ])";
+    const auto release = SelectNewestRelease(body);
+    REQUIRE(release.has_value());
+    REQUIRE(release->Version == "v0.15.0-beta.10");
+    REQUIRE(release->Notes == "beta ten");
+}
+
+TEST_CASE("SelectNewestRelease prefers a stable tag over an earlier beta of the same version", "[version_check][parse]") {
+    const char *body = R"([
+        {"tag_name":"v0.15.0-beta.2","body":"beta","draft":false,"prerelease":true},
+        {"tag_name":"v0.15.0","body":"stable","draft":false,"prerelease":false},
+        {"tag_name":"v0.14.9","body":"older","draft":false,"prerelease":false}
+    ])";
+    const auto release = SelectNewestRelease(body);
+    REQUIRE(release.has_value());
+    REQUIRE(release->Version == "v0.15.0");
+    REQUIRE(release->Notes == "stable");
+}
+
+TEST_CASE("SelectNewestRelease skips drafts and empty tags", "[version_check][parse]") {
+    const char *body = R"([
+        {"tag_name":"v0.16.0","body":"draft","draft":true,"prerelease":false},
+        {"tag_name":"","body":"empty","draft":false,"prerelease":false},
+        {"tag_name":"v0.15.0-beta.1","body":"beta","draft":false,"prerelease":true}
+    ])";
+    const auto release = SelectNewestRelease(body);
+    REQUIRE(release.has_value());
+    REQUIRE(release->Version == "v0.15.0-beta.1");
+}
+
+TEST_CASE("SelectNewestRelease keeps the changelog above the last separator", "[version_check][parse]") {
+    const char *body =
+        R"([{"tag_name":"v0.15.0-beta.1","draft":false,"prerelease":true,"body":"### CoreDeck v0.15.0-beta.1\n\n- Faster boot\n---\nDownload the archive\n"}])";
+    const auto release = SelectNewestRelease(body);
+    REQUIRE(release.has_value());
+    REQUIRE(release->Notes == "### CoreDeck v0.15.0-beta.1\n\n- Faster boot");
+}
+
+TEST_CASE("SelectNewestRelease accepts a release that omits draft", "[version_check][parse]") {
+    const auto release = SelectNewestRelease(R"([{"tag_name":"v0.15.0-beta.1","body":"notes","html_url":"https://example.test"}])");
+    REQUIRE(release.has_value());
+    REQUIRE(release->Version == "v0.15.0-beta.1");
+    REQUIRE(release->Notes == "notes");
+}
+
+TEST_CASE("SelectNewestRelease treats a null body as empty notes", "[version_check][parse]") {
+    const auto release = SelectNewestRelease(R"([{"tag_name":"v0.15.0-beta.1","body":null,"draft":false}])");
+    REQUIRE(release.has_value());
+    REQUIRE(release->Version == "v0.15.0-beta.1");
+    REQUIRE(release->Notes.empty());
+}
+
+TEST_CASE("SelectNewestRelease rejects payloads that are not a release list", "[version_check][parse]") {
+    REQUIRE_FALSE(SelectNewestRelease("not json").has_value());
+    REQUIRE_FALSE(SelectNewestRelease("{").has_value());
+    REQUIRE_FALSE(SelectNewestRelease("").has_value());
+    REQUIRE_FALSE(SelectNewestRelease("[]").has_value());
+    REQUIRE_FALSE(SelectNewestRelease(R"({"tag_name":"v1.0.0"})").has_value());
+}

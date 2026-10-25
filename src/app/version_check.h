@@ -14,7 +14,7 @@ namespace CoreDeck::App {
         std::string Notes;
     };
 
-    std::optional<RemoteRelease> QueryRemoteNewerVersion();
+    std::optional<RemoteRelease> QueryRemoteNewerVersion(bool includeBetaReleases);
 
     namespace detail { // NOLINT(readability-identifier-naming)
         int CompareSemanticVersion(const std::string &newVersion, const std::string &currentVersion);
@@ -22,6 +22,8 @@ namespace CoreDeck::App {
         std::optional<std::string> ParseLatestReleaseTag(const std::string &body);
 
         std::optional<RemoteRelease> ParseLatestRelease(const std::string &body);
+
+        std::optional<RemoteRelease> SelectNewestRelease(const std::string &body);
     }
 }
 
