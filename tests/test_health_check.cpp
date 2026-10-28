@@ -251,6 +251,46 @@ TEST_CASE("InterpretSdkManagerVersionOutput reads the current cmdline-tools vers
     REQUIRE(InterpretSdkManagerVersionOutput("unknown (Android CLI)\n") == "Android CLI");
 }
 
+TEST_CASE("InterpretSdkManagerVersionOutput accepts prerelease cmdline-tools versions", "[health-check]") {
+    REQUIRE(InterpretSdkManagerVersionOutput("19.0-alpha01\n") == "19.0-alpha01");
+    REQUIRE(InterpretSdkManagerVersionOutput("19.0-alpha.1\n") == "19.0-alpha.1");
+    REQUIRE(
+        InterpretSdkManagerVersionOutput(
+            "Warning: The SDK Manager CLI tool is deprecated.\n"
+            "19.0-alpha01\n"
+        ) == "19.0-alpha01"
+    );
+    REQUIRE(
+        InterpretSdkManagerVersionOutput(
+            "WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Android CLI will be used instead.\n"
+            "19.0-alpha.1\n"
+        ) == "19.0-alpha.1"
+    );
+    REQUIRE(InterpretSdkManagerVersionOutput("19.0-alpha.1 (Android CLI)\n") == "19.0-alpha.1");
+    REQUIRE_FALSE(InterpretSdkManagerVersionOutput("19.0-\n").has_value());
+    REQUIRE_FALSE(InterpretSdkManagerVersionOutput("19.0-alpha.\n").has_value());
+    REQUIRE_FALSE(InterpretSdkManagerVersionOutput("19.\n").has_value());
+    REQUIRE_FALSE(InterpretSdkManagerVersionOutput("19.0-alpha..1\n").has_value());
+    REQUIRE_FALSE(InterpretSdkManagerVersionOutput("19.0-alpha-1\n").has_value());
+}
+
+TEST_CASE("RunHealthChecks accepts a prerelease sdkmanager version", "[health-check]") {
+    HealthCheckDeps deps = AllGoodDeps();
+    deps.SdkManagerVersion = [](const SdkInfo &) {
+        return std::string(
+            "WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Android CLI will be used instead.\n"
+            "19.0-alpha01\n"
+        );
+    };
+
+    const auto items = Run(FullSdk(), ValidJdk(), deps);
+
+    const auto &run = Find(items, HealthCheckId::ToolsRun);
+    REQUIRE(run.Status == HealthStatus::Passed);
+    REQUIRE(run.Detail == "sdkmanager 19.0-alpha01");
+    REQUIRE(run.Fix == HealthFix::None);
+}
+
 TEST_CASE("RunHealthChecks accepts current cmdline-tools version output", "[health-check]") {
     HealthCheckDeps deps = AllGoodDeps();
     deps.SdkManagerVersion = [](const SdkInfo &) {

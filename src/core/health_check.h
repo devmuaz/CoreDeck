@@ -83,8 +83,9 @@ namespace CoreDeck::Core {
 
     // The version sdkmanager reported, when its output shows the tools started.
     // Legacy sdkmanager prints "16.0". Current cmdline-tools print
-    // "1.0.16261425 (Android CLI)" after a deprecation warning. Empty when the
-    // output is an error instead of a version.
+    // "1.0.16261425 (Android CLI)" after a deprecation warning. Prerelease
+    // builds add one suffix, such as "19.0-alpha01" or "19.0-alpha.1".
+    // Empty when the output is an error instead of a version.
     std::optional<std::string> InterpretSdkManagerVersionOutput(const std::string &output);
 
     HealthStatus OverallHealth(const std::vector<HealthCheckResult> &items);

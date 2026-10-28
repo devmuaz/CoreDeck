@@ -81,16 +81,53 @@ namespace CoreDeck::Core {
             return first;
         }
 
+        enum class VersionPart : uint8_t {
+            Numeric,
+            Prerelease,
+        };
+
+        bool IsAllowedPartChar(const unsigned char c, const VersionPart part) {
+            if (static_cast<bool>(std::isdigit(c))) {
+                return true;
+            }
+            if (part == VersionPart::Numeric) {
+                return false;
+            }
+            return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+        }
+
+        bool IsDottedPart(const std::string_view text, const VersionPart part) {
+            bool afterSeparator = true;
+            for (const char c: text) {
+                if (c == '.') {
+                    if (afterSeparator) {
+                        return false;
+                    }
+                    afterSeparator = true;
+                    continue;
+                }
+                if (!IsAllowedPartChar(static_cast<unsigned char>(c), part)) {
+                    return false;
+                }
+                afterSeparator = false;
+            }
+            return !afterSeparator;
+        }
+
         bool IsVersionToken(const std::string &text) {
-            if (text.empty() || !static_cast<bool>(std::isdigit(static_cast<unsigned char>(text.front())))) {
+            const std::string_view view(text);
+            const auto hyphen = view.find('-');
+            const std::string_view release = hyphen == std::string_view::npos ? view : view.substr(0, hyphen);
+            if (!IsDottedPart(release, VersionPart::Numeric)) {
                 return false;
             }
-            if (text.back() == '.') {
+            if (hyphen == std::string_view::npos) {
+                return true;
+            }
+            if (view.find('-', hyphen + 1) != std::string_view::npos) {
                 return false;
             }
-            return std::ranges::all_of(text, [](const char c) {
-                return static_cast<bool>(std::isdigit(static_cast<unsigned char>(c))) || c == '.';
-            });
+            return IsDottedPart(view.substr(hyphen + 1), VersionPart::Prerelease);
         }
 
         HealthCheckResult CheckSdkRoot(const SdkInfo &sdk, const HealthCheckDeps &deps) {
