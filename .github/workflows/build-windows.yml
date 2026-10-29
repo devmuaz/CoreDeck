@@ -18,6 +18,12 @@ jobs:
         build_type: [Release]
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
       - name: Configure and build
         uses: ./.github/actions/cmake-build
         with:

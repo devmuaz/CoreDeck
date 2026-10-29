@@ -1,5 +1,5 @@
 name: Configure and build
-description: Checkout CoreDeck, install dependencies, configure CMake, and build.
+description: Install dependencies, configure CMake, and build.
 
 inputs:
   build-type:
@@ -38,12 +38,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v7
-      with:
-        submodules: recursive
-        fetch-depth: 0
-
     - name: Set up CMake
       if: runner.os != 'Windows'
       uses: jwlawson/actions-setup-cmake@v2
