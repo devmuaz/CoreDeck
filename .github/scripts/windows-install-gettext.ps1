@@ -19,6 +19,8 @@ $RootParent = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { $env:TEMP }
 $Root = Join-Path $RootParent 'coredeck-gettext'
 New-Item -ItemType Directory -Force -Path $Root | Out-Null
 
+$Tar = Join-Path $env:SystemRoot 'System32\tar.exe'
+
 foreach ($Archive in $Archives) {
     $Zip = Join-Path $Root $Archive.Name
     $Url = "$Base/$($Archive.Name)"
@@ -36,7 +38,7 @@ foreach ($Archive in $Archives) {
         Remove-Item -Recurse -Force $Dest
     }
     New-Item -ItemType Directory -Force -Path $Dest | Out-Null
-    & tar.exe -xf $Zip -C $Dest
+    & $Tar -xf $Zip -C $Dest
     if ($LASTEXITCODE -ne 0) {
         throw "Extract failed: $Zip"
     }
