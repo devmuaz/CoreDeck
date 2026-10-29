@@ -1,3 +1,10 @@
+## [v0.14.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.2) — 2026-10-30
+
+- Add a Preferences, General option to include beta releases when checking for updates. It is off by default. When it is on, a newer beta is offered, and Download opens that release on GitHub. A stable release still opens coredeck.dev
+- Health Check accepts a prerelease `sdkmanager` version, such as `19.0-alpha01`, instead of treating that line as a missing JDK (thanks [@bondarenkod](https://github.com/bondarenkod), [#63](https://github.com/devmuaz/CoreDeck/issues/63))
+- Fix the suggested signed JAR path on Windows so a path written with forward slashes keeps those slashes
+- Update Dear ImGui to v1.93.0 (docking), GLFW to 3.5.1, sentry-native to 0.17.4, reflect-cpp to 0.26.2, and Catch2 to v3.16.1
+
 ## [v0.14.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.1) — 2026-10-24
 
 - Add Java Jar Signer (Tools, Java Jar Signer) so a JAR archive, including an Android App Bundle, can be verified and signed with the JDK's `jarsigner`. Signing writes a new file and leaves the original unchanged
