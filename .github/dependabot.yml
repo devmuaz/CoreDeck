@@ -9,13 +9,16 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      
+
     groups:
       github-actions-dependencies:
         patterns:
           - "*"
-          
+
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "extern/imgui"
+        versions: ["> 0.0.0"]
