@@ -180,7 +180,11 @@ namespace CoreDeck::Core {
         if (stem.empty()) {
             stem = "signed";
         }
-        return (input.parent_path() / (stem + "-signed" + input.extension().string())).string();
+        std::string filename = stem + "-signed" + input.extension().string();
+        const auto separator = inputPath.find_last_of("/\\");
+        if (separator == std::string::npos) return filename;
+
+        return inputPath.substr(0, separator + 1) + filename;
     }
 
     JarVerifyReport ParseJarVerifyOutput(const std::string &output) {
