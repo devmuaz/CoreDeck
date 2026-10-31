@@ -5,28 +5,26 @@
       "name": "CoreDeck (Debug) [macOS]",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build-debug/CoreDeck.app",
+      "program": "${workspaceFolder}/build-debug/CoreDeck.app/Contents/MacOS/CoreDeck",
       "args": [],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,
       "environment": [],
       "externalConsole": false,
       "MIMode": "lldb",
-      "targetArchitecture": "arm64",
       "preLaunchTask": "cmake-build-coredeck-debug"
     },
     {
       "name": "CoreDeck (Release) [macOS]",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build-release/CoreDeck.app",
+      "program": "${workspaceFolder}/build-release/CoreDeck.app/Contents/MacOS/CoreDeck",
       "args": [],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,
       "environment": [],
       "externalConsole": false,
       "MIMode": "lldb",
-      "targetArchitecture": "arm64",
       "preLaunchTask": "cmake-build-coredeck-release"
     },
     {
@@ -40,7 +38,6 @@
       "environment": [],
       "externalConsole": false,
       "MIMode": "lldb",
-      "targetArchitecture": "arm64",
       "preLaunchTask": "cmake-build-coredeck-tests-debug"
     },
     {
@@ -54,7 +51,6 @@
       "environment": [],
       "externalConsole": false,
       "MIMode": "lldb",
-      "targetArchitecture": "arm64",
       "preLaunchTask": "cmake-build-coredeck-tests-release"
     },
     {
@@ -140,6 +136,126 @@
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build-release/tests/coredeck_tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-tests-release"
+    },
+    {
+      "name": "CoreDeck (Debug) [Linux · GDB]",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "cmake-build-coredeck-debug"
+    },
+    {
+      "name": "CoreDeck (Release) [Linux · GDB]",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "cmake-build-coredeck-release"
+    },
+    {
+      "name": "CoreDeck Tests (Debug) [Linux · GDB]",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "cmake-build-coredeck-tests-debug"
+    },
+    {
+      "name": "CoreDeck Tests (Release) [Linux · GDB]",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "cmake-build-coredeck-tests-release"
+    },
+    {
+      "name": "CoreDeck (Debug) [Linux · LLDB]",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-debug"
+    },
+    {
+      "name": "CoreDeck (Release) [Linux · LLDB]",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-release"
+    },
+    {
+      "name": "CoreDeck Tests (Debug) [Linux · LLDB]",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-tests-debug"
+    },
+    {
+      "name": "CoreDeck Tests (Release) [Linux · LLDB]",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/tests/coredeck_tests",
       "args": [],
       "cwd": "${workspaceFolder}",
       "stopOnEntry": false,

@@ -4,7 +4,7 @@
     {
       "label": "cmake-build-coredeck-debug",
       "type": "shell",
-      "command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON && cmake --build \"${workspaceFolder}/build-debug\" --parallel --target CoreDeck",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Debug CoreDeck",
       "problemMatcher": ["$gcc"],
       "group": {
         "kind": "build",
@@ -21,14 +21,14 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON; if ($?) { cmake --build \"${workspaceFolder}/build-debug\" --parallel --target CoreDeck }",
+        "command": "& \"${workspaceFolder}/.vscode/scripts/cmake-build.ps1\" -BuildType Debug -Target CoreDeck",
         "problemMatcher": ["$msCompile"]
       }
     },
     {
       "label": "cmake-build-coredeck-release",
       "type": "shell",
-      "command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=OFF && cmake --build \"${workspaceFolder}/build-release\" --parallel --target CoreDeck",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Release CoreDeck",
       "problemMatcher": ["$gcc"],
       "group": "build",
       "presentation": {
@@ -42,14 +42,14 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=OFF; if ($?) { cmake --build \"${workspaceFolder}/build-release\" --parallel --target CoreDeck }",
+        "command": "& \"${workspaceFolder}/.vscode/scripts/cmake-build.ps1\" -BuildType Release -Target CoreDeck",
         "problemMatcher": ["$msCompile"]
       }
     },
     {
       "label": "open-coredeck-app-debug",
       "type": "shell",
-      "command": "open \"${workspaceFolder}/build-debug/CoreDeck.app\"",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/open-coredeck.sh\" Debug",
       "problemMatcher": [],
       "dependsOn": ["cmake-build-coredeck-debug"],
       "windows": {
@@ -59,16 +59,13 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "Start-Process \"${workspaceFolder}/build-debug/CoreDeck.exe\""
-      },
-      "linux": {
-        "command": "\"${workspaceFolder}/build-debug/CoreDeck\""
+        "command": "& \"${workspaceFolder}/.vscode/scripts/open-coredeck.ps1\" -BuildType Debug"
       }
     },
     {
       "label": "open-coredeck-app-release",
       "type": "shell",
-      "command": "open \"${workspaceFolder}/build-release/CoreDeck.app\"",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/open-coredeck.sh\" Release",
       "problemMatcher": [],
       "dependsOn": ["cmake-build-coredeck-release"],
       "windows": {
@@ -78,16 +75,13 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "Start-Process \"${workspaceFolder}/build-release/CoreDeck.exe\""
-      },
-      "linux": {
-        "command": "\"${workspaceFolder}/build-release/CoreDeck\""
+        "command": "& \"${workspaceFolder}/.vscode/scripts/open-coredeck.ps1\" -BuildType Release"
       }
     },
     {
       "label": "cmake-build-coredeck-tests-debug",
       "type": "shell",
-      "command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON && cmake --build \"${workspaceFolder}/build-debug\" --parallel --target coredeck_tests",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Debug coredeck_tests",
       "problemMatcher": ["$gcc"],
       "group": "build",
       "presentation": {
@@ -101,14 +95,14 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-debug\" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON; if ($?) { cmake --build \"${workspaceFolder}/build-debug\" --parallel --target coredeck_tests }",
+        "command": "& \"${workspaceFolder}/.vscode/scripts/cmake-build.ps1\" -BuildType Debug -Target coredeck_tests",
         "problemMatcher": ["$msCompile"]
       }
     },
     {
       "label": "cmake-build-coredeck-tests-release",
       "type": "shell",
-      "command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON && cmake --build \"${workspaceFolder}/build-release\" --parallel --target coredeck_tests",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Release coredeck_tests",
       "problemMatcher": ["$gcc"],
       "group": "build",
       "presentation": {
@@ -122,14 +116,14 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "$vs = & 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe' -latest -products * -property installationPath; Import-Module (Join-Path $vs 'Common7\\Tools\\Microsoft.VisualStudio.DevShell.dll'); Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments '-arch=amd64 -host_arch=amd64';cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOREDECK_BUILD_TESTS=ON; if ($?) { cmake --build \"${workspaceFolder}/build-release\" --parallel --target coredeck_tests }",
+        "command": "& \"${workspaceFolder}/.vscode/scripts/cmake-build.ps1\" -BuildType Release -Target coredeck_tests",
         "problemMatcher": ["$msCompile"]
       }
     },
     {
       "label": "ctest-debug",
       "type": "shell",
-      "command": "ctest --test-dir \"${workspaceFolder}/build-debug\" --output-on-failure",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/run-ctest.sh\" Debug",
       "problemMatcher": [],
       "dependsOn": ["cmake-build-coredeck-tests-debug"],
       "group": "test",
@@ -144,13 +138,13 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "ctest --test-dir \"${workspaceFolder}/build-debug\" --output-on-failure"
+        "command": "& \"${workspaceFolder}/.vscode/scripts/run-ctest.ps1\" -BuildType Debug"
       }
     },
     {
       "label": "ctest-release",
       "type": "shell",
-      "command": "ctest --test-dir \"${workspaceFolder}/build-release\" --output-on-failure",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/run-ctest.sh\" Release",
       "problemMatcher": [],
       "dependsOn": ["cmake-build-coredeck-tests-release"],
       "group": "test",
@@ -165,7 +159,7 @@
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
           }
         },
-        "command": "ctest --test-dir \"${workspaceFolder}/build-release\" --output-on-failure"
+        "command": "& \"${workspaceFolder}/.vscode/scripts/run-ctest.ps1\" -BuildType Release"
       }
     }
   ]
