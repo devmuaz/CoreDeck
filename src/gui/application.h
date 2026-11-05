@@ -5,7 +5,7 @@
 #ifndef COREDECK_APPLICATION_H
 #define COREDECK_APPLICATION_H
 
-#include "context.h"
+#include "context/context.h"
 #include "app/app_settings_types.h"
 #include "app/version_check.h"
 

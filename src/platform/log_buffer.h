@@ -7,6 +7,7 @@
 
 #include <string>
 #include <deque>
+#include <cstdint>
 #include <mutex>
 #include <vector>
 
@@ -32,11 +33,19 @@ namespace CoreDeck::Platform {
 
         void ResetNewContentFlag();
 
+        std::size_t Size();
+
+        std::uint64_t Revision();
+
+        std::uint64_t DroppedLines();
+
     private:
         std::deque<std::string> m_Lines;
         std::size_t m_MaxLines;
         std::mutex m_Mutex;
         bool m_HasNew = false;
+        std::uint64_t m_Revision = 0;
+        std::uint64_t m_DroppedLines = 0;
     };
 }
 

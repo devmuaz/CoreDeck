@@ -75,31 +75,38 @@ add_subdirectory(src/core)
 add_executable(${PROJECT_NAME}
     ${IMGUI_SOURCES}
     src/main.cpp
-    src/gui/windows/about.cpp
-    src/gui/windows/apk_analyzer.cpp
-    src/gui/windows/apk_signer.cpp
-    src/gui/windows/jar_signer.cpp
-    src/gui/windows/keytool.cpp
-    src/gui/windows/avd_info.cpp
-    src/gui/windows/avd_list.cpp
-    src/gui/windows/avd_logs.cpp
-    src/gui/windows/avd_options.cpp
-    src/gui/windows/delete_avd.cpp
-    src/gui/windows/create_avd.cpp
-    src/gui/windows/device_profile.cpp
-    src/gui/windows/accept_licenses.cpp
-    src/gui/windows/health_check.cpp
-    src/gui/windows/install_image.cpp
-    src/gui/windows/main_menu_bar.cpp
-    src/gui/windows/onboarding.cpp
-    src/gui/windows/preferences.cpp
-    src/gui/windows/preferences_android_sdk.cpp
-    src/gui/windows/preferences_general.cpp
-    src/gui/windows/preferences_jdk.cpp
-    src/gui/windows/health_check_banner.cpp
-    src/gui/windows/skin.cpp
-    src/gui/windows/storage.cpp
-    src/gui/windows/update.cpp
+    src/gui/windows/adb/adb.cpp
+    src/gui/windows/adb/adb_session.cpp
+    src/gui/windows/adb/adb_logcat.cpp
+    src/gui/windows/adb/adb_shell.cpp
+    src/gui/windows/adb/adb_packages.cpp
+    src/gui/windows/adb/adb_connections.cpp
+    src/gui/windows/adb/adb_devices.cpp
+    src/gui/windows/adb/adb_wifi_help.cpp
+    src/gui/windows/app/about.cpp
+    src/gui/windows/app/health_check.cpp
+    src/gui/windows/app/health_check_banner.cpp
+    src/gui/windows/app/main_menu_bar.cpp
+    src/gui/windows/app/onboarding.cpp
+    src/gui/windows/app/update.cpp
+    src/gui/windows/avd/accept_licenses.cpp
+    src/gui/windows/avd/avd_info.cpp
+    src/gui/windows/avd/avd_list.cpp
+    src/gui/windows/avd/avd_logs.cpp
+    src/gui/windows/avd/avd_options.cpp
+    src/gui/windows/avd/create_avd.cpp
+    src/gui/windows/avd/device_profile.cpp
+    src/gui/windows/avd/install_image.cpp
+    src/gui/windows/avd/skin.cpp
+    src/gui/windows/avd/storage.cpp
+    src/gui/windows/packages/apk_analyzer.cpp
+    src/gui/windows/packages/apk_signer.cpp
+    src/gui/windows/packages/jar_signer.cpp
+    src/gui/windows/packages/keytool.cpp
+    src/gui/windows/preferences/preferences.cpp
+    src/gui/windows/preferences/preferences_android_sdk.cpp
+    src/gui/windows/preferences/preferences_general.cpp
+    src/gui/windows/preferences/preferences_jdk.cpp
     src/gui/application.cpp
     src/gui/theme.cpp
     src/gui/utilities.cpp
@@ -107,7 +114,8 @@ add_executable(${PROJECT_NAME}
     src/gui/widgets/buttons.cpp
     src/gui/widgets/feedback.cpp
     src/gui/widgets/form.cpp
-    src/gui/widgets/report.cpp
+    src/gui/widgets/log_viewer.cpp
+    src/gui/widgets/details.cpp
     src/gui/widgets/chrome.cpp
     src/gui/widgets/banner.cpp
 )

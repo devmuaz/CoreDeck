@@ -1,0 +1,16 @@
+//
+// Created by AbdulMuaz Aqeel on 18/04/2026.
+//
+
+#ifndef COREDECK_PREFERENCES_WINDOW_H
+#define COREDECK_PREFERENCES_WINDOW_H
+
+#include "../../context/context.h"
+
+namespace CoreDeck::Gui {
+    void PreferencesSectionHeader(const char *title, const char *subtitle);
+
+    void BuildPreferencesWindow(Context &context);
+}
+
+#endif // COREDECK_PREFERENCES_WINDOW_H

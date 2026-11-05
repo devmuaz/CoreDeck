@@ -18,6 +18,11 @@ namespace CoreDeck::App {
         Light = 2,
     };
 
+    struct AdbDeviceProfile {
+        std::string Serial;
+        std::vector<std::string> ShellCommands;
+    };
+
     struct AppSettings {
         int SchemaVersion = 1;
         bool AutoScroll = true;
@@ -37,6 +42,8 @@ namespace CoreDeck::App {
         std::string SdkPath;
         std::string JdkPath;
         std::vector<std::string> RecentApks;
+        std::vector<std::string> AdbWirelessDevices;
+        std::vector<AdbDeviceProfile> AdbDeviceProfiles;
     };
 }
 

@@ -6,7 +6,7 @@
 
 #include "imgui.h"
 
-#include "../widgets.h"
+#include "widgets.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -92,7 +92,8 @@ namespace CoreDeck::Gui {
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoDocking |
+            ImGuiWindowFlags_NoSavedSettings;
 
         if (!data.IsOpen && !ImGui::IsPopupOpen(title.c_str())) {
             return result;
@@ -131,6 +132,10 @@ namespace CoreDeck::Gui {
             }
             if (confirmed) {
                 result = DialogResult::Confirmed;
+                if (data.CloseOnConfirm) {
+                    data.IsOpen = false;
+                    ImGui::CloseCurrentPopup();
+                }
             }
 
             ImGui::SameLine();
@@ -184,6 +189,116 @@ namespace CoreDeck::Gui {
         return open;
     }
 
+    void ClippedText(ImDrawList *draw, const ImVec2 &pos, const float width, const ImU32 color, const char *text) {
+        if (draw == nullptr || text == nullptr || width <= 0.0F) {
+            return;
+        }
+        if (ImGui::CalcTextSize(text).x <= width) {
+            draw->AddText(pos, color, text);
+            return;
+        }
+        const char *ellipsis = "...";
+        const float keep = std::max(0.0F, width - ImGui::CalcTextSize(ellipsis).x);
+        const char *fit = text;
+        const char *cursor = text;
+        while (*cursor != '\0') {
+            const char *next = cursor + 1;
+            while ((static_cast<unsigned char>(*next) & 0xC0U) == 0x80U) {
+                ++next;
+            }
+            if (ImGui::CalcTextSize(text, next).x > keep) {
+                break;
+            }
+            fit = next;
+            cursor = next;
+        }
+        draw->AddText(pos, color, text, fit);
+        const float used = ImGui::CalcTextSize(text, fit).x;
+        draw->AddText(ImVec2(pos.x + used, pos.y), color, ellipsis);
+    }
+
+    DashboardRowResult DashboardRow(const char *id, const float width, const float contentHeight, const DashboardRowStyle &style) {
+        const ImVec2 framePad = ImGui::GetStyle().FramePadding;
+        const float padX = framePad.x + style.ExtraPaddingX;
+        const float padY = framePad.y + style.ExtraPaddingY;
+        const float height = std::max(1.0F, contentHeight + (padY * 2.0F));
+        const float rowW = std::max(1.0F, width);
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        const float hitW = std::max(1.0F, rowW - std::max(0.0F, style.HitInsetRight));
+        const bool clicked = ImGui::InvisibleButton(id != nullptr ? id : "##row", ImVec2(hitW, height));
+        const bool hovered = ImGui::IsItemHovered();
+        const bool held = ImGui::IsItemActive();
+
+        const ImVec2 max(origin.x + rowW, origin.y + height);
+        ImVec4 fill = HexColor(Colors::SURFACE2);
+        bool paint = style.Filled;
+        if (held) {
+            fill = HexColor(Colors::SURFACE3, style.Filled ? 1.0F : 0.8F);
+            paint = true;
+        } else if (hovered || style.Selected) {
+            fill = style.Filled ? HexColor(Colors::SURFACE3) : HexColor(Colors::SURFACE3, 0.4F);
+            paint = true;
+        }
+        if (paint) {
+            ImGui::GetWindowDrawList()->AddRectFilled(origin, max, ImGui::GetColorU32(fill), 6.0F);
+        }
+        if (style.Filled) {
+            const ImVec4 border = HexColor(hovered ? Colors::BORDER_HOVER : Colors::BORDER_SUBTLE);
+            ImGui::GetWindowDrawList()->AddRect(origin, max, ImGui::GetColorU32(border), 6.0F, 0, 1.0F);
+        }
+
+        return {
+            .Clicked = clicked,
+            .Hovered = hovered,
+            .Held = held,
+            .Min = origin,
+            .Max = max,
+            .ContentMin = ImVec2(origin.x + padX, origin.y + padY),
+            .ContentMax = ImVec2(max.x - padX, max.y - padY),
+        };
+    }
+
+    float IconCircleButtonDiameter() {
+        return ImGui::GetTextLineHeight() + (ImGui::GetStyle().FramePadding.y * 1.0F);
+    }
+
+    bool IconCircleButton(
+        const char *id,
+        const char *icon,
+        const bool enabled,
+        const IconCircleButtonStyle &style,
+        const char *tooltip
+    ) {
+        const float diameter = IconCircleButtonDiameter();
+        const bool pressed = ImGui::InvisibleButton(id, ImVec2(diameter, diameter));
+        const bool hovered = ImGui::IsItemHovered();
+        const bool active = hovered && enabled;
+        const ImVec2 boundsMin = ImGui::GetItemRectMin();
+        const ImVec2 boundsMax = ImGui::GetItemRectMax();
+        const ImVec2 center((boundsMin.x + boundsMax.x) * 0.5F, (boundsMin.y + boundsMax.y) * 0.5F);
+
+        ImVec4 fill = HexColor(active ? style.HoverFill : style.Fill);
+        ImVec4 glyph = HexColor(active ? style.HoverGlyph : style.Glyph);
+        if (!enabled) {
+            fill.w *= style.DisabledAlpha;
+            glyph.w *= style.DisabledAlpha;
+        }
+
+        ImDrawList *draw = ImGui::GetWindowDrawList();
+        draw->AddCircleFilled(center, diameter * 0.5F, ImGui::GetColorU32(fill));
+        const char *glyphText = icon != nullptr ? icon : "";
+        const ImVec2 iconSize = ImGui::CalcTextSize(glyphText);
+        draw->AddText(
+            ImVec2(center.x - (iconSize.x * 0.5F), center.y - (iconSize.y * 0.5F)),
+            ImGui::GetColorU32(glyph),
+            glyphText
+        );
+        if (tooltip != nullptr && tooltip[0] != '\0' && hovered) {
+            ImGui::SetTooltip("%s", tooltip);
+        }
+        return enabled && pressed;
+    }
+
     float RecentFileItemHeight() {
         return ImGui::GetTextLineHeight() + (ImGui::GetStyle().FramePadding.y * 2.0F);
     }
@@ -193,13 +308,13 @@ namespace CoreDeck::Gui {
         const ImVec2 padding = ImGui::GetStyle().FramePadding;
         const float gap = 8.0F * scale;
         const float textW = ImGui::CalcTextSize(label == nullptr ? "" : label).x;
-        return padding.x + textW + gap + ImGui::GetTextLineHeight() + padding.x;
+        return padding.x + textW + gap + IconCircleButtonDiameter() + padding.x;
     }
 
     RecentFileAction RecentFileItem(const char *id, const char *label) {
         const float scale = GetDpiScale();
         const ImVec2 padding = ImGui::GetStyle().FramePadding;
-        const float diameter = ImGui::GetTextLineHeight();
+        const float diameter = IconCircleButtonDiameter();
         const ImVec2 size(RecentFileItemWidth(label), RecentFileItemHeight());
 
         ImGui::PushID(id);
@@ -208,12 +323,6 @@ namespace CoreDeck::Gui {
         const bool rowPressed = ImGui::InvisibleButton("##recent-file", ImVec2(rowHitW, size.y));
         const bool rowHovered = ImGui::IsItemHovered();
         const bool rowHeld = ImGui::IsItemActive();
-
-        const ImVec2 circleMin(origin.x + size.x - padding.x - diameter, origin.y + ((size.y - diameter) * 0.5F));
-        const ImVec2 circleMax(circleMin.x + diameter, circleMin.y + diameter);
-        ImGui::SetCursorScreenPos(circleMin);
-        const bool removePressed = ImGui::InvisibleButton("##recent-remove", ImVec2(diameter, diameter));
-        const bool removeHovered = ImGui::IsItemHovered();
 
         ImDrawList *draw = ImGui::GetWindowDrawList();
         if (rowHovered || rowHeld) {
@@ -226,15 +335,18 @@ namespace CoreDeck::Gui {
             label
         );
 
-        const ImVec2 center((circleMin.x + circleMax.x) * 0.5F, (circleMin.y + circleMax.y) * 0.5F);
-        const ImU32 circle = ImGui::GetColorU32(removeHovered ? HexColor(Colors::NEGATIVE) : HexColor(Colors::SURFACE4));
-        draw->AddCircleFilled(center, diameter * 0.5F, circle);
-        const ImVec2 iconSize = ImGui::CalcTextSize(Icons::TIMES);
-        draw->AddText(
-            ImVec2(center.x - (iconSize.x * 0.5F), center.y - (iconSize.y * 0.5F)),
-            ImGui::GetColorU32(removeHovered ? HexColor(Colors::WHITE) : HexColor(Colors::TEXT_SUBTLE)),
-            Icons::TIMES
+        const ImVec2 circleMin(origin.x + size.x - padding.x - diameter, origin.y + ((size.y - diameter) * 0.5F));
+        ImGui::SetCursorScreenPos(circleMin);
+        const bool removePressed = IconCircleButton(
+            "##recent-remove",
+            Icons::TIMES,
+            true,
+            {
+                .HoverFill = Colors::NEGATIVE,
+                .HoverGlyph = Colors::WHITE,
+            }
         );
+        const bool removeHovered = ImGui::IsItemHovered();
 
         ImGui::PopID();
         if (removePressed) {

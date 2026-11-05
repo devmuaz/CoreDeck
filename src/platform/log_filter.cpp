@@ -3,6 +3,7 @@
 //
 
 #include <regex>
+#include <utility>
 
 #include "log_filter.h"
 #include "utilities.h"
@@ -32,6 +33,37 @@ namespace CoreDeck::Platform {
             }
         }
 
+        struct CompiledQuery {
+            bool Valid = true;
+            std::string Error;
+            std::regex Pattern;
+        };
+
+        CompiledQuery CompileQuery(const std::string &query, const bool caseSensitive) {
+            CompiledQuery compiled;
+            try {
+                auto flags = std::regex::ECMAScript;
+                if (!caseSensitive) {
+                    flags |= std::regex::icase;
+                }
+                compiled.Pattern = std::regex(query, flags);
+            } catch (const std::regex_error &error) {
+                compiled.Valid = false;
+                compiled.Error = error.what();
+            }
+            return compiled;
+        }
+
+        bool LineMatches(const std::string &line, const LogFilterOptions &options, const std::regex *pattern) {
+            if (options.LineFilterRegex) {
+                return pattern != nullptr && std::regex_search(line, *pattern);
+            }
+            if (options.CaseSensitive) {
+                return line.find(options.LineFilter) != std::string::npos;
+            }
+            return ContainsIgnoreCase(line, options.LineFilter);
+        }
+
         void CollectRegexMatches(const std::string &line, const std::size_t lineStart, const std::regex &re, std::vector<LogMatch> &out) {
             const auto end = std::sregex_iterator{};
             for (auto it = std::sregex_iterator(line.begin(), line.end(), re); it != end; ++it) {
@@ -48,33 +80,59 @@ namespace CoreDeck::Platform {
     }
 
 
+    LogQueryCheck CheckLogQuery(const std::string &query, const bool useRegex, const bool caseSensitive) {
+        LogQueryCheck check;
+        if (!useRegex || query.empty()) {
+            return check;
+        }
+        const CompiledQuery compiled = CompileQuery(query, caseSensitive);
+        check.Valid = compiled.Valid;
+        check.Error = compiled.Error;
+        return check;
+    }
+
     LogFilterResult FilterLog(const std::vector<std::string> &lines, const LogFilterOptions &options) {
         LogFilterResult result;
-        result.Joined.reserve(lines.size() * 80);
-
-        const bool hasQuery = !options.Query.empty();
-
-        std::regex compiled;
-        if (hasQuery && options.UseRegex) {
-            try {
-                auto flags = std::regex::ECMAScript;
-                if (!options.CaseSensitive) {
-                    flags |= std::regex::icase;
+        const std::vector<std::string> *visible = &lines;
+        std::vector<std::string> filtered;
+        if (!options.LineFilter.empty()) {
+            const CompiledQuery compiled = options.LineFilterRegex
+                                               ? CompileQuery(options.LineFilter, options.CaseSensitive)
+                                               : CompiledQuery{};
+            if (options.LineFilterRegex && !compiled.Valid) {
+                result.LineFilterValid = false;
+                result.LineFilterError = compiled.Error;
+            } else {
+                filtered.reserve(lines.size());
+                const std::regex *pattern = options.LineFilterRegex ? &compiled.Pattern : nullptr;
+                for (const auto &line: lines) {
+                    if (LineMatches(line, options, pattern)) {
+                        filtered.push_back(line);
+                    }
                 }
-                compiled = std::regex(options.Query, flags);
-            } catch (const std::regex_error &e) {
+                visible = &filtered;
+            }
+        }
+
+        result.Joined.reserve(visible->size() * 80);
+        const bool hasQuery = !options.Query.empty();
+        std::regex searchPattern;
+        if (hasQuery && options.UseRegex) {
+            CompiledQuery compiled = CompileQuery(options.Query, options.CaseSensitive);
+            if (!compiled.Valid) {
                 result.RegexValid = false;
-                result.RegexError = e.what();
+                result.RegexError = std::move(compiled.Error);
+            } else {
+                searchPattern = std::move(compiled.Pattern);
             }
         }
 
         const bool collectMatches = hasQuery && (options.UseRegex ? result.RegexValid : true);
-
-        for (const auto &line: lines) {
+        for (const auto &line: *visible) {
             const std::size_t lineStart = result.Joined.size();
             if (collectMatches) {
                 if (options.UseRegex) {
-                    CollectRegexMatches(line, lineStart, compiled, result.Matches);
+                    CollectRegexMatches(line, lineStart, searchPattern, result.Matches);
                 } else {
                     CollectSubstringMatches(line, lineStart, options.Query, options.CaseSensitive, result.Matches);
                 }

@@ -42,25 +42,25 @@
 #include "platform/i18n.h"
 #include "platform/paths.h"
 #include "app/paths.h"
-#include "windows/about.h"
-#include "windows/apk_analyzer.h"
-#include "windows/apk_signer.h"
-#include "windows/jar_signer.h"
-#include "windows/keytool.h"
-#include "windows/avd_info.h"
-#include "windows/avd_list.h"
-#include "windows/avd_logs.h"
-#include "windows/avd_options.h"
-#include "windows/create_avd.h"
-#include "windows/delete_avd.h"
-#include "windows/health_check.h"
-#include "windows/health_check_banner.h"
-#include "windows/install_image.h"
-#include "windows/main_menu_bar.h"
-#include "windows/onboarding.h"
-#include "windows/preferences.h"
-#include "windows/storage.h"
-#include "windows/update.h"
+#include "windows/adb/adb.h"
+#include "windows/app/about.h"
+#include "windows/app/health_check.h"
+#include "windows/app/health_check_banner.h"
+#include "windows/app/main_menu_bar.h"
+#include "windows/app/onboarding.h"
+#include "windows/app/update.h"
+#include "windows/avd/avd_info.h"
+#include "windows/avd/avd_list.h"
+#include "windows/avd/avd_logs.h"
+#include "windows/avd/avd_options.h"
+#include "windows/avd/create_avd.h"
+#include "windows/avd/install_image.h"
+#include "windows/avd/storage.h"
+#include "windows/packages/apk_analyzer.h"
+#include "windows/packages/apk_signer.h"
+#include "windows/packages/jar_signer.h"
+#include "windows/packages/keytool.h"
+#include "windows/preferences/preferences.h"
 #include "app/version_check.h"
 
 namespace CoreDeck::Gui {
@@ -89,6 +89,7 @@ namespace CoreDeck::Gui {
 
         m_Context.Host.Jdk = Core::DetectJdk(App::LoadAppSettings().JdkPath);
         Core::ApplyJdkToSdk(m_Context.Host.Sdk, m_Context.Host.Jdk);
+        m_Context.Host.SyncSdk();
 
         if (!App::LoadAppSettings().FirstRunComplete || !m_Context.Host.Sdk.IsFound) {
             m_Context.Flow.CurrentScreen = Screen::Onboarding;
@@ -154,13 +155,12 @@ namespace CoreDeck::Gui {
             const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
             m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
             m_Context.Host.Sdk.ToolEnv = toolEnv;
+            m_Context.Host.SyncSdk();
         } else {
-            if (m_Context.Host.Sdk.SdkPath.empty()) {
-                const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
-                m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
-                m_Context.Host.Sdk.ToolEnv = toolEnv;
-            } else {
-                Core::RefreshAndroidSdk(m_Context.Host.Sdk);
+            const std::string previousAdbPath = m_Context.Host.Sdk.AdbPath;
+            Core::RefreshAndroidSdk(m_Context.Host.Sdk);
+            if (m_Context.Host.Sdk.AdbPath != previousAdbPath) {
+                m_Context.Host.SyncSdk();
             }
         }
 
@@ -244,6 +244,7 @@ namespace CoreDeck::Gui {
             BuildInstallImageWindow(m_Context);
         }
         BuildHealthCheckWindow(m_Context);
+        BuildAdbWindow(m_Context);
         BuildApkAnalyzerWindow(m_Context);
         BuildKeytoolWindow(m_Context);
         BuildApkSignerWindow(m_Context);

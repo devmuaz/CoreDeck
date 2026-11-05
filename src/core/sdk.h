@@ -26,6 +26,7 @@ namespace CoreDeck::Core {
     struct SdkInfo {
         std::string SdkPath;
         std::string EmulatorPath;
+        std::string AdbPath;
         std::string AvdManagerPath;
         std::string SdkManagerPath;
         std::string ApkAnalyzerPath;

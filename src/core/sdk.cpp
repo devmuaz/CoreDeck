@@ -152,6 +152,12 @@ namespace CoreDeck::Core {
         }
 
         sdk.EmulatorPath = Platform::JoinPaths({sdk.SdkPath, "emulator", Platform::WithExecutableExtension("emulator")});
+        const std::string adbPath = Platform::JoinPaths(
+            {sdk.SdkPath, "platform-tools", Platform::WithExecutableExtension("adb")}
+        );
+        if (std::filesystem::exists(adbPath)) {
+            sdk.AdbPath = adbPath;
+        }
 
         std::vector<std::string> binDirs;
         binDirs.push_back(Platform::JoinPaths({sdk.SdkPath, "cmdline-tools", "latest", "bin"}));

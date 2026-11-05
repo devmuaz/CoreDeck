@@ -9,17 +9,10 @@
 #include <memory>
 #include <array>
 #include <chrono>
-#include <cerrno>
 
 #include "core/emulator.h"
 #include "platform/process.h"
 #include "core/emulator_console.h"
-
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
 
 namespace CoreDeck::Core {
     namespace {
@@ -39,62 +32,34 @@ namespace CoreDeck::Core {
         }
 
 
-        void RunOutputReader(const int outputFd, const std::shared_ptr<Platform::LogBuffer> &log, const std::shared_ptr<std::atomic<bool>> &stopFlag) {
+        void RunOutputReader(
+            const int outputFd,
+            const std::shared_ptr<Platform::LogBuffer> &log,
+            const std::shared_ptr<std::atomic<bool>> &stopFlag
+        ) {
             std::array<char, 1024> buf{};
-            std::string partial;
-
-            const auto flushLines = [&](const char *data, const std::size_t n) {
-                partial.append(data, n);
-                std::size_t pos = 0;
-                while ((pos = partial.find('\n')) != std::string::npos) {
-                    if (const auto line = partial.substr(0, pos); !line.empty()) {
-                        log->Push(line);
-                    }
-                    partial.erase(0, pos + 1);
+            Platform::LineStreamDecoder decoder;
+            const auto pushLine = [&log](const std::string &line) {
+                if (!line.empty()) {
+                    log->Push(line);
                 }
             };
 
             while (!stopFlag->load()) {
-#ifdef _WIN32
-                const auto handle = reinterpret_cast<HANDLE>(_get_osfhandle(outputFd));
-                DWORD nRead = 0;
-                if (ReadFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &nRead, nullptr)) {
-                    if (nRead > 0) {
-                        flushLines(buf.data(), nRead);
-                    } else {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                    }
-                } else {
-                    const DWORD err = GetLastError();
-                    if (err == ERROR_BROKEN_PIPE || err == ERROR_HANDLE_EOF) break;
-                    if (err == ERROR_NO_DATA) {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                    } else {
-                        break;
-                    }
+                const Platform::PipeReadResult read = Platform::ReadProcessPipe(outputFd, buf.data(), buf.size());
+                if (read.Status == Platform::PipeReadStatus::Data) {
+                    decoder.Push(buf.data(), read.Size, pushLine);
+                    continue;
                 }
-#else
-                if (const ssize_t n = read(outputFd, buf.data(), buf.size()); n > 0) {
-                    flushLines(buf.data(), static_cast<std::size_t>(n));
-                } else if (n == 0) { // NOLINT(bugprone-branch-clone)
-                    break;
-                } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                } else {
+                if (read.Status == Platform::PipeReadStatus::Closed ||
+                    read.Status == Platform::PipeReadStatus::Error) {
                     break;
                 }
-#endif
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
 
-            if (!partial.empty()) {
-                log->Push(partial);
-            }
-
-#ifdef _WIN32
-            _close(outputFd);
-#else
-            close(outputFd);
-#endif
+            decoder.Flush(pushLine);
+            Platform::CloseProcessPipe(outputFd);
         }
     }
 
@@ -330,6 +295,16 @@ namespace CoreDeck::Core {
             return 0;
         }
         return it->second.Pid;
+    }
+
+    std::string EmulatorManager::GetAvdNameForConsolePort(const int consolePort) const {
+        const std::scoped_lock lock(m_Mutex);
+        for (const auto &instance: m_Instances | std::views::values) {
+            if (instance.IsRunning && instance.ConsolePort == consolePort) {
+                return instance.AvdName;
+            }
+        }
+        return {};
     }
 
     void EmulatorManager::Update() {

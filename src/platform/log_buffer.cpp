@@ -13,8 +13,10 @@ namespace CoreDeck::Platform {
         m_Lines.push_back(line);
         if (m_Lines.size() > m_MaxLines) {
             m_Lines.pop_front();
+            ++m_DroppedLines;
         }
         m_HasNew = true;
+        ++m_Revision;
     }
 
     std::vector<std::string> LogBuffer::GetLines() {
@@ -26,6 +28,8 @@ namespace CoreDeck::Platform {
         const std::scoped_lock lock(m_Mutex);
         m_Lines.clear();
         m_HasNew = false;
+        m_DroppedLines = 0;
+        ++m_Revision;
     }
 
     bool LogBuffer::HasNewContent() {
@@ -36,5 +40,20 @@ namespace CoreDeck::Platform {
     void LogBuffer::ResetNewContentFlag() {
         const std::scoped_lock lock(m_Mutex);
         m_HasNew = false;
+    }
+
+    std::size_t LogBuffer::Size() {
+        const std::scoped_lock lock(m_Mutex);
+        return m_Lines.size();
+    }
+
+    std::uint64_t LogBuffer::Revision() {
+        const std::scoped_lock lock(m_Mutex);
+        return m_Revision;
+    }
+
+    std::uint64_t LogBuffer::DroppedLines() {
+        const std::scoped_lock lock(m_Mutex);
+        return m_DroppedLines;
     }
 }

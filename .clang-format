@@ -39,21 +39,21 @@ BinPackArguments: false
 BinPackParameters: false
 PenaltyBreakAssignment: 1000000
 IncludeCategories:
-  - Regex: '^<.*'
+  - Regex: "^<.*"
     Priority: 1
   - Regex: '^".*'
     Priority: 2
-  - Regex: '.*'
+  - Regex: ".*"
     Priority: 3
 IncludeBlocks: Preserve
-IncludeIsMainRegex: '([-_](test|unittest))?$'
+IncludeIsMainRegex: "([-_](test|unittest))?$"
 SortIncludes: false
 IndentCaseLabels: true
 IndentPPDirectives: None
 IndentWidth: 4
 InsertNewlineAtEOF: false
-MacroBlockBegin: ''
-MacroBlockEnd: ''
+MacroBlockBegin: ""
+MacroBlockEnd: ""
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 FixNamespaceComments: false

@@ -10,10 +10,17 @@
 #include <vector>
 
 namespace CoreDeck::Platform {
+    struct LogQueryCheck {
+        bool Valid = true;
+        std::string Error;
+    };
+
     struct LogFilterOptions {
         std::string Query;
         bool UseRegex = false;
         bool CaseSensitive = false;
+        std::string LineFilter;
+        bool LineFilterRegex = false;
     };
 
     struct LogMatch {
@@ -26,7 +33,11 @@ namespace CoreDeck::Platform {
         std::vector<LogMatch> Matches;
         bool RegexValid = true;
         std::string RegexError;
+        bool LineFilterValid = true;
+        std::string LineFilterError;
     };
+
+    LogQueryCheck CheckLogQuery(const std::string &query, bool useRegex, bool caseSensitive = false);
 
     LogFilterResult FilterLog(const std::vector<std::string> &lines, const LogFilterOptions &options);
 }

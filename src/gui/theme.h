@@ -12,6 +12,7 @@
 namespace CoreDeck::Gui {
     namespace Icons {
         constexpr const char *PLAY = "\xef\x81\x8b";
+        constexpr const char *PAUSE = "\xef\x81\x8c";
         constexpr const char *STOP = "\xef\x81\x8d";
         constexpr const char *REFRESH = "\xef\x80\xa1";
         constexpr const char *TRASH = "\xef\x87\xb8";
@@ -25,13 +26,16 @@ namespace CoreDeck::Gui {
         constexpr const char *FILE_LINES = "\xef\x83\xb6";
         constexpr const char *TERMINAL = "\xef\x84\xa0";
         constexpr const char *INFO = "\xef\x81\x9a";
+        constexpr const char *QUESTION = "\xef\x84\xa8";
         constexpr const char *SEARCH = "\xef\x80\x82";
+        constexpr const char *FILTER = "\xef\x82\xb0";
         constexpr const char *PLUS = "\xef\x81\xa7";
         constexpr const char *SORT_UP = "\xef\x83\x9e";
         constexpr const char *SORT_DOWN = "\xef\x83\x9d";
         constexpr const char *SORT = "\xef\x83\x9c";
         constexpr const char *TIMES = "\xef\x80\x8d";
         constexpr const char *MOBILE = "\xef\x8f\x8d";
+        constexpr const char *WIFI = "\xef\x87\xab";
         constexpr const char *TABLET = "\xef\x8f\xba";
         constexpr const char *TV = "\xef\x89\xac";
         constexpr const char *WATCH = "\xef\x80\x97";
@@ -117,8 +121,8 @@ namespace CoreDeck::Gui {
 #endif
 
     constexpr ImVec4 HexColor(const char *hex, float alpha = 1.0F) {
-        auto hexToByte = [](const char hi, const char lo) -> float {
-            auto charVal = [](const char c) -> int {
+        const auto hexToByte = [](const char hi, const char lo) -> float {
+            const auto charVal = [](const char c) -> int {
                 if (c >= '0' && c <= '9') {
                     return c - '0';
                 }

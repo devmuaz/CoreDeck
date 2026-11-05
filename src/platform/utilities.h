@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace CoreDeck::Platform {
@@ -23,6 +24,12 @@ namespace CoreDeck::Platform {
     std::string LowerCopy(std::string value);
 
     bool ContainsIgnoreCase(const std::string &text, const std::string &needle);
+
+    std::string Trim(std::string_view value);
+
+    bool HasVisibleText(std::string_view text);
+
+    void AppendLimited(std::string &target, std::string_view data, std::size_t limit);
 
     template<typename... Args>
     std::string StrConcat(Args &&...args) {

@@ -70,11 +70,74 @@ TEST_CASE("FilterLog reports invalid regex without crashing", "[log_filter][rege
     Platform::LogFilterOptions opts;
     opts.Query = "(unclosed";
     opts.UseRegex = true;
-    const auto [Joined, Matches, RegexValid, RegexError] = Platform::FilterLog(Sample(), opts);
-    REQUIRE_FALSE(RegexValid);
-    REQUIRE_FALSE(RegexError.empty());
-    REQUIRE(Matches.empty());
-    REQUIRE(Joined.find("hvf is not enabled") != std::string::npos);
+    const auto result = Platform::FilterLog(Sample(), opts);
+    REQUIRE_FALSE(result.RegexValid);
+    REQUIRE_FALSE(result.RegexError.empty());
+    REQUIRE(result.Matches.empty());
+    REQUIRE(result.Joined.find("hvf is not enabled") != std::string::npos);
+}
+
+TEST_CASE("FilterLog line filter keeps matching lines", "[log_filter][line]") {
+    const auto result = Platform::FilterLog(Sample(), {.LineFilter = "info"});
+    REQUIRE(result.LineFilterValid);
+    REQUIRE(result.Joined.find("start emulator") != std::string::npos);
+    REQUIRE(result.Joined.find("retrying") != std::string::npos);
+    REQUIRE(result.Joined.find("hvf") == std::string::npos);
+    REQUIRE(result.Joined.find("mprotect") == std::string::npos);
+}
+
+TEST_CASE("FilterLog line filter regex drops non-matching lines", "[log_filter][line]") {
+    Platform::LogFilterOptions opts;
+    opts.LineFilter = "ERROR|WARNING";
+    opts.LineFilterRegex = true;
+    const auto result = Platform::FilterLog(Sample(), opts);
+    REQUIRE(result.LineFilterValid);
+    REQUIRE(result.Joined.find("WARNING") != std::string::npos);
+    REQUIRE(result.Joined.find("ERROR") != std::string::npos);
+    REQUIRE(result.Joined.find("start emulator") == std::string::npos);
+}
+
+TEST_CASE("FilterLog invalid line filter keeps every line", "[log_filter][line]") {
+    Platform::LogFilterOptions opts;
+    opts.LineFilter = "(unclosed";
+    opts.LineFilterRegex = true;
+    const auto result = Platform::FilterLog(Sample(), opts);
+    REQUIRE_FALSE(result.LineFilterValid);
+    REQUIRE_FALSE(result.LineFilterError.empty());
+    REQUIRE(result.Joined.find("start emulator") != std::string::npos);
+    REQUIRE(result.Joined.find("mprotect") != std::string::npos);
+}
+
+TEST_CASE("FilterLog search runs on the filtered lines", "[log_filter][line]") {
+    Platform::LogFilterOptions opts;
+    opts.LineFilter = "INFO";
+    opts.Query = "INFO";
+    const auto result = Platform::FilterLog(Sample(), opts);
+    REQUIRE(result.Matches.size() == 2);
+    REQUIRE(result.Joined.find("WARNING") == std::string::npos);
+}
+
+TEST_CASE("FilterLog line filter honors case sensitivity", "[log_filter][line]") {
+    Platform::LogFilterOptions opts;
+    opts.LineFilter = "info";
+    opts.CaseSensitive = true;
+    const auto result = Platform::FilterLog(Sample(), opts);
+    REQUIRE(result.Joined.empty());
+}
+
+TEST_CASE("FilterLog line filter can hide every line", "[log_filter][line]") {
+    const auto result = Platform::FilterLog(Sample(), {.LineFilter = "no-such-token"});
+    REQUIRE(result.LineFilterValid);
+    REQUIRE(result.Joined.empty());
+    REQUIRE(result.Matches.empty());
+}
+
+TEST_CASE("CheckLogQuery rejects an unclosed pattern", "[log_filter][regex]") {
+    const auto check = Platform::CheckLogQuery("(unclosed", true);
+    REQUIRE_FALSE(check.Valid);
+    REQUIRE_FALSE(check.Error.empty());
+    REQUIRE(Platform::CheckLogQuery("info", false).Valid);
+    REQUIRE(Platform::CheckLogQuery("", true).Valid);
 }
 
 TEST_CASE("FilterLog regex zero-width matches are skipped", "[log_filter][regex]") {

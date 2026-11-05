@@ -10,6 +10,7 @@ namespace {
         SdkInfo sdk;
         sdk.SdkPath = "/sdk";
         sdk.EmulatorPath = "/sdk/emulator/emulator";
+        sdk.AdbPath = "/sdk/platform-tools/adb";
         sdk.AvdManagerPath = "/sdk/cmdline-tools/latest/bin/avdmanager";
         sdk.SdkManagerPath = "/sdk/cmdline-tools/latest/bin/sdkmanager";
         sdk.ApkAnalyzerPath = "/sdk/cmdline-tools/latest/bin/apkanalyzer";
@@ -35,6 +36,7 @@ namespace {
         deps.PathExists = [](const std::string &) { return true; };
         deps.CheckLicenses = [](const SdkInfo &) { return LicenseStatus::AllAccepted; };
         deps.SdkManagerVersion = [](const SdkInfo &) { return std::string("16.0\n"); };
+        deps.AdbVersion = [](const SdkInfo &) { return std::string("1.0.41"); };
         deps.CountSystemImages = [](const SdkInfo &) { return static_cast<std::size_t>(2); };
         deps.FreeDiskSpace = [](const std::string &) {
             return std::optional<std::uint64_t>(10ULL * 1024ULL * 1024ULL * 1024ULL);
@@ -178,6 +180,28 @@ TEST_CASE("RunHealthChecks flags a missing apkanalyzer", "[health-check]") {
     const auto &tools = Find(items, HealthCheckId::CmdlineTools);
     REQUIRE(tools.Status == HealthStatus::Failed);
     REQUIRE(tools.Fix == HealthFix::InstallCmdlineTools);
+}
+
+TEST_CASE("RunHealthChecks offers a platform-tools repair for missing adb", "[health-check]") {
+    SdkInfo sdk = FullSdk();
+    sdk.AdbPath.clear();
+
+    const auto items = Run(sdk, ValidJdk(), AllGoodDeps());
+    const auto &platformTools = Find(items, HealthCheckId::PlatformTools);
+
+    REQUIRE(platformTools.Status == HealthStatus::Warning);
+    REQUIRE(platformTools.Fix == HealthFix::InstallPlatformTools);
+}
+
+TEST_CASE("RunHealthChecks warns when adb cannot start", "[health-check]") {
+    HealthCheckDeps deps = AllGoodDeps();
+    deps.AdbVersion = [](const SdkInfo &) { return std::string{}; };
+
+    const auto items = Run(FullSdk(), ValidJdk(), deps);
+    const auto &platformTools = Find(items, HealthCheckId::PlatformTools);
+
+    REQUIRE(platformTools.Status == HealthStatus::Warning);
+    REQUIRE(platformTools.Fix == HealthFix::InstallPlatformTools);
 }
 
 TEST_CASE("RunHealthChecks fails when a build tool is missing", "[health-check]") {

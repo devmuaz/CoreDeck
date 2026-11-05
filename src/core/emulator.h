@@ -51,6 +51,8 @@ namespace CoreDeck::Core {
 
         ProcessId GetPid(const std::string &avdName) const;
 
+        std::string GetAvdNameForConsolePort(int consolePort) const;
+
         const Platform::ProcessStatsSampler &Stats() const {
             return m_Stats;
         }

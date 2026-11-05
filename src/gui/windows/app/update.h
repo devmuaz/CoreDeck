@@ -1,0 +1,14 @@
+//
+// Created by AbdulMuaz Aqeel on 18/04/2026.
+//
+
+#ifndef COREDECK_UPDATE_WINDOW_H
+#define COREDECK_UPDATE_WINDOW_H
+
+#include "../../context/context.h"
+
+namespace CoreDeck::Gui {
+    void BuildUpdateNoticeWindow(Context &context);
+}
+
+#endif // COREDECK_UPDATE_WINDOW_H

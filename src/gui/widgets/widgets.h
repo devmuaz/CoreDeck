@@ -1,0 +1,509 @@
+//
+// Created by AbdulMuaz Aqeel on 04/04/2026.
+//
+
+#ifndef COREDECK_WIDGETS_H
+#define COREDECK_WIDGETS_H
+
+#include <future>
+#include <span>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "imgui.h"
+#include "../theme.h"
+#include "platform/utilities.h"
+
+namespace CoreDeck::Gui {
+    class StyleColor {
+    public:
+        StyleColor() = default;
+        StyleColor(const StyleColor &) = delete;
+        StyleColor(StyleColor &&) = delete;
+        StyleColor &operator=(const StyleColor &) = delete;
+        StyleColor &operator=(StyleColor &&) = delete;
+        ~StyleColor();
+
+        void Push(ImGuiCol idx, const ImVec4 &color);
+
+    private:
+        int m_Count = 0;
+    };
+
+    class StyleVar {
+    public:
+        StyleVar() = default;
+        StyleVar(const StyleVar &) = delete;
+        StyleVar(StyleVar &&) = delete;
+        StyleVar &operator=(const StyleVar &) = delete;
+        StyleVar &operator=(StyleVar &&) = delete;
+        ~StyleVar();
+
+        void Push(ImGuiStyleVar idx, float val);
+
+        void Push(ImGuiStyleVar idx, const ImVec2 &val);
+
+    private:
+        int m_Count = 0;
+    };
+
+    struct LabeledIconStyle {
+        const char *Icon;
+        const char *Label;
+        const char *Color;
+    };
+
+    struct PickerTableStyle {
+        StyleColor Colors;
+        StyleVar Vars;
+
+        PickerTableStyle();
+    };
+
+    constexpr ImGuiWindowFlags WINDOW_NO_RESIZE_FLAGS =
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize |
+        // ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoDocking;
+
+    constexpr ImGuiWindowFlags WINDOW_AUTO_RESIZE_FLAGS =
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize |
+        // ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoDocking;
+
+    constexpr ImGuiWindowFlags WORKSPACE_WINDOW_FLAGS =
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_NoNavFocus;
+
+    inline std::string IconWithLabel(const char *icon, const char *label) {
+        return Platform::StrConcat(icon, " ", label);
+    }
+
+    inline float Em(const float n = 1.0F) {
+        return ImGui::CalcTextSize("M").x * n;
+    }
+
+    inline float Eh(const float n = 1.0F) {
+        return ImGui::GetTextLineHeightWithSpacing() * n;
+    }
+
+    inline ImVec2 EmV(const float w, const float h) {
+        return {Em(w), Eh(h)};
+    }
+
+    template<typename T>
+    void Retire(std::future<T> &job, std::vector<std::future<T>> &retired) {
+        if (job.valid()) {
+            retired.push_back(std::move(job));
+        }
+    }
+
+    template<typename T>
+    void DropFinished(std::vector<std::future<T>> &retired) {
+        std::erase_if(retired, [](std::future<T> &job) {
+            return job.valid() && job.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        });
+    }
+
+    bool PrimaryButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
+
+    bool NegativeButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
+
+    bool PositiveButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
+
+    bool WarningButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
+
+    bool PickerButton(const char *label, bool isEnabled = true, ImVec2 size = ImVec2(0, 0), bool hasSpinner = false);
+
+    bool ToggleButton(const char *label, bool &isToggled, ImVec2 size = ImVec2(0, 0));
+
+    void StatusBadge(const char *label, bool isActive);
+
+    void Spinner(const ImVec4 &color, float diameter = 0.0F);
+
+    enum class StatusMessageTone : uint8_t {
+        Positive,
+        Error,
+        Warning,
+        Info,
+    };
+
+    void StatusMessage(StatusMessageTone tone, const char *message);
+
+    enum class StatusBarTone : uint8_t {
+        Idle,
+        Busy,
+        Success,
+        Warning,
+        Error,
+    };
+
+    float StatusBarHeight();
+
+    void StatusBar(StatusBarTone tone, const char *message);
+
+    enum class NoticeCardTone : uint8_t {
+        Default,
+        Positive,
+        Error,
+        Warning,
+        Info,
+    };
+
+    bool NoticeCard(NoticeCardTone tone, const char *title, const char *body = nullptr, const char *buttonLabel = nullptr);
+
+    void CenteredMessage(const char *title, const char *subtitle = nullptr, const char *titleColor = nullptr);
+
+    class LoadingOverlay {
+    public:
+        explicit LoadingOverlay(bool active, const char *label = nullptr);
+        LoadingOverlay(const LoadingOverlay &) = delete;
+        LoadingOverlay(LoadingOverlay &&) = delete;
+        LoadingOverlay &operator=(const LoadingOverlay &) = delete;
+        LoadingOverlay &operator=(LoadingOverlay &&) = delete;
+        ~LoadingOverlay();
+
+        void End();
+
+    private:
+        bool m_Active = false;
+        ImGuiID m_WindowId = 0;
+        const char *m_Label = nullptr;
+    };
+
+    bool StatusActionItem(
+        const char *id,
+        const char *icon,
+        const ImVec4 &iconColor,
+        const char *title,
+        const char *description,
+        const ImVec4 &descriptionColor,
+        const char *actionLabel = nullptr,
+        bool actionEnabled = true
+    );
+
+    struct FormDisabled {
+        bool Active = false;
+
+        explicit FormDisabled(const bool active) : Active(active) {
+            if (Active) {
+                ImGui::BeginDisabled();
+            }
+        }
+
+        FormDisabled(const FormDisabled &) = delete;
+        FormDisabled(FormDisabled &&) = delete;
+        FormDisabled &operator=(const FormDisabled &) = delete;
+        FormDisabled &operator=(FormDisabled &&) = delete;
+
+        ~FormDisabled() {
+            if (Active) {
+                ImGui::EndDisabled();
+            }
+        }
+    };
+
+    void HoverTooltip(const char *text);
+
+    std::string DirectoryOf(const std::string &path);
+
+    std::string FileNameOf(const std::string &path);
+
+    struct SecretEdit {
+        bool Edited = false;
+        bool Submitted = false;
+    };
+
+    SecretEdit SecretField(
+        const char *id,
+        char *buffer,
+        std::size_t size,
+        bool &revealed,
+        const char *hint = nullptr,
+        float rowWidth = -1.0F,
+        const char *tooltip = nullptr
+    );
+
+    bool BrowseRow(
+        const char *fieldId,
+        const std::string &path,
+        const char *placeholder,
+        const char *browseId,
+        const char *browseLabel,
+        float rowWidth = -1.0F,
+        const char *tooltip = nullptr
+    );
+
+    float BusyActionWidth(const char *idleLabel, const char *busyLabel);
+
+    bool BusyButton(
+        const char *id,
+        const char *idleLabel,
+        const char *busyLabel,
+        bool busy,
+        bool enabled = true,
+        float width = 0.0F
+    );
+
+    float ComboDotSlot();
+
+    bool RoundedCombo(
+        const char *id,
+        const char *preview,
+        const char *const *labels,
+        int count,
+        int &selected,
+        float width = -1.0F,
+        const char *tooltip = nullptr,
+        const ImVec4 *previewDot = nullptr,
+        const ImVec4 *itemDots = nullptr
+    );
+
+    void SearchField(const char *id, const char *hint, char *buffer, std::size_t bufferSize);
+
+    std::string PathPicker(
+        const char *id,
+        const char *label,
+        const char *hint,
+        const char *dialogTitle,
+        char *buffer,
+        std::size_t bufferSize,
+        float fieldWidth = 0.0F
+    );
+
+    bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
+
+    inline void PushDetailCardChrome(StyleColor &sc, StyleVar &sv) {
+        sc.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
+        sc.Push(ImGuiCol_Border, HexColor(Colors::SURFACE4));
+        sv.Push(ImGuiStyleVar_ChildRounding, 8.0F);
+        sv.Push(ImGuiStyleVar_ChildBorderSize, 1.0F);
+        sv.Push(ImGuiStyleVar_WindowPadding, ImGui::GetStyle().WindowPadding);
+    }
+
+    template<typename Content>
+    void DetailCard(const char *id, const float height, const Content &content, const float width = 0.0F) {
+        StyleColor sc;
+        StyleVar sv;
+        PushDetailCardChrome(sc, sv);
+        ImGui::BeginChild(id, ImVec2(width, height), ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding);
+        content();
+        ImGui::EndChild();
+    }
+
+    enum class SplitDetailKind : uint8_t {
+        Text,
+        Chip,
+        Section,
+    };
+
+    struct SplitDetail {
+        std::string Label;
+        std::string Value;
+        const char *Accent = nullptr;
+        SplitDetailKind Kind = SplitDetailKind::Text;
+    };
+
+    struct CopyableValue {
+        std::string Label;
+        std::string Value;
+        std::string Section;
+    };
+
+    void SplitDetails(std::span<const SplitDetail> details, std::span<const CopyableValue> copies = {});
+
+    void CopyableField(const char *label, const std::string &value);
+
+    float DetailColumnWidth(std::span<const char *const> labels, float avail);
+
+    void DetailLabel(const ImVec2 &origin, float column, float rowHeight, const char *label, float textY);
+
+    void LabeledValue(const char *label, const std::string &value, std::span<const char *const> columnLabels);
+
+    void FileRows(const std::string &path, std::span<const char *const> columnLabels);
+
+    void SectionHeading(const char *title, const bool *verified = nullptr);
+
+    struct DashboardRowStyle {
+        float ExtraPaddingX = 0.0F;
+        float ExtraPaddingY = 0.0F;
+        float HitInsetRight = 0.0F;
+        bool Selected = false;
+        bool Filled = false;
+    };
+
+    struct DashboardRowResult {
+        bool Clicked = false;
+        bool Hovered = false;
+        bool Held = false;
+        ImVec2 Min;
+        ImVec2 Max;
+        ImVec2 ContentMin;
+        ImVec2 ContentMax;
+    };
+
+    void ClippedText(ImDrawList *draw, const ImVec2 &pos, float width, ImU32 color, const char *text);
+
+    DashboardRowResult DashboardRow(const char *id, float width, float contentHeight, const DashboardRowStyle &style = {});
+
+    bool SelectableItem(
+        const char *label,
+        bool isSelected,
+        const char *rightText = nullptr,
+        const ImVec4 &rightColor = ImVec4(1.0F, 1.0F, 1.0F, 1.0F),
+        const char *leftIcon = nullptr,
+        const ImVec4 &leftIconColor = ImVec4(1.0F, 1.0F, 1.0F, 1.0F)
+    );
+
+    bool PropertyText(const char *label, const char *value, bool isClickable = false, bool hasSpaceBetween = false);
+
+    void PropertyTextWrapped(const char *label, const char *value, bool invertColors = false);
+
+    enum class DialogResult : uint8_t {
+        None,
+        Confirmed,
+        Cancelled,
+    };
+
+    enum class DialogType : uint8_t {
+        Default,
+        Positive,
+        Negative,
+    };
+
+    struct DialogData {
+        const char *Id{};
+        bool &IsOpen; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+        const char *Title{};
+        const char *Message{};
+        const char *ConfirmButtonTitle{};
+        const char *CancelButtonTitle{};
+        const char *BusyButtonTitle{};
+        DialogType Type = DialogType::Default;
+        bool IsBusy = false;
+        bool CloseOnConfirm = false;
+    };
+
+    DialogResult SimpleDialog(const DialogData &data, bool hasSpinner = false);
+
+    bool CategoryChip(const char *label, bool isSelected);
+
+    bool CategoryChip(const char *label, const char *accent);
+
+    bool CollapsingHeader(const char *label, ImGuiTreeNodeFlags flags = 0);
+
+    bool MenuButton(const char *label);
+
+    bool MenuPopupItem(const char *label);
+
+    struct MenuStyle {
+        StyleVar Vars;
+
+        MenuStyle();
+    };
+
+    bool RoundedMenuItem(const char *label, const char *shortcut = nullptr, bool isSelected = false, bool isEnabled = true);
+
+    bool RoundedMenuItem(const char *label, const char *shortcut, bool *pIsSelected, bool isEnabled = true);
+
+    bool RoundedBeginMenu(const char *label, bool isEnabled = true);
+
+    enum class RecentFileAction : uint8_t {
+        None,
+        Activated,
+        Removed,
+    };
+
+    float RecentFileItemHeight();
+
+    float RecentFileItemWidth(const char *label);
+
+    RecentFileAction RecentFileItem(const char *id, const char *label);
+
+    struct IconCircleButtonStyle {
+        const char *Fill = Colors::SURFACE4;
+        const char *HoverFill = Colors::SURFACE3;
+        const char *Glyph = Colors::TEXT_SUBTLE;
+        const char *HoverGlyph = Colors::TEXT_PRIMARY;
+        float DisabledAlpha = 0.45F;
+    };
+
+    float IconCircleButtonDiameter();
+
+    bool IconCircleButton(
+        const char *id,
+        const char *icon,
+        bool enabled = true,
+        const IconCircleButtonStyle &style = IconCircleButtonStyle(),
+        const char *tooltip = nullptr
+    );
+
+    bool RoundedBeginPopupModal(const char *name, bool *pOpen = nullptr, ImGuiWindowFlags flags = 0);
+
+    bool BeginCenteredModal(const char *name, bool *pOpen, const ImVec2 &size, ImGuiWindowFlags flags = 0);
+
+    float EqualButtonWidth(int count);
+
+    bool CategoryChipRow(const char *const *labels, int count, int &selectedIndex);
+
+    constexpr ImGuiTableFlags PICKER_TABLE_FLAGS =
+        ImGuiTableFlags_BordersInnerV |
+        ImGuiTableFlags_RowBg |
+        ImGuiTableFlags_ScrollY |
+        ImGuiTableFlags_SizingStretchProp;
+
+    bool BeginPickerTable(const char *childId, const char *tableId, int columns, float height);
+
+    void EndPickerTable(bool open);
+
+    enum class BannerTone : uint8_t {
+        Warning,
+        Info,
+        Positive,
+    };
+
+    enum class BannerResult : uint8_t {
+        None,
+        Action,
+        Dismissed,
+    };
+
+    struct Banner {
+        const char *Id = nullptr;
+        BannerTone Tone = BannerTone::Warning;
+        const char *Icon = nullptr;
+        const char *Title = nullptr;
+        const char *Subtitle = nullptr;
+        const char *ActionLabel = nullptr;
+        const char *DismissTooltip = "Dismiss for this session";
+        bool Dismissable = true;
+    };
+
+    BannerResult ShowBanner(const Banner &banner);
+
+    struct TaskProgress {
+        const char *Title = nullptr;
+        const char *TitleTooltip = nullptr;
+        const char *Subtitle = nullptr;
+        float Fraction = 0.0F;
+        const char *Status = nullptr;
+        const char *Detail = nullptr;
+        const char *CancelLabel = nullptr;
+        const char *CancelSizingLabel = nullptr;
+        bool CancelEnabled = true;
+        bool CenterVertically = false;
+        bool CenterHorizontally = true;
+    };
+
+    bool TaskProgressPanel(const TaskProgress &task);
+}
+
+#endif // COREDECK_WIDGETS_H

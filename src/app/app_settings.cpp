@@ -116,7 +116,11 @@ namespace CoreDeck::App {
                 return {};
             }
 
-            const std::string json((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+            const std::string json(
+                (std::istreambuf_iterator<char>(file)),
+                std::istreambuf_iterator<char>()
+            );
+
             if (json.empty()) {
                 return {};
             }

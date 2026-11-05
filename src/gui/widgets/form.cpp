@@ -12,7 +12,7 @@
 #include "app/file_dialog.h"
 #include "platform/i18n.h"
 #include "../utilities.h"
-#include "../widgets.h"
+#include "widgets.h"
 
 namespace CoreDeck::Gui {
     void HoverTooltip(const char *text) {
@@ -160,6 +160,33 @@ namespace CoreDeck::Gui {
             drawList->ChannelsMerge();
             return pressed;
         }
+
+        float DotRadius() {
+            return std::max(4.0F * GetDpiScale(), ImGui::GetTextLineHeight() * 0.22F);
+        }
+
+        float DotSlotWidth() {
+            return (DotRadius() * 2.0F) + ImGui::GetStyle().ItemInnerSpacing.x;
+        }
+
+        std::string DotPad(const char *label, const float slot) {
+            std::string text;
+            while (ImGui::CalcTextSize(text.c_str()).x < slot) {
+                text.push_back(' ');
+            }
+            if (label != nullptr) {
+                text += label;
+            }
+            return text;
+        }
+
+        void PaintDot(ImDrawList *draw, const ImVec2 &center, const ImVec4 &color) {
+            draw->AddCircleFilled(center, DotRadius(), ImGui::GetColorU32(color));
+        }
+    }
+
+    float ComboDotSlot() {
+        return DotSlotWidth();
     }
 
     bool RoundedCombo(
@@ -169,20 +196,47 @@ namespace CoreDeck::Gui {
         const int count,
         int &selected,
         const float width,
-        const char *tooltip
+        const char *tooltip,
+        const ImVec4 *previewDot,
+        const ImVec4 *itemDots
     ) {
-        ImGui::SetNextItemWidth(width);
+        const bool dotted = previewDot != nullptr || itemDots != nullptr;
+        const float slot = dotted ? DotSlotWidth() : 0.0F;
+        const float comboWidth = dotted && width > 0.0F ? width + slot : width;
+        ImGui::SetNextItemWidth(comboWidth);
         bool changed = false;
         {
             const ComboStyle cs;
-            if (ImGui::BeginCombo(id, preview != nullptr ? preview : "")) {
+            const float radius = dotted ? DotRadius() : 0.0F;
+            const ImVec2 comboPos = ImGui::GetCursorScreenPos();
+            ImDrawList *draw = ImGui::GetWindowDrawList();
+            const std::string shownPreview = previewDot != nullptr ? DotPad(preview, slot) : std::string(preview != nullptr ? preview : "");
+            const ImGuiID previousItem = ImGui::GetItemID();
+            const bool open = ImGui::BeginCombo(id, shownPreview.c_str());
+            if (previewDot != nullptr && (open || ImGui::GetItemID() != previousItem)) {
+                const float centerY = comboPos.y + (ImGui::GetFrameHeight() * 0.5F);
+                PaintDot(
+                    draw,
+                    ImVec2(comboPos.x + ImGui::GetStyle().FramePadding.x + radius, centerY),
+                    *previewDot
+                );
+            }
+            if (open) {
+                ImDrawList *draw = ImGui::GetWindowDrawList();
                 for (int index = 0; index < count; ++index) {
                     const char *label = labels != nullptr && labels[index] != nullptr ? labels[index] : "";
+                    const std::string shown = itemDots != nullptr ? DotPad(label, slot) : std::string(label);
                     ImGui::PushID(index);
                     const bool isSelected = index == selected;
-                    if (RoundedSelectable(label, isSelected)) {
+                    if (RoundedSelectable(itemDots != nullptr ? shown.c_str() : label, isSelected)) {
                         selected = index;
                         changed = true;
+                    }
+                    if (itemDots != nullptr) {
+                        const ImVec2 itemMin = ImGui::GetItemRectMin();
+                        const ImVec2 itemMax = ImGui::GetItemRectMax();
+                        const float textX = itemMin.x + (ImGui::GetStyle().ItemSpacing.x * 0.5F);
+                        PaintDot(draw, ImVec2(textX + radius, (itemMin.y + itemMax.y) * 0.5F), itemDots[index]);
                     }
                     if (isSelected) {
                         ImGui::SetItemDefaultFocus();

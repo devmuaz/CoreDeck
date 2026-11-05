@@ -6,9 +6,9 @@
 #include <sstream>
 #include <utility>
 
+#include "core/adb_client.h"
 #include "core/health_check.h"
 #include "platform/i18n.h"
-#include "platform/paths.h"
 #include "core/system_image.h"
 #include "platform/utilities.h"
 
@@ -164,16 +164,21 @@ namespace CoreDeck::Core {
 
         HealthCheckResult CheckPlatformTools(const SdkInfo &sdk, const HealthCheckDeps &deps) {
             HealthCheckResult result{.Id = HealthCheckId::PlatformTools};
-            const std::string adbPath = Platform::JoinPaths(
-                {sdk.SdkPath, "platform-tools", Platform::WithExecutableExtension("adb")}
-            );
-            if (!deps.PathExists(adbPath)) {
+            if (sdk.AdbPath.empty() || !deps.PathExists(sdk.AdbPath)) {
                 result.Status = HealthStatus::Warning;
                 result.Detail = Platform::TrFormat("adb was not found under platform-tools.");
+                result.Fix = HealthFix::InstallPlatformTools;
+                return result;
+            }
+            const std::string version = deps.AdbVersion ? deps.AdbVersion(sdk) : std::string{};
+            if (version.empty()) {
+                result.Status = HealthStatus::Warning;
+                result.Detail = Platform::Tr("adb was found but could not be started.");
+                result.Fix = HealthFix::InstallPlatformTools;
                 return result;
             }
             result.Status = HealthStatus::Passed;
-            result.Detail = adbPath;
+            result.Detail = Platform::TrFormat("adb {0}", version);
             return result;
         }
 
@@ -387,6 +392,11 @@ namespace CoreDeck::Core {
         deps.SdkManagerVersion = [](const SdkInfo &sdk) {
             const auto output = RunSdkManager(sdk, {"--version"});
             return output.value_or("");
+        };
+
+        deps.AdbVersion = [](const SdkInfo &sdk) {
+            const AdbCommandResult result = RunAdb(sdk, {"version"});
+            return result.Ok() ? ParseAdbVersion(result.Stdout) : std::string{};
         };
 
         deps.CountSystemImages = [](const SdkInfo &sdk) { return ListSystemImages(sdk).size(); };

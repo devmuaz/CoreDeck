@@ -26,6 +26,12 @@
 #     `do { ... } while((void)0, false)` -- the standard idiom for a
 #     multi-statement macro that behaves like a single statement.
 #
+#   bugprone-chained-comparison
+#     REQUIRE(a == b) expands to `Decomposer() <= a == b`. The `<=` is
+#     Catch2's decomposition hook, not a comparison, but clang-tidy reports
+#     it at the `==` in the test. Catch2's NOLINT sits on the macro line and
+#     does not cover that location.
+#
 # Naming-convention exemptions are below the Checks list.
 # =============================================================================
 
@@ -38,6 +44,7 @@ Checks: >
   -cppcoreguidelines-avoid-do-while,
   -readability-function-cognitive-complexity,
   -readability-function-size,
-  -readability-identifier-naming
+  -readability-identifier-naming,
+  -bugprone-chained-comparison
 
 WarningsAsErrors: ""

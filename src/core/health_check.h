@@ -45,6 +45,7 @@ namespace CoreDeck::Core {
         InstallSdk,
         InstallCmdlineTools,
         InstallBuildTools,
+        InstallPlatformTools,
         ConfigureJdk,
         AcceptLicenses,
         InstallSystemImage,
@@ -69,6 +70,8 @@ namespace CoreDeck::Core {
         std::function<LicenseStatus(const SdkInfo &sdk)> CheckLicenses;
 
         std::function<std::string(const SdkInfo &sdk)> SdkManagerVersion;
+
+        std::function<std::string(const SdkInfo &sdk)> AdbVersion;
 
         std::function<std::size_t(const SdkInfo &sdk)> CountSystemImages;
 

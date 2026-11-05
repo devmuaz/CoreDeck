@@ -7,7 +7,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "../widgets.h"
+#include "widgets.h"
 
 namespace CoreDeck::Gui {
     namespace {

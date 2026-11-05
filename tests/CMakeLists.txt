@@ -1,8 +1,14 @@
 add_subdirectory(${CMAKE_SOURCE_DIR}/extern/catch2 ${CMAKE_BINARY_DIR}/extern/catch2)
 
+add_executable(coredeck_process_fixture process_fixture.cpp)
+
 add_executable(coredeck_tests
+        test_adb_client.cpp
+        test_adb_devices.cpp
+        test_adb_logcat.cpp
         test_utilities.cpp
         test_paths.cpp
+        test_process_stream.cpp
         test_log_buffer.cpp
         test_log_filter.cpp
         test_skin.cpp
@@ -29,6 +35,10 @@ target_link_libraries(coredeck_tests PRIVATE
         Catch2::Catch2WithMain
 )
 target_include_directories(coredeck_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_compile_definitions(coredeck_tests PRIVATE
+        "COREDECK_PROCESS_FIXTURE=\"$<TARGET_FILE:coredeck_process_fixture>\""
+)
+add_dependencies(coredeck_tests coredeck_process_fixture)
 
 file(TO_CMAKE_PATH "${COREDECK_LOCALE_DIR}" _coredeck_locales_dir)
 file(TO_CMAKE_PATH "${GETTEXT_MSGFMT_EXECUTABLE}" _coredeck_msgfmt)

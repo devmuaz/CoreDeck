@@ -178,6 +178,25 @@ namespace CoreDeck::Platform {
             }
             return merged;
         }
+
+        struct ProcessEnvironment {
+            std::vector<std::string> Entries;
+            std::vector<char *> Pointers;
+        };
+
+        ProcessEnvironment MakeProcessEnvironment(const EnvVars &extra) {
+            ProcessEnvironment environment;
+            if (extra.empty()) {
+                return environment;
+            }
+            environment.Entries = BuildMergedEnv(extra);
+            environment.Pointers.reserve(environment.Entries.size() + 1);
+            for (std::string &entry: environment.Entries) {
+                environment.Pointers.push_back(entry.data());
+            }
+            environment.Pointers.push_back(nullptr);
+            return environment;
+        }
 #endif
 
         struct CommandSpawnStatus {
@@ -280,17 +299,7 @@ namespace CoreDeck::Platform {
                 return {};
             }
 
-            const bool useEnv = !extraEnv.empty();
-            std::vector<std::string> mergedEnv;
-            std::vector<char *> envp;
-            if (useEnv) {
-                mergedEnv = BuildMergedEnv(extraEnv);
-                envp.reserve(mergedEnv.size() + 1);
-                for (auto &entry: mergedEnv) {
-                    envp.push_back(entry.data());
-                }
-                envp.push_back(nullptr);
-            }
+            const ProcessEnvironment environment = MakeProcessEnvironment(extraEnv);
 
             const pid_t pid = fork();
             if (pid < 0) {
@@ -312,8 +321,8 @@ namespace CoreDeck::Platform {
 
                 std::vector<std::string> argvStorage;
                 const std::vector<char *> argv = MutableArgv(argvStorage, path, args);
-                if (useEnv) {
-                    execve(path.c_str(), argv.data(), envp.data());
+                if (!environment.Pointers.empty()) {
+                    execve(path.c_str(), argv.data(), environment.Pointers.data());
                 } else {
                     execvp(path.c_str(), argv.data());
                 }
@@ -365,6 +374,44 @@ namespace CoreDeck::Platform {
         }
     }
 
+    void LineStreamDecoder::Push(
+        const char *data,
+        const std::size_t size,
+        const std::function<void(const std::string &)> &onLine
+    ) {
+        m_Partial.append(data, size);
+        std::size_t start = 0;
+        for (std::size_t i = 0; i < m_Partial.size(); ++i) {
+            if (m_Partial.at(i) != '\n' && m_Partial.at(i) != '\r') {
+                continue;
+            }
+            if (m_Partial.at(i) == '\r' && i + 1 == m_Partial.size()) {
+                break;
+            }
+            if (onLine) {
+                onLine(m_Partial.substr(start, i - start));
+            }
+            if (m_Partial.at(i) == '\r' && i + 1 < m_Partial.size() && m_Partial.at(i + 1) == '\n') {
+                ++i;
+            }
+            start = i + 1;
+        }
+        if (start > 0) {
+            m_Partial.erase(0, start);
+        }
+    }
+
+    void LineStreamDecoder::Flush(const std::function<void(const std::string &)> &onLine) {
+        if (!m_Partial.empty() && onLine) {
+            if (m_Partial.back() == '\r') {
+                onLine(m_Partial.substr(0, m_Partial.size() - 1));
+            } else {
+                onLine(m_Partial);
+            }
+        }
+        m_Partial.clear();
+    }
+
     void StreamCommandArgs(
         const std::string &path,
         const std::vector<std::string> &args,
@@ -389,87 +436,236 @@ namespace CoreDeck::Platform {
         return RunCommandArgsResult(path, args, stdinData, extraEnv).Output;
     }
 
-    ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {
+    namespace {
 #ifdef _WIN32
-        HANDLE hReadPipe, hWritePipe;
-        SECURITY_ATTRIBUTES sa = {};
-        sa.nLength = sizeof(sa);
-        sa.bInheritHandle = TRUE;
+        PipedProcess SpawnPipedProcess(
+            const std::string &path,
+            const std::vector<std::string> &args,
+            const EnvVars &extraEnv,
+            const bool separateStderr
+        ) {
+            PipedProcess result;
+            HANDLE hStdoutRead = nullptr;
+            HANDLE hStdoutWrite = nullptr;
+            HANDLE hStderrRead = nullptr;
+            HANDLE hStderrWrite = nullptr;
+            SECURITY_ATTRIBUTES sa = {};
+            sa.nLength = sizeof(sa);
+            sa.bInheritHandle = TRUE;
 
-        if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0)) {
-            return 0;
+            if (!CreatePipe(&hStdoutRead, &hStdoutWrite, &sa, 0)) {
+                return result;
+            }
+            if (!SetHandleInformation(hStdoutRead, HANDLE_FLAG_INHERIT, 0)) {
+                CloseHandle(hStdoutRead);
+                CloseHandle(hStdoutWrite);
+                return result;
+            }
+            if (separateStderr) {
+                if (!CreatePipe(&hStderrRead, &hStderrWrite, &sa, 0)) {
+                    CloseHandle(hStdoutRead);
+                    CloseHandle(hStdoutWrite);
+                    return result;
+                }
+                if (!SetHandleInformation(hStderrRead, HANDLE_FLAG_INHERIT, 0)) {
+                    CloseHandle(hStdoutRead);
+                    CloseHandle(hStdoutWrite);
+                    CloseHandle(hStderrRead);
+                    CloseHandle(hStderrWrite);
+                    return result;
+                }
+            }
+
+            std::string cmdLine = BuildCommandLine(path, args);
+            std::vector<char> envBlock;
+            LPVOID envPtr = nullptr;
+            if (!extraEnv.empty()) {
+                envBlock = BuildEnvironmentBlock(extraEnv);
+                envPtr = envBlock.data();
+            }
+
+            STARTUPINFOA si = {};
+            si.cb = sizeof(si);
+            si.dwFlags = STARTF_USESTDHANDLES;
+            si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+            si.hStdOutput = hStdoutWrite;
+            si.hStdError = separateStderr ? hStderrWrite : hStdoutWrite;
+
+            PROCESS_INFORMATION pi = {};
+
+            if (!CreateProcessA(nullptr, cmdLine.data(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, envPtr, nullptr, &si, &pi)) {
+                CloseHandle(hStdoutRead);
+                CloseHandle(hStdoutWrite);
+                if (hStderrRead != nullptr) CloseHandle(hStderrRead);
+                if (hStderrWrite != nullptr) CloseHandle(hStderrWrite);
+                return result;
+            }
+
+            CloseHandle(pi.hThread);
+            CloseHandle(hStdoutWrite);
+            if (hStderrWrite != nullptr) CloseHandle(hStderrWrite);
+
+            DWORD pipeMode = PIPE_NOWAIT;
+            SetNamedPipeHandleState(hStdoutRead, &pipeMode, nullptr, nullptr);
+            if (hStderrRead != nullptr) SetNamedPipeHandleState(hStderrRead, &pipeMode, nullptr, nullptr);
+
+            result.StdoutFd = _open_osfhandle(reinterpret_cast<intptr_t>(hStdoutRead), _O_RDONLY | _O_BINARY);
+            if (result.StdoutFd == -1) {
+                CloseHandle(hStdoutRead);
+                if (hStderrRead != nullptr) CloseHandle(hStderrRead);
+                TerminateProcess(pi.hProcess, 1);
+                CloseHandle(pi.hProcess);
+                return {};
+            }
+            if (hStderrRead != nullptr) {
+                result.StderrFd = _open_osfhandle(reinterpret_cast<intptr_t>(hStderrRead), _O_RDONLY | _O_BINARY);
+                if (result.StderrFd == -1) {
+                    _close(result.StdoutFd);
+                    CloseHandle(hStderrRead);
+                    TerminateProcess(pi.hProcess, 1);
+                    CloseHandle(pi.hProcess);
+                    return {};
+                }
+            }
+            result.Pid = pi.dwProcessId;
+            result.NativeHandle = reinterpret_cast<std::uintptr_t>(pi.hProcess);
+            return result;
         }
-
-        if (!SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0)) {
-            CloseHandle(hReadPipe);
-            CloseHandle(hWritePipe);
-            return 0;
-        }
-
-        std::string cmdLine = BuildCommandLine(path, args);
-
-        STARTUPINFOA si = {};
-        si.cb = sizeof(si);
-        si.dwFlags = STARTF_USESTDHANDLES;
-        si.hStdOutput = hWritePipe;
-        si.hStdError = hWritePipe;
-
-        PROCESS_INFORMATION pi = {};
-
-        if (!CreateProcessA(nullptr, const_cast<char *>(cmdLine.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
-            CloseHandle(hReadPipe);
-            CloseHandle(hWritePipe);
-            return 0;
-        }
-
-        CloseHandle(pi.hThread);
-        CloseHandle(hWritePipe);
-
-        DWORD pipeMode = PIPE_NOWAIT;
-        SetNamedPipeHandleState(hReadPipe, &pipeMode, nullptr, nullptr);
-
-        outputFd = _open_osfhandle(reinterpret_cast<intptr_t>(hReadPipe), _O_RDONLY);
-        if (outputFd == -1) {
-            CloseHandle(hReadPipe);
-            return 0;
-        }
-
-        return pi.dwProcessId;
 #else
-        int pipeFd[2];
-        if (pipe(pipeFd) == -1) {
-            return -1;
+        void SetPipeNonBlocking(const int fd) {
+            if (fd < 0) {
+                return;
+            }
+            const int flags = fcntl(fd, F_GETFL, 0);
+            if (flags >= 0) {
+                fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+            }
         }
 
-        const pid_t pid = fork();
+        PipedProcess SpawnPipedProcess(
+            const std::string &path,
+            const std::vector<std::string> &args,
+            const EnvVars &extraEnv,
+            const bool separateStderr
+        ) {
+            PipedProcess result;
+            int stdoutPipe[2];
+            int stderrPipe[2] = {-1, -1};
+            if (pipe(stdoutPipe) == -1) {
+                return result;
+            }
+            if (separateStderr && pipe(stderrPipe) == -1) {
+                close(stdoutPipe[0]);
+                close(stdoutPipe[1]);
+                return result;
+            }
 
-        if (pid < 0) {
-            close(pipeFd[0]);
-            close(pipeFd[1]);
-            return -1;
+            const ProcessEnvironment environment = MakeProcessEnvironment(extraEnv);
+            const pid_t pid = fork();
+
+            if (pid < 0) {
+                close(stdoutPipe[0]);
+                close(stdoutPipe[1]);
+                if (stderrPipe[0] >= 0) close(stderrPipe[0]);
+                if (stderrPipe[1] >= 0) close(stderrPipe[1]);
+                return result;
+            }
+
+            if (pid == 0) {
+                setpgid(0, 0);
+                close(stdoutPipe[0]);
+                if (stderrPipe[0] >= 0) close(stderrPipe[0]);
+
+                dup2(stdoutPipe[1], STDOUT_FILENO);
+                dup2(separateStderr ? stderrPipe[1] : stdoutPipe[1], STDERR_FILENO);
+                close(stdoutPipe[1]);
+                if (stderrPipe[1] >= 0) close(stderrPipe[1]);
+
+                std::vector<std::string> argvStorage;
+                const std::vector<char *> argv = MutableArgv(argvStorage, path, args);
+                if (!environment.Pointers.empty()) {
+                    execve(path.c_str(), argv.data(), environment.Pointers.data());
+                } else {
+                    execvp(path.c_str(), argv.data());
+                }
+                _exit(1);
+            }
+
+            close(stdoutPipe[1]);
+            if (stderrPipe[1] >= 0) close(stderrPipe[1]);
+            result.Pid = pid;
+            result.StdoutFd = stdoutPipe[0];
+            result.StderrFd = stderrPipe[0];
+            SetPipeNonBlocking(result.StdoutFd);
+            SetPipeNonBlocking(result.StderrFd);
+            return result;
         }
+#endif
+    }
 
-        if (pid == 0) {
-            setpgid(0, 0);
-            close(pipeFd[0]);
+    PipedProcess SpawnProcessWithPipes(
+        const std::string &path,
+        const std::vector<std::string> &args,
+        const EnvVars &extraEnv,
+        const bool separateStderr
+    ) {
+        return SpawnPipedProcess(path, args, extraEnv, separateStderr);
+    }
 
-            dup2(pipeFd[1], STDOUT_FILENO);
-            dup2(pipeFd[1], STDERR_FILENO);
-            close(pipeFd[1]);
-
-            std::vector<std::string> argvStorage;
-            const std::vector<char *> argv = MutableArgv(argvStorage, path, args);
-            execvp(path.c_str(), argv.data());
-            _exit(1);
+    ProcessId SpawnProcessWithPipe(const std::string &path, const std::vector<std::string> &args, int &outputFd) {
+        const PipedProcess process = SpawnProcessWithPipes(path, args, {}, false);
+        outputFd = process.StdoutFd;
+#ifdef _WIN32
+        if (process.NativeHandle != 0) {
+            CloseHandle(reinterpret_cast<HANDLE>(process.NativeHandle));
         }
+#endif
+        return process.Pid;
+    }
 
-        close(pipeFd[1]);
-        outputFd = pipeFd[0];
+    PipeReadResult ReadProcessPipe(const int fd, char *buffer, const std::size_t size) {
+        if (fd < 0 || buffer == nullptr || size == 0) {
+            return {};
+        }
+#ifdef _WIN32
+        const auto handle = reinterpret_cast<HANDLE>(_get_osfhandle(fd));
+        DWORD bytesRead = 0;
+        if (ReadFile(handle, buffer, static_cast<DWORD>(size), &bytesRead, nullptr)) {
+            return bytesRead > 0
+                       ? PipeReadResult{.Status = PipeReadStatus::Data, .Size = bytesRead}
+                       : PipeReadResult{.Status = PipeReadStatus::WouldBlock};
+        }
+        const DWORD error = GetLastError();
+        if (error == ERROR_BROKEN_PIPE || error == ERROR_HANDLE_EOF) {
+            return {.Status = PipeReadStatus::Closed};
+        }
+        if (error == ERROR_NO_DATA) {
+            return {.Status = PipeReadStatus::WouldBlock};
+        }
+        return {};
+#else
+        const ssize_t bytesRead = read(fd, buffer, size);
+        if (bytesRead > 0) {
+            return {.Status = PipeReadStatus::Data, .Size = static_cast<std::size_t>(bytesRead)};
+        }
+        if (bytesRead == 0) {
+            return {.Status = PipeReadStatus::Closed};
+        }
+        if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+            return {.Status = PipeReadStatus::WouldBlock};
+        }
+        return {};
+#endif
+    }
 
-        const int flags = fcntl(outputFd, F_GETFL, 0);
-        fcntl(outputFd, F_SETFL, flags | O_NONBLOCK);
-
-        return pid;
+    void CloseProcessPipe(const int fd) {
+        if (fd < 0) {
+            return;
+        }
+#ifdef _WIN32
+        _close(fd);
+#else
+        close(fd);
 #endif
     }
 
@@ -515,29 +711,113 @@ namespace CoreDeck::Platform {
 #endif
     }
 
-    bool WaitForProcessExit(const ProcessId pid, const int timeoutMs) {
+    bool InterruptProcess(const ProcessId pid) {
 #ifdef _WIN32
-        if (pid == 0) return false;
-        HANDLE hProcess = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
-        if (hProcess == nullptr) return true;
-        const DWORD r = WaitForSingleObject(hProcess, timeoutMs < 0 ? INFINITE : static_cast<DWORD>(timeoutMs));
+        if (pid == 0) {
+            return false;
+        }
+        HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
+        if (hProcess == nullptr) {
+            return false;
+        }
+        const bool result = TerminateProcess(hProcess, 1) != FALSE;
         CloseHandle(hProcess);
-        return r == WAIT_OBJECT_0;
+        return result;
 #else
         if (pid <= 0) {
             return false;
         }
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+        return kill(pid, SIGKILL) == 0;
+#endif
+    }
+
+    ProcessExitResult WaitForProcessResult(const ProcessId pid, const int timeoutMs) {
+        ProcessExitResult result;
+#ifdef _WIN32
+        if (pid == 0) return result;
+        HANDLE hProcess = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
+        if (hProcess == nullptr) {
+            result.Exited = true;
+            return result;
+        }
+        const DWORD r = WaitForSingleObject(hProcess, timeoutMs < 0 ? INFINITE : static_cast<DWORD>(timeoutMs));
+        if (r == WAIT_OBJECT_0) {
+            DWORD exitCode = 0;
+            result.Exited = true;
+            if (GetExitCodeProcess(hProcess, &exitCode)) {
+                result.ExitCode = static_cast<int>(exitCode);
+            }
+        }
+        CloseHandle(hProcess);
+        return result;
+#else
+        if (pid <= 0) {
+            return result;
+        }
+        const auto deadline = timeoutMs < 0
+                                  ? std::chrono::steady_clock::time_point::max()
+                                  : std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
         while (true) {
             int status = 0;
             const pid_t r = waitpid(pid, &status, WNOHANG);
-            if (r == pid || r == -1) {
-                return true;
+            if (r == pid) {
+                result.Exited = true;
+                if (WIFEXITED(status)) {
+                    result.ExitCode = WEXITSTATUS(status);
+                } else if (WIFSIGNALED(status)) {
+                    result.ExitCode = 128 + WTERMSIG(status);
+                }
+                return result;
+            }
+            if (r == -1) {
+                result.Exited = true;
+                return result;
             }
             if (std::chrono::steady_clock::now() >= deadline) {
-                return false;
+                return result;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+#endif
+    }
+
+    bool WaitForProcessExit(const ProcessId pid, const int timeoutMs) {
+        return WaitForProcessResult(pid, timeoutMs).Exited;
+    }
+
+    // Windows clears NativeHandle after closing the process handle. POSIX only reads the pid.
+    ProcessExitResult WaitForProcessResult(PipedProcess &process, const int timeoutMs) { // NOLINT(misc-const-correctness)
+#ifdef _WIN32
+        ProcessExitResult result;
+        if (process.NativeHandle == 0) {
+            return WaitForProcessResult(process.Pid, timeoutMs);
+        }
+        const auto handle = reinterpret_cast<HANDLE>(process.NativeHandle);
+        const DWORD wait = WaitForSingleObject(handle, timeoutMs < 0 ? INFINITE : static_cast<DWORD>(timeoutMs));
+        if (wait == WAIT_OBJECT_0) {
+            DWORD exitCode = 0;
+            result.Exited = true;
+            if (GetExitCodeProcess(handle, &exitCode)) {
+                result.ExitCode = static_cast<int>(exitCode);
+            }
+            CloseHandle(handle);
+            process.NativeHandle = 0;
+        }
+        return result;
+#else
+        return WaitForProcessResult(process.Pid, timeoutMs);
+#endif
+    }
+
+    void ClosePipedProcess(PipedProcess &process) {
+        CloseProcessPipe(process.StdoutFd);
+        CloseProcessPipe(process.StderrFd);
+        process.StdoutFd = -1;
+        process.StderrFd = -1;
+#ifdef _WIN32
+        if (process.NativeHandle != 0) {
+            CloseHandle(reinterpret_cast<HANDLE>(process.NativeHandle));
+            process.NativeHandle = 0;
         }
 #endif
     }
