@@ -4,8 +4,10 @@
 
 #include <algorithm>
 #include <cctype>
+#include <charconv>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <sstream>
 #include <unordered_map>
 
@@ -132,11 +134,7 @@ namespace CoreDeck::Core {
             const std::string variant = Platform::LowerCopy(avd.SystemImageVariant);
             const std::string tagId = Platform::LowerCopy(avd.SystemImageTagId);
             const std::string tagDisplay = Platform::LowerCopy(avd.SystemImageTagDisplay);
-            const std::string tagDisplayNames = Platform::LowerCopy(Platform::StrConcat(
-                avd.SystemImageTagDisplay,
-                " ",
-                config.contains("tag.displaynames") ? config.at("tag.displaynames") : ""
-            ));
+            const std::string tagDisplayNames = Platform::LowerCopy(Platform::StrConcat(avd.SystemImageTagDisplay, " ", config.contains("tag.displaynames") ? config.at("tag.displaynames") : ""));
 
             avd.IsGooglePlayImage =
                 variant.find("google_apis_playstore") != std::string::npos ||
@@ -259,6 +257,25 @@ namespace CoreDeck::Core {
             return assignment;
         }
 
+        std::optional<int> ParsePositiveInt(const std::string &value) {
+            int parsed = 0;
+            const char *const begin = value.data();
+            const char *const end = begin + value.size();
+            const auto [ptr, error] = std::from_chars(begin, end, parsed);
+            if (error != std::errc{} || ptr != end || parsed <= 0) {
+                return std::nullopt;
+            }
+            return parsed;
+        }
+
+        std::optional<int> PanelDimension(const std::unordered_map<std::string, std::string> &config, const std::string &key) {
+            const auto it = config.find(key);
+            if (it == config.end()) {
+                return std::nullopt;
+            }
+            return ParsePositiveInt(it->second);
+        }
+
         bool SetConfigValue(const std::string &path, const std::string &key, const std::string &value) {
             std::ifstream input(path);
             if (!input.is_open()) {
@@ -374,6 +391,16 @@ namespace CoreDeck::Core {
         return ParseAvdManagerAvdList(output);
     }
 
+    std::optional<std::string> InitialOrientationForPanel(int width, int height) {
+        if (width <= 0 || height <= 0 || width == height) {
+            return std::nullopt;
+        }
+        if (width > height) {
+            return "landscape";
+        }
+        return "portrait";
+    }
+
     bool CreateAvd(const SdkInfo &sdk, const AvdCreationData &data) {
         if (sdk.AvdManagerPath.empty()) {
             return false;
@@ -400,6 +427,7 @@ namespace CoreDeck::Core {
         const std::string configPath = Platform::JoinPaths({avdDir, data.Name + ".avd", "config.ini"});
 
         if (std::filesystem::exists(configPath)) {
+            const auto config = ParseConfigFile(configPath);
             SetConfigValue(configPath, "hw.keyboard", "yes");
             if (!data.DisplayName.empty()) {
                 SetConfigValue(configPath, "avd.ini.displayname", data.DisplayName);
@@ -418,6 +446,17 @@ namespace CoreDeck::Core {
                 SetConfigValue(configPath, "skin.name", data.SkinName);
                 if (!data.SkinPath.empty()) {
                     SetConfigValue(configPath, "skin.path", data.SkinPath);
+                }
+            }
+            const auto width = PanelDimension(config, "hw.lcd.width");
+            const auto height = PanelDimension(config, "hw.lcd.height");
+            if (width.has_value() && height.has_value()) {
+                const auto orientation = InitialOrientationForPanel(
+                    width.value(),
+                    height.value()
+                );
+                if (orientation.has_value()) {
+                    SetConfigValue(configPath, "hw.initialOrientation", orientation.value());
                 }
             }
         }

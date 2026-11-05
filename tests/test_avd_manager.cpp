@@ -58,3 +58,17 @@ TEST_CASE("ParseAvdManagerAvdList leaves an empty list when only diagnostics are
 
     REQUIRE(names.empty());
 }
+
+TEST_CASE("InitialOrientationForPanel names the orientation of the stored panel", "[avd]") {
+    REQUIRE(InitialOrientationForPanel(1280, 720) == "landscape");
+    REQUIRE(InitialOrientationForPanel(1920, 1080) == "landscape");
+    REQUIRE(InitialOrientationForPanel(3840, 2160) == "landscape");
+    REQUIRE(InitialOrientationForPanel(1920, 1200) == "landscape");
+    REQUIRE(InitialOrientationForPanel(2208, 1840) == "landscape");
+    REQUIRE(InitialOrientationForPanel(1080, 2400) == "portrait");
+    REQUIRE(InitialOrientationForPanel(800, 1280) == "portrait");
+    REQUIRE(InitialOrientationForPanel(2076, 2152) == "portrait");
+    REQUIRE_FALSE(InitialOrientationForPanel(454, 454).has_value());
+    REQUIRE_FALSE(InitialOrientationForPanel(0, 720).has_value());
+    REQUIRE_FALSE(InitialOrientationForPanel(1280, -1).has_value());
+}

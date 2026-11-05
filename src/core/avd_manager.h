@@ -5,6 +5,7 @@
 #ifndef COREDECK_AVD_MANAGER_H
 #define COREDECK_AVD_MANAGER_H
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -66,6 +67,8 @@ namespace CoreDeck::Core {
     std::vector<std::string> ParseAvdManagerAvdList(const std::string &output);
 
     std::vector<std::string> ListAvdNames(const SdkInfo &sdk);
+
+    std::optional<std::string> InitialOrientationForPanel(int width, int height);
 
     bool CreateAvd(const SdkInfo &sdk, const AvdCreationData &data);
 
