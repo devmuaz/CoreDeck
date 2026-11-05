@@ -41,8 +41,21 @@ namespace CoreDeck::Gui {
         JarSigner,
     };
 
-    using ApkSignerState = ApkSignerWork;
-    using JarSignerState = JarSignerWork;
+    using CatalogType = Catalog;
+    using LogsType = Logs;
+    using AvdCreationWorkType = AvdCreationWork;
+    using ImageInstallationWorkType = ImageInstallationWork;
+    using SdkBootstrapWorkType = SdkBootstrapWork;
+    using HealthCheckWorkType = HealthCheckWork;
+    using AcceptLicensesWorkType = AcceptLicensesWork;
+    using LicenseNoticeType = LicenseNotice;
+    using JobsType = Jobs;
+    using DiskUsageType = DiskUsage;
+    using ApkAnalyzerWorkType = ApkAnalyzerWork;
+    using ApkSignerWorkType = ApkSignerWork;
+    using JarSignerWorkType = JarSignerWork;
+    using AdbWorkType = AdbWork;
+    using KeytoolWorkType = KeytoolWork;
 
     struct Context {
         struct Host {
@@ -64,8 +77,8 @@ namespace CoreDeck::Gui {
             Screen CurrentScreen = Screen::Main;
         } Flow;
 
-        Catalog Catalog;
-        Logs Logs;
+        CatalogType Catalog;
+        LogsType Logs;
 
         struct Prefs {
             bool AutoScroll = true;
@@ -101,19 +114,19 @@ namespace CoreDeck::Gui {
             std::string NativeWindowPage;
         } UI;
 
-        AvdCreationWork AvdCreationWork;
-        ImageInstallationWork ImageInstallationWork;
-        SdkBootstrapWork SdkBootstrapWork;
-        HealthCheckWork HealthCheckWork;
-        AcceptLicensesWork AcceptLicensesWork;
-        LicenseNotice LicenseNotice;
-        Jobs Jobs;
-        DiskUsage DiskUsage;
-        ApkAnalyzerWork ApkAnalyzerWork;
-        ApkSignerState ApkSignerWork;
-        JarSignerState JarSignerWork;
-        AdbWork AdbWork;
-        KeytoolWork KeytoolWork;
+        AvdCreationWorkType AvdCreationWork;
+        ImageInstallationWorkType ImageInstallationWork;
+        SdkBootstrapWorkType SdkBootstrapWork;
+        HealthCheckWorkType HealthCheckWork;
+        AcceptLicensesWorkType AcceptLicensesWork;
+        LicenseNoticeType LicenseNotice;
+        JobsType Jobs;
+        DiskUsageType DiskUsage;
+        ApkAnalyzerWorkType ApkAnalyzerWork;
+        ApkSignerWorkType ApkSignerWork;
+        JarSignerWorkType JarSignerWork;
+        AdbWorkType AdbWork;
+        KeytoolWorkType KeytoolWork;
 
         struct Updates {
             bool ShowNewVersionModal = false;

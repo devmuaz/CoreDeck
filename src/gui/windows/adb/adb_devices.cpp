@@ -288,12 +288,17 @@ namespace CoreDeck::Gui {
     void BuildDevicesWindow(Context &context, const Core::AdbDeviceSnapshot &snapshot) {
         auto &workspace = context.AdbWork;
         const std::string title = Platform::TrWindow("Wireless Devices", "AdbDevices");
+        static bool windowWasOpen = false;
         if (!workspace.ShowDevicesWindow && !ImGui::IsPopupOpen(title.c_str())) {
             workspace.ShowWifiConnectHelp = false;
-            workspace.DevicesTone = StatusBarTone::Idle;
-            workspace.DevicesMessage.clear();
+            if (windowWasOpen && workspace.DevicesTone != StatusBarTone::Busy) {
+                workspace.DevicesTone = StatusBarTone::Idle;
+                workspace.DevicesMessage.clear();
+            }
+            windowWasOpen = false;
             return;
         }
+        windowWasOpen = true;
 
         const ImGuiViewport *viewport = ImGui::GetMainViewport();
         const ImGuiStyle &style = ImGui::GetStyle();
