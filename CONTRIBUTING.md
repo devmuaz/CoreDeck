@@ -53,6 +53,17 @@ feature/* ──> develop ──> main (via PR) ──> tag vX.Y.Z ──> relea
 - Keep PRs focused — avoid mixing unrelated changes
 - Update the [CHANGELOG.md](CHANGELOG.md) if your change is user-facing
 
+### AI-assisted changes
+
+An assistant may draft a change. You open the pull request from your own account, read it, trim it, and stand behind it. A model, bot, or agent account is not an author. Unreviewed generated output — AI slop — is not a contribution.
+
+- You are the author of the pull request and of its commits
+- Read every changed line and be ready to explain it. If you cannot, remove it
+- Keep only the change you meant to make. Drop restated comments, unused helpers, speculative error handling, and edits the task did not need
+- Do not reformat or refactor neighboring code
+- Build and test the change yourself. A suggestion that claims to pass is not a passing build
+- Write the commit message and the PR description from what the diff actually does, not from the model's summary
+
 ## Commit Message Style
 
 Use short, imperative messages that describe what the commit does:
