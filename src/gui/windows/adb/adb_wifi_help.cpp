@@ -76,7 +76,7 @@ namespace CoreDeck::Gui {
             return;
         }
 
-        MutedWrapped(Platform::Tr("This switches the selected USB phone to a wireless adb connection on port 5555. The button stays off when that device is already a Wi-Fi address, an emulator, offline, or not authorized."));
+        MutedWrapped(Platform::Tr("This switches the selected USB phone to a wireless adb connection. The port field starts at 5555. The button stays off when that device is already a Wi-Fi address, an emulator, offline, or not authorized."));
         ImGui::Spacing();
 
         WifiHelpBlock(
@@ -96,14 +96,14 @@ namespace CoreDeck::Gui {
             probes,
             3
         );
-        const char *tcpip[] = {"adb -s <serial> tcpip 5555"};
+        const char *tcpip[] = {"adb -s <serial> tcpip <port>"};
         WifiHelpBlock(
-            Platform::Tr("3. Listen on TCP port 5555"),
-            Platform::Tr("This restarts adbd. The USB debugging session drops while it restarts, so that serial can disappear from the device list. The cable can stay plugged in. The port is always 5555. If this command fails, CoreDeck does not try to connect."),
+            Platform::Tr("3. Listen on the TCP port"),
+            Platform::Tr("This restarts adbd on the port in the field. The USB debugging session drops while it restarts, so that serial can disappear from the device list. The cable can stay plugged in. The field starts at 5555. If this command fails, CoreDeck does not try to connect."),
             tcpip,
             1
         );
-        const char *connect[] = {"adb connect <ip>:5555"};
+        const char *connect[] = {"adb connect <ip>:<port>"};
         WifiHelpBlock(
             Platform::Tr("4. Connect to that address"),
             Platform::Tr(R"(CoreDeck waits 800 ms, then connects. This command has no -s flag: it talks to the address, not the USB serial. Success is a report containing "connected to" or "already connected". Anything else waits 600 ms and tries again, up to five times.)"),
@@ -112,7 +112,7 @@ namespace CoreDeck::Gui {
         );
         WifiHelpBlock(
             Platform::Tr("5. Select and save the address"),
-            Platform::Tr("When the connection succeeds, CoreDeck selects <ip>:5555 and saves it in Wireless Devices. You can connect, disconnect, or remove it there later. No further command runs."),
+            Platform::Tr("When the connection succeeds, CoreDeck selects <ip>:<port> and saves it in Wireless Devices. You can connect, disconnect, or remove it there later. No further command runs."),
             nullptr,
             0
         );

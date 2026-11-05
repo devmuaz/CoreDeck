@@ -75,6 +75,7 @@ namespace CoreDeck::Core {
     AdbCommandResult ConnectAdbDeviceOverWifi(
         const SdkInfo &sdk,
         const std::string &serial,
+        int port,
         const std::atomic<bool> *cancel = nullptr
     );
 

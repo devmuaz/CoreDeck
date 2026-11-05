@@ -17,7 +17,7 @@ Check reports.
 - Run one shell command at a time and keep a per-device history of the ones that succeed.
 - Install an APK, uninstall a package, and push or pull files.
 - Forward and reverse ports, and reconnect a saved Wi-Fi address later.
-- Switch a USB device to Wi-Fi on port 5555.
+- Switch a USB device to Wi-Fi. The port field starts at 5555.
 
 Each device keeps its own tab, inputs, output, and in-flight command. Switching the
 dropdown does not throw that away. Leaving the workspace stops live logcat. The
@@ -221,8 +221,8 @@ status bar that stays visible. Closing the window clears that status bar.
 This is enabled only for a physical USB device that is online and authorized.
 It stays off for an emulator, a device that is already a `host:port` address,
 or a phone that is offline or unauthorized. The button names the USB device,
-for example **Connect RMX3085 over Wi-Fi**. The question mark explains the steps
-without closing this window.
+for example **Connect RMX3085 over Wi-Fi**. A **Port** field sits beside it and
+starts at `5555`. The question mark explains the steps without closing this window.
 
 CoreDeck then does the following against that USB serial.
 
@@ -240,7 +240,8 @@ CoreDeck then does the following against that USB serial.
    that address is used when the earlier commands did not print a listing.
    Anything else stops here and leaves the USB connection alone.
 
-2. Restart `adbd` so it listens on TCP port 5555. The port is fixed.
+2. Restart `adbd` so it listens on the TCP port from the field. The field starts
+   at 5555, and any port from 1 to 65535 is accepted.
 
    ```bash
    adb -s SERIAL tcpip 5555
@@ -249,7 +250,8 @@ CoreDeck then does the following against that USB serial.
    USB debugging drops while `adbd` restarts. The cable can stay plugged in.
    If this command fails, CoreDeck does not try to connect.
 
-3. Wait 800 ms, then connect. This command has no `-s`. It talks to the address.
+3. Wait 800 ms, then connect to that same port. This command has no `-s`. It
+   talks to the address.
 
    ```bash
    adb connect 192.168.68.102:5555
@@ -258,7 +260,8 @@ CoreDeck then does the following against that USB serial.
    Success is a report containing `connected to` or `already connected`.
    Anything else waits 600 ms and tries again, up to five times.
 
-4. Select `192.168.68.102:5555` in the dropdown and save it. No further command runs.
+4. Select `192.168.68.102:5555` in the dropdown and save it. The saved address
+   uses the port from the field. No further command runs.
 
 ### Saved addresses
 
@@ -316,7 +319,7 @@ connected.** when the report is empty.
 | List reverses        | `adb -s SERIAL reverse --list`                           |
 | Connect              | `adb connect <host:port>`                                |
 | Disconnect           | `adb disconnect <host:port>`                             |
-| Wi-Fi switch         | the probe, `tcpip 5555`, and `connect` sequence above    |
+| Wi-Fi switch         | the probe, `tcpip <port>`, and `connect` sequence above  |
 | Clear log            | `adb -s SERIAL logcat -c`                                |
 
 ## What this workspace does not do
@@ -324,7 +327,6 @@ connected.** when the report is empty.
 - It does not open an interactive shell. There is no `adb shell` with a prompt.
 - It does not pair a device with an Android 11+ pairing code. The Wi-Fi switch
   needs a USB debugging session first.
-- It does not choose a port other than 5555 for that switch.
 - It does not install or uninstall split APKs, app bundles, or more than one
   package at a time.
 - It does not edit `adb` server settings, kill the server, or backup the device.

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-11-04 16:45+0300\n"
+"POT-Creation-Date: 2026-11-05 09:40+0300\n"
 "PO-Revision-Date: 2026-09-29 09:20+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: French\n"
@@ -1253,7 +1253,7 @@ msgid "Remote"
 msgstr "Distant"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:126
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:185
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:211
 msgid "Remove"
 msgstr "Retirer"
 
@@ -1267,138 +1267,139 @@ msgid "Refresh"
 msgstr "Actualiser"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:166
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:257
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:249
 msgid "Forward"
 msgstr "Redirection"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:167
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:257
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:249
 msgid "Reverse"
 msgstr "Inversion"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:177
-msgid "Add"
-msgstr "Ajouter"
+msgid "Add Route"
+msgstr "Ajouter une route"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:190
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:188
 msgid "Local endpoint, for example tcp:8080"
 msgstr "Point de terminaison local, par exemple tcp:8080"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:200
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:198
 msgid "Remote endpoint, for example tcp:8080"
 msgstr "Point de terminaison distant, par exemple tcp:8080"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:223
-msgid "Use adb endpoint forms such as tcp:8080 or localabstract:name."
-msgstr ""
-"Utilisez des formes de point de terminaison adb telles que tcp:8080 ou "
-"localabstract:name."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:242
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:234
 msgid "Current routes"
 msgstr "Routes actuelles"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:248
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:240
 msgid "No Port Routes"
 msgstr "Aucune route de port"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:249
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:241
 msgid "Add a forward or reverse route to see it here."
 msgstr "Ajoutez une redirection ou une inversion pour l'afficher ici."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:43
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:46
 #, c++-format
 msgid "{0} is already connected over Wi-Fi."
 msgstr "{0} est déjà connecté en Wi-Fi."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:46
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:49
 msgid "Emulators do not use this Wi-Fi switch."
 msgstr "Les émulateurs n'utilisent pas ce basculement Wi-Fi."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:48
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:51
 msgid "Select a USB device that is online and authorized."
 msgstr "Sélectionnez un appareil USB en ligne et autorisé."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:53
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:210
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:56
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:251
 msgid "Wait for the current command to finish."
 msgstr "Attendez la fin de la commande en cours."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:108
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:146
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:134
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:172
 msgid "Online"
 msgstr "En ligne"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:109
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:146
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:135
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:172
 msgid "Offline"
 msgstr "Hors ligne"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:111
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:121
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:128
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:228
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:137
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:147
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:154
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:271
 msgid "Connect"
 msgstr "Connecter"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:112
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:121
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:129
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:138
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:147
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:155
 msgid "Disconnect"
 msgstr "Déconnecter"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:197
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:224
 #, c++-format
 msgid "Connect {0} over Wi-Fi"
 msgstr "Connecter {0} en Wi-Fi"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:198
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:268
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:225
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:308
 msgid "Connect over Wi-Fi"
 msgstr "Connecter en Wi-Fi"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:221
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:234
+msgid "Port"
+msgstr "Port"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:253
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:398
+msgid "Enter a port from 1 to 65535."
+msgstr "Saisissez un port compris entre 1 et 65535."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:264
 msgid "How this works"
 msgstr "Fonctionnement"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:235
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:278
 msgid "Host:port"
 msgstr "hôte:port"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:250
-msgid "Enter an address in host:port form."
-msgstr "Saisissez une adresse sous la forme hôte:port."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:257
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:297
 msgid "No saved devices yet."
 msgstr "Aucun appareil enregistré pour le moment."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:269
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:300
-msgid "Switches the USB device selected in the list to Wi-Fi on port 5555."
-msgstr ""
-"Fait passer l'appareil USB sélectionné dans la liste en Wi-Fi sur le port "
-"5555."
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:309
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:345
+msgid "Switches the USB device selected in the list to Wi-Fi."
+msgstr "Fait passer l'appareil USB sélectionné dans la liste en Wi-Fi."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:274
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:314
 msgid "Devices"
 msgstr "Appareils"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:279
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:319
 msgid "Saved devices"
 msgstr "Appareils enregistrés"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:290
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:330
 msgid "Wireless Devices"
 msgstr "Appareils sans fil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:352
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:404
+msgid "Enter an address in host:port form."
+msgstr "Saisissez une adresse sous la forme hôte:port."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:406
 msgid "No wireless action yet."
 msgstr "Aucune action sans fil pour le moment."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:23
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:95
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:675
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:685
 msgid "Logcat stopped..."
 msgstr "Logcat arrêté..."
 
@@ -1741,8 +1742,7 @@ msgstr "Commande annulée."
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:335
 msgid "Could not read a Wi-Fi address. Join a Wi-Fi network and try again."
 msgstr ""
-"Impossible de lire une adresse Wi-Fi. Rejoignez un réseau Wi-Fi et "
-"réessayez."
+"Impossible de lire une adresse Wi-Fi. Rejoignez un réseau Wi-Fi et réessayez."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:422
 msgid "This device is no longer reported by adb."
@@ -1760,87 +1760,94 @@ msgstr "L'hôte n'a pas l'autorisation d'accéder à cet appareil USB."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:434
 msgid "adb reports this device as offline. Reconnect it and try again."
-msgstr "adb signale cet appareil comme hors ligne. Reconnectez-le et réessayez."
+msgstr ""
+"adb signale cet appareil comme hors ligne. Reconnectez-le et réessayez."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:441
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:444
+msgid "Use adb endpoint forms such as tcp:8080 or localabstract:name."
+msgstr ""
+"Utilisez des formes de point de terminaison adb telles que tcp:8080 ou "
+"localabstract:name."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:451
 #, c++-format
 msgid "{0} [{1} lines]"
 msgstr "{0} [{1} lignes]"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:507
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:517
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:19
 msgid "Running shell command..."
 msgstr "Exécution de la commande shell..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:509
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:519
 msgid "Installing package..."
 msgstr "Installation du paquet..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:511
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:521
 msgid "Uninstalling package..."
 msgstr "Désinstallation du paquet..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:513
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:523
 msgid "Pushing file..."
 msgstr "Envoi du fichier..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:515
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:525
 msgid "Pulling file..."
 msgstr "Récupération du fichier..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:517
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:527
 msgid "Connecting..."
 msgstr "Connexion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:519
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:529
 msgid "Connecting over Wi-Fi..."
 msgstr "Connexion en Wi-Fi..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:521
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:531
 msgid "Disconnecting..."
 msgstr "Déconnexion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:523
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:533
 msgid "Creating forward..."
 msgstr "Création de la redirection..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:525
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:535
 msgid "Removing forward..."
 msgstr "Retrait de la redirection..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:527
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:537
 msgid "Creating reverse..."
 msgstr "Création de l'inversion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:529
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:539
 msgid "Removing reverse..."
 msgstr "Retrait de l'inversion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:532
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:542
 msgid "Refreshing port mappings..."
 msgstr "Actualisation des mappages de ports..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:534
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:544
 msgid "Clearing device log..."
 msgstr "Effacement du journal de l'appareil..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:537
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:547
 msgid "Running adb command..."
 msgstr "Exécution de la commande adb..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:785
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:795
 msgid "Manage Wireless Devices"
 msgstr "Gérer les appareils sans fil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:822
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:832
 msgid "Select a device"
 msgstr "Sélectionner un appareil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:846
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:856
 msgid "No devices"
 msgstr "Aucun appareil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:899
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:915
 msgid "No output."
 msgstr "Aucune sortie."
 
@@ -1880,13 +1887,10 @@ msgstr "Fonctionnement de la connexion Wi-Fi"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:79
 msgid ""
-"This switches the selected USB phone to a wireless adb connection on port "
-"5555. The button stays off when that device is already a Wi-Fi address, an "
-"emulator, offline, or not authorized."
-msgstr ""
-"Cela fait passer le téléphone USB sélectionné sur une connexion adb sans fil "
-"au port 5555. Le bouton reste désactivé si cet appareil est déjà une adresse "
-"Wi-Fi, un émulateur, hors ligne ou non autorisé."
+"This switches the selected USB phone to a wireless adb connection. The port "
+"field starts at 5555. The button stays off when that device is already a Wi-"
+"Fi address, an emulator, offline, or not authorized."
+msgstr "Cela fait passer le téléphone USB sélectionné sur une connexion adb sans fil. Le champ du port commence à 5555. Le bouton reste désactivé si cet appareil est déjà une adresse Wi-Fi, un émulateur, hors ligne ou non autorisé."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:83
 msgid "1. Start from the USB device"
@@ -1923,20 +1927,16 @@ msgstr ""
 "laisse la connexion USB inchangée."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:101
-msgid "3. Listen on TCP port 5555"
-msgstr "3. Écouter sur le port TCP 5555"
+msgid "3. Listen on the TCP port"
+msgstr "3. Écouter sur le port TCP"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:102
 msgid ""
-"This restarts adbd. The USB debugging session drops while it restarts, so "
-"that serial can disappear from the device list. The cable can stay plugged "
-"in. The port is always 5555. If this command fails, CoreDeck does not try to "
-"connect."
-msgstr ""
-"Cela redémarre adbd. La session de débogage USB s'interrompt pendant le "
-"redémarrage, et cet identifiant peut disparaître de la liste des appareils. "
-"Le câble peut rester branché. Le port est toujours 5555. Si cette commande "
-"échoue, CoreDeck n'essaie pas de se connecter."
+"This restarts adbd on the port in the field. The USB debugging session drops "
+"while it restarts, so that serial can disappear from the device list. The "
+"cable can stay plugged in. The field starts at 5555. If this command fails, "
+"CoreDeck does not try to connect."
+msgstr "Cela redémarre adbd sur le port indiqué dans le champ. La session de débogage USB s'interrompt pendant le redémarrage, et cet identifiant peut disparaître de la liste des appareils. Le câble peut rester branché. Le champ commence à 5555. Si cette commande échoue, CoreDeck n'essaie pas de se connecter."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:108
 msgid "4. Connect to that address"
@@ -1949,8 +1949,8 @@ msgid ""
 "\"connected to\" or \"already connected\". Anything else waits 600 ms and "
 "tries again, up to five times."
 msgstr ""
-"CoreDeck attend 800 ms, puis se connecte. Cette commande n'a pas d'option -s "
-": elle s'adresse à l'adresse, pas à l'identifiant USB. La réussite est un "
+"CoreDeck attend 800 ms, puis se connecte. Cette commande n'a pas d'option "
+"-s : elle s'adresse à l'adresse, pas à l'identifiant USB. La réussite est un "
 "rapport contenant « connected to » ou « already connected ». Sinon, CoreDeck "
 "attend 600 ms et réessaie, jusqu'à cinq fois."
 
@@ -1960,13 +1960,10 @@ msgstr "5. Sélectionner et enregistrer l'adresse"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:115
 msgid ""
-"When the connection succeeds, CoreDeck selects <ip>:5555 and saves it in "
+"When the connection succeeds, CoreDeck selects <ip>:<port> and saves it in "
 "Wireless Devices. You can connect, disconnect, or remove it there later. No "
 "further command runs."
-msgstr ""
-"Lorsque la connexion réussit, CoreDeck sélectionne <ip>:5555 et l'enregistre "
-"dans Appareils sans fil. Vous pourrez la connecter, la déconnecter ou la "
-"retirer plus tard. Aucune autre commande n'est exécutée."
+msgstr "Lorsque la connexion réussit, CoreDeck sélectionne <ip>:<port> et l'enregistre dans Appareils sans fil. Vous pourrez la connecter, la déconnecter ou la retirer plus tard. Aucune autre commande n'est exécutée."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/about.cpp:16
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/main_menu_bar.cpp:152

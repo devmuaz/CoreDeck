@@ -151,6 +151,7 @@ namespace CoreDeck::Gui {
         std::vector<std::string> WirelessDevices;
         std::unordered_set<std::string> SuppressedWirelessDevices;
         char WirelessAddress[256] = {};
+        char WifiPort[8] = "5555";
         StatusBarTone DevicesTone = StatusBarTone::Idle;
         std::string DevicesMessage;
         std::string PortRoutesSerial;

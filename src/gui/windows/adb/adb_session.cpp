@@ -436,6 +436,16 @@ namespace CoreDeck::Gui::AdbWindow {
             return nullptr;
         }
 
+        std::string PortRouteValidation(const AdbDeviceSession &session) {
+            const bool started = session.ForwardLocal[0] != '\0' || session.ForwardRemote[0] != '\0';
+            const bool valid = Core::IsValidAdbSocketSpec(session.ForwardLocal) &&
+                               Core::IsValidAdbSocketSpec(session.ForwardRemote);
+            if (started && !valid) {
+                return Platform::Tr("Use adb endpoint forms such as tcp:8080 or localabstract:name.");
+            }
+            return {};
+        }
+
         void ShowStatus(const StatusBarTone tone, std::string message, const std::optional<std::size_t> capturedLines) {
             if (capturedLines.has_value()) {
                 message = Platform::TrFormat("{0} [{1} lines]", message, std::to_string(*capturedLines));
@@ -869,6 +879,12 @@ namespace CoreDeck::Gui::AdbWindow {
         const Core::AdbDevice *device,
         const std::optional<std::size_t> capturedLines
     ) {
+        if (session.Tab == AdbWorkspaceTab::Connections) {
+            if (const std::string validation = PortRouteValidation(session); !validation.empty()) {
+                ShowStatus(StatusBarTone::Warning, validation, capturedLines);
+                return;
+            }
+        }
         const AdbTabStatus &status = session.TabStatus.at(static_cast<std::size_t>(session.Tab));
         if (status.Tone == StatusBarTone::Idle && status.Message.empty()) {
             if (const std::string line = FirstStatusLine(snapshot.Error); !line.empty()) {

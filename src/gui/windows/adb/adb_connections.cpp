@@ -174,15 +174,13 @@ namespace CoreDeck::Gui::AdbWindow {
             const bool reverse = session.ReverseForward;
             const char *arrow = RouteArrow(reverse);
             const float arrowW = ImGui::CalcTextSize(arrow).x;
-            const char *add = Platform::Tr("Add");
+            const char *add = Platform::Tr("Add Route");
             const float addPadX = 16.0F * GetDpiScale();
             const float addW = ImGui::CalcTextSize(add).x + ((ImGui::GetStyle().FramePadding.x + addPadX) * 2.0F);
             const float rowW = std::max(1.0F, ImGui::GetContentRegionAvail().x);
             const float fieldW = std::max(1.0F, (rowW - arrowW - addW - (spacing * 3.0F) - 2.0F) * 0.5F);
             const bool mappingValid = Core::IsValidAdbSocketSpec(session.ForwardLocal) &&
                                       Core::IsValidAdbSocketSpec(session.ForwardRemote);
-            const bool mappingInvalid =
-                (session.ForwardLocal[0] != '\0' || session.ForwardRemote[0] != '\0') && !mappingValid;
 
             ImGui::SetNextItemWidth(fieldW);
             ImGui::InputTextWithHint(
@@ -202,7 +200,7 @@ namespace CoreDeck::Gui::AdbWindow {
                 sizeof(session.ForwardRemote)
             );
             ImGui::SameLine(0.0F, spacing);
-            if (PositiveButton(add, usable && !session.Busy.load() && mappingValid, ImVec2(addW, 0.0F))) {
+            if (PrimaryButton(IconWithLabel(Icons::PLUS, add).c_str(), usable && !session.Busy.load() && mappingValid, ImVec2(addW, 0.0F))) {
                 const std::string host = session.ForwardLocal;
                 const std::string device = session.ForwardRemote;
                 StartTask(
@@ -215,12 +213,6 @@ namespace CoreDeck::Gui::AdbWindow {
                         }
                         return RunPortCommand(sdk, serial, false, {host, device}, cancel);
                     }
-                );
-            }
-            if (mappingInvalid) {
-                StatusMessage(
-                    StatusMessageTone::Warning,
-                    Platform::Tr("Use adb endpoint forms such as tcp:8080 or localabstract:name.")
                 );
             }
         }

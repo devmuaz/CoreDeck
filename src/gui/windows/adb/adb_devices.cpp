@@ -4,6 +4,9 @@
 
 #include "adb_devices.h"
 
+#include <charconv>
+#include <optional>
+
 #include "adb_session.h"
 #include "adb_wifi_help.h"
 #include "platform/i18n.h"
@@ -76,13 +79,36 @@ namespace CoreDeck::Gui {
             );
         }
 
-        void QueueWifiConnect(Context &context, const std::string &serial) {
+        int DigitsOnly(ImGuiInputTextCallbackData *data) { // NOLINT(misc-const-correctness)
+            if (data->EventChar < '0' || data->EventChar > '9') {
+                return 1;
+            }
+            return 0;
+        }
+
+        std::optional<int> WifiListenPort(const char *text) {
+            if (text == nullptr || text[0] == '\0') {
+                return std::nullopt;
+            }
+            int port = 0;
+            const char *end = text;
+            while (*end != '\0') {
+                ++end;
+            }
+            const auto [ptr, error] = std::from_chars(text, end, port);
+            if (error != std::errc{} || ptr != end || port < 1 || port > 65535) {
+                return std::nullopt;
+            }
+            return port;
+        }
+
+        void QueueWifiConnect(Context &context, const std::string &serial, const int port) {
             AdbWindow::StartTask(
                 context,
                 context.AdbWork.Session(serial),
                 AdbTask::ConnectOverWifi,
-                [](const Core::SdkInfo &sdk, const std::string &deviceSerial, const std::atomic<bool> *cancel) {
-                    return Core::ConnectAdbDeviceOverWifi(sdk, deviceSerial, cancel);
+                [port](const Core::SdkInfo &sdk, const std::string &deviceSerial, const std::atomic<bool> *cancel) {
+                    return Core::ConnectAdbDeviceOverWifi(sdk, deviceSerial, port, cancel);
                 }
             );
         }
@@ -192,23 +218,40 @@ namespace CoreDeck::Gui {
             auto &workspace = context.AdbWork;
             const Core::AdbDevice *selected = AdbWindow::SelectedDevice(snapshot, workspace.SelectedSerial);
             const bool overUsb = selected != nullptr && IsPhysicalUsb(*selected);
+            const std::optional<int> port = WifiListenPort(workspace.WifiPort);
             const std::string label =
                 overUsb
                     ? Platform::TrFormat("Connect {0} over Wi-Fi", AdbWindow::DeviceTitle(*selected))
                     : Platform::Tr("Connect over Wi-Fi");
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float buttonW = AdbWindow::ActionWidth(label.c_str());
+            const float portW = ImGui::CalcTextSize("65535").x + (ImGui::GetStyle().FramePadding.x * 2.0F);
             const float icon = IconCircleButtonDiameter();
             const bool busy = selected != nullptr && SessionBusy(workspace, selected->Serial);
-            const bool enabled = overUsb && !busy;
-            if (PrimaryButton(label.c_str(), enabled, ImVec2(buttonW, 0.0F)) && selected != nullptr) {
-                QueueWifiConnect(context, selected->Serial);
+            const bool portValid = port.has_value();
+            const bool enabled = overUsb && !busy && portValid;
+            ImGui::AlignTextToFramePadding();
+            ImGui::TextUnformatted(Platform::Tr("Port"));
+            ImGui::SameLine(0.0F, spacing);
+            ImGui::SetNextItemWidth(portW);
+            ImGui::InputText(
+                "##WifiPort",
+                workspace.WifiPort,
+                sizeof(workspace.WifiPort),
+                ImGuiInputTextFlags_CallbackCharFilter,
+                DigitsOnly
+            );
+            ImGui::SameLine(0.0F, spacing);
+            if (PrimaryButton(label.c_str(), enabled, ImVec2(buttonW, 0.0F)) && selected != nullptr && portValid) {
+                QueueWifiConnect(context, selected->Serial, *port);
             }
             if (!enabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
-                const std::string reason =
-                    overUsb && busy
-                        ? Platform::Tr("Wait for the current command to finish.")
-                        : WifiConnectBlockedReason(selected);
+                std::string reason = WifiConnectBlockedReason(selected);
+                if (overUsb && busy) {
+                    reason = Platform::Tr("Wait for the current command to finish.");
+                } else if (overUsb && !portValid) {
+                    reason = Platform::Tr("Enter a port from 1 to 65535.");
+                }
                 ImGui::SetTooltip("%s", reason.c_str());
             }
 
@@ -246,9 +289,6 @@ namespace CoreDeck::Gui {
                 QueueConnect(context, address);
             }
             BusyTooltip(enabled, busy);
-            if (!address.empty() && !valid) {
-                StatusMessage(StatusMessageTone::Warning, Platform::Tr("Enter an address in host:port form."));
-            }
         }
 
         void SavedDevices(Context &context, const Core::AdbDeviceSnapshot &snapshot) {
@@ -266,7 +306,7 @@ namespace CoreDeck::Gui {
 
         void WifiCard(Context &context, const Core::AdbDeviceSnapshot &snapshot) {
             SectionHeading(Platform::Tr("Connect over Wi-Fi"));
-            MutedWrapped(Platform::Tr("Switches the USB device selected in the list to Wi-Fi on port 5555."));
+            MutedWrapped(Platform::Tr("Switches the USB device selected in the list to Wi-Fi."));
             WifiConnectRow(context, snapshot);
         }
 
@@ -302,7 +342,7 @@ namespace CoreDeck::Gui {
 
         const ImGuiViewport *viewport = ImGui::GetMainViewport();
         const ImGuiStyle &style = ImGui::GetStyle();
-        const char *blurb = Platform::Tr("Switches the USB device selected in the list to Wi-Fi on port 5555.");
+        const char *blurb = Platform::Tr("Switches the USB device selected in the list to Wi-Fi.");
         const float chromeX = (style.WindowPadding.x * 2.0F) + (style.WindowBorderSize * 2.0F);
         const float rowPad = style.FramePadding.x + (4.0F * GetDpiScale());
         const float rowWindow =
@@ -353,12 +393,25 @@ namespace CoreDeck::Gui {
             }
             ImGui::EndChild();
         }
-        const char *status = workspace.DevicesMessage.empty()
-                                 ? Platform::Tr("No wireless action yet.")
-                                 : workspace.DevicesMessage.c_str();
-        const StatusBarTone tone = workspace.DevicesMessage.empty()
-                                       ? StatusBarTone::Idle
-                                       : workspace.DevicesTone;
+        std::string validation;
+        if (workspace.WifiPort[0] != '\0' && !WifiListenPort(workspace.WifiPort).has_value()) {
+            validation = Platform::Tr("Enter a port from 1 to 65535.");
+        }
+        if (workspace.WirelessAddress[0] != '\0' && !Core::IsValidAdbNetworkEndpoint(workspace.WirelessAddress)) {
+            if (!validation.empty()) {
+                validation.push_back(' ');
+            }
+            validation += Platform::Tr("Enter an address in host:port form.");
+        }
+        const char *status = Platform::Tr("No wireless action yet.");
+        StatusBarTone tone = StatusBarTone::Idle;
+        if (!validation.empty()) {
+            status = validation.c_str();
+            tone = StatusBarTone::Warning;
+        } else if (!workspace.DevicesMessage.empty()) {
+            status = workspace.DevicesMessage.c_str();
+            tone = workspace.DevicesTone;
+        }
         StatusBar(tone, status);
         if (workspace.ShowDevicesWindow) {
             WifiConnectHelp(workspace.ShowWifiConnectHelp);

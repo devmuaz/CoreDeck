@@ -1,3 +1,14 @@
+## [v0.15.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.15.0) — 2026-11-05
+
+- Add Android Debug Bridge (Tools, Android Debug Bridge (ADB)) so a phone, tablet, or emulator can be used through the official `adb` in platform-tools, without Android Studio. A missing `adb` offers to install platform-tools, and Health Check reports the `adb` version
+- Watch USB, Wi-Fi, and emulator devices come and go. Each device keeps its own logcat, shell, packages, and connections. The label is the model name, or the AVD name for an emulator
+- Stream logcat with a priority and a buffer filter, search, and auto-scroll. Clear Device wipes Android's log buffers and leaves the lines already captured
+- Run one shell command at a time. Commands that exit 0 are saved for that device, newest first, up to 64, and loaded again when the workspace opens
+- Install an APK, with replace, downgrade, and grant-permissions options, uninstall a package with an option to keep its data, and push or pull a file
+- Forward and reverse ports. The list reloads when the workspace opens, the selected device changes, or a device connects or disconnects. Local is the computer and Remote is the device. The routes stay with `adb`
+- Manage Wireless Devices sits beside the device list and saves addresses for the whole app, so a phone can be reconnected after it has disconnected. Connect over Wi-Fi switches the selected USB phone to a wireless connection, and the port field starts at 5555. A command that is still running stays in the status bar when the window closes
+- Fix Create AVD so a landscape device profile, such as a TV, starts in landscape. The initial orientation follows the panel width and height (thanks [@hammadbawara](https://github.com/hammadbawara), [#67](https://github.com/devmuaz/CoreDeck/issues/67))
+
 ## [v0.14.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.14.2) — 2026-10-30
 
 - Add a Preferences, General option to include beta releases when checking for updates. It is off by default. When it is on, a newer beta is offered, and Download opens that release on GitHub. A stable release still opens coredeck.dev

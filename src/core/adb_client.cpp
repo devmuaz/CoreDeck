@@ -414,9 +414,10 @@ namespace CoreDeck::Core {
     AdbCommandResult ConnectAdbDeviceOverWifi(
         const SdkInfo &sdk,
         const std::string &serial,
+        const int port,
         const std::atomic<bool> *cancel
     ) {
-        if (serial.empty()) {
+        if (serial.empty() || port < 1 || port > 65535) {
             return {.Error = AdbError::InvalidRequest};
         }
         if (cancel != nullptr && cancel->load()) {
@@ -447,12 +448,13 @@ namespace CoreDeck::Core {
             return missing;
         }
 
-        AdbCommandResult tcpip = RunAdb(sdk, {"tcpip", "5555"}, serial, cancel);
+        const std::string portText = std::to_string(port);
+        AdbCommandResult tcpip = RunAdb(sdk, {"tcpip", portText}, serial, cancel);
         if (!tcpip.Ok()) {
             return tcpip;
         }
 
-        const std::string endpoint = address + ":5555";
+        const std::string endpoint = address + ":" + portText;
         AdbCommandResult connect;
         for (int attempt = 0; attempt < 5; ++attempt) {
             if (WaitForAdbRestart(cancel, attempt == 0 ? 800 : 600)) {
