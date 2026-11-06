@@ -2,7 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "CoreDeck (Debug) [macOS]",
+      "name": "[macOS · Debug] CoreDeck [Apple Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 1
+      },
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build-debug/CoreDeck.app/Contents/MacOS/CoreDeck",
@@ -15,7 +19,96 @@
       "preLaunchTask": "cmake-build-coredeck-debug"
     },
     {
-      "name": "CoreDeck (Release) [macOS]",
+      "name": "[macOS · Debug] CoreDeck [Homebrew GCC 16 · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 2
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-homebrew-gcc16-debug/CoreDeck.app/Contents/MacOS/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-gcc-debug"
+    },
+    {
+      "name": "[macOS · Debug] CoreDeck [Homebrew Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 3
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-homebrew-clang-debug/CoreDeck.app/Contents/MacOS/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-llvm-debug"
+    },
+    {
+      "name": "[macOS · Debug] CoreDeck Tests [Apple Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 4
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-tests-debug"
+    },
+    {
+      "name": "[macOS · Debug] CoreDeck Tests [Homebrew GCC 16 · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 5
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-homebrew-gcc16-debug/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-tests-gcc-debug"
+    },
+    {
+      "name": "[macOS · Debug] CoreDeck Tests [Homebrew Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 6
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-homebrew-clang-debug/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-tests-llvm-debug"
+    },
+    {
+      "name": "[macOS · Release] CoreDeck [Apple Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 7
+      },
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build-release/CoreDeck.app/Contents/MacOS/CoreDeck",
@@ -28,20 +121,45 @@
       "preLaunchTask": "cmake-build-coredeck-release"
     },
     {
-      "name": "CoreDeck Tests (Debug) [macOS]",
+      "name": "[macOS · Release] CoreDeck [Homebrew GCC 16 · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 8
+      },
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
+      "program": "${workspaceFolder}/build-homebrew-gcc16-release/CoreDeck.app/Contents/MacOS/CoreDeck",
       "args": [],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,
       "environment": [],
       "externalConsole": false,
       "MIMode": "lldb",
-      "preLaunchTask": "cmake-build-coredeck-tests-debug"
+      "preLaunchTask": "cmake-build-coredeck-gcc-release"
     },
     {
-      "name": "CoreDeck Tests (Release) [macOS]",
+      "name": "[macOS · Release] CoreDeck [Homebrew Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 9
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-homebrew-clang-release/CoreDeck.app/Contents/MacOS/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-llvm-release"
+    },
+    {
+      "name": "[macOS · Release] CoreDeck Tests [Apple Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 10
+      },
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build-release/tests/coredeck_tests",
@@ -54,7 +172,45 @@
       "preLaunchTask": "cmake-build-coredeck-tests-release"
     },
     {
-      "name": "CoreDeck (Debug) [Windows · MSVC]",
+      "name": "[macOS · Release] CoreDeck Tests [Homebrew GCC 16 · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 11
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-homebrew-gcc16-release/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-tests-gcc-release"
+    },
+    {
+      "name": "[macOS · Release] CoreDeck Tests [Homebrew Clang · Ninja · LLDB]",
+      "presentation": {
+        "group": "macOS",
+        "order": 12
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-homebrew-clang-release/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "cmake-build-coredeck-tests-llvm-release"
+    },
+    {
+      "name": "[Windows · Debug] CoreDeck [MSVC · Ninja · Visual Studio]",
+      "presentation": {
+        "group": "Windows",
+        "order": 1
+      },
       "type": "cppvsdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build-debug/CoreDeck.exe",
@@ -66,43 +222,11 @@
       "preLaunchTask": "cmake-build-coredeck-debug"
     },
     {
-      "name": "CoreDeck (Release) [Windows · MSVC]",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build-release/CoreDeck.exe",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "stopAtEntry": false,
-      "environment": [],
-      "console": "internalConsole",
-      "preLaunchTask": "cmake-build-coredeck-release"
-    },
-    {
-      "name": "CoreDeck Tests (Debug) [Windows · MSVC]",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests.exe",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "stopAtEntry": false,
-      "environment": [],
-      "console": "internalConsole",
-      "preLaunchTask": "cmake-build-coredeck-tests-debug"
-    },
-    {
-      "name": "CoreDeck Tests (Release) [Windows · MSVC]",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build-release/tests/coredeck_tests.exe",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "stopAtEntry": false,
-      "environment": [],
-      "console": "internalConsole",
-      "preLaunchTask": "cmake-build-coredeck-tests-release"
-    },
-    {
-      "name": "CoreDeck (Debug) [Windows · LLDB]",
+      "name": "[Windows · Debug] CoreDeck [MSVC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Windows",
+        "order": 2
+      },
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build-debug/CoreDeck.exe",
@@ -112,17 +236,27 @@
       "preLaunchTask": "cmake-build-coredeck-debug"
     },
     {
-      "name": "CoreDeck (Release) [Windows · LLDB]",
-      "type": "lldb",
+      "name": "[Windows · Debug] CoreDeck Tests [MSVC · Ninja · Visual Studio]",
+      "presentation": {
+        "group": "Windows",
+        "order": 3
+      },
+      "type": "cppvsdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build-release/CoreDeck.exe",
+      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests.exe",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "stopOnEntry": false,
-      "preLaunchTask": "cmake-build-coredeck-release"
+      "stopAtEntry": false,
+      "environment": [],
+      "console": "internalConsole",
+      "preLaunchTask": "cmake-build-coredeck-tests-debug"
     },
     {
-      "name": "CoreDeck Tests (Debug) [Windows · LLDB]",
+      "name": "[Windows · Debug] CoreDeck Tests [MSVC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Windows",
+        "order": 4
+      },
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build-debug/tests/coredeck_tests.exe",
@@ -132,7 +266,57 @@
       "preLaunchTask": "cmake-build-coredeck-tests-debug"
     },
     {
-      "name": "CoreDeck Tests (Release) [Windows · LLDB]",
+      "name": "[Windows · Release] CoreDeck [MSVC · Ninja · Visual Studio]",
+      "presentation": {
+        "group": "Windows",
+        "order": 5
+      },
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/CoreDeck.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "console": "internalConsole",
+      "preLaunchTask": "cmake-build-coredeck-release"
+    },
+    {
+      "name": "[Windows · Release] CoreDeck [MSVC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Windows",
+        "order": 6
+      },
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/CoreDeck.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-release"
+    },
+    {
+      "name": "[Windows · Release] CoreDeck Tests [MSVC · Ninja · Visual Studio]",
+      "presentation": {
+        "group": "Windows",
+        "order": 7
+      },
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/tests/coredeck_tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "console": "internalConsole",
+      "preLaunchTask": "cmake-build-coredeck-tests-release"
+    },
+    {
+      "name": "[Windows · Release] CoreDeck Tests [MSVC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Windows",
+        "order": 8
+      },
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build-release/tests/coredeck_tests.exe",
@@ -142,7 +326,11 @@
       "preLaunchTask": "cmake-build-coredeck-tests-release"
     },
     {
-      "name": "CoreDeck (Debug) [Linux · GDB]",
+      "name": "[Linux · Debug] CoreDeck [GCC · Ninja · GDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 1
+      },
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build-debug/CoreDeck",
@@ -162,27 +350,25 @@
       "preLaunchTask": "cmake-build-coredeck-debug"
     },
     {
-      "name": "CoreDeck (Release) [Linux · GDB]",
-      "type": "cppdbg",
+      "name": "[Linux · Debug] CoreDeck [GCC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 2
+      },
+      "type": "lldb",
       "request": "launch",
-      "program": "${workspaceFolder}/build-release/CoreDeck",
+      "program": "${workspaceFolder}/build-debug/CoreDeck",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "stopAtEntry": false,
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "gdb",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ],
-      "preLaunchTask": "cmake-build-coredeck-release"
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-debug"
     },
     {
-      "name": "CoreDeck Tests (Debug) [Linux · GDB]",
+      "name": "[Linux · Debug] CoreDeck Tests [GCC · Ninja · GDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 3
+      },
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
@@ -202,7 +388,63 @@
       "preLaunchTask": "cmake-build-coredeck-tests-debug"
     },
     {
-      "name": "CoreDeck Tests (Release) [Linux · GDB]",
+      "name": "[Linux · Debug] CoreDeck Tests [GCC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 4
+      },
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-tests-debug"
+    },
+    {
+      "name": "[Linux · Release] CoreDeck [GCC · Ninja · GDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 5
+      },
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "cmake-build-coredeck-release"
+    },
+    {
+      "name": "[Linux · Release] CoreDeck [GCC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 6
+      },
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-release/CoreDeck",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "preLaunchTask": "cmake-build-coredeck-release"
+    },
+    {
+      "name": "[Linux · Release] CoreDeck Tests [GCC · Ninja · GDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 7
+      },
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build-release/tests/coredeck_tests",
@@ -222,37 +464,11 @@
       "preLaunchTask": "cmake-build-coredeck-tests-release"
     },
     {
-      "name": "CoreDeck (Debug) [Linux · LLDB]",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/build-debug/CoreDeck",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "stopOnEntry": false,
-      "preLaunchTask": "cmake-build-coredeck-debug"
-    },
-    {
-      "name": "CoreDeck (Release) [Linux · LLDB]",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/build-release/CoreDeck",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "stopOnEntry": false,
-      "preLaunchTask": "cmake-build-coredeck-release"
-    },
-    {
-      "name": "CoreDeck Tests (Debug) [Linux · LLDB]",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/build-debug/tests/coredeck_tests",
-      "args": [],
-      "cwd": "${workspaceFolder}",
-      "stopOnEntry": false,
-      "preLaunchTask": "cmake-build-coredeck-tests-debug"
-    },
-    {
-      "name": "CoreDeck Tests (Release) [Linux · LLDB]",
+      "name": "[Linux · Release] CoreDeck Tests [GCC · Ninja · LLDB]",
+      "presentation": {
+        "group": "Linux",
+        "order": 8
+      },
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build-release/tests/coredeck_tests",

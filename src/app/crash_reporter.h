@@ -5,6 +5,7 @@
 #ifndef COREDECK_CRASH_REPORTER_H
 #define COREDECK_CRASH_REPORTER_H
 
+#include <cstdint>
 #include <string_view>
 
 namespace CoreDeck::App::CrashReporter {

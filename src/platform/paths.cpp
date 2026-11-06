@@ -10,6 +10,7 @@
 #include <windows.h>
 #elif __APPLE__
 #include <mach-o/dyld.h>
+#include <sys/syslimits.h>
 #elif __linux__
 #include <unistd.h>
 #endif

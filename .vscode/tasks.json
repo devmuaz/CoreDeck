@@ -121,6 +121,94 @@
       }
     },
     {
+      "label": "cmake-build-coredeck-gcc-debug",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Debug CoreDeck gcc",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-gcc-release",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Release CoreDeck gcc",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-tests-gcc-debug",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Debug coredeck_tests gcc",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-tests-gcc-release",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Release coredeck_tests gcc",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-llvm-debug",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Debug CoreDeck llvm",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-llvm-release",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Release CoreDeck llvm",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-tests-llvm-debug",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Debug coredeck_tests llvm",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "cmake-build-coredeck-tests-llvm-release",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/.vscode/scripts/cmake-build.sh\" Release coredeck_tests llvm",
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
       "label": "ctest-debug",
       "type": "shell",
       "command": "bash \"${workspaceFolder}/.vscode/scripts/run-ctest.sh\" Debug",

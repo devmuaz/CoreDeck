@@ -18,14 +18,13 @@
     "**/build/**": true,
     "**/build-debug/**": true,
     "**/build-release/**": true,
+    "**/build-homebrew-gcc16-debug/**": true,
+    "**/build-homebrew-gcc16-release/**": true,
+    "**/build-homebrew-clang-debug/**": true,
+    "**/build-homebrew-clang-release/**": true,
     "**/cmake-build-*/**": true,
     "**/extern/**": true,
     "**/.cache/**": true
-  },
-  "files.exclude": {
-    "build": true,
-    "build-debug": true,
-    "build-release": true
   },
   "search.exclude": {
     "**/extern": true

@@ -2,6 +2,10 @@
 build/
 build-release/
 build-debug/
+build-homebrew-gcc16-release/
+build-homebrew-gcc16-debug/
+build-homebrew-clang-release/
+build-homebrew-clang-debug/
 cmake-build-*/
 
 # IDE

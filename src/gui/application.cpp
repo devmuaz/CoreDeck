@@ -31,8 +31,12 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_WIN32) || (defined(__APPLE__) && defined(__clang__))
 #include <GLFW/glfw3native.h>
+#elif defined(__APPLE__)
+// glfw3native.h pulls in Apple headers that use blocks, which GCC cannot parse.
+#include <objc/objc.h>
+extern "C" id glfwGetCocoaWindow(GLFWwindow *window);
 #endif
 
 #include "application.h"
