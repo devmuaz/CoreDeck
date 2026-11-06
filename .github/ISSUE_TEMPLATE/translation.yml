@@ -1,0 +1,73 @@
+name: Translation
+description: Offer a new translation or improve an existing one.
+title: "[Translation]: "
+labels: ["type: enhancements", "needs: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English is the source language. Translators edit GNU gettext `.po` files. The workflow is in [docs/localization.md](https://github.com/devmuaz/CoreDeck/blob/main/docs/localization.md).
+
+        French, German, Simplified Chinese, and Traditional Chinese already ship. For a new language, copy `locales/coredeck.pot` to `locales/<tag>.po`, then attach that file here or open a pull request with it.
+
+        Right-to-left layout is not supported. Arabic and Hebrew can be translated, but those glyphs are not in the current fonts.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight checklist
+      options:
+        - label: I searched [existing issues](https://github.com/devmuaz/CoreDeck/issues?q=is%3Aissue) and this language or correction is not already tracked.
+          required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is this about?
+      options:
+        - New translation
+        - Correction or improvement of an existing translation
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: e.g. Arabic, Brazilian Portuguese, Simplified Chinese
+    validations:
+      required: true
+
+  - type: input
+    id: locale
+    attributes:
+      label: Locale code
+      description: A BCP 47 tag, such as `fr`, `pt-BR`, or `zh-Hans`. Simplified Chinese is `zh-Hans`. Traditional Chinese is `zh-Hant`.
+      placeholder: e.g. fr
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: The whole app, a specific window, or a few strings.
+    validations:
+      required: true
+
+  - type: textarea
+    id: catalog
+    attributes:
+      label: Catalog
+      description: |
+        Attach or link a `locales/<tag>.po` file filled in from `locales/coredeck.pot`. A pull request is welcome too.
+
+        Leave `msgid` unchanged. Keep `{0}` placeholders, and do not add a bare `%`.
+      render: markdown
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Dialect, terminology to keep in English, or anything else we should know. Screenshots of awkward wording are welcome.
+      render: markdown

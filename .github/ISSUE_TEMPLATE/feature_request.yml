@@ -1,0 +1,63 @@
+name: Feature Request
+description: Suggest a new feature or an improvement to existing functionality.
+title: "[Feature]: "
+labels: ["type: feature", "needs: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea? Describe the problem first, then the change you want. If CoreDeck already tries to do this and gets it wrong, a bug report is the better fit.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight checklist
+      options:
+        - label: I searched [existing issues](https://github.com/devmuaz/CoreDeck/issues?q=is%3Aissue) and the [feature list](https://github.com/devmuaz/CoreDeck#features), and this is not already supported or tracked.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What are you trying to do, and what is missing or frustrating today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What should CoreDeck do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you tried, or how Android Studio or the command-line tools handle this.
+
+  - type: checkboxes
+    id: area
+    attributes:
+      label: Related area(s)
+      options:
+        - label: AVDs and system images
+        - label: Emulator control or options
+        - label: Storage
+        - label: Health Check, SDK setup, or onboarding
+        - label: JDK or Preferences
+        - label: ADB
+        - label: APK Analyzer or APK Signer
+        - label: Java Keytool or Java Jar Signer
+        - label: Updates
+        - label: Localization
+        - label: Other
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Mockups, links, or anything else that helps.
+      render: markdown

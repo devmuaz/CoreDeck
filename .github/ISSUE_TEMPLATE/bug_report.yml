@@ -1,0 +1,135 @@
+name: Bug Report
+description: Something is broken or behaves incorrectly.
+title: "[Bug]: "
+labels: ["type: bug", "needs: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. CoreDeck drives the Android SDK from a desktop app, so the **version, operating system, and which window or tool failed** are what make a report reproducible.
+
+        The version and build number are in **Help → About CoreDeck**. If the problem involves the SDK, JDK, or an emulator, include a short note from **Tools → Health Check**.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight checklist
+      options:
+        - label: I searched [existing issues](https://github.com/devmuaz/CoreDeck/issues?q=is%3Aissue) and this is not a duplicate.
+          required: true
+        - label: I can reproduce this on the [latest release](https://github.com/devmuaz/CoreDeck/releases/latest), or on a recent build from `develop`.
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: CoreDeck version
+      description: Help → About CoreDeck. Include the build number when it is shown.
+      placeholder: e.g. 0.14.0 (Build 42)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install CoreDeck?
+      options:
+        - GitHub release
+        - Homebrew
+        - AUR (coredeck-bin)
+        - Built from source
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version and architecture
+      placeholder: e.g. macOS 15.5 (Sequoia), Apple Silicon
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: area
+    attributes:
+      label: Affected area(s)
+      options:
+        - label: AVD list, create, or delete
+        - label: System images
+        - label: Emulator launch, stop, or wipe
+        - label: Per-AVD options
+        - label: Emulator output log
+        - label: Storage overview
+        - label: Health Check
+        - label: SDK setup or onboarding
+        - label: JDK detection or Preferences
+        - label: ADB
+        - label: APK Analyzer
+        - label: APK Signer
+        - label: Java Keytool
+        - label: Java Jar Signer
+        - label: Updates
+        - label: Localization
+        - label: Other
+
+  - type: input
+    id: environment
+    attributes:
+      label: JDK, SDK, and device
+      description: Whatever applies. JDK is under Preferences → Java (JDK). For emulator bugs, include the AVD name and system image.
+      placeholder: e.g. OpenJDK 17; SDK from Health Check; Pixel 7, android-35 google_apis arm64-v8a
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What went wrong, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: health
+    attributes:
+      label: Health Check
+      description: If this involves the SDK, JDK, emulator, or a missing tool, paste the relevant Health Check results from Tools → Health Check.
+      render: markdown
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Paste the relevant output. Emulator problems usually show up in the Output Log panel. ADB problems can include the logcat or command result from the ADB window. If you launched CoreDeck from a terminal, the app also writes warnings and errors there.
+
+        Leave out keystore passwords, private keys, and signing secrets.
+      render: shell
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Screenshots and anything else
+      description: Drag screenshots into this box, or add any other detail that would help reproduce the bug.
+      render: markdown
