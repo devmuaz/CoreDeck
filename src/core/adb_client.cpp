@@ -10,6 +10,7 @@
 #include <charconv>
 #include <chrono>
 #include <sstream>
+#include <string_view>
 #include <thread>
 
 #include "platform/process.h"
@@ -47,6 +48,26 @@ namespace CoreDeck::Core {
 
         bool ReportContains(const std::string &output, const std::string &needle) {
             return Platform::LowerCopy(output).find(needle) != std::string::npos;
+        }
+
+        std::optional<std::string> PackageNameFromListLine(const std::string &line) {
+            const std::string trimmed = Platform::Trim(line);
+            constexpr std::string_view PREFIX = "package:";
+            if (!trimmed.starts_with(PREFIX)) {
+                return std::nullopt;
+            }
+            std::string name = trimmed.substr(PREFIX.size());
+            if (const auto equals = name.rfind('='); equals != std::string::npos) {
+                name = name.substr(equals + 1);
+            }
+            if (const auto space = name.find_first_of(" \t"); space != std::string::npos) {
+                name.resize(space);
+            }
+            name = Platform::Trim(name);
+            if (name.empty()) {
+                return std::nullopt;
+            }
+            return name;
         }
     }
 
@@ -370,6 +391,36 @@ namespace CoreDeck::Core {
             return {"shell", "cmd", "package", "uninstall", "-k", packageName};
         }
         return {"uninstall", packageName};
+    }
+
+    std::vector<std::string> ListAdbPackagesCommand(const AdbPackageListScope scope) {
+        std::vector<std::string> command{"shell", "pm", "list", "packages"};
+        switch (scope) {
+            case AdbPackageListScope::ThirdParty:
+                command.emplace_back("-3");
+                break;
+            case AdbPackageListScope::System:
+                command.emplace_back("-s");
+                break;
+            case AdbPackageListScope::All:
+                break;
+        }
+        return command;
+    }
+
+    std::vector<std::string> ParseAdbPackages(const std::string &output) {
+        std::vector<std::string> packages;
+        std::istringstream lines(output);
+        std::string line;
+        while (std::getline(lines, line)) {
+            if (std::optional<std::string> name = PackageNameFromListLine(line)) {
+                packages.push_back(std::move(*name));
+            }
+        }
+        std::ranges::sort(packages);
+        const auto unique = std::ranges::unique(packages);
+        packages.erase(unique.begin(), unique.end());
+        return packages;
     }
 
     AdbCommandResult UninstallAdbPackage(

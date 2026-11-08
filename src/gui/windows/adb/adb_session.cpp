@@ -43,6 +43,8 @@ namespace CoreDeck::Gui::AdbWindow {
                     return Platform::Tr("Install failed.");
                 case AdbTask::Uninstall:
                     return Platform::Tr("Uninstall failed.");
+                case AdbTask::ListPackages:
+                    return Platform::Tr("Could not list packages.");
                 case AdbTask::Push:
                     return Platform::Tr("Push failed.");
                 case AdbTask::Pull:
@@ -71,6 +73,8 @@ namespace CoreDeck::Gui::AdbWindow {
                     return Platform::Tr("Install completed.");
                 case AdbTask::Uninstall:
                     return Platform::Tr("Uninstall completed.");
+                case AdbTask::ListPackages:
+                    return Platform::Tr("Package list loaded.");
                 case AdbTask::Push:
                     return Platform::Tr("Push completed.");
                 case AdbTask::Pull:
@@ -288,7 +292,31 @@ namespace CoreDeck::Gui::AdbWindow {
             return {};
         }
 
+        void ApplyPackageList(AdbDeviceSession &session, const Core::AdbCommandResult &result) {
+            if (result.Error == Core::AdbError::Cancelled) {
+                SetTabStatus(session, AdbWorkspaceTab::PackagesFiles, StatusBarTone::Warning, Platform::Tr("Command cancelled."));
+                return;
+            }
+            if (!result.Ok()) {
+                session.Packages.clear();
+                std::string line = FirstStatusLine(!result.Stderr.empty() ? result.Stderr : result.Stdout);
+                if (line.empty()) {
+                    line = Platform::Tr("Could not list packages.");
+                }
+                session.PackageListError = line;
+                SetTabStatus(session, AdbWorkspaceTab::PackagesFiles, StatusBarTone::Error, std::move(line));
+                return;
+            }
+            session.Packages = Core::ParseAdbPackages(result.Stdout);
+            session.PackageListError.clear();
+            SetTabStatus(session, AdbWorkspaceTab::PackagesFiles, StatusBarTone::Success, Platform::Tr("Package list loaded."));
+        }
+
         void ApplyCommandStatus(Context &context, AdbDeviceSession &session, const AdbTask task, const Core::AdbCommandResult &result) {
+            if (task == AdbTask::ListPackages) {
+                ApplyPackageList(session, result);
+                return;
+            }
             auto &workspace = context.AdbWork;
             const AdbWorkspaceTab tab = TabForTask(task);
             if (tab == AdbWorkspaceTab::PackagesFiles) {
@@ -491,6 +519,7 @@ namespace CoreDeck::Gui::AdbWindow {
                 return AdbWorkspaceTab::Shell;
             case AdbTask::Install:
             case AdbTask::Uninstall:
+            case AdbTask::ListPackages:
             case AdbTask::Push:
             case AdbTask::Pull:
                 return AdbWorkspaceTab::PackagesFiles;
@@ -519,6 +548,8 @@ namespace CoreDeck::Gui::AdbWindow {
                 return Platform::Tr("Installing package...");
             case AdbTask::Uninstall:
                 return Platform::Tr("Uninstalling package...");
+            case AdbTask::ListPackages:
+                return Platform::Tr("Loading packages...");
             case AdbTask::Push:
                 return Platform::Tr("Pushing file...");
             case AdbTask::Pull:

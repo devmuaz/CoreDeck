@@ -137,7 +137,12 @@ adb -s 192.168.68.102:5555 install -r -g app-release.apk
 | Allow downgrade           | `-d` |
 | Grant runtime permissions | `-g` |
 
-Uninstall asks for confirmation. **Keep app data** keeps the data directory:
+Uninstall asks for confirmation. **Browse...** lists the packages installed on the
+device. It opens on all packages (`pm list packages`). **Third-party only** adds
+`-3`, and **System apps** adds `-s`. Choosing one of those reloads the list. The
+search field filters whatever was loaded. Choosing a package fills the package
+name and closes the list. The button stays off until the selected device can
+take commands. **Keep app data** keeps the data directory:
 
 ```bash
 adb -s 192.168.68.102:5555 uninstall com.example.app
@@ -311,6 +316,7 @@ connected.** when the report is empty.
 | Install              | `adb -s SERIAL install [-r] [-d] [-g] <apk>`             |
 | Uninstall            | `adb -s SERIAL uninstall <package>`                      |
 | Uninstall, keep data | `adb -s SERIAL shell cmd package uninstall -k <package>` |
+| List packages        | `adb -s SERIAL shell pm list packages [-3\|-s]`          |
 | Push                 | `adb -s SERIAL push <local> <remote>`                    |
 | Pull                 | `adb -s SERIAL pull <remote> <local>`                    |
 | Forward              | `adb -s SERIAL forward <local> <remote>`                 |

@@ -1,6 +1,11 @@
 #include "adb.h"
+#include "adb_connections_tab.h"
 #include "adb_devices.h"
+#include "adb_logcat_tab.h"
+#include "adb_packages_list.h"
+#include "adb_packages_tab.h"
 #include "adb_session.h"
+#include "adb_shell_tab.h"
 
 #include "../app/onboarding.h"
 #include "platform/i18n.h"
@@ -76,6 +81,7 @@ namespace CoreDeck::Gui {
 
         void Confirmations(Context &context) {
             AdbWindow::ConfirmUninstall(context);
+            AdbWindow::BrowsePackages(context);
             AdbWindow::ConfirmClearDeviceLog(context);
         }
     }

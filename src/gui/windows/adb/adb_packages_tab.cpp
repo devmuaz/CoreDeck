@@ -2,6 +2,9 @@
 // Created by AbdulMuaz Aqeel on 04/11/2026.
 //
 
+#include "adb_packages_tab.h"
+
+#include "adb_packages_list.h"
 #include "adb_session.h"
 
 #include "../../widgets/log_viewer.h"
@@ -164,12 +167,17 @@ namespace CoreDeck::Gui::AdbWindow {
             auto &session = SelectedSession(context.AdbWork);
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             SectionHeading(Platform::Tr("Uninstall Package"));
-            const float buttonW = ActionWidth(Platform::Tr("Uninstall"));
-            const float fieldW = std::max(1.0F, ImGui::GetContentRegionAvail().x - buttonW - spacing);
+            const float browseW = ActionWidth(Platform::Tr("Browse..."));
+            const float uninstallW = ActionWidth(Platform::Tr("Uninstall"));
+            const float fieldW = std::max(1.0F, ImGui::GetContentRegionAvail().x - browseW - uninstallW - (spacing * 2.0F));
             ImGui::SetNextItemWidth(fieldW);
             ImGui::InputTextWithHint("##PackageName", Platform::Tr("Package name"), session.PackageName, sizeof(session.PackageName));
             ImGui::SameLine(0.0F, spacing);
-            if (NegativeButton(Platform::Tr("Uninstall"), usable && !session.Busy.load() && session.PackageName[0] != '\0', ImVec2(buttonW, 0.0F))) {
+            if (PrimaryButton(Platform::Tr("Browse..."), usable && !session.Busy.load(), ImVec2(browseW, 0.0F))) {
+                OpenPackageList(context, session);
+            }
+            ImGui::SameLine(0.0F, spacing);
+            if (NegativeButton(Platform::Tr("Uninstall"), usable && !session.Busy.load() && session.PackageName[0] != '\0', ImVec2(uninstallW, 0.0F))) {
                 session.ShowUninstallDialog = true;
             }
             SubtitledCheckbox("##KeepAppData", &session.UninstallKeepData, Platform::Tr("Keep app data"));

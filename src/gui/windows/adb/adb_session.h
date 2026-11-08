@@ -102,18 +102,6 @@ namespace CoreDeck::Gui::AdbWindow {
         const std::string &idleText
     );
 
-    void LogcatTab(Context &context, const Core::AdbDevice *device);
-
-    void ConfirmClearDeviceLog(Context &context);
-
-    void ShellTab(Context &context, const Core::AdbDevice *device);
-
-    void PackageFileTab(Context &context, const Core::AdbDevice *device);
-
-    void ConfirmUninstall(Context &context);
-
-    void ConnectionsTab(Context &context, const Core::AdbDeviceSnapshot &snapshot);
-
     template<typename Task>
     void StartTask(Context &context, AdbDeviceSession &session, const AdbTask task, Task run) {
         if (session.Busy.load() || context.AdbWork.CloseRequested) {

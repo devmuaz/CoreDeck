@@ -83,10 +83,11 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/gui/windows/adb/adb.cpp
     src/gui/windows/adb/adb_session.cpp
-    src/gui/windows/adb/adb_logcat.cpp
-    src/gui/windows/adb/adb_shell.cpp
-    src/gui/windows/adb/adb_packages.cpp
-    src/gui/windows/adb/adb_connections.cpp
+    src/gui/windows/adb/adb_logcat_tab.cpp
+    src/gui/windows/adb/adb_shell_tab.cpp
+    src/gui/windows/adb/adb_packages_tab.cpp
+    src/gui/windows/adb/adb_packages_list.cpp
+    src/gui/windows/adb/adb_connections_tab.cpp
     src/gui/windows/adb/adb_devices.cpp
     src/gui/windows/adb/adb_wifi_help.cpp
     src/gui/windows/app/about.cpp

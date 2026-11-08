@@ -2,6 +2,8 @@
 // Created by AbdulMuaz Aqeel on 04/11/2026.
 //
 
+#include "adb_connections_tab.h"
+
 #include "adb_session.h"
 
 #include "platform/i18n.h"
@@ -200,7 +202,7 @@ namespace CoreDeck::Gui::AdbWindow {
                 sizeof(session.ForwardRemote)
             );
             ImGui::SameLine(0.0F, spacing);
-            if (PrimaryButton(IconWithLabel(Icons::PLUS, add).c_str(), usable && !session.Busy.load() && mappingValid, ImVec2(addW, 0.0F))) {
+            if (PrimaryButton(add, usable && !session.Busy.load() && mappingValid, ImVec2(addW, 0.0F))) {
                 const std::string host = session.ForwardLocal;
                 const std::string device = session.ForwardRemote;
                 StartTask(

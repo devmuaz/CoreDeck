@@ -68,6 +68,27 @@ TEST_CASE("RunAdb reports a missing tool without starting a process", "[adb]") {
     REQUIRE_FALSE(result.Started);
 }
 
+TEST_CASE("Package list parsing keeps names and drops command noise", "[adb]") {
+    const std::string output =
+        "package:com.example.zebra\r\n"
+        "WARNING: linker: unused\n"
+        "package:com.example.app\n"
+        "package:/data/app/base.apk=com.example.game uid:10001\n"
+        "package:com.example.app\n"
+        "package:\n"
+        "package:   \n";
+
+    REQUIRE(ListAdbPackagesCommand() == std::vector<std::string>{"shell", "pm", "list", "packages"});
+    REQUIRE(ListAdbPackagesCommand(AdbPackageListScope::All) == std::vector<std::string>{"shell", "pm", "list", "packages"});
+    REQUIRE(ListAdbPackagesCommand(AdbPackageListScope::ThirdParty) == std::vector<std::string>{"shell", "pm", "list", "packages", "-3"});
+    REQUIRE(ListAdbPackagesCommand(AdbPackageListScope::System) == std::vector<std::string>{"shell", "pm", "list", "packages", "-s"});
+    REQUIRE(
+        ParseAdbPackages(output) ==
+        std::vector<std::string>{"com.example.app", "com.example.game", "com.example.zebra"}
+    );
+    REQUIRE(ParseAdbPackages("").empty());
+}
+
 TEST_CASE("Keep-data uninstall uses the package service", "[adb]") {
     REQUIRE(UninstallAdbCommand("com.example.app", false) == std::vector<std::string>{"uninstall", "com.example.app"});
     REQUIRE(

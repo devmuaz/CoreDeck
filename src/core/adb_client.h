@@ -104,6 +104,16 @@ namespace CoreDeck::Core {
 
     std::vector<std::string> UninstallAdbCommand(const std::string &packageName, bool keepData);
 
+    enum class AdbPackageListScope : uint8_t {
+        All,
+        ThirdParty,
+        System,
+    };
+
+    std::vector<std::string> ListAdbPackagesCommand(AdbPackageListScope scope = AdbPackageListScope::All);
+
+    std::vector<std::string> ParseAdbPackages(const std::string &output);
+
     AdbCommandResult UninstallAdbPackage(
         const SdkInfo &sdk,
         const std::string &serial,

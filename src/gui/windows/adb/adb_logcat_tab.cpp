@@ -2,6 +2,8 @@
 // Created by AbdulMuaz Aqeel on 04/11/2026.
 //
 
+#include "adb_logcat_tab.h"
+
 #include "adb_session.h"
 
 #include "../../widgets/log_viewer.h"

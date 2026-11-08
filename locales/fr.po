@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-11-05 09:40+0300\n"
+"POT-Creation-Date: 2026-11-08 22:08+0300\n"
 "PO-Revision-Date: 2026-09-29 09:20+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: French\n"
@@ -197,7 +197,7 @@ msgid "Passed"
 msgstr "Réussi"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/health_check.cpp:451
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:31
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:33
 msgid "Warning"
 msgstr "Avertissement"
 
@@ -879,7 +879,7 @@ msgid "Camera"
 msgstr "Caméra"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/options.h:29
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:38
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:40
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences/preferences_general.cpp:27
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/preferences/preferences_general.cpp:54
 msgid "System"
@@ -1097,11 +1097,11 @@ msgstr "Échec de l'installation !"
 msgid "Installation Completed!"
 msgstr "Installation terminée !"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:261
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:269
 msgid "Failed to initialize GLFW."
 msgstr "Échec de l'initialisation de GLFW."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:284
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/application.cpp:297
 msgid ""
 "Failed to create window.\n"
 "Your system may not support OpenGL 3.3."
@@ -1164,8 +1164,10 @@ msgid "Show Password"
 msgstr "Afficher le mot de passe"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets/form.cpp:268
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:40
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:194
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:43
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:170
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:176
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:202
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/onboarding.cpp:336
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_signer.cpp:663
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_signer.cpp:682
@@ -1203,32 +1205,32 @@ msgstr "Expression régulière non valide : {0}"
 msgid "Search logs..."
 msgstr "Rechercher dans les journaux..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:13
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:18
 msgid "Logcat"
 msgstr "Logcat"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:14
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:19
 msgid "Shell"
 msgstr "Shell"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:15
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:20
 msgid "Packages & Files"
 msgstr "Paquets et fichiers"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:16
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:21
 msgid "Connections"
 msgstr "Connexions"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:88
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:94
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/main_menu_bar.cpp:131
 msgid "Android Debug Bridge (ADB)"
 msgstr "Android Debug Bridge (ADB)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:110
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:116
 msgid "Missing Platform Tools (adb)"
 msgstr "Platform Tools manquants (adb)"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:111
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:117
 msgid ""
 "Install Google's official platform-tools to use devices, shell, transfers, "
 "and logcat."
@@ -1236,67 +1238,68 @@ msgstr ""
 "Installez les platform-tools officiels de Google pour utiliser les "
 "appareils, le shell, les transferts et logcat."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:112
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb.cpp:118
 msgid "Install platform-tools..."
 msgstr "Installer platform-tools..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:85
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:87
 msgid "Direction"
 msgstr "Direction"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:86
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:88
 msgid "Local"
 msgstr "Local"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:87
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:89
 msgid "Remote"
 msgstr "Distant"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:126
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:128
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_devices.cpp:211
 msgid "Remove"
 msgstr "Retirer"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:144
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:146
 msgid "Port routes"
 msgstr "Routes de port"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:157
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:159
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:150
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/storage.cpp:155
 msgid "Refresh"
 msgstr "Actualiser"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:166
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:249
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:168
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:251
 msgid "Forward"
 msgstr "Redirection"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:167
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:249
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:169
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:251
 msgid "Reverse"
 msgstr "Inversion"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:177
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:179
 msgid "Add Route"
 msgstr "Ajouter une route"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:188
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:190
 msgid "Local endpoint, for example tcp:8080"
 msgstr "Point de terminaison local, par exemple tcp:8080"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:198
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:200
 msgid "Remote endpoint, for example tcp:8080"
 msgstr "Point de terminaison distant, par exemple tcp:8080"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:234
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:236
 msgid "Current routes"
 msgstr "Routes actuelles"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:240
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:242
 msgid "No Port Routes"
 msgstr "Aucune route de port"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections.cpp:241
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_connections_tab.cpp:243
 msgid "Add a forward or reverse route to see it here."
 msgstr "Ajoutez une redirection ou une inversion pour l'afficher ici."
 
@@ -1397,104 +1400,105 @@ msgstr "Saisissez une adresse sous la forme hôte:port."
 msgid "No wireless action yet."
 msgstr "Aucune action sans fil pour le moment."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:23
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:95
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:685
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:25
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:97
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:716
 msgid "Logcat stopped..."
 msgstr "Logcat arrêté..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:28
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:30
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:29
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:31
 msgid "Debug"
 msgstr "Debug"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:30
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:32
 msgid "Info"
 msgstr "Info"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:32
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:34
 msgid "Error"
 msgstr "Erreur"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:33
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:35
 msgid "Fatal"
 msgstr "Fatal"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:36
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:38
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/avd_info.cpp:29
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/install_image.cpp:305
 msgid "Default"
 msgstr "Par défaut"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:37
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:39
 msgid "Main"
 msgstr "Principal"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:39
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:41
 msgid "Crash"
 msgstr "Plantage"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:48
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:50
 msgid "Minimum priority"
 msgstr "Priorité minimale"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:58
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:60
 msgid "Android log buffer"
 msgstr "Tampon de journal Android"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:63
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:65
 msgid "Start"
 msgstr "Démarrer"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:81
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:83
 msgid "Streaming logcat..."
 msgstr "Diffusion de logcat..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:89
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:91
 msgid "Logcat failed to start."
 msgstr "Le démarrage de logcat a échoué."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:93
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:95
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/avd_list.cpp:155
 msgid "Stop"
 msgstr "Arrêter"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:99
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:101
 msgid "Clear Device..."
 msgstr "Effacer le journal..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:108
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:110
 #, c++-format
 msgid "{0} older lines dropped"
 msgstr "{0} anciennes lignes ignorées"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:119
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:121
 msgid "Start logcat to view device logs"
 msgstr "Démarrez logcat pour afficher les journaux de l'appareil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:120
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:122
 msgid "Select a connected device to start logcat"
 msgstr "Sélectionnez un appareil connecté pour démarrer logcat"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:136
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:138
 msgid "Clear Device Log?"
 msgstr "Effacer le journal de l'appareil ?"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:137
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:139
 msgid "This clears Android's log buffers on the selected device."
 msgstr "Cela efface les tampons de journal Android sur l'appareil sélectionné."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:138
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:140
 msgid "Clear"
 msgstr "Effacer"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat.cpp:139
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:236
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:72
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:96
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_logcat_tab.cpp:141
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:154
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:244
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:74
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:98
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/onboarding.cpp:932
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/onboarding.cpp:1101
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/onboarding.cpp:1104
@@ -1509,38 +1513,90 @@ msgstr "Effacer"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:19
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:69
+msgid "No Packages"
+msgstr "Aucun paquet"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:70
+msgid "No packages match the search."
+msgstr "Aucun paquet ne correspond à la recherche."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:70
+msgid "This device reported no packages."
+msgstr "Cet appareil n'a signalé aucun paquet."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:85
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:552
+msgid "Loading packages..."
+msgstr "Chargement des paquets..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:89
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:47
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:304
+msgid "Could not list packages."
+msgstr "Impossible de lister les paquets."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:109
+msgid "Installed Packages"
+msgstr "Paquets installés"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:132
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/device_profile.cpp:104
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/install_image.cpp:476
+msgid "All"
+msgstr "Tous"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:133
+msgid "Third-party only"
+msgstr "Tiers uniquement"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:134
+msgid "System apps"
+msgstr "Applications système"
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:143
+msgid "Search packages..."
+msgstr "Rechercher des paquets..."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_list.cpp:165
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:60
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:146
+#, c++-format
+msgid "Selected {0}."
+msgstr "{0} sélectionné."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:22
 msgid "No package output yet."
 msgstr "Aucune sortie de paquet pour le moment."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:31
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:34
 msgid "Install APK"
 msgstr "Installer l'APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:33
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:36
 msgid "Replace existing"
 msgstr "Remplacer l'existant"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:34
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:37
 msgid "Allow downgrade"
 msgstr "Autoriser la rétrogradation"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:35
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:38
 msgid "Grant runtime permissions"
 msgstr "Accorder les autorisations d'exécution"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:38
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:63
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:41
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:66
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/install_image.cpp:646
 msgid "Install"
 msgstr "Installer"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:40
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:43
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_signer.cpp:663
 msgid "Choose an APK file..."
 msgstr "Choisir un fichier APK..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:40
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:43
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_analyzer.cpp:574
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_analyzer.cpp:791
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_analyzer.cpp:975
@@ -1549,93 +1605,87 @@ msgstr "Choisir un fichier APK..."
 msgid "APK"
 msgstr "APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:44
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:47
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_analyzer.cpp:1056
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_analyzer.cpp:1118
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_signer.cpp:665
 msgid "Open APK"
 msgstr "Ouvrir un APK"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:45
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:48
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_analyzer.cpp:207
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_signer.cpp:640
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/packages/apk_signer.cpp:665
 msgid "Android packages"
 msgstr "Paquets Android"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:57
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:143
-#, c++-format
-msgid "Selected {0}."
-msgstr "{0} sélectionné."
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:85
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:88
 msgid "Push File"
 msgstr "Envoyer un fichier"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:88
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:91
 msgid "Choose a local file..."
 msgstr "Choisir un fichier local..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:91
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:94
 msgid "Choose File"
 msgstr "Choisir un fichier"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:92
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:95
 msgid "All files"
 msgstr "Tous les fichiers"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:104
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:107
 msgid "Remote path, for example /sdcard/Download/file"
 msgstr "Chemin distant, par exemple /sdcard/Download/file"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:110
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:113
 msgid "Push"
 msgstr "Envoyer"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:125
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:128
 msgid "Pull File"
 msgstr "Récupérer un fichier"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:128
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:131
 msgid "Choose a local folder..."
 msgstr "Choisir un dossier local..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:132
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:135
 msgid "Choose Destination"
 msgstr "Choisir la destination"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:148
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:151
 msgid "Remote file path"
 msgstr "Chemin du fichier distant"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:151
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:154
 msgid "Pull"
 msgstr "Récupérer"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:166
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:169
 msgid "Uninstall Package"
 msgstr "Désinstaller le paquet"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:167
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:172
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:235
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:171
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:180
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:243
 msgid "Uninstall"
 msgstr "Désinstaller"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:170
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:174
 msgid "Package name"
 msgstr "Nom du paquet"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:175
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:183
 msgid "Keep app data"
 msgstr "Conserver les données de l'application"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:233
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:241
 msgid "Uninstall Package?"
 msgstr "Désinstaller le paquet ?"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages.cpp:234
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_packages_tab.cpp:242
 msgid "The selected package will be removed from this device."
 msgstr "Le paquet sélectionné sera retiré de cet appareil."
 
@@ -1647,224 +1697,230 @@ msgstr "L'installation a échoué."
 msgid "Uninstall failed."
 msgstr "La désinstallation a échoué."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:47
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:49
 msgid "Push failed."
 msgstr "L'envoi a échoué."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:49
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:51
 msgid "Pull failed."
 msgstr "La récupération a échoué."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:62
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:336
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:352
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:64
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:364
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:380
 msgid "Command failed."
 msgstr "La commande a échoué."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:69
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:98
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:71
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:102
 msgid "Command completed."
 msgstr "Commande terminée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:71
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:73
 msgid "Install completed."
 msgstr "Installation terminée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:73
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:75
 msgid "Uninstall completed."
 msgstr "Désinstallation terminée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:75
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:77
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:312
+msgid "Package list loaded."
+msgstr "Liste des paquets chargée."
+
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:79
 msgid "Push completed."
 msgstr "Envoi terminé."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:77
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:81
 msgid "Pull completed."
 msgstr "Récupération terminée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:80
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:84
 msgid "Device connected."
 msgstr "Appareil connecté."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:82
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:86
 msgid "Device disconnected."
 msgstr "Appareil déconnecté."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:84
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:88
 msgid "Forward created."
 msgstr "Redirection créée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:86
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:90
 msgid "Forward removed."
 msgstr "Redirection retirée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:88
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:92
 msgid "Reverse created."
 msgstr "Inversion créée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:90
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:94
 msgid "Reverse removed."
 msgstr "Inversion retirée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:93
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:97
 msgid "Port mappings refreshed."
 msgstr "Mappages de ports actualisés."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:95
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:99
 msgid "Device log cleared."
 msgstr "Journal de l'appareil effacé."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:105
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:109
 msgid "Logcat is idle."
 msgstr "Logcat est inactif."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:107
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:111
 msgid "Shell is idle."
 msgstr "Le shell est inactif."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:109
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:113
 msgid "No package operation yet."
 msgstr "Aucune opération de paquet pour le moment."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:111
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:115
 msgid "No connection operation yet."
 msgstr "Aucune opération de connexion pour le moment."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:113
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:117
 msgid "Ready."
 msgstr "Prêt."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:299
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:301
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:297
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:327
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:329
 msgid "Command cancelled."
 msgstr "Commande annulée."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:335
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:363
 msgid "Could not read a Wi-Fi address. Join a Wi-Fi network and try again."
 msgstr ""
 "Impossible de lire une adresse Wi-Fi. Rejoignez un réseau Wi-Fi et réessayez."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:422
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:450
 msgid "This device is no longer reported by adb."
 msgstr "Cet appareil n'est plus signalé par adb."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:426
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:454
 msgid "Unlock the device and approve this computer's USB debugging key."
 msgstr ""
 "Déverrouillez l'appareil et approuvez la clé de débogage USB de cet "
 "ordinateur."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:430
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:458
 msgid "The host does not have permission to access this USB device."
 msgstr "L'hôte n'a pas l'autorisation d'accéder à cet appareil USB."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:434
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:462
 msgid "adb reports this device as offline. Reconnect it and try again."
 msgstr ""
 "adb signale cet appareil comme hors ligne. Reconnectez-le et réessayez."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:444
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:472
 msgid "Use adb endpoint forms such as tcp:8080 or localabstract:name."
 msgstr ""
 "Utilisez des formes de point de terminaison adb telles que tcp:8080 ou "
 "localabstract:name."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:451
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:479
 #, c++-format
 msgid "{0} [{1} lines]"
 msgstr "{0} [{1} lignes]"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:517
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:19
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:546
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:21
 msgid "Running shell command..."
 msgstr "Exécution de la commande shell..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:519
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:548
 msgid "Installing package..."
 msgstr "Installation du paquet..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:521
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:550
 msgid "Uninstalling package..."
 msgstr "Désinstallation du paquet..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:523
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:554
 msgid "Pushing file..."
 msgstr "Envoi du fichier..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:525
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:556
 msgid "Pulling file..."
 msgstr "Récupération du fichier..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:527
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:558
 msgid "Connecting..."
 msgstr "Connexion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:529
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:560
 msgid "Connecting over Wi-Fi..."
 msgstr "Connexion en Wi-Fi..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:531
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:562
 msgid "Disconnecting..."
 msgstr "Déconnexion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:533
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:564
 msgid "Creating forward..."
 msgstr "Création de la redirection..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:535
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:566
 msgid "Removing forward..."
 msgstr "Retrait de la redirection..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:537
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:568
 msgid "Creating reverse..."
 msgstr "Création de l'inversion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:539
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:570
 msgid "Removing reverse..."
 msgstr "Retrait de l'inversion..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:542
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:573
 msgid "Refreshing port mappings..."
 msgstr "Actualisation des mappages de ports..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:544
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:575
 msgid "Clearing device log..."
 msgstr "Effacement du journal de l'appareil..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:547
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:578
 msgid "Running adb command..."
 msgstr "Exécution de la commande adb..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:795
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:826
 msgid "Manage Wireless Devices"
 msgstr "Gérer les appareils sans fil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:832
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:863
 msgid "Select a device"
 msgstr "Sélectionner un appareil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:856
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:887
 msgid "No devices"
 msgstr "Aucun appareil"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:915
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_session.cpp:946
 msgid "No output."
 msgstr "Aucune sortie."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:13
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:15
 msgid "No Shell Output"
 msgstr "Aucune sortie du shell"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:14
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:16
 msgid "Run a command to see its output."
 msgstr "Exécutez une commande pour voir sa sortie."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:25
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:34
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:27
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:36
 msgid "Recent commands"
 msgstr "Commandes récentes"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:67
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:69
 msgid ""
 "Runs one command at a time through adb shell. No interactive terminal is "
 "created."
@@ -1872,12 +1928,12 @@ msgstr ""
 "Exécute une commande à la fois via adb shell. Aucun terminal interactif "
 "n'est créé."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:71
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:94
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:73
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:96
 msgid "Run"
 msgstr "Exécuter"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell.cpp:87
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_shell_tab.cpp:89
 msgid "Command, for example: getprop ro.build.version.release"
 msgstr "Commande, par exemple : getprop ro.build.version.release"
 
@@ -1890,7 +1946,11 @@ msgid ""
 "This switches the selected USB phone to a wireless adb connection. The port "
 "field starts at 5555. The button stays off when that device is already a Wi-"
 "Fi address, an emulator, offline, or not authorized."
-msgstr "Cela fait passer le téléphone USB sélectionné sur une connexion adb sans fil. Le champ du port commence à 5555. Le bouton reste désactivé si cet appareil est déjà une adresse Wi-Fi, un émulateur, hors ligne ou non autorisé."
+msgstr ""
+"Cela fait passer le téléphone USB sélectionné sur une connexion adb sans "
+"fil. Le champ du port commence à 5555. Le bouton reste désactivé si cet "
+"appareil est déjà une adresse Wi-Fi, un émulateur, hors ligne ou non "
+"autorisé."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:83
 msgid "1. Start from the USB device"
@@ -1936,7 +1996,12 @@ msgid ""
 "while it restarts, so that serial can disappear from the device list. The "
 "cable can stay plugged in. The field starts at 5555. If this command fails, "
 "CoreDeck does not try to connect."
-msgstr "Cela redémarre adbd sur le port indiqué dans le champ. La session de débogage USB s'interrompt pendant le redémarrage, et cet identifiant peut disparaître de la liste des appareils. Le câble peut rester branché. Le champ commence à 5555. Si cette commande échoue, CoreDeck n'essaie pas de se connecter."
+msgstr ""
+"Cela redémarre adbd sur le port indiqué dans le champ. La session de "
+"débogage USB s'interrompt pendant le redémarrage, et cet identifiant peut "
+"disparaître de la liste des appareils. Le câble peut rester branché. Le "
+"champ commence à 5555. Si cette commande échoue, CoreDeck n'essaie pas de se "
+"connecter."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/adb/adb_wifi_help.cpp:108
 msgid "4. Connect to that address"
@@ -1963,7 +2028,10 @@ msgid ""
 "When the connection succeeds, CoreDeck selects <ip>:<port> and saves it in "
 "Wireless Devices. You can connect, disconnect, or remove it there later. No "
 "further command runs."
-msgstr "Lorsque la connexion réussit, CoreDeck sélectionne <ip>:<port> et l'enregistre dans Appareils sans fil. Vous pourrez la connecter, la déconnecter ou la retirer plus tard. Aucune autre commande n'est exécutée."
+msgstr ""
+"Lorsque la connexion réussit, CoreDeck sélectionne <ip>:<port> et "
+"l'enregistre dans Appareils sans fil. Vous pourrez la connecter, la "
+"déconnecter ou la retirer plus tard. Aucune autre commande n'est exécutée."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/about.cpp:16
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/app/main_menu_bar.cpp:152
@@ -3067,11 +3135,6 @@ msgstr "Rechercher des profils d'appareil..."
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/install_image.cpp:473
 msgid "Categories"
 msgstr "Catégories"
-
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/device_profile.cpp:104
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/install_image.cpp:476
-msgid "All"
-msgstr "Tous"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/windows/avd/device_profile.cpp:120
 msgid "Device Profiles"

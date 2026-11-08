@@ -37,6 +37,7 @@ namespace CoreDeck::Gui {
         Shell,
         Install,
         Uninstall,
+        ListPackages,
         Push,
         Pull,
         Connect,
@@ -92,6 +93,12 @@ namespace CoreDeck::Gui {
 
         std::string ApkPath;
         char PackageName[256] = {};
+        bool ShowPackageDialog = false;
+        bool PackageListRestart = false;
+        Core::AdbPackageListScope PackageScope = Core::AdbPackageListScope::All;
+        char PackageFilter[128] = {};
+        std::vector<std::string> Packages;
+        std::string PackageListError;
         char PushLocalPath[1024] = {};
         char PushRemotePath[1024] = {};
         char PullRemotePath[1024] = {};
