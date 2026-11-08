@@ -1,3 +1,8 @@
+## [v0.16.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.16.0) — 2026-11-08
+
+- Replace the application icon on macOS, Windows, and Linux
+- Update the longer summary used by the installer and the README
+
 ## [v0.15.1-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.15.1-beta.1) — 2026-11-08
 
 - Replace the application icon on macOS, Windows, and Linux, including the Linux window icon
