@@ -5,6 +5,7 @@ add_library(coredeck_platform STATIC
     log_buffer.cpp
     log_filter.cpp
     paths.cpp
+    png.cpp
     process.cpp
     process_stats.cpp
     sha256.cpp
@@ -22,6 +23,7 @@ target_compile_definitions(coredeck_platform PUBLIC
     COREDECK_DESCRIPTION="${APP_DESCRIPTION_SHORT}"
     COREDECK_YEAR="${CURRENT_YEAR}"
     COREDECK_COPYRIGHT="${APP_COPYRIGHT}"
+    COREDECK_APP_ID="${APP_BUNDLE_ID}"
 )
 
 if(WIN32)

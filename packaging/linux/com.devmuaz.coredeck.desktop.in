@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=@PROJECT_NAME@
+Comment=@APP_DESCRIPTION_SHORT@
+Exec=coredeck
+Icon=@APP_BUNDLE_ID@
+Terminal=false
+StartupNotify=true
+StartupWMClass=@APP_BUNDLE_ID@
+Categories=Development;
+Keywords=Android;SDK;Emulator;AVD;APK;

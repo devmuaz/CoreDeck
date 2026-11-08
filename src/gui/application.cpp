@@ -45,6 +45,10 @@ extern "C" id glfwGetCocoaWindow(GLFWwindow *window);
 #include "app/app_settings.h"
 #include "platform/i18n.h"
 #include "platform/paths.h"
+#ifdef __linux__
+#include "platform/log.h"
+#include "platform/png.h"
+#endif
 #include "app/paths.h"
 #include "windows/adb/adb.h"
 #include "windows/app/about.h"
@@ -274,6 +278,11 @@ namespace CoreDeck::Gui {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+#ifdef __linux__
+        glfwWindowHintString(GLFW_X11_CLASS_NAME, COREDECK_APP_ID);
+        glfwWindowHintString(GLFW_X11_INSTANCE_NAME, COREDECK_APP_ID);
+#endif
+
         glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 #ifdef GLFW_SCALE_FRAMEBUFFER
         glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_TRUE);
@@ -291,6 +300,19 @@ namespace CoreDeck::Gui {
 
         glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1);
+
+#ifdef __linux__
+        const std::string iconPath = Platform::JoinPaths({App::GetAssetsDirectory(), "icons", "icon.png"});
+        if (auto icon = Platform::DecodePngFile(iconPath)) {
+            GLFWimage image{};
+            image.width = icon->Width;
+            image.height = icon->Height;
+            image.pixels = icon->Rgba.data();
+            glfwSetWindowIcon(m_Window, 1, &image);
+        } else {
+            Platform::Log::Warn("Window icon was not loaded: ", iconPath);
+        }
+#endif
 
 #ifdef _WIN32
         HWND hwnd = glfwGetWin32Window(m_Window);

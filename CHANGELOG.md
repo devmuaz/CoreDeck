@@ -1,3 +1,9 @@
+## [v0.15.1-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.15.1-beta.1) — 2026-11-08
+
+- Replace the application icon on macOS, Windows, and Linux, including the Linux window icon
+- Ship a Linux desktop file and menu icons named `com.devmuaz.coredeck`, and set the window class to the same id so the running window groups with that menu entry
+- Update the short description shown in About CoreDeck
+
 ## [v0.15.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.15.0) — 2026-11-05
 
 - Add Android Debug Bridge (Tools, Android Debug Bridge (ADB)) so a phone, tablet, or emulator can be used through the official `adb` in platform-tools, without Android Studio. A missing `adb` offers to install platform-tools, and Health Check reports the `adb` version

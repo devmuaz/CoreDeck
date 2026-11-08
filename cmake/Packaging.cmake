@@ -94,6 +94,16 @@ endif()
 
 if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/icon.png DESTINATION assets/icons)
+
+    # Exec=coredeck expects that command on PATH (/usr/bin/coredeck). Homebrew
+    # rewrites it to an absolute path: a desktop session does not search the prefix.
+    configure_file(
+        ${CMAKE_SOURCE_DIR}/packaging/linux/com.devmuaz.coredeck.desktop.in
+        ${CMAKE_BINARY_DIR}/com.devmuaz.coredeck.desktop
+        @ONLY
+    )
+    install(FILES ${CMAKE_BINARY_DIR}/com.devmuaz.coredeck.desktop DESTINATION share/applications)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/packaging/linux/hicolor DESTINATION share/icons)
 endif()
 
 if(WIN32)

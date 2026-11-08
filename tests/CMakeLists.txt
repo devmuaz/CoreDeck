@@ -8,6 +8,7 @@ add_executable(coredeck_tests
         test_adb_logcat.cpp
         test_utilities.cpp
         test_paths.cpp
+        test_png.cpp
         test_process_stream.cpp
         test_log_buffer.cpp
         test_log_filter.cpp
@@ -42,9 +43,11 @@ add_dependencies(coredeck_tests coredeck_process_fixture)
 
 file(TO_CMAKE_PATH "${COREDECK_LOCALE_DIR}" _coredeck_locales_dir)
 file(TO_CMAKE_PATH "${GETTEXT_MSGFMT_EXECUTABLE}" _coredeck_msgfmt)
+file(TO_CMAKE_PATH "${CMAKE_SOURCE_DIR}" _coredeck_source_dir)
 target_compile_definitions(coredeck_tests PRIVATE
         "COREDECK_LOCALES_DIR=\"${_coredeck_locales_dir}\""
         "COREDECK_MSGFMT=\"${_coredeck_msgfmt}\""
+        "COREDECK_SOURCE_DIR=\"${_coredeck_source_dir}\""
 )
 add_dependencies(coredeck_tests coredeck_locales)
 if(WIN32 AND COREDECK_INTL_RUNTIME_DLLS)
