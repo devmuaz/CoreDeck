@@ -16,7 +16,7 @@
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
 [![License](https://img.shields.io/github/license/devmuaz/CoreDeck)](LICENSE)
 
-[CoreDeck](https://coredeck.dev) is a native desktop command center for the Android SDK. Create virtual devices, launch them, install system images, inspect and sign APKs, create keystores, and see whether your tools are actually ready, all in one fast app. It drives Google's official `emulator`, `avdmanager`, `sdkmanager`, `apkanalyzer`, `apksigner`, and `zipalign` itself, and the JDK's `keytool` and `jarsigner`. Android Studio does not need to be installed. Built with C++20 and Dear ImGui.
+[CoreDeck](https://coredeck.dev) is engineered for fast, low-overhead workflows, it brings a sleek desktop interface to official Android SDK tools. Create and launch emulators, connect and control hardware devices, inspect and sign application builds, configure environment health, and manage system resources without ever touching Android Studio. Powered natively by C++20 and Dear ImGui.
 
 > Bring an SDK you already have, or let CoreDeck download Google's tools and set them up for you.
 

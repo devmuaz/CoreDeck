@@ -7,7 +7,13 @@ project(CoreDeck VERSION ${PROJECT_VERSION})
 string(TIMESTAMP CURRENT_YEAR "%Y")
 
 set(APP_VENDOR "AbdulMuaz Aqeel")
-set(APP_DESCRIPTION "A native control center for your Android development toolchain. Easily create virtual devices, manage system images, inspect APKs, and handle keystores in one fast, standalone desktop app.")
+string(CONCAT APP_DESCRIPTION
+    "Engineered for fast, low-overhead workflows, CoreDeck brings a sleek desktop "
+    "interface to official Android SDK tools. Create and launch emulators, "
+    "connect and control hardware devices, inspect and sign application builds, "
+    "configure environment health, and manage system resources without ever "
+    "touching Android Studio. Powered natively by C++20 and Dear ImGui."
+)
 set(APP_DESCRIPTION_SHORT "Native Desktop Interface for Official Android Command-Line Tools")
 set(APP_BUNDLE_ID "com.devmuaz.coredeck")
 set(APP_COPYRIGHT "Copyright © ${CURRENT_YEAR} ${PROJECT_NAME}")
