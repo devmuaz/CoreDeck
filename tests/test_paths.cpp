@@ -161,3 +161,62 @@ TEST_CASE("GetAssetsDirectory falls back to assets beside the resources director
     const ScopedEnvVar env(ENV_COREDECK_ASSETS_DIR, nullptr);
     REQUIRE(App::GetAssetsDirectory() == Platform::JoinPaths({App::GetResourcesDirectory(), "assets"}));
 }
+
+namespace {
+    class TempTree {
+    public:
+        TempTree(TempTree &&) = delete;
+        TempTree &operator=(TempTree &&) = delete;
+
+        explicit TempTree(const char *name)
+            : m_Root(std::filesystem::temp_directory_path() / (std::string("coredeck-assets-") + name)) {
+            std::error_code error;
+            std::filesystem::remove_all(m_Root, error);
+            std::filesystem::create_directories(m_Root);
+        }
+
+        ~TempTree() {
+            std::error_code error;
+            std::filesystem::remove_all(m_Root, error);
+        }
+
+        TempTree(const TempTree &) = delete;
+        TempTree &operator=(const TempTree &) = delete;
+
+        [[nodiscard]] const std::filesystem::path &Root() const {
+            return m_Root;
+        }
+
+    private:
+        std::filesystem::path m_Root;
+    };
+}
+
+TEST_CASE("ResolveAssetsDirectory prefers assets beside the executable", "[paths][assets]") {
+    const TempTree tree("beside");
+    const std::filesystem::path bin = tree.Root() / "bin";
+    std::filesystem::create_directories(bin / "assets");
+    std::filesystem::create_directories(tree.Root() / "share" / APP_CONFIG_DIR / "assets");
+
+    REQUIRE(ResolveAssetsDirectory(bin.string()) == Platform::JoinPaths({bin.string(), "assets"}));
+}
+
+TEST_CASE("ResolveAssetsDirectory keeps the beside path when neither directory exists", "[paths][assets]") {
+    const TempTree tree("missing");
+    const std::filesystem::path bin = tree.Root() / "bin";
+    std::filesystem::create_directories(bin);
+
+    REQUIRE(ResolveAssetsDirectory(bin.string()) == Platform::JoinPaths({bin.string(), "assets"}));
+}
+
+#ifdef __linux__
+TEST_CASE("ResolveAssetsDirectory uses share/coredeck/assets when assets are not beside the executable", "[paths][assets]") {
+    const TempTree tree("shared");
+    const std::filesystem::path bin = tree.Root() / "bin";
+    const std::filesystem::path shared = tree.Root() / "share" / APP_CONFIG_DIR / "assets";
+    std::filesystem::create_directories(bin);
+    std::filesystem::create_directories(shared);
+
+    REQUIRE(ResolveAssetsDirectory(bin.string()) == Platform::NormalizePath(shared.string()));
+}
+#endif

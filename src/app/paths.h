@@ -14,6 +14,8 @@ namespace CoreDeck::App {
 
     std::string GetResourcesDirectory();
 
+    std::string ResolveAssetsDirectory(const std::string &resourcesDir);
+
     std::string GetAssetsDirectory();
 
     std::string GetOptionsConfigPath(const std::string &avdName);

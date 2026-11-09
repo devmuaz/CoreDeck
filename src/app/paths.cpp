@@ -36,6 +36,22 @@ namespace CoreDeck::App {
         return std::move(exeDir);
     }
 
+    std::string ResolveAssetsDirectory(const std::string &resourcesDir) {
+        const std::string beside = Platform::JoinPaths({resourcesDir, "assets"});
+#ifdef __linux__
+        std::error_code error;
+        if (!resourcesDir.empty() && !std::filesystem::is_directory(beside, error)) {
+            const std::string shared = Platform::NormalizePath(Platform::JoinPaths(
+                {resourcesDir, "..", "share", APP_CONFIG_DIR, "assets"}
+            ));
+            if (std::filesystem::is_directory(shared, error)) {
+                return shared;
+            }
+        }
+#endif
+        return beside;
+    }
+
     std::string GetAssetsDirectory() {
         const char *overrideDir = std::getenv(ENV_COREDECK_ASSETS_DIR); // NOLINT(concurrency-mt-unsafe)
         if (overrideDir != nullptr && overrideDir[0] != '\0') {
@@ -45,7 +61,7 @@ namespace CoreDeck::App {
             }
             return {overrideDir};
         }
-        return Platform::JoinPaths({GetResourcesDirectory(), "assets"});
+        return ResolveAssetsDirectory(GetResourcesDirectory());
     }
     std::string GetOptionsConfigPath(const std::string &avdName) {
         const std::string configPath = GetAppConfigPath("avd-options");
