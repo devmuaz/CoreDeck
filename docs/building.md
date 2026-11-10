@@ -67,7 +67,7 @@ The first build compiles the bundled dependencies, including sentry-native, Dear
 | `coredeck_platform` | `src/platform` | platform | Processes, HTTP, archives, hashing, logging, translation, paths, and generic helpers split by what they hold: `strings`, `files`, `secrets`, `desktop` |
 | `coredeck_core` | `src/core` | platform, core | Android logic, grouped by domain: `sdk/`, `avd/`, `adb/`, `apk/` |
 | `coredeck_app` | `src/app` | platform, app | Settings, app paths, crash reporting, update checks, and file dialogs |
-| `coredeck_gui` | `src/gui` | all of the above | Everything that draws. Dear ImGui is its own `imgui` target |
+| `coredeck_gui` | `src/gui` | all of the above | Everything that draws. Dear ImGui is the shared `imgui` library linked by the executable |
 
 Core and App do not include each other. The executable is `src/main.cpp` and links only `coredeck_gui`. A call names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppSettings`.
 

@@ -30,16 +30,17 @@ coredeck_add_extern(${CMAKE_SOURCE_DIR}/extern/glfw ${CMAKE_BINARY_DIR}/extern/g
 find_package(OpenGL REQUIRED)
 
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/extern/imgui)
-add_library(imgui STATIC
+add_library(imgui SHARED
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_draw.cpp
     ${IMGUI_DIR}/imgui_tables.cpp
     ${IMGUI_DIR}/imgui_widgets.cpp
-    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 target_include_directories(imgui PUBLIC ${IMGUI_DIR} ${IMGUI_DIR}/backends)
-target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
+if(WIN32)
+    target_compile_definitions(imgui PRIVATE "IMGUI_API=__declspec(dllexport)")
+    target_compile_definitions(imgui INTERFACE "IMGUI_API=__declspec(dllimport)")
+endif()
 
 set(REFLECTCPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)

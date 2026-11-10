@@ -22,9 +22,27 @@ else()
     )
 endif()
 
+if(APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        SKIP_BUILD_RPATH TRUE
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH "@executable_path/../Frameworks"
+    )
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks"
+        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:imgui>" "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks/$<TARGET_FILE_NAME:imgui>"
+        VERBATIM
+    )
+endif()
+
+if(UNIX AND NOT APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        BUILD_RPATH "\$ORIGIN"
+        INSTALL_RPATH "\$ORIGIN"
+    )
+endif()
+
 if(APPLE AND NOT Intl_IS_BUILT_IN)
-    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY BUILD_RPATH "@executable_path/../Frameworks")
-    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY INSTALL_RPATH "@executable_path/../Frameworks")
     get_filename_component(_intl_real "${Intl_LIBRARY}" REALPATH)
     execute_process(
         COMMAND otool -D "${_intl_real}"
@@ -38,6 +56,15 @@ if(APPLE AND NOT Intl_IS_BUILT_IN)
         COMMAND ${CMAKE_COMMAND} -E copy "${_intl_real}" "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks/libintl.8.dylib"
         COMMAND install_name_tool -id "@rpath/libintl.8.dylib" "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks/libintl.8.dylib"
         COMMAND install_name_tool -change "${COREDECK_INTL_INSTALL_NAME}" "@rpath/libintl.8.dylib" "$<TARGET_FILE:${PROJECT_NAME}>"
+        COMMAND codesign --force --sign - "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks/libintl.8.dylib"
+        VERBATIM
+    )
+endif()
+
+if(APPLE)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND codesign --force --sign - "$<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Frameworks/$<TARGET_FILE_NAME:imgui>"
+        COMMAND codesign --force --sign - "$<TARGET_FILE:${PROJECT_NAME}>"
         VERBATIM
     )
 endif()

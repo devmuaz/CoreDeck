@@ -14,6 +14,7 @@ fi
 
 mkdir -p "release/${ARTIFACT_NAME}/share/applications" "release/${ARTIFACT_NAME}/share/icons"
 cp build/CoreDeck "release/${ARTIFACT_NAME}/"
+cp build/libimgui.so "release/${ARTIFACT_NAME}/"
 cp -r build/assets "release/${ARTIFACT_NAME}/"
 cp "${desktop}" "release/${ARTIFACT_NAME}/share/applications/com.devmuaz.coredeck.desktop"
 cp -R packaging/linux/hicolor "release/${ARTIFACT_NAME}/share/icons/hicolor"

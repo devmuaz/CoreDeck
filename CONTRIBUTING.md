@@ -5,13 +5,15 @@ project.
 
 ## Branching Model
 
-| Branch    | Purpose                                                   |
-| --------- | --------------------------------------------------------- |
-| `main`    | Stable, release-ready code. Protected — no direct pushes. |
-| `develop` | Active development. All feature work merges here first.   |
+| Branch    | Purpose                                                                    |
+| --------- | -------------------------------------------------------------------------- |
+| `main`    | Stable, release-ready code. Protected — no direct pushes.                  |
+| `develop` | Active development. Feature work merges here. Test tags are cut from here. |
 
 ```
-feature/* ──> develop ──> main (via PR) ──> tag vX.Y.Z ──> release
+feature/* ──> develop ──> tag vX.Y.Z-label ──> pre-release
+                 │
+                 └──> main (via PR) ──> tag vX.Y.Z ──> stable release
 ```
 
 ## How to Contribute
@@ -48,7 +50,7 @@ feature/* ──> develop ──> main (via PR) ──> tag vX.Y.Z ──> relea
 
 ## PR Guidelines
 
-- PRs to `develop` trigger the CI build workflow across Windows, macOS, and Linux
+- A pull request into `develop` runs the build on Windows, macOS, and Linux. Merge the feature there. A pull request into `main` runs that same build and is how `develop` is promoted for a stable release, not how each feature lands
 - Make sure the build passes on all platforms before requesting review
 - Keep PRs focused — avoid mixing unrelated changes
 - Update the [CHANGELOG.md](CHANGELOG.md) if your change is user-facing
@@ -118,11 +120,37 @@ This is routine maintenance, not a hotfix: Google keeps old archives available f
 
 ## Release Process
 
-Releases are handled by maintainers:
+Maintainers publish two kinds of builds. Pushing a tag that starts with `v` starts the release workflow. The tag's commit is what gets built. `main` does not have to move for a test build.
 
-1. `develop` is merged into `main` via PR
-2. A version tag (`vX.Y.Z`) is pushed to `main`
-3. The release workflow builds and publishes artifacts for all platforms
+A tag with a hyphen, such as `v0.17.0-phase1`, is a pre-release. A tag with no hyphen, such as `v0.17.0`, is a stable release. A stable tag also updates the Homebrew tap. A pre-release does not.
+
+### Pre-release
+
+A pre-release is an unfinished test build. It is not battle-tested, it may crash or misbehave, and it is not a build to rely on. Install a stable release for everyday use.
+
+1. The approved work is on `develop`. Leave `main` where it is.
+2. Tag that commit with a hyphen in the name and push the tag:
+
+   ```bash
+   git checkout develop
+   git tag v0.17.0-phase1
+   git push origin v0.17.0-phase1
+   ```
+
+3. The workflow publishes a GitHub pre-release with the signed installers. The Homebrew tap stays on the last stable version.
+
+### Stable release
+
+1. Open a pull request from `develop` into `main` and wait for the build.
+2. Merge it, then push a tag with no hyphen to that `main` commit:
+
+   ```bash
+   git checkout main
+   git tag v0.17.0
+   git push origin v0.17.0
+   ```
+
+3. The workflow publishes the stable release and updates the Homebrew tap.
 
 ## Questions?
 
