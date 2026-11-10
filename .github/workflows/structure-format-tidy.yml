@@ -1,10 +1,10 @@
-name: Lint
+name: Structure, format, and tidy
 
 on:
   workflow_call:
 
 jobs:
-  lint:
+  structure-format-tidy:
     name: Structure, format, and clang-tidy
     runs-on: ubuntu-latest
     timeout-minutes: 30

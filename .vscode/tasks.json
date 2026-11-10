@@ -230,6 +230,17 @@
       }
     },
     {
+      "label": "structure-format-tidy",
+      "type": "shell",
+      "command": "bash \"${workspaceFolder}/tools/structure_format_tidy.sh\"",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
       "label": "ctest-release",
       "type": "shell",
       "command": "bash \"${workspaceFolder}/.vscode/scripts/run-ctest.sh\" Release",

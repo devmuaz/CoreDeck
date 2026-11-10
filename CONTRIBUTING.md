@@ -81,7 +81,7 @@ Prefix with `fix:`, `refactor:`, or `chore:` when it helps clarify intent, but i
 - C++20 standard
 - No comments unless the "why" is non-obvious
 - Keep changes minimal — don't refactor unrelated code in the same PR
-- File names, layers, and entry points follow [the source layout](docs/building.md#source-layout). `tools/check_structure.py` checks them locally, and CI runs that script with `clang-format` and `clang-tidy`
+- File names, layers, and entry points follow [the source layout](docs/building.md#source-layout). Run `tools/structure_format_tidy.sh` before opening a pull request. It runs the structure check, `clang-format`, and `clang-tidy` that CI runs. The Windows, macOS, and Linux builds start only after that job passes
 
 ## Bumping the bundled command-line tools
 

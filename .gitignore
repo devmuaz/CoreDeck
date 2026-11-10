@@ -2,6 +2,7 @@
 build/
 build-release/
 build-debug/
+build-tidy/
 build-homebrew-gcc16-release/
 build-homebrew-gcc16-debug/
 build-homebrew-clang-release/
