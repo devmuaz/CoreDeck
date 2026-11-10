@@ -6,9 +6,10 @@
 #include <rfl/json.hpp>
 
 #include "app/version_check.h"
-#include "app/constants.h"
+#include "app/app_constants.h"
+#include "platform/build_info.h"
 #include "platform/http_download.h"
-#include "platform/utilities.h"
+#include "platform/strings.h"
 
 namespace CoreDeck::App {
     namespace {
@@ -192,7 +193,6 @@ namespace CoreDeck::App {
         }
     }
 
-
     namespace detail {
         std::optional<std::string> ParseLatestReleaseTag(const std::string &body) {
             try {
@@ -209,7 +209,6 @@ namespace CoreDeck::App {
                 return std::nullopt;
             }
         }
-
 
         std::optional<RemoteRelease> ParseLatestRelease(const std::string &body) {
             try {
@@ -265,7 +264,7 @@ namespace CoreDeck::App {
     }
 
     std::optional<RemoteRelease> QueryRemoteNewerVersion(const bool includeBetaReleases) {
-        const std::string userAgent = Platform::StrConcat(USER_AGENT_PREFIX, COREDECK_VERSION);
+        const std::string userAgent = Platform::StrConcat(USER_AGENT_PREFIX, Platform::BuildInfo::VERSION);
         constexpr const char *ACCEPT = "application/vnd.github+json";
 
         std::optional<RemoteRelease> remote;
@@ -295,7 +294,7 @@ namespace CoreDeck::App {
         if (!remote) {
             return std::nullopt;
         }
-        if (detail::CompareSemanticVersion(remote.value().Version, COREDECK_VERSION) <= 0) {
+        if (detail::CompareSemanticVersion(remote.value().Version, Platform::BuildInfo::VERSION) <= 0) {
             return std::nullopt;
         }
         return remote;

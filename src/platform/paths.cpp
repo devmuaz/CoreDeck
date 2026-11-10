@@ -2,7 +2,7 @@
 // Created by AbdulMuaz Aqeel on 09/04/2026.
 //
 
-#include "paths.h"
+#include "platform/paths.h"
 
 #include <filesystem>
 
@@ -15,8 +15,8 @@
 #include <unistd.h>
 #endif
 
-#include "env.h"
-#include "log.h"
+#include "platform/env.h"
+#include "platform/log.h"
 
 namespace CoreDeck::Platform {
     Os GetCurrentOs() {

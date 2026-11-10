@@ -6,7 +6,8 @@ add_executable(coredeck_tests
         test_adb_client.cpp
         test_adb_devices.cpp
         test_adb_logcat.cpp
-        test_utilities.cpp
+        test_files.cpp
+        test_strings.cpp
         test_paths.cpp
         test_png.cpp
         test_process_stream.cpp

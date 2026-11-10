@@ -17,8 +17,7 @@ namespace {
             const Platform::PipeReadResult read = Platform::ReadProcessPipe(fd, buffer.data(), buffer.size());
             if (read.Status == Platform::PipeReadStatus::Data) {
                 output.append(buffer.data(), read.Size);
-            } else if (read.Status == Platform::PipeReadStatus::Closed ||
-                       read.Status == Platform::PipeReadStatus::Error) {
+            } else if (read.Status == Platform::PipeReadStatus::Closed || read.Status == Platform::PipeReadStatus::Error) {
                 Platform::CloseProcessPipe(fd);
                 fd = -1;
             } else {

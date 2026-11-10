@@ -11,7 +11,7 @@
 #include <fstream>
 #include <vector>
 
-#include "sha256.h"
+#include "platform/sha256.h"
 
 namespace CoreDeck::Platform {
     namespace {

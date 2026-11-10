@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/apk_signer.h"
+#include "core/apk/apk_signer.h"
 #include "platform/paths.h"
 
 using namespace CoreDeck;

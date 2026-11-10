@@ -3,9 +3,10 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <vector>
 
-#include "core/keytool.h"
-#include "platform/utilities.h"
+#include "core/apk/keytool.h"
+#include "platform/secrets.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;
@@ -145,6 +146,15 @@ TEST_CASE("KeystoreTypeFromMagic recognizes the file keystore formats", "[keytoo
     REQUIRE(KeystoreTypeFromMagic(pkcs12, sizeof pkcs12) == "PKCS12");
     REQUIRE(KeystoreTypeFromMagic(unknown, sizeof unknown).empty());
     REQUIRE(KeystoreTypeFromMagic(jks, 2).empty());
+}
+
+TEST_CASE("KeystoreFilePatterns matches every suffix in both cases", "[keytool]") {
+    const std::vector<std::string> patterns = KeystoreFilePatterns();
+
+    REQUIRE(patterns.size() == std::size(KEYSTORE_SUFFIXES) * 2);
+    REQUIRE(patterns.at(0) == "*.jks");
+    REQUIRE(patterns.at(1) == "*.JKS");
+    REQUIRE(patterns.back() == "*.JCEKS");
 }
 
 TEST_CASE("KeystorePasswordRejected matches keytool's English error", "[keytool]") {

@@ -95,13 +95,7 @@ TEST_CASE("ExtractZip can strip the archive's top-level directory", "[archive][e
     REQUIRE(WriteZip(zipPath, {{"cmdline-tools/bin/sdkmanager", "#!/bin/sh"}, {"cmdline-tools/lib/x.jar", "jar"}}));
 
     std::string error;
-    REQUIRE(Platform::ExtractZip(
-        zipPath.string(),
-        dest.string(),
-        Platform::ExtractOptions{.StripTopLevelDir = true},
-        nullptr,
-        error
-    ));
+    REQUIRE(Platform::ExtractZip(zipPath.string(), dest.string(), Platform::ExtractOptions{.StripTopLevelDir = true}, nullptr, error));
 
     REQUIRE(std::filesystem::exists(dest / "bin" / "sdkmanager"));
     REQUIRE(std::filesystem::exists(dest / "lib" / "x.jar"));
@@ -163,13 +157,7 @@ TEST_CASE("ExtractZip marks bin/ entries executable", "[archive][permissions]") 
     REQUIRE(WriteZip(zipPath, {{"cmdline-tools/bin/sdkmanager", "#!/bin/sh\n"}, {"cmdline-tools/lib/x.jar", "jar"}}));
 
     std::string error;
-    REQUIRE(Platform::ExtractZip(
-        zipPath.string(),
-        dest.string(),
-        Platform::ExtractOptions{.StripTopLevelDir = true},
-        nullptr,
-        error
-    ));
+    REQUIRE(Platform::ExtractZip(zipPath.string(), dest.string(), Platform::ExtractOptions{.StripTopLevelDir = true}, nullptr, error));
 
     const auto perms = std::filesystem::status(dest / "bin" / "sdkmanager").permissions();
     REQUIRE((perms & std::filesystem::perms::owner_exec) != std::filesystem::perms::none);

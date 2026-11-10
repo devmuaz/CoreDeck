@@ -7,7 +7,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "widgets.h"
+#include "gui/widgets/widgets.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -21,10 +21,11 @@ namespace CoreDeck::Gui {
             const char *AccentActive;
         };
 
-        BannerPalette PaletteFor(const BannerTone tone) {
+        BannerPalette PaletteFor(const Tone tone) {
             if (IsLightColorScheme()) {
                 switch (tone) {
-                    case BannerTone::Info:
+                    case Tone::Neutral:
+                    case Tone::Info:
                         return {
                             .Surface = "#E8F1FC",
                             .Ink = Colors::WHITE,
@@ -34,7 +35,7 @@ namespace CoreDeck::Gui {
                             .AccentHover = "#2563EB",
                             .AccentActive = "#1E3A8A",
                         };
-                    case BannerTone::Positive:
+                    case Tone::Positive:
                         return {
                             .Surface = "#E7F6EA",
                             .Ink = Colors::WHITE,
@@ -44,7 +45,17 @@ namespace CoreDeck::Gui {
                             .AccentHover = "#1A8740",
                             .AccentActive = "#0F5C28",
                         };
-                    case BannerTone::Warning:
+                    case Tone::Negative:
+                        return {
+                            .Surface = "#FCEBEB",
+                            .Ink = Colors::WHITE,
+                            .Detail = "#7A1F1F",
+                            .Accent = Colors::NEGATIVE,
+                            .AccentStrong = Colors::NEGATIVE,
+                            .AccentHover = "#B42318",
+                            .AccentActive = "#7A1A12",
+                        };
+                    case Tone::Warning:
                     default:
                         return {
                             .Surface = "#FBF3E4",
@@ -59,7 +70,8 @@ namespace CoreDeck::Gui {
             }
 
             switch (tone) {
-                case BannerTone::Info:
+                case Tone::Neutral:
+                case Tone::Info:
                     return {
                         .Surface = "#161C28",
                         .Ink = "#081018",
@@ -69,7 +81,7 @@ namespace CoreDeck::Gui {
                         .AccentHover = "#8EC4FF",
                         .AccentActive = "#2E6FDB",
                     };
-                case BannerTone::Positive:
+                case Tone::Positive:
                     return {
                         .Surface = "#16241C",
                         .Ink = "#08140C",
@@ -79,7 +91,17 @@ namespace CoreDeck::Gui {
                         .AccentHover = "#7AE088",
                         .AccentActive = "#1F9A32",
                     };
-                case BannerTone::Warning:
+                case Tone::Negative:
+                    return {
+                        .Surface = "#261618",
+                        .Ink = "#1A0A0A",
+                        .Detail = "#D8B6B6",
+                        .Accent = Colors::NEGATIVE,
+                        .AccentStrong = Colors::NEGATIVE_STRONG,
+                        .AccentHover = "#F28B82",
+                        .AccentActive = "#B3261E",
+                    };
+                case Tone::Warning:
                 default:
                     return {
                         .Surface = "#241E16",

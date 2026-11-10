@@ -5,6 +5,10 @@ on:
     branches: [ main ]
 
 jobs:
+  lint:
+    name: Lint
+    uses: ./.github/workflows/lint.yml
+
   linux:
     name: Linux
     uses: ./.github/workflows/build-linux.yml

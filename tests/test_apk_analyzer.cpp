@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/apk_analyzer.h"
+#include "core/apk/apk_analyzer.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;

@@ -7,8 +7,8 @@
 
 #include <miniz.h>
 
-#include "archive.h"
-#include "utilities.h"
+#include "platform/archive.h"
+#include "platform/strings.h"
 
 #ifndef _WIN32
 #include <sys/stat.h>

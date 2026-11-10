@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "app/app_settings.h"
-#include "app/paths.h"
+#include "app/app_paths.h"
 #include "platform/log.h"
 
 namespace CoreDeck::App {

@@ -3,7 +3,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/adb_logcat.h"
+#include "core/adb/adb_logcat.h"
 #include "platform/process.h"
 
 using namespace CoreDeck;
@@ -15,13 +15,8 @@ TEST_CASE("BuildAdbLogcatArguments keeps device and filters explicit", "[adb][lo
     options.MinimumPriority = AdbLogPriority::Warning;
     options.TailLines = 50;
 
-    REQUIRE(
-        BuildAdbLogcatArguments("emulator-5554", options) ==
-        std::vector<std::string>{
-            "-s", "emulator-5554", "logcat", "-v", "threadtime",
-            "-b", "main", "-b", "crash", "-T", "50", "*:W"
-        }
-    );
+    const std::vector<std::string> expected{"-s", "emulator-5554", "logcat", "-v", "threadtime", "-b", "main", "-b", "crash", "-T", "50", "*:W"};
+    REQUIRE(BuildAdbLogcatArguments("emulator-5554", options) == expected);
 }
 
 TEST_CASE("LineStreamDecoder preserves partial lines and CRLF", "[process]") {

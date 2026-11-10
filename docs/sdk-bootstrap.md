@@ -5,7 +5,7 @@ Feature background: [issue #28](https://github.com/devmuaz/CoreDeck/issues/28).
 
 ## The pipeline
 
-`BootstrapAndroidSdk` (`src/core/sdk_bootstrap.cpp`) downloads Google's official
+`BootstrapAndroidSdk` (`src/core/sdk/sdk_bootstrap.cpp`) downloads Google's official
 command-line tools, verifies the SHA-256, extracts with miniz, accepts the SDK
 licenses, then installs `platform-tools`, `emulator`, and `build-tools;37.0.0` via `sdkmanager`.
 `build-tools` is pinned because sdkmanager will not install that package without a revision.

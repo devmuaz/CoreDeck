@@ -28,7 +28,7 @@
 #include <psapi.h>
 #endif
 
-#include "process_stats.h"
+#include "platform/process_stats.h"
 
 namespace CoreDeck::Platform {
 

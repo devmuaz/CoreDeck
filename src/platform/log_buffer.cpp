@@ -2,7 +2,7 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
-#include "log_buffer.h"
+#include "platform/log_buffer.h"
 
 namespace CoreDeck::Platform {
     LogBuffer::LogBuffer(const std::size_t maxLines) : m_MaxLines(maxLines) {

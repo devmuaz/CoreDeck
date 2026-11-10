@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 07/11/2026.
 //
 
-#ifndef COREDECK_PNG_H
-#define COREDECK_PNG_H
+#ifndef COREDECK_PLATFORM_PNG_H
+#define COREDECK_PLATFORM_PNG_H
 
 #include <cstddef>
 #include <optional>
@@ -22,4 +22,4 @@ namespace CoreDeck::Platform {
     std::optional<PngImage> DecodePngFile(const std::string &path);
 }
 
-#endif // COREDECK_PNG_H
+#endif // COREDECK_PLATFORM_PNG_H

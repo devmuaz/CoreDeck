@@ -9,8 +9,10 @@
 #include <sentry.h>
 #include <string>
 
-#include "app/paths.h"
+#include "app/app_paths.h"
+#include "platform/build_info.h"
 #include "platform/paths.h"
+#include "platform/strings.h"
 
 namespace CoreDeck::App::CrashReporter {
     namespace {
@@ -42,8 +44,8 @@ namespace CoreDeck::App::CrashReporter {
 
         sentry_options_t *opts = sentry_options_new();
         sentry_options_set_dsn(opts, COREDECK_SENTRY_DSN);
-        sentry_options_set_release(opts, "coredeck@" COREDECK_VERSION);
-        sentry_options_set_dist(opts, COREDECK_BUILD_NUMBER);
+        sentry_options_set_release(opts, Platform::StrConcat("coredeck@", Platform::BuildInfo::VERSION).c_str());
+        sentry_options_set_dist(opts, Platform::BuildInfo::BUILD_NUMBER);
         sentry_options_set_database_path(opts, App::GetAppConfigPath("sentry-db").c_str());
 
         const char *handlerName =

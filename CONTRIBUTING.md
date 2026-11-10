@@ -79,10 +79,11 @@ Prefix with `fix:`, `refactor:`, or `chore:` when it helps clarify intent, but i
 - C++20 standard
 - No comments unless the "why" is non-obvious
 - Keep changes minimal — don't refactor unrelated code in the same PR
+- File names, layers, and entry points follow [the source layout](docs/building.md#source-layout). `tools/check_structure.py` checks them locally, and CI runs that script with `clang-format` and `clang-tidy`
 
 ## Bumping the bundled command-line tools
 
-The in-app SDK installer downloads a specific Android command-line tools archive per platform. The URL, SHA-256, and size are pinned in `GetBundledCmdlineToolsRelease` (`src/core/sdk_bootstrap.cpp`) so a tampered or truncated download is rejected. The scheduled `SDK Bootstrap Check` workflow re-downloads the pinned archives monthly.
+The in-app SDK installer downloads a specific Android command-line tools archive per platform. The URL, SHA-256, and size are pinned in `GetBundledCmdlineToolsRelease` (`src/core/sdk/sdk_bootstrap.cpp`) so a tampered or truncated download is rejected. The scheduled `SDK Bootstrap Check` workflow re-downloads the pinned archives monthly.
 
 This is routine maintenance, not a hotfix: Google keeps old archives available for years, so a stale pin means users install slightly older tools rather than hitting a broken installer. A red monthly check is more often a transient CDN blip than a real removal — re-run it before assuming the pin is dead. See [docs/sdk-bootstrap.md](docs/sdk-bootstrap.md) for how the whole thing fits together.
 
@@ -107,7 +108,7 @@ This is routine maintenance, not a hotfix: Google keeps old archives available f
    ```
 
 3. Update `CMDLINE_TOOLS_VERSION` plus the per-platform `PlatformArchiveSha256` and `PlatformArchiveSize` values in
-   `src/core/sdk_bootstrap.cpp`.
+   `src/core/sdk/sdk_bootstrap.cpp`.
 
 4. Verify the new pins actually resolve:
 

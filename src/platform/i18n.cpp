@@ -2,9 +2,9 @@
 // Created by AbdulMuaz Aqeel on 29/09/2026.
 //
 
-#include "i18n.h"
+#include "platform/i18n.h"
 
-#include "env.h"
+#include "platform/env.h"
 
 #include <algorithm>
 #include <cctype>

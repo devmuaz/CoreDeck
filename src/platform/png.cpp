@@ -2,7 +2,7 @@
 // Created by AbdulMuaz Aqeel on 07/11/2026.
 //
 
-#include "png.h"
+#include "platform/png.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -42,7 +42,8 @@ namespace CoreDeck::Platform {
         }
 
         bool Unfilter(unsigned char *raw, const int width, const int height, const int channels) {
-            const std::size_t stride = static_cast<std::size_t>(width) * static_cast<std::size_t>(channels);
+            const auto bytesPerPixel = static_cast<std::size_t>(channels);
+            const std::size_t stride = static_cast<std::size_t>(width) * bytesPerPixel;
             const std::size_t rowBytes = stride + 1;
             for (int y = 0; y < height; ++y) {
                 unsigned char *row = raw + (static_cast<std::size_t>(y) * rowBytes);
@@ -54,7 +55,7 @@ namespace CoreDeck::Platform {
                         break;
                     case 1:
                         for (std::size_t i = 0; i < stride; ++i) {
-                            const unsigned char left = i >= static_cast<std::size_t>(channels) ? pixels[i - channels] : 0;
+                            const unsigned char left = i >= bytesPerPixel ? pixels[i - bytesPerPixel] : 0;
                             pixels[i] = static_cast<unsigned char>(pixels[i] + left);
                         }
                         break;
@@ -66,17 +67,17 @@ namespace CoreDeck::Platform {
                         break;
                     case 3:
                         for (std::size_t i = 0; i < stride; ++i) {
-                            const unsigned char left = i >= static_cast<std::size_t>(channels) ? pixels[i - channels] : 0;
+                            const unsigned char left = i >= bytesPerPixel ? pixels[i - bytesPerPixel] : 0;
                             const unsigned char up = previous != nullptr ? previous[i] : 0;
                             pixels[i] = static_cast<unsigned char>(pixels[i] + static_cast<unsigned char>((static_cast<int>(left) + static_cast<int>(up)) / 2));
                         }
                         break;
                     case 4:
                         for (std::size_t i = 0; i < stride; ++i) {
-                            const unsigned char left = i >= static_cast<std::size_t>(channels) ? pixels[i - channels] : 0;
+                            const unsigned char left = i >= bytesPerPixel ? pixels[i - bytesPerPixel] : 0;
                             const unsigned char up = previous != nullptr ? previous[i] : 0;
                             const unsigned char upLeft =
-                                previous != nullptr && i >= static_cast<std::size_t>(channels) ? previous[i - channels] : 0;
+                                previous != nullptr && i >= bytesPerPixel ? previous[i - bytesPerPixel] : 0;
                             pixels[i] = static_cast<unsigned char>(pixels[i] + Paeth(left, up, upLeft));
                         }
                         break;
@@ -162,7 +163,7 @@ namespace CoreDeck::Platform {
         const std::size_t rowBytes = stride + 1;
         const std::size_t rawSize = rowBytes * static_cast<std::size_t>(height);
         std::vector<unsigned char> raw(rawSize);
-        mz_ulong destLen = static_cast<mz_ulong>(rawSize);
+        auto destLen = static_cast<mz_ulong>(rawSize);
         if (mz_uncompress(raw.data(), &destLen, idat.data(), static_cast<mz_ulong>(idat.size())) != MZ_OK ||
             destLen != rawSize) {
             return std::nullopt;

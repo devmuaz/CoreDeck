@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 30/07/2026.
 //
 
-#ifndef COREDECK_ARCHIVE_H
-#define COREDECK_ARCHIVE_H
+#ifndef COREDECK_PLATFORM_ARCHIVE_H
+#define COREDECK_PLATFORM_ARCHIVE_H
 
 #include <functional>
 #include <string>
@@ -35,4 +35,4 @@ namespace CoreDeck::Platform {
     void MakeFileExecutable(const std::string &path);
 }
 
-#endif // COREDECK_ARCHIVE_H
+#endif // COREDECK_PLATFORM_ARCHIVE_H

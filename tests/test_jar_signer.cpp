@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/jar_signer.h"
+#include "core/apk/jar_signer.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;

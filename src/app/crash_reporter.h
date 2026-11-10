@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 27/04/2026.
 //
 
-#ifndef COREDECK_CRASH_REPORTER_H
-#define COREDECK_CRASH_REPORTER_H
+#ifndef COREDECK_APP_CRASH_REPORTER_H
+#define COREDECK_APP_CRASH_REPORTER_H
 
 #include <cstdint>
 #include <string_view>
@@ -30,4 +30,4 @@ namespace CoreDeck::App::CrashReporter {
     void AddBreadcrumb(std::string_view category, std::string_view message);
 }
 
-#endif // COREDECK_CRASH_REPORTER_H
+#endif // COREDECK_APP_CRASH_REPORTER_H

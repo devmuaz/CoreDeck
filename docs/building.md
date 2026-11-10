@@ -60,16 +60,40 @@ The first build compiles the bundled dependencies, including sentry-native, Dear
 
 ## Source layout
 
-The code under `src/` is four layers. Each layer is its own static library, and it includes only the layer below it.
+`src/` is four static libraries. A library includes only itself and the libraries it is allowed to use. `tools/check_structure.py` enforces the table, the file names, and the include rules, and CI runs it.
 
-| Layer        | Folder         | Responsibility                                                                                 |
-| ------------ | -------------- | ---------------------------------------------------------------------------------------------- |
-| **Platform** | `src/platform` | Processes, HTTP, archives, hashing, logging, translation, and generic paths and strings        |
-| **Core**     | `src/core`     | The Android toolchain: the SDK, AVDs, the emulator, system images, skins, the JDK, and signing |
-| **App**      | `src/app`      | Settings, the saved language, update checks, crash reporting, file dialogs, and app paths      |
-| **GUI**      | `src/gui`      | Windows, widgets, and the running screen session                                               |
+| Library | Folder | May include | Holds |
+| --- | --- | --- | --- |
+| `coredeck_platform` | `src/platform` | platform | Processes, HTTP, archives, hashing, logging, translation, paths, and generic helpers split by what they hold: `strings`, `files`, `secrets`, `desktop` |
+| `coredeck_core` | `src/core` | platform, core | Android logic, grouped by domain: `sdk/`, `avd/`, `adb/`, `apk/` |
+| `coredeck_app` | `src/app` | platform, app | Settings, app paths, crash reporting, update checks, and file dialogs |
+| `coredeck_gui` | `src/gui` | all of the above | Everything that draws. Dear ImGui is its own `imgui` target |
 
-The GUI may call all three. Core and App may call Platform, and they stay independent of each other. A call from the GUI names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppSettings`. A new Android feature is another pair of files in Core. A new operating-system helper goes in Platform. A new preference or app service goes in App.
+Core and App do not include each other. The executable is `src/main.cpp` and links only `coredeck_gui`. A call names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppSettings`.
+
+Folders name the area a person sees: `gui/shell/`, `gui/home/`, `gui/adb/`, `gui/apk/`, `gui/sdk/`, `gui/preferences/`, and `gui/widgets/` for controls with no feature knowledge. No two files under `src/` share a name. These file names are banned because they say nothing: `utilities`, `helpers`, `common`, `misc`.
+
+A GUI feature file ends with the kind of thing it is:
+
+| Suffix | What it is | Entry point |
+| --- | --- | --- |
+| `_workspace` | A full-window page, one per `WorkspacePage` value | `Build…Workspace`, `Close…Workspace` |
+| `_panel` | A dockable window inside a workspace | `Build…Panel` |
+| `_tab` | One tab of a workspace | `Build…Tab` |
+| `_dialog` | A modal, including a confirmation | `Open…Dialog`, `Build…Dialog` |
+| `_section` | Part of a dialog or panel, drawn by its parent | `Build…Section` |
+| `_banner` | A strip above a workspace | `Build…Banner` |
+| `_screen` | Replaces the whole window, one per `Screen` value | `Build…Screen` |
+| `_bar` | The menu bar | `Build…Bar` |
+| `_controller` | A feature's tasks, polling, and selection. No ImGui include | Free functions |
+| `_widgets` | Drawing helpers used only inside one feature | Free functions |
+| `_state` | A feature's UI state, held by `Context` | `struct …State` |
+
+Includes are rooted at `src/` (`#include "gui/widgets/widgets.h"`), never `../`. A header guard follows the path, such as `COREDECK_GUI_ADB_ADB_SHELL_TAB_H`, and the file ends with `#endif // COREDECK_GUI_ADB_ADB_SHELL_TAB_H`.
+
+Namespaces follow the libraries: `CoreDeck::Platform`, `Core`, `App`, and `Gui`. A feature folder may use `Gui::<Folder>` (such as `Gui::Adb`) for helpers shared by its own files. Entry points stay in `Gui`. Helpers used by one file stay in an anonymous namespace.
+
+`Context` is grouped by kind. `Host` holds services, `Prefs` holds preferences, and `Shell` holds the screen, the active workspace, the native window, and panel visibility. `Workspaces` holds each feature's state (`Home`, `Adb`, `ApkAnalyzer`, `ApkSigner`, `JarSigner`, `Keytool`). `Dialogs` holds each dialog, and a dialog opens only through its `Open…Dialog` function: `context.Dialogs.About.Open` is set by `OpenAboutDialog`. Window titles, `###` widget ids, and `settings.json` keys stay stable when a file moves.
 
 ## Why Ninja
 

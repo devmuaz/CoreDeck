@@ -1,0 +1,74 @@
+//
+// Created by AbdulMuaz Aqeel on 03/04/2026.
+//
+
+#ifndef COREDECK_CORE_AVD_EMULATOR_H
+#define COREDECK_CORE_AVD_EMULATOR_H
+
+#include <string>
+#include <unordered_map>
+#include <thread>
+#include <atomic>
+#include <memory>
+
+#include "core/sdk/sdk.h"
+#include "platform/log_buffer.h"
+#include "platform/process.h"
+#include "platform/process_stats.h"
+
+namespace CoreDeck::Core {
+    struct EmulatorInstance {
+        std::string AvdName;
+        ProcessId Pid;
+        int ConsolePort = 0;
+        bool IsRunning = false;
+        bool Stopping = false;
+        std::shared_ptr<Platform::LogBuffer> Log;
+        std::thread ReaderThread;
+        std::thread StopThread;
+        std::shared_ptr<std::atomic<bool>> StopRequested;
+    };
+
+    class EmulatorManager {
+    public:
+        EmulatorManager(const EmulatorManager &) = delete;
+        EmulatorManager(EmulatorManager &&) = delete;
+        EmulatorManager &operator=(const EmulatorManager &) = delete;
+        EmulatorManager &operator=(EmulatorManager &&) = delete;
+
+        explicit EmulatorManager(SdkInfo sdk);
+        ~EmulatorManager();
+
+        bool Launch(const std::string &avdName, const std::vector<std::string> &args);
+
+        bool Stop(const std::string &avdName);
+
+        bool IsStopping(const std::string &avdName) const;
+
+        bool IsRunning(const std::string &avdName) const;
+
+        std::shared_ptr<Platform::LogBuffer> GetLog(const std::string &avdName);
+
+        ProcessId GetPid(const std::string &avdName) const;
+
+        std::string GetAvdNameForConsolePort(int consolePort) const;
+
+        const Platform::ProcessStatsSampler &Stats() const {
+            return m_Stats;
+        }
+
+        void Update();
+
+        void SetSdk(SdkInfo sdk);
+
+    private:
+        void m_EvictExistingInstance(const std::string &avdName);
+
+        SdkInfo m_Sdk;
+        mutable std::mutex m_Mutex;
+        std::unordered_map<std::string, EmulatorInstance> m_Instances;
+        Platform::ProcessStatsSampler m_Stats;
+    };
+}
+
+#endif // COREDECK_CORE_AVD_EMULATOR_H

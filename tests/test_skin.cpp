@@ -4,7 +4,7 @@
 #include <fstream>
 #include <random>
 
-#include "core/skin.h"
+#include "core/avd/skin.h"
 
 namespace fs = std::filesystem;
 using namespace CoreDeck::Core;

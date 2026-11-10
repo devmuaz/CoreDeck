@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 12/05/2026.
 //
 
-#ifndef COREDECK_PROCESS_STATS_H
-#define COREDECK_PROCESS_STATS_H
+#ifndef COREDECK_PLATFORM_PROCESS_STATS_H
+#define COREDECK_PLATFORM_PROCESS_STATS_H
 
 #include <atomic>
 #include <chrono>
@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "process.h"
+#include "platform/process.h"
 
 namespace CoreDeck::Platform {
     struct ProcessSample {
@@ -81,4 +81,4 @@ namespace CoreDeck::Platform {
     };
 }
 
-#endif // COREDECK_PROCESS_STATS_H
+#endif // COREDECK_PLATFORM_PROCESS_STATS_H

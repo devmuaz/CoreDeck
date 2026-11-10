@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 09/04/2026.
 //
 
-#ifndef COREDECK_PATHS_H
-#define COREDECK_PATHS_H
+#ifndef COREDECK_PLATFORM_PATHS_H
+#define COREDECK_PLATFORM_PATHS_H
 
 #include <cstdint>
 #include <string>
@@ -45,4 +45,4 @@ namespace CoreDeck::Platform {
     bool SameFilePath(const std::string &left, const std::string &right);
 }
 
-#endif // COREDECK_PATHS_H
+#endif // COREDECK_PLATFORM_PATHS_H

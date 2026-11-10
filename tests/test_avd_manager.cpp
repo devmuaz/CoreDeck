@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/avd_manager.h"
+#include "core/avd/avd_manager.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;

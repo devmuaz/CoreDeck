@@ -40,7 +40,6 @@ endif()
 
 include(cmake/Dependencies.cmake)
 
-find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
 if(NOT WIN32)
@@ -77,80 +76,10 @@ find_program(GETTEXT_MSGFMT_EXECUTABLE msgfmt HINTS ${_coredeck_msgfmt_hints} RE
 add_subdirectory(src/platform)
 add_subdirectory(src/app)
 add_subdirectory(src/core)
+add_subdirectory(src/gui)
 
-add_executable(${PROJECT_NAME}
-    ${IMGUI_SOURCES}
-    src/main.cpp
-    src/gui/windows/adb/adb.cpp
-    src/gui/windows/adb/adb_session.cpp
-    src/gui/windows/adb/adb_logcat_tab.cpp
-    src/gui/windows/adb/adb_shell_tab.cpp
-    src/gui/windows/adb/adb_packages_tab.cpp
-    src/gui/windows/adb/adb_packages_list.cpp
-    src/gui/windows/adb/adb_connections_tab.cpp
-    src/gui/windows/adb/adb_devices.cpp
-    src/gui/windows/adb/adb_wifi_help.cpp
-    src/gui/windows/app/about.cpp
-    src/gui/windows/app/health_check.cpp
-    src/gui/windows/app/health_check_banner.cpp
-    src/gui/windows/app/main_menu_bar.cpp
-    src/gui/windows/app/onboarding.cpp
-    src/gui/windows/app/update.cpp
-    src/gui/windows/avd/accept_licenses.cpp
-    src/gui/windows/avd/avd_info.cpp
-    src/gui/windows/avd/avd_list.cpp
-    src/gui/windows/avd/avd_logs.cpp
-    src/gui/windows/avd/avd_options.cpp
-    src/gui/windows/avd/create_avd.cpp
-    src/gui/windows/avd/device_profile.cpp
-    src/gui/windows/avd/install_image.cpp
-    src/gui/windows/avd/skin.cpp
-    src/gui/windows/avd/storage.cpp
-    src/gui/windows/packages/apk_analyzer.cpp
-    src/gui/windows/packages/apk_signer.cpp
-    src/gui/windows/packages/jar_signer.cpp
-    src/gui/windows/packages/keytool.cpp
-    src/gui/windows/preferences/preferences.cpp
-    src/gui/windows/preferences/preferences_android_sdk.cpp
-    src/gui/windows/preferences/preferences_general.cpp
-    src/gui/windows/preferences/preferences_jdk.cpp
-    src/gui/application.cpp
-    src/gui/theme.cpp
-    src/gui/utilities.cpp
-    src/gui/widgets/style.cpp
-    src/gui/widgets/buttons.cpp
-    src/gui/widgets/feedback.cpp
-    src/gui/widgets/form.cpp
-    src/gui/widgets/log_viewer.cpp
-    src/gui/widgets/details.cpp
-    src/gui/widgets/chrome.cpp
-    src/gui/widgets/banner.cpp
-)
-
-target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.h)
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}/src
-    ${IMGUI_DIR}
-    ${IMGUI_DIR}/backends
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    coredeck_app
-    coredeck_core
-    glfw
-    OpenGL::GL
-)
-
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PRIVATE dwmapi)
-endif()
-
-if(APPLE)
-    target_sources(${PROJECT_NAME} PRIVATE src/gui/theme_mac.mm)
-    set_source_files_properties(src/gui/theme_mac.mm PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
-    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreFoundation")
-endif()
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE coredeck_gui)
 
 include(cmake/Locales.cmake)
 include(cmake/Runtime.cmake)

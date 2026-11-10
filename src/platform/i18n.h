@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 29/09/2026.
 //
 
-#ifndef COREDECK_I18N_H
-#define COREDECK_I18N_H
+#ifndef COREDECK_PLATFORM_I18N_H
+#define COREDECK_PLATFORM_I18N_H
 
 #include <string>
 #include <string_view>
@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "utilities.h"
+#include "platform/strings.h"
 
 namespace CoreDeck::Platform {
     void SetLocalesDirectory(std::string directory);
@@ -91,4 +91,4 @@ namespace CoreDeck::Platform {
     }
 }
 
-#endif // COREDECK_I18N_H
+#endif // COREDECK_PLATFORM_I18N_H

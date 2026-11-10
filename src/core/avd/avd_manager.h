@@ -1,0 +1,82 @@
+//
+// Created by AbdulMuaz Aqeel on 05/04/2026.
+//
+
+#ifndef COREDECK_CORE_AVD_AVD_MANAGER_H
+#define COREDECK_CORE_AVD_AVD_MANAGER_H
+
+#include <optional>
+#include <string>
+#include <vector>
+
+#include "core/sdk/sdk.h"
+
+namespace CoreDeck::Core {
+    struct DeviceProfile {
+        std::string Id;
+        std::string Name;
+    };
+
+    struct DeviceProfileList {
+        std::vector<DeviceProfile> Profiles;
+        bool SkippedDeviceDefinitions = false;
+    };
+
+    struct AvdInfo {
+        std::string Name;
+        std::string DisplayName;
+        std::string Device;
+        std::string ApiLevel;
+        std::string Abi;
+        std::string SystemImagePath;
+        std::string SystemImageVariant;
+        std::string SystemImageTagId;
+        std::string SystemImageTagDisplay;
+        std::vector<std::string> SystemImageTagIds;
+        std::vector<std::string> SystemImageTagDisplayNames;
+        bool IsGoogleApisImage = false;
+        bool IsGooglePlayImage = false;
+        bool Supports16KbPageSize = false;
+        std::string SdCard;
+        std::string RamSize;
+        std::string ScreenResolution;
+        std::string GpuMode;
+        std::string Arch;
+        std::string Path;
+        std::string SkinName;
+    };
+
+    struct AvdCreationData {
+        std::string Name;
+        std::string DisplayName;
+        std::string SystemImagePackagePath;
+        std::string DeviceId;
+        std::string RamSize;
+        std::string SdCardSize;
+        std::string GpuMode;
+        std::string SkinName;
+        std::string SkinPath;
+    };
+
+    DeviceProfileList ParseAvdManagerDeviceList(const std::string &output);
+
+    DeviceProfileList ListDeviceProfiles(const SdkInfo &sdk);
+
+    std::vector<AvdInfo> LoadAvds(const std::vector<std::string> &avdNames);
+
+    std::vector<std::string> ParseAvdManagerAvdList(const std::string &output);
+
+    std::vector<std::string> ListAvdNames(const SdkInfo &sdk);
+
+    std::optional<std::string> InitialOrientationForPanel(int width, int height);
+
+    bool CreateAvd(const SdkInfo &sdk, const AvdCreationData &data);
+
+    bool DeleteAvd(const SdkInfo &sdk, const std::string &avdName);
+
+    std::string GetAvdDirectory();
+
+    bool WipeAvdUserData(const std::string &avdPath);
+}
+
+#endif // COREDECK_CORE_AVD_AVD_MANAGER_H

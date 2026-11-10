@@ -2,9 +2,10 @@
 // Created by AbdulMuaz Aqeel on 04/04/2026.
 //
 
-#ifndef COREDECK_WIDGETS_H
-#define COREDECK_WIDGETS_H
+#ifndef COREDECK_GUI_WIDGETS_WIDGETS_H
+#define COREDECK_GUI_WIDGETS_WIDGETS_H
 
+#include <algorithm>
 #include <future>
 #include <span>
 #include <string>
@@ -12,8 +13,11 @@
 #include <vector>
 
 #include "imgui.h"
-#include "../theme.h"
-#include "platform/utilities.h"
+#include "imgui_internal.h"
+#include "gui/theme/theme.h"
+#include "gui/widgets/layout.h"
+#include "gui/widgets/tone.h"
+#include "platform/strings.h"
 
 namespace CoreDeck::Gui {
     class StyleColor {
@@ -129,36 +133,18 @@ namespace CoreDeck::Gui {
 
     void Spinner(const ImVec4 &color, float diameter = 0.0F);
 
-    enum class StatusMessageTone : uint8_t {
-        Positive,
-        Error,
-        Warning,
-        Info,
-    };
+    // A drawn spinner calls this. The frame loop consumes it to keep redrawing.
+    void RequestSpinnerFrame();
 
-    void StatusMessage(StatusMessageTone tone, const char *message);
+    bool ConsumeSpinnerFrameRequest();
 
-    enum class StatusBarTone : uint8_t {
-        Idle,
-        Busy,
-        Success,
-        Warning,
-        Error,
-    };
+    void StatusMessage(Tone tone, const char *message);
 
     float StatusBarHeight();
 
-    void StatusBar(StatusBarTone tone, const char *message);
+    void StatusBar(Tone tone, const char *message);
 
-    enum class NoticeCardTone : uint8_t {
-        Default,
-        Positive,
-        Error,
-        Warning,
-        Info,
-    };
-
-    bool NoticeCard(NoticeCardTone tone, const char *title, const char *body = nullptr, const char *buttonLabel = nullptr);
+    bool NoticeCard(Tone tone, const char *title, const char *body = nullptr, const char *buttonLabel = nullptr);
 
     void CenteredMessage(const char *title, const char *subtitle = nullptr, const char *titleColor = nullptr);
 
@@ -213,6 +199,8 @@ namespace CoreDeck::Gui {
 
     void HoverTooltip(const char *text);
 
+    void CopyToBuffer(char *buffer, std::size_t size, const std::string &value);
+
     std::string DirectoryOf(const std::string &path);
 
     std::string FileNameOf(const std::string &path);
@@ -242,6 +230,8 @@ namespace CoreDeck::Gui {
         const char *tooltip = nullptr
     );
 
+    float ActionWidth(const char *label);
+
     float BusyActionWidth(const char *idleLabel, const char *busyLabel);
 
     bool BusyButton(
@@ -267,6 +257,10 @@ namespace CoreDeck::Gui {
         const ImVec4 *itemDots = nullptr
     );
 
+    float ComboWidth(const char *const *labels, int count, float minimum, float maximum);
+
+    void DisabledCombo(const char *id, const char *label, float width);
+
     void SearchField(const char *id, const char *hint, char *buffer, std::size_t bufferSize);
 
     std::string PathPicker(
@@ -280,6 +274,14 @@ namespace CoreDeck::Gui {
     );
 
     bool SubtitledCheckbox(const char *id, bool *value, const char *label, const char *subtitle = nullptr, const char *tooltip = nullptr, float boxSize = 28.0F);
+
+    struct CheckboxRowItem {
+        const char *Id;
+        bool *Value;
+        const char *Label;
+    };
+
+    void CheckboxRow(std::span<const CheckboxRowItem> items);
 
     inline void PushDetailCardChrome(StyleColor &sc, StyleVar &sv) {
         sc.Push(ImGuiCol_ChildBg, HexColor(Colors::SURFACE1));
@@ -297,6 +299,55 @@ namespace CoreDeck::Gui {
         ImGui::BeginChild(id, ImVec2(width, height), ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding);
         content();
         ImGui::EndChild();
+    }
+
+    template<typename Content>
+    float FittedCardHeight(const char *id, const Content &content, const float width) {
+        const ImGuiCursorState cursor(ImGui::GetCurrentWindow());
+        StyleColor sc;
+        StyleVar sv;
+        PushDetailCardChrome(sc, sv);
+        sv.Push(ImGuiStyleVar_Alpha, 0.0F);
+        ImGui::PushID(id);
+        ImGui::BeginDisabled();
+        ImGui::PushItemFlag(ImGuiItemFlags_NoNav, true);
+        ImGui::BeginChild(
+            "##card",
+            ImVec2(width, 100000.0F),
+            ImGuiChildFlags_Borders | ImGuiChildFlags_AlwaysUseWindowPadding,
+            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground
+        );
+        ImGuiWindow *child = ImGui::GetCurrentWindow();
+        child->Hidden = false;
+        child->SkipItems = false;
+        content();
+        const float height = ImGui::CalcWindowNextAutoFitSize(child).y;
+        ImGui::EndChild();
+        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
+        ImGui::PopID();
+        return std::max(1.0F, height);
+    }
+
+    template<typename Content>
+    void FittedDetailCard(const char *id, const Content &content, const float width) {
+        const float height = FittedCardHeight(id, content, width);
+        DetailCard(id, height, content, width);
+    }
+
+    template<typename Left, typename Right>
+    void FittedCardPair(
+        const char *leftId,
+        const Left &left,
+        const char *rightId,
+        const Right &right,
+        const float width,
+        const float spacing
+    ) {
+        const float height = std::max(FittedCardHeight(leftId, left, width), FittedCardHeight(rightId, right, width));
+        DetailCard(leftId, height, left, width);
+        ImGui::SameLine(0.0F, spacing);
+        DetailCard(rightId, height, right, width);
     }
 
     enum class SplitDetailKind : uint8_t {
@@ -373,12 +424,6 @@ namespace CoreDeck::Gui {
         Cancelled,
     };
 
-    enum class DialogType : uint8_t {
-        Default,
-        Positive,
-        Negative,
-    };
-
     struct DialogData {
         const char *Id{};
         bool &IsOpen; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
@@ -387,7 +432,7 @@ namespace CoreDeck::Gui {
         const char *ConfirmButtonTitle{};
         const char *CancelButtonTitle{};
         const char *BusyButtonTitle{};
-        DialogType Type = DialogType::Default;
+        Gui::Tone Tone = Gui::Tone::Neutral;
         bool IsBusy = false;
         bool CloseOnConfirm = false;
     };
@@ -464,12 +509,6 @@ namespace CoreDeck::Gui {
 
     void EndPickerTable(bool open);
 
-    enum class BannerTone : uint8_t {
-        Warning,
-        Info,
-        Positive,
-    };
-
     enum class BannerResult : uint8_t {
         None,
         Action,
@@ -478,7 +517,7 @@ namespace CoreDeck::Gui {
 
     struct Banner {
         const char *Id = nullptr;
-        BannerTone Tone = BannerTone::Warning;
+        Gui::Tone Tone = Gui::Tone::Warning;
         const char *Icon = nullptr;
         const char *Title = nullptr;
         const char *Subtitle = nullptr;
@@ -506,4 +545,4 @@ namespace CoreDeck::Gui {
     bool TaskProgressPanel(const TaskProgress &task);
 }
 
-#endif // COREDECK_WIDGETS_H
+#endif // COREDECK_GUI_WIDGETS_WIDGETS_H

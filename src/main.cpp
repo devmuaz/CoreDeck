@@ -1,7 +1,7 @@
-#include "app/app_settings_types.h"
-#include "gui/application.h"
-#include "app/crash_reporter.h"
 #include "app/app_settings.h"
+#include "app/app_settings_types.h"
+#include "app/crash_reporter.h"
+#include "gui/shell/application.h"
 
 int main() {
     const CoreDeck::App::AppSettings settings = CoreDeck::App::LoadAppSettings();

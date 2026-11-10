@@ -8,23 +8,23 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#include "gui/widgets/internal.h"
+#include "gui/widgets/widgets.h"
 #include "platform/i18n.h"
-#include "widgets.h"
-#include "internal.h"
 
 namespace CoreDeck::Gui {
     namespace {
-        const char *NoticeAccent(const NoticeCardTone tone) {
+        const char *NoticeAccent(const Tone tone) {
             switch (tone) {
-                case NoticeCardTone::Positive:
+                case Tone::Positive:
                     return Colors::POSITIVE;
-                case NoticeCardTone::Error:
+                case Tone::Negative:
                     return Colors::NEGATIVE;
-                case NoticeCardTone::Warning:
+                case Tone::Warning:
                     return Colors::WARNING;
-                case NoticeCardTone::Info:
+                case Tone::Info:
                     return Colors::ACCENT_INFO;
-                case NoticeCardTone::Default:
+                case Tone::Neutral:
                 default:
                     return nullptr;
             }
@@ -70,9 +70,11 @@ namespace CoreDeck::Gui {
             }
             return height;
         }
+
+        bool g_SpinnerFrameRequested = false;
     }
 
-    void StatusMessage(const StatusMessageTone tone, const char *message) {
+    void StatusMessage(const Tone tone, const char *message) {
         if (message == nullptr || message[0] == '\0') {
             return;
         }
@@ -80,19 +82,20 @@ namespace CoreDeck::Gui {
         const char *icon = Icons::INFO;
         const char *color = Colors::ACCENT_INFO;
         switch (tone) {
-            case StatusMessageTone::Positive:
+            case Tone::Positive:
                 icon = Icons::CHECK_CIRCLE;
                 color = Colors::POSITIVE;
                 break;
-            case StatusMessageTone::Error:
+            case Tone::Negative:
                 icon = Icons::TIMES_CIRCLE;
                 color = Colors::NEGATIVE;
                 break;
-            case StatusMessageTone::Warning:
+            case Tone::Warning:
                 icon = Icons::WARNING_TRIANGLE;
                 color = Colors::WARNING;
                 break;
-            case StatusMessageTone::Info:
+            case Tone::Neutral:
+            case Tone::Info:
                 break;
         }
 
@@ -141,7 +144,7 @@ namespace CoreDeck::Gui {
         return ImGui::GetTextLineHeight() + (padY * 2.0F);
     }
 
-    void StatusBar(const StatusBarTone tone, const char *message) {
+    void StatusBar(const Tone tone, const char *message) {
         const char *shown = message != nullptr ? message : "";
         const char *icon = Icons::INFO;
         const char *color = Colors::TEXT_MUTED;
@@ -150,7 +153,7 @@ namespace CoreDeck::Gui {
         float fillAlpha = 1.0F;
         float borderAlpha = 1.0F;
         switch (tone) {
-            case StatusBarTone::Success:
+            case Tone::Positive:
                 icon = Icons::CHECK_CIRCLE;
                 color = Colors::POSITIVE;
                 fill = Colors::POSITIVE;
@@ -158,7 +161,7 @@ namespace CoreDeck::Gui {
                 fillAlpha = 0.12F;
                 borderAlpha = 0.35F;
                 break;
-            case StatusBarTone::Warning:
+            case Tone::Warning:
                 icon = Icons::WARNING_TRIANGLE;
                 color = Colors::WARNING;
                 fill = Colors::WARNING;
@@ -166,7 +169,7 @@ namespace CoreDeck::Gui {
                 fillAlpha = 0.12F;
                 borderAlpha = 0.35F;
                 break;
-            case StatusBarTone::Error:
+            case Tone::Negative:
                 icon = Icons::TIMES_CIRCLE;
                 color = Colors::NEGATIVE;
                 fill = Colors::NEGATIVE;
@@ -174,7 +177,7 @@ namespace CoreDeck::Gui {
                 fillAlpha = 0.12F;
                 borderAlpha = 0.35F;
                 break;
-            case StatusBarTone::Busy:
+            case Tone::Info:
                 icon = Icons::INFO;
                 color = Colors::ACCENT_INFO;
                 fill = Colors::ACCENT_INFO;
@@ -182,7 +185,7 @@ namespace CoreDeck::Gui {
                 fillAlpha = 0.12F;
                 borderAlpha = 0.35F;
                 break;
-            case StatusBarTone::Idle:
+            case Tone::Neutral:
                 break;
         }
 
@@ -211,7 +214,7 @@ namespace CoreDeck::Gui {
         draw->PopClipRect();
     }
 
-    bool NoticeCard(const NoticeCardTone tone, const char *title, const char *body, const char *buttonLabel) {
+    bool NoticeCard(const Tone tone, const char *title, const char *body, const char *buttonLabel) {
         if (title == nullptr || title[0] == '\0') {
             return false;
         }
@@ -516,5 +519,15 @@ namespace CoreDeck::Gui {
 
         ImGui::PopID();
         return pressed;
+    }
+
+    void RequestSpinnerFrame() {
+        g_SpinnerFrameRequested = true;
+    }
+
+    bool ConsumeSpinnerFrameRequest() {
+        const bool requested = g_SpinnerFrameRequested;
+        g_SpinnerFrameRequested = false;
+        return requested;
     }
 }

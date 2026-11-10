@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 30/07/2026.
 //
 
-#ifndef COREDECK_HTTP_DOWNLOAD_H
-#define COREDECK_HTTP_DOWNLOAD_H
+#ifndef COREDECK_PLATFORM_HTTP_DOWNLOAD_H
+#define COREDECK_PLATFORM_HTTP_DOWNLOAD_H
 
 #include <cstdint>
 #include <functional>
@@ -40,4 +40,4 @@ namespace CoreDeck::Platform {
     }
 }
 
-#endif // COREDECK_HTTP_DOWNLOAD_H
+#endif // COREDECK_PLATFORM_HTTP_DOWNLOAD_H

@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/adb_client.h"
+#include "core/adb/adb_client.h"
 
 using namespace CoreDeck::Core;
 

@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/system_image.h"
+#include "core/avd/system_image.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;

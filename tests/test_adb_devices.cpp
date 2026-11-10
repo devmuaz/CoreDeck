@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/adb_devices.h"
+#include "core/adb/adb_devices.h"
 
 using namespace CoreDeck::Core;
 

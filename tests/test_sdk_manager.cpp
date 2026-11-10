@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/jdk.h"
-#include "core/sdk_manager.h"
+#include "core/sdk/jdk.h"
+#include "core/sdk/sdk_manager.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;

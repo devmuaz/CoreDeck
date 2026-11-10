@@ -5,8 +5,8 @@
 #include <filesystem>
 #include <fstream>
 
-#include "http_download.h"
-#include "utilities.h"
+#include "platform/http_download.h"
+#include "platform/strings.h"
 
 #ifdef _WIN32
 #include <windows.h>

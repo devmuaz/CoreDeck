@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 15/04/2026.
 //
 
-#ifndef COREDECK_FILE_DIALOG_H
-#define COREDECK_FILE_DIALOG_H
+#ifndef COREDECK_APP_FILE_DIALOG_H
+#define COREDECK_APP_FILE_DIALOG_H
 
 #include <optional>
 #include <string>
@@ -27,4 +27,4 @@ namespace CoreDeck::App::FileDialog {
     );
 }
 
-#endif // COREDECK_FILE_DIALOG_H
+#endif // COREDECK_APP_FILE_DIALOG_H

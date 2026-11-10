@@ -1,8 +1,8 @@
 add_library(coredeck_app STATIC
+    app_paths.cpp
     app_settings.cpp
     crash_reporter.cpp
     file_dialog.cpp
-    paths.cpp
     version_check.cpp
 )
 

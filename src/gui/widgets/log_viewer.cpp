@@ -2,7 +2,7 @@
 // Created by AbdulMuaz Aqeel on 04/11/2026.
 //
 
-#include "log_viewer.h"
+#include "gui/widgets/log_viewer.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -14,12 +14,11 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "../theme.h"
-#include "../utilities.h"
-#include "widgets.h"
+#include "gui/theme/theme.h"
+#include "gui/widgets/widgets.h"
 #include "platform/i18n.h"
 #include "platform/log_filter.h"
-#include "platform/utilities.h"
+#include "platform/strings.h"
 
 namespace CoreDeck::Gui {
     namespace {

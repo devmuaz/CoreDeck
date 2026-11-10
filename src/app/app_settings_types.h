@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 18/04/2026.
 //
 
-#ifndef COREDECK_APP_SETTINGS_TYPES_H
-#define COREDECK_APP_SETTINGS_TYPES_H
+#ifndef COREDECK_APP_APP_SETTINGS_TYPES_H
+#define COREDECK_APP_APP_SETTINGS_TYPES_H
 
 #include <cstdint>
 #include <string>
@@ -47,4 +47,4 @@ namespace CoreDeck::App {
     };
 }
 
-#endif // COREDECK_APP_SETTINGS_TYPES_H
+#endif // COREDECK_APP_APP_SETTINGS_TYPES_H

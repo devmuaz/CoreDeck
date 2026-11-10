@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 02/04/2026.
 //
 
-#ifndef COREDECK_PROCESS_H
-#define COREDECK_PROCESS_H
+#ifndef COREDECK_PLATFORM_PROCESS_H
+#define COREDECK_PLATFORM_PROCESS_H
 
 #include <cstddef>
 #include <cstdint>
@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "env.h"
+#include "platform/env.h"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -124,4 +124,4 @@ namespace CoreDeck::Platform {
     void CollectProcessTreePids(ProcessId pid, std::vector<ProcessId> &out);
 }
 
-#endif // COREDECK_PROCESS_H
+#endif // COREDECK_PLATFORM_PROCESS_H

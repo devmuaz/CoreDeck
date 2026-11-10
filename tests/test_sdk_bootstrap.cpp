@@ -7,9 +7,9 @@
 #include <vector>
 
 
+#include "core/sdk/sdk.h"
+#include "core/sdk/sdk_bootstrap.h"
 #include "platform/paths.h"
-#include "core/sdk.h"
-#include "core/sdk_bootstrap.h"
 
 using namespace CoreDeck;
 using namespace CoreDeck::Core;

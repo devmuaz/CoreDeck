@@ -3,9 +3,9 @@
 #include <cstdlib>
 #include <filesystem>
 
+#include "core/sdk/sdk_bootstrap.h"
 #include "platform/archive.h"
 #include "platform/http_download.h"
-#include "core/sdk_bootstrap.h"
 #include "platform/sha256.h"
 
 using namespace CoreDeck::Core;
@@ -48,13 +48,7 @@ TEST_CASE("The pinned cmdline-tools archive downloads and matches its checksum",
     REQUIRE(Platform::EqualsIgnoreCaseHex(Platform::Sha256File(archive.string()), release.Sha256));
 
     const std::filesystem::path extracted = scratch / "latest";
-    REQUIRE(Platform::ExtractZip(
-        archive.string(),
-        extracted.string(),
-        Platform::ExtractOptions{.StripTopLevelDir = true},
-        nullptr,
-        error
-    ));
+    REQUIRE(Platform::ExtractZip(archive.string(), extracted.string(), Platform::ExtractOptions{.StripTopLevelDir = true}, nullptr, error));
 
 #ifdef _WIN32
     REQUIRE(std::filesystem::exists(extracted / "bin" / "sdkmanager.bat"));

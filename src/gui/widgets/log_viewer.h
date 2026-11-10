@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 04/11/2026.
 //
 
-#ifndef COREDECK_LOG_VIEWER_H
-#define COREDECK_LOG_VIEWER_H
+#ifndef COREDECK_GUI_WIDGETS_LOG_VIEWER_H
+#define COREDECK_GUI_WIDGETS_LOG_VIEWER_H
 
 #include <cstdint>
 #include <memory>
@@ -52,4 +52,4 @@ namespace CoreDeck::Gui {
     );
 }
 
-#endif // COREDECK_LOG_VIEWER_H
+#endif // COREDECK_GUI_WIDGETS_LOG_VIEWER_H

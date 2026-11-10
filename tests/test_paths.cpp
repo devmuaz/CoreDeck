@@ -5,9 +5,9 @@
 #include <string>
 
 
+#include "app/app_constants.h"
+#include "app/app_paths.h"
 #include "platform/paths.h"
-#include "app/paths.h"
-#include "app/constants.h"
 
 using namespace CoreDeck::Platform;
 using namespace CoreDeck::App;

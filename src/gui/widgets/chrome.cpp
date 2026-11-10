@@ -6,7 +6,7 @@
 
 #include "imgui.h"
 
-#include "widgets.h"
+#include "gui/widgets/widgets.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -119,11 +119,11 @@ namespace CoreDeck::Gui {
             const ImVec2 buttonSize(halfWidth, 0);
 
             bool confirmed = false;
-            switch (data.Type) {
-                case DialogType::Negative:
+            switch (data.Tone) {
+                case Tone::Negative:
                     confirmed = NegativeButton(confirmLabel, !busy || showSpinner, buttonSize, showSpinner);
                     break;
-                case DialogType::Positive:
+                case Tone::Positive:
                     confirmed = PositiveButton(confirmLabel, !busy || showSpinner, buttonSize, showSpinner);
                     break;
                 default:

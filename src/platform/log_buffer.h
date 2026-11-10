@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 05/04/2026.
 //
 
-#ifndef COREDECK_LOG_BUFFER_H
-#define COREDECK_LOG_BUFFER_H
+#ifndef COREDECK_PLATFORM_LOG_BUFFER_H
+#define COREDECK_PLATFORM_LOG_BUFFER_H
 
 #include <string>
 #include <deque>
@@ -49,4 +49,4 @@ namespace CoreDeck::Platform {
     };
 }
 
-#endif // COREDECK_LOG_BUFFER_H
+#endif // COREDECK_PLATFORM_LOG_BUFFER_H

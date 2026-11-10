@@ -19,7 +19,7 @@ While **Include beta releases** is on, the check requests the published releases
 
 That list includes pre-releases. Drafts are skipped. `SelectNewestRelease` keeps the greatest tag under the comparison below, stable or beta. Someone on `v0.14.0` is offered `v0.15.0-beta.1` when that tag is the greatest published release. A stable tag of the same core still ranks above its betas, so `v0.14.0` is chosen over `v0.14.0-beta.2`. The first 100 releases in GitHub's list are considered. If that list cannot be read, the check uses the latest stable release.
 
-The installed version is `COREDECK_VERSION`. CMake sets it from the release tag, strips one leading `v`, and keeps the pre-release suffix. A build tagged `v0.14.0-beta.1` embeds `0.14.0-beta.1`.
+The installed version is `Platform::BuildInfo::VERSION`. CMake sets it from the release tag, strips one leading `v`, and keeps the pre-release suffix. A build tagged `v0.14.0-beta.1` embeds `0.14.0-beta.1`.
 
 The dialog opens when the chosen tag compares greater than that embedded version. A manual check that finds nothing shows "You're running the latest CoreDeck release." The startup check stays quiet in that case. **Download** opens `https://coredeck.dev` for a stable release, and the GitHub page for that tag when the release is a beta.
 

@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/health_check.h"
+#include "core/sdk/health_check.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;

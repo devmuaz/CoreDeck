@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 06/05/2026.
 //
 
-#ifndef COREDECK_LOG_FILTER_H
-#define COREDECK_LOG_FILTER_H
+#ifndef COREDECK_PLATFORM_LOG_FILTER_H
+#define COREDECK_PLATFORM_LOG_FILTER_H
 
 #include <cstddef>
 #include <string>
@@ -42,4 +42,4 @@ namespace CoreDeck::Platform {
     LogFilterResult FilterLog(const std::vector<std::string> &lines, const LogFilterOptions &options);
 }
 
-#endif // COREDECK_LOG_FILTER_H
+#endif // COREDECK_PLATFORM_LOG_FILTER_H

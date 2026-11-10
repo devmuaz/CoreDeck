@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <cstring>
 #include <filesystem>
 #include <vector>
 
@@ -10,11 +11,18 @@
 #include "imgui_internal.h"
 
 #include "app/file_dialog.h"
+#include "gui/widgets/widgets.h"
 #include "platform/i18n.h"
-#include "../utilities.h"
-#include "widgets.h"
 
 namespace CoreDeck::Gui {
+    void CopyToBuffer(char *buffer, const std::size_t size, const std::string &value) {
+        if (buffer == nullptr || size == 0) {
+            return;
+        }
+        std::strncpy(buffer, value.c_str(), size - 1);
+        buffer[size - 1] = '\0';
+    }
+
     void HoverTooltip(const char *text) {
         if (text == nullptr || text[0] == '\0' || !ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
             return;
@@ -97,6 +105,13 @@ namespace CoreDeck::Gui {
         ImGui::SameLine();
         const std::string button = Platform::StrConcat(browseLabel, "##", browseId);
         return PrimaryButton(button.c_str(), true, ImVec2(buttonWidth, 0.0F));
+    }
+
+    float ActionWidth(const char *label) {
+        const char *text = label != nullptr ? label : "";
+        return ImGui::CalcTextSize(text).x +
+               (ImGui::GetStyle().FramePadding.x * 2.0F) +
+               (24.0F * GetDpiScale());
     }
 
     float BusyActionWidth(const char *idleLabel, const char *busyLabel) {
@@ -250,6 +265,24 @@ namespace CoreDeck::Gui {
         return changed;
     }
 
+    float ComboWidth(const char *const *labels, const int count, const float minimum, const float maximum) {
+        const ImGuiStyle &style = ImGui::GetStyle();
+        float width = minimum;
+        for (int index = 0; index < count; ++index) {
+            const char *label = labels != nullptr && labels[index] != nullptr ? labels[index] : "";
+            const float item = ImGui::CalcTextSize(label).x + ImGui::GetFrameHeight() + (style.FramePadding.x * 4.0F);
+            width = std::max(width, item);
+        }
+        return std::clamp(width, minimum, std::max(minimum, maximum));
+    }
+
+    void DisabledCombo(const char *id, const char *label, const float width) {
+        int selected = 0;
+        ImGui::BeginDisabled();
+        RoundedCombo(id, label, &label, 1, selected, width);
+        ImGui::EndDisabled();
+    }
+
     void SearchField(const char *id, const char *hint, char *buffer, const std::size_t bufferSize) {
         ImGui::SetNextItemWidth(-1.0F);
         const std::string searchHint = IconWithLabel(Icons::SEARCH, hint);
@@ -375,5 +408,24 @@ namespace CoreDeck::Gui {
         }
 
         return pressed;
+    }
+
+    void CheckboxRow(const std::span<const CheckboxRowItem> items) {
+        const float avail = std::max(1.0F, ImGui::GetContentRegionAvail().x);
+        const float spacing = ImGui::GetStyle().ItemSpacing.x;
+        const float inner = ImGui::GetStyle().ItemInnerSpacing.x;
+        float used = 0.0F;
+        for (const CheckboxRowItem &item: items) {
+            const float itemWidth = 28.0F + inner + ImGui::CalcTextSize(item.Label).x;
+            if (used > 0.0F && used + spacing + itemWidth > avail) {
+                used = 0.0F;
+            }
+            if (used > 0.0F) {
+                ImGui::SameLine(0.0F, spacing);
+                used += spacing;
+            }
+            SubtitledCheckbox(item.Id, item.Value, item.Label);
+            used += itemWidth;
+        }
     }
 }

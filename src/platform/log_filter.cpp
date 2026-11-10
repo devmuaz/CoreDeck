@@ -5,8 +5,8 @@
 #include <regex>
 #include <utility>
 
-#include "log_filter.h"
-#include "utilities.h"
+#include "platform/log_filter.h"
+#include "platform/strings.h"
 
 namespace CoreDeck::Platform {
     namespace {
@@ -78,7 +78,6 @@ namespace CoreDeck::Platform {
             }
         }
     }
-
 
     LogQueryCheck CheckLogQuery(const std::string &query, const bool useRegex, const bool caseSensitive) {
         LogQueryCheck check;

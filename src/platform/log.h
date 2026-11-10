@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 20/04/2026.
 //
 
-#ifndef COREDECK_LOG_H
-#define COREDECK_LOG_H
+#ifndef COREDECK_PLATFORM_LOG_H
+#define COREDECK_PLATFORM_LOG_H
 
 #include <iostream>
 
@@ -70,4 +70,4 @@ namespace CoreDeck::Platform {
     }
 }
 
-#endif // COREDECK_LOG_H
+#endif // COREDECK_PLATFORM_LOG_H

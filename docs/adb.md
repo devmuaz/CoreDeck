@@ -342,8 +342,8 @@ connected.** when the report is empty.
 
 | Piece                                        | Path                           |
 | -------------------------------------------- | ------------------------------ |
-| One-shot `adb` commands and the Wi-Fi switch | `src/core/adb_client.cpp`      |
-| `track-devices` and logcat processes         | `src/core/adb_service.cpp`     |
-| Device and forward parsers                   | `src/core/adb_devices.cpp`     |
-| Workspace, per-device state, saved profiles  | `src/gui/windows/adb/`         |
+| One-shot `adb` commands and the Wi-Fi switch | `src/core/adb/adb_client.cpp`  |
+| `track-devices` and logcat processes         | `src/core/adb/adb_service.cpp` |
+| Device and forward parsers                   | `src/core/adb/adb_devices.cpp` |
+| Workspace, per-device state, saved profiles  | `src/gui/adb/`                 |
 | Settings fields                              | `src/app/app_settings_types.h` |

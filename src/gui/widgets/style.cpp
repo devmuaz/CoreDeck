@@ -4,7 +4,7 @@
 
 #include "imgui.h"
 
-#include "widgets.h"
+#include "gui/widgets/widgets.h"
 
 namespace CoreDeck::Gui {
     void StyleColor::Push(ImGuiCol idx, const ImVec4 &color) {

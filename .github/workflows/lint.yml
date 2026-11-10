@@ -1,0 +1,40 @@
+name: Lint
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    name: Structure, format, and clang-tidy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Check source structure
+        run: python3 tools/check_structure.py
+
+      - name: Install clang tools
+        run: |
+          pipx install clang-format==23.1.5
+          pipx install clang-tidy==23.1.4
+
+      - name: Check formatting
+        run: git ls-files 'src/*.cpp' 'src/*.h' 'tests/*.cpp' 'tests/*.h' | xargs clang-format --dry-run --Werror
+
+      - name: Install host dependencies
+        run: bash ./.github/scripts/shared-install-host-deps.sh
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON -DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON
+
+      - name: Run clang-tidy
+        run: |
+          jq -r '.[].file' build/compile_commands.json \
+            | grep -E "^${GITHUB_WORKSPACE}/src/.*\.cpp$" \
+            | xargs -P "$(nproc)" -n 1 clang-tidy -p build --quiet --checks=-misc-include-cleaner --warnings-as-errors='*'

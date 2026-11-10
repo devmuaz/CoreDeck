@@ -7,8 +7,8 @@
 
 #include "imgui.h"
 
+#include "gui/widgets/widgets.h"
 #include "platform/i18n.h"
-#include "widgets.h"
 
 namespace CoreDeck::Gui {
     namespace {
@@ -172,7 +172,7 @@ namespace CoreDeck::Gui {
         if (remaining > messageWidth) {
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + remaining - messageWidth);
         }
-        StatusMessage(*verified ? StatusMessageTone::Positive : StatusMessageTone::Error, label);
+        StatusMessage(*verified ? Tone::Positive : Tone::Negative, label);
     }
 
     void SplitDetails(const std::span<const SplitDetail> details, const std::span<const CopyableValue> copies) {

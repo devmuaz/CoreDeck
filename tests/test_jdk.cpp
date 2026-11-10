@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 
-#include "core/jdk.h"
+#include "core/sdk/jdk.h"
 
 using namespace CoreDeck::Core;
 using namespace CoreDeck;

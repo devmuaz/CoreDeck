@@ -1,0 +1,11 @@
+#include "platform/build_info.h"
+
+namespace CoreDeck::Platform::BuildInfo {
+    const char *const TITLE = "@PROJECT_NAME@";
+    const char *const VERSION = "@PROJECT_VERSION_FULL@";
+    const char *const BUILD_NUMBER = "@PROJECT_BUILD_NUMBER@";
+    const char *const VENDOR = "@APP_VENDOR@";
+    const char *const DESCRIPTION = "@APP_DESCRIPTION_SHORT@";
+    const char *const COPYRIGHT = "@APP_COPYRIGHT@";
+    const char *const APP_ID = "@APP_BUNDLE_ID@";
+}

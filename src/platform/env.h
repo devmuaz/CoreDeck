@@ -2,8 +2,8 @@
 // Created by AbdulMuaz Aqeel on 24/07/2026.
 //
 
-#ifndef COREDECK_ENV_H
-#define COREDECK_ENV_H
+#ifndef COREDECK_PLATFORM_ENV_H
+#define COREDECK_PLATFORM_ENV_H
 
 #include <string>
 #include <vector>
@@ -33,4 +33,4 @@ namespace CoreDeck::Platform {
 }
 
 
-#endif // COREDECK_ENV_H
+#endif // COREDECK_PLATFORM_ENV_H
