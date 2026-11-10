@@ -64,35 +64,41 @@ namespace CoreDeck::Platform {
 #elif defined(__linux__)
         bool ReadProcessSnapshot(ProcessId pid, std::uint64_t &cpuTimeNs, std::uint64_t &rssBytes, std::uint64_t &diskReadBytes, std::uint64_t &diskWriteBytes) {
             char path[64];
-            std::snprintf(path, sizeof(path), "/proc/%d/stat", static_cast<int>(pid));
+            if (std::snprintf(path, sizeof(path), "/proc/%d/stat", static_cast<int>(pid)) < 0) {
+                return false;
+            }
             std::ifstream stat(path);
             if (!stat.is_open()) return false;
-            std::string contents((std::istreambuf_iterator<char>(stat)), std::istreambuf_iterator<char>());
+            const std::string contents((std::istreambuf_iterator<char>(stat)), std::istreambuf_iterator<char>());
 
             const auto rparen = contents.rfind(')');
             if (rparen == std::string::npos) return false;
             std::istringstream rest(contents.substr(rparen + 1));
 
             char state = 0;
-            unsigned long long utime = 0, stime = 0;
+            std::uint64_t utime = 0;
+            std::uint64_t stime = 0;
             rest >> state;
             for (int i = 0; i < 10; ++i) {
-                unsigned long long discard = 0;
+                std::uint64_t discard = 0;
                 rest >> discard;
             }
             rest >> utime >> stime;
             if (!rest) return false;
 
-            const long ticks = sysconf(_SC_CLK_TCK);
+            const std::int64_t ticks = sysconf(_SC_CLK_TCK);
             if (ticks <= 0) return false;
             const double nsPerTick = 1e9 / static_cast<double>(ticks);
             cpuTimeNs = static_cast<std::uint64_t>(
                 (static_cast<double>(utime) + static_cast<double>(stime)) * nsPerTick
             );
 
-            std::snprintf(path, sizeof(path), "/proc/%d/statm", static_cast<int>(pid));
+            if (std::snprintf(path, sizeof(path), "/proc/%d/statm", static_cast<int>(pid)) < 0) {
+                return false;
+            }
             if (std::ifstream statm(path); statm.is_open()) {
-                unsigned long long size = 0, rssPages = 0;
+                std::uint64_t size = 0;
+                std::uint64_t rssPages = 0;
                 statm >> size >> rssPages;
                 rssBytes = rssPages * static_cast<std::uint64_t>(sysconf(_SC_PAGESIZE));
             } else {
@@ -101,13 +107,18 @@ namespace CoreDeck::Platform {
 
             diskReadBytes = 0;
             diskWriteBytes = 0;
-            std::snprintf(path, sizeof(path), "/proc/%d/io", static_cast<int>(pid));
+            if (std::snprintf(path, sizeof(path), "/proc/%d/io", static_cast<int>(pid)) < 0) {
+                return false;
+            }
             if (std::ifstream io(path); io.is_open()) {
                 std::string key;
-                unsigned long long value = 0;
+                std::uint64_t value = 0;
                 while (io >> key >> value) {
-                    if (key == "read_bytes:") diskReadBytes = value;
-                    else if (key == "write_bytes:") diskWriteBytes = value;
+                    if (key == "read_bytes:") {
+                        diskReadBytes = value;
+                    } else if (key == "write_bytes:") {
+                        diskWriteBytes = value;
+                    }
                 }
             }
             return true;

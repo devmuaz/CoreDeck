@@ -22,7 +22,7 @@
 #include <chrono>
 #include <thread>
 
-extern char **environ; // NOLINT(readability-identifier-naming)
+extern char **environ; // NOLINT(readability-identifier-naming, readability-redundant-declaration)
 #endif
 
 namespace CoreDeck::Platform {

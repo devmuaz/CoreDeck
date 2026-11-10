@@ -51,11 +51,7 @@ target_sources(coredeck_gui PRIVATE
     ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 if(WIN32)
-    set_source_files_properties(
-        ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-        ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
-        PROPERTIES COMPILE_DEFINITIONS "IMGUI_IMPL_API="
-    )
+    target_compile_definitions(coredeck_gui PRIVATE "IMGUI_IMPL_API=")
 endif()
 target_link_libraries(coredeck_gui PUBLIC coredeck_app coredeck_core imgui)
 target_link_libraries(coredeck_gui PRIVATE glfw OpenGL::GL)

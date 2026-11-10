@@ -37,7 +37,7 @@ namespace CoreDeck::App {
     }
 
     std::string ResolveAssetsDirectory(const std::string &resourcesDir) {
-        const std::string beside = Platform::JoinPaths({resourcesDir, "assets"});
+        std::string beside = Platform::JoinPaths({resourcesDir, "assets"});
 #ifdef __linux__
         std::error_code error;
         if (!resourcesDir.empty() && !std::filesystem::is_directory(beside, error)) {

@@ -12,6 +12,7 @@
 #include <mach-o/dyld.h>
 #include <sys/syslimits.h>
 #elif __linux__
+#include <limits.h>
 #include <unistd.h>
 #endif
 

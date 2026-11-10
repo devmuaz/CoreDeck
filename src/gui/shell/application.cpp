@@ -428,7 +428,7 @@ namespace CoreDeck::Gui {
             self->m_FontPixelScale = xscale;
             ImGui::GetStyle().FontScaleDpi = 1.0F;
 
-            ImGuiIO &io = ImGui::GetIO();
+            const ImGuiIO &io = ImGui::GetIO();
             io.Fonts->Clear();
             self->m_LoadFonts();
             io.Fonts->Build();
@@ -624,7 +624,7 @@ namespace CoreDeck::Gui {
         SetThemePreference(preference);
     }
 
-    void ApplyWindowChrome(GLFWwindow *window) {
+    void ApplyWindowChrome(GLFWwindow *window) { // NOLINT(misc-const-correctness) Windows and macOS pass this pointer to GLFW.
         if (window == nullptr) {
             return;
         }

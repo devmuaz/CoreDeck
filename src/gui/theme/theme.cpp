@@ -26,6 +26,8 @@
 #endif
 
 #if !defined(_WIN32) && !defined(__APPLE__)
+#include <fstream>
+
 #include "platform/env.h"
 #include "platform/strings.h"
 #endif
@@ -222,11 +224,11 @@ namespace CoreDeck::Gui {
 #else
         std::string TrimCopy(const std::string &text) {
             std::size_t begin = 0;
-            while (begin < text.size() && std::isspace(static_cast<unsigned char>(text[begin]))) {
+            while (begin < text.size() && std::isspace(static_cast<unsigned char>(text.at(begin)))) {
                 ++begin;
             }
             std::size_t end = text.size();
-            while (end > begin && std::isspace(static_cast<unsigned char>(text[end - 1]))) {
+            while (end > begin && std::isspace(static_cast<unsigned char>(text.at(end - 1)))) {
                 --end;
             }
             return text.substr(begin, end - begin);
@@ -237,7 +239,7 @@ namespace CoreDeck::Gui {
         }
 
         bool ReadCommand(const char *command, std::string &output) {
-            FILE *pipe = popen(command, "r");
+            FILE *pipe = popen(command, "r"); // NOLINT(cert-env33-c, bugprone-command-processor)
             if (pipe == nullptr) {
                 return false;
             }
@@ -251,10 +253,10 @@ namespace CoreDeck::Gui {
         }
 
         std::string ConfigDirectory() {
-            if (const char *xdg = std::getenv(Platform::ENV_XDG_CONFIG_HOME); xdg != nullptr && xdg[0] != '\0') {
+            if (const char *xdg = std::getenv(Platform::ENV_XDG_CONFIG_HOME); xdg != nullptr && xdg[0] != '\0') { // NOLINT(concurrency-mt-unsafe)
                 return xdg;
             }
-            if (const char *home = std::getenv(Platform::ENV_HOME); home != nullptr && home[0] != '\0') {
+            if (const char *home = std::getenv(Platform::ENV_HOME); home != nullptr && home[0] != '\0') { // NOLINT(concurrency-mt-unsafe)
                 return std::string(home) + "/.config";
             }
             return {};
