@@ -115,6 +115,8 @@
 
 ## Downloads
 
+> **Pre-releases are for testing.** A pre-release is an unfinished build. It is not battle-tested, it may crash or misbehave, and it is not a build to rely on. Install a stable release for everyday use. Homebrew and the AUR publish stable releases only.
+
 On macOS and Linux, the easiest way to install is with Homebrew:
 
 ```bash
@@ -131,7 +133,11 @@ On Arch Linux, install from the [AUR](https://aur.archlinux.org/packages/coredec
 
 ```bash
 paru -S coredeck-bin
-# or
+```
+
+Or
+
+```bash
 yay -S coredeck-bin
 ```
 
