@@ -66,12 +66,12 @@ The first build compiles the bundled dependencies, including sentry-native, Dear
 | --- | --- | --- | --- |
 | `coredeck_platform` | `src/platform` | platform | Processes, HTTP, archives, hashing, logging, translation, paths, and generic helpers split by what they hold: `strings`, `files`, `secrets`, `desktop` |
 | `coredeck_core` | `src/core` | platform, core | Android logic, grouped by domain: `sdk/`, `avd/`, `adb/`, `apk/` |
-| `coredeck_app` | `src/app` | platform, app | Settings, app paths, crash reporting, update checks, and file dialogs |
+| `coredeck_app` | `src/app` | platform, app | Configuration, app paths, crash reporting, update checks, and file dialogs |
 | `coredeck_gui` | `src/gui` | all of the above | Everything that draws. Dear ImGui is its own `imgui` target |
 
-Core and App do not include each other. The executable is `src/main.cpp` and links only `coredeck_gui`. A call names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppSettings`.
+Core and App do not include each other. The executable is `src/main.cpp` and links only `coredeck_gui`. A call names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppConfig`.
 
-Folders name the area a person sees: `gui/shell/`, `gui/home/`, `gui/adb/`, `gui/apk/`, `gui/sdk/`, `gui/preferences/`, and `gui/widgets/` for controls with no feature knowledge. No two files under `src/` share a name. These file names are banned because they say nothing: `utilities`, `helpers`, `common`, `misc`.
+Folders name the area a person sees: `gui/shell/`, `gui/home/`, `gui/adb/`, `gui/frida/`, `gui/apk/`, `gui/sdk/`, `gui/preferences/`, and `gui/widgets/` for controls with no feature knowledge. No two files under `src/` share a name. These file names are banned because they say nothing: `utilities`, `helpers`, `common`, `misc`.
 
 A GUI feature file ends with the kind of thing it is:
 
@@ -93,7 +93,7 @@ Includes are rooted at `src/` (`#include "gui/widgets/widgets.h"`), never `../`.
 
 Namespaces follow the libraries: `CoreDeck::Platform`, `Core`, `App`, and `Gui`. A feature folder may use `Gui::<Folder>` (such as `Gui::Adb`) for helpers shared by its own files. Entry points stay in `Gui`. Helpers used by one file stay in an anonymous namespace.
 
-`Context` is grouped by kind. `Host` holds services, `Prefs` holds preferences, and `Shell` holds the screen, the active workspace, the native window, and panel visibility. `Workspaces` holds each feature's state (`Home`, `Adb`, `ApkAnalyzer`, `ApkSigner`, `JarSigner`, `Keytool`). `Dialogs` holds each dialog, and a dialog opens only through its `Open…Dialog` function: `context.Dialogs.About.Open` is set by `OpenAboutDialog`. Window titles, `###` widget ids, and `settings.json` keys stay stable when a file moves.
+`Context` is grouped by kind. `Host` holds services, `Prefs` holds preferences, and `Shell` holds the screen, the active workspace, the native window, and panel visibility. `Workspaces` holds each feature's state (`Home`, `Adb`, `ApkAnalyzer`, `ApkSigner`, `JarSigner`, `Keytool`). `Dialogs` holds each dialog, and a dialog opens only through its `Open…Dialog` function: `context.Dialogs.About.Open` is set by `OpenAboutDialog`. Window titles, `###` widget ids, and `config.json` keys stay stable when a file moves.
 
 ## Why Ninja
 
@@ -194,3 +194,45 @@ Both launches compile with GCC and Ninja into `build-debug`. Release uses `build
 | `[Linux · Debug] CoreDeck [GCC · Ninja · LLDB]` | LLDB     |
 
 Each one has a matching `CoreDeck Tests` launch, and the same set exists for Release.
+
+## Frida
+
+CoreDeck statically links the official `frida-core` devkit. CMake downloads the
+tarball for the host you are compiling, checks its SHA-256, and links it. The
+archive is cached under `~/.cache/coredeck/frida` (or `%LOCALAPPDATA%\coredeck\frida`
+on Windows). Set `COREDECK_FRIDA_CACHE` to put that cache somewhere else, or set
+`COREDECK_FRIDA_DEVKIT_DIR` to a directory that already contains `frida-core.h` and
+the static library. The cache path cannot contain spaces.
+
+`COREDECK_FRIDA_VERSION` in `cmake/Frida.cmake` pins the client. The downloaded
+`frida-server` and `assets/frida/project/STAMP` use that same version.
+`tools/pin_frida.py` prints the nine SHA-256 values for a release:
+
+```bash
+python3 tools/pin_frida.py 17.9.2
+```
+
+Paste those into `cmake/Frida.cmake`, confirm `frida-java-bridge` still compiles
+with that devkit, update `assets/frida/project/STAMP`, and rebuild
+`coredeck_frida_smoke` on every platform. The smoke test calls `frida_init` and
+lists local devices. It is the check that the static library actually linked.
+
+MinGW cannot link the devkit. On Windows the process uses the release static CRT
+(`/MT`) in every configuration, including Debug, because the devkit is `/MT`.
+Debug builds still emit PDBs. Iterator debugging and the debug heap are off.
+
+macOS loads the whole archive with `-Wl,-load_hidden` so Frida's constructors run
+and its GLib symbols stay hidden. Linux uses `--whole-archive` and `--exclude-libs`.
+Windows uses `/WHOLEARCHIVE`. Sync Frida calls run on a worker thread. Frida's own
+loop thread only delivers signals. Calling a sync API on that loop re-enters it.
+
+The Frida window is its own workspace under Analysis, drawn from `src/gui/frida/`.
+Start pushes `coredeck-frida-server` to the device, binds `127.0.0.1:27099`, and
+forwards it with the SDK `adb`. The device needs root. If that process is already
+running, Start and Use existing both resume it on port 27099, and Stop shuts it
+down. Use existing attaches to a separate `frida-server` on the Settings port
+(27042 by default) and leaves that process running.
+Snippet mode compiles with `frida-java-bridge` imported. Module mode compiles the
+buffer unchanged. Paths, the script runtime, and resetting the agent project live
+on the Settings tab and are stored in `config.json`. Leaving the workspace
+detaches sessions and stops a server CoreDeck started.

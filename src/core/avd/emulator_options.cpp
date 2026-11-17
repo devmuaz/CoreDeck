@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <rfl/json.hpp>
 
@@ -131,7 +132,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Set hardware OpenGLES emulation mode"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::DISPLAY,
-                    .Items = {"auto", "host", "swiftshader_indirect", "angle_indirect", "guest"},
+                    .Items = std::vector<std::string>{"auto", "host", "swiftshader_indirect", "angle_indirect", "guest"},
                     .SelectedItem = 0,
                 },
                 {
@@ -140,7 +141,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Set emulated screen mode"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::DISPLAY,
-                    .Items = {"touch", "multi-touch", "no-touch"},
+                    .Items = std::vector<std::string>{"touch", "multi-touch", "no-touch"},
                 },
                 {
                     .Flag = "-dpi-device",
@@ -287,7 +288,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Simulate network download/upload speed"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::NETWORK,
-                    .Items = {"full", "lte", "hsdpa", "umts", "edge", "gprs", "gsm"},
+                    .Items = std::vector<std::string>{"full", "lte", "hsdpa", "umts", "edge", "gprs", "gsm"},
                 },
                 {
                     .Flag = "-netdelay",
@@ -295,7 +296,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Simulate network latency"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::NETWORK,
-                    .Items = {"none", "gprs", "edge", "umts"},
+                    .Items = std::vector<std::string>{"none", "gprs", "edge", "umts"},
                 },
                 {
                     .Flag = "-http-proxy",
@@ -348,7 +349,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Set emulation mode for the back-facing camera"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::CAMERA,
-                    .Items = {"virtualscene", "emulated", "none"},
+                    .Items = std::vector<std::string>{"virtualscene", "emulated", "none"},
                 },
                 {
                     .Flag = "-camera-front",
@@ -356,7 +357,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Set emulation mode for the front-facing camera"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::CAMERA,
-                    .Items = {"emulated", "none"},
+                    .Items = std::vector<std::string>{"emulated", "none"},
                 },
             };
         }
@@ -507,7 +508,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Configure emulation acceleration"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::ADVANCED,
-                    .Items = {"auto", "off", "on"},
+                    .Items = std::vector<std::string>{"auto", "off", "on"},
                 },
                 {
                     .Flag = "-selinux",
@@ -515,7 +516,7 @@ namespace CoreDeck::Core {
                     .Description = Platform::TrNoop("Set SELinux to disabled or permissive mode"),
                     .Type = OptionType::Selection,
                     .Category = OptionCategory::ADVANCED,
-                    .Items = {"permissive", "disabled"},
+                    .Items = std::vector<std::string>{"permissive", "disabled"},
                 },
                 {
                     .Flag = "-system",
@@ -585,22 +586,22 @@ namespace CoreDeck::Core {
         args.emplace_back(avdName);
 
         for (const auto &option: options) {
-            if (!option.Enabled) {
+            if (!option.Enabled.value()) {
                 continue;
             }
 
-            args.emplace_back(option.Flag);
+            args.emplace_back(option.Flag.value());
 
-            switch (option.Type) {
+            switch (option.Type.value()) {
                 case OptionType::TextInput:
-                    if (!option.InputValue.empty()) {
-                        args.emplace_back(option.InputValue);
+                    if (!option.InputValue.value().empty()) {
+                        args.emplace_back(option.InputValue.value());
                     }
                     break;
 
                 case OptionType::Selection:
-                    if (!option.Items.empty()) {
-                        args.emplace_back(option.Items.at(option.SelectedItem));
+                    if (!option.Items.value().empty()) {
+                        args.emplace_back(option.Items.value().at(static_cast<std::size_t>(option.SelectedItem.value())));
                     }
                     break;
 
@@ -640,11 +641,15 @@ namespace CoreDeck::Core {
             file.close();
 
             if (json.empty()) {
+                std::error_code error;
+                std::filesystem::remove(filePath, error);
                 return GetEmulatorOptions();
             }
 
             auto savedResult = rfl::json::read<std::vector<EmulatorOption>>(json);
             if (!savedResult) {
+                std::error_code error;
+                std::filesystem::remove(filePath, error);
                 return GetEmulatorOptions();
             }
             const auto &saved = savedResult.value();
@@ -652,16 +657,16 @@ namespace CoreDeck::Core {
             auto merged = GetEmulatorOptions();
             for (auto &option: merged) {
                 const auto it = std::ranges::find_if(saved, [&](const EmulatorOption &s) {
-                    return s.Flag == option.Flag;
+                    return s.Flag.value() == option.Flag.value();
                 });
                 if (it == saved.end()) {
                     continue;
                 }
                 option.Enabled = it->Enabled;
                 option.InputValue = it->InputValue;
-                if (option.Type == OptionType::Selection && !option.Items.empty()) {
-                    const int clamped = std::clamp(it->SelectedItem, 0, static_cast<int>(option.Items.size()) - 1);
-                    option.SelectedItem = clamped;
+                if (option.Type.value() == OptionType::Selection && !option.Items.value().empty()) {
+                    const int last = static_cast<int>(option.Items.value().size()) - 1;
+                    option.SelectedItem = std::clamp(it->SelectedItem.value(), 0, last);
                 }
             }
             return merged;

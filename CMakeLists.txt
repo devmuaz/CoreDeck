@@ -32,13 +32,16 @@ if(APPLE)
 endif()
 
 if(WIN32)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    # The Frida devkit is /MT. One process can contain one CRT, including Debug.
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
     if(MSVC)
         add_compile_options(/utf-8)
+        add_compile_options($<$<CONFIG:Debug>:/Zi>)
     endif()
 endif()
 
 include(cmake/Dependencies.cmake)
+include(cmake/Frida.cmake)
 
 find_package(Threads REQUIRED)
 
@@ -80,6 +83,7 @@ add_subdirectory(src/gui)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE coredeck_gui)
+coredeck_frida_finalize(${PROJECT_NAME})
 
 include(cmake/Locales.cmake)
 include(cmake/Runtime.cmake)

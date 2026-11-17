@@ -261,7 +261,7 @@ namespace CoreDeck::Gui {
 
     void DisabledCombo(const char *id, const char *label, float width);
 
-    void SearchField(const char *id, const char *hint, char *buffer, std::size_t bufferSize);
+    void SearchField(const char *id, const char *hint, char *buffer, std::size_t bufferSize, float width = -1.0F);
 
     std::string PathPicker(
         const char *id,

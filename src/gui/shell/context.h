@@ -9,12 +9,14 @@
 #include <string>
 #include <utility>
 
-#include "app/app_settings_types.h"
+#include "app/app_config_types.h"
 #include "core/adb/adb_service.h"
+#include "core/frida/frida_host.h"
 #include "core/avd/emulator.h"
 #include "core/sdk/jdk.h"
 #include "core/sdk/sdk.h"
 #include "gui/adb/adb_state.h"
+#include "gui/frida/frida_state.h"
 #include "gui/apk/apk_analyzer_state.h"
 #include "gui/apk/keytool_state.h"
 #include "gui/apk/signer_state.h"
@@ -35,6 +37,7 @@ namespace CoreDeck::Gui {
     enum class WorkspacePage : uint8_t {
         Home,
         Adb,
+        Frida,
         ApkAnalyzer,
         ApkSigner,
         Keytool,
@@ -51,6 +54,7 @@ namespace CoreDeck::Gui {
             Core::JdkInfo Jdk;
             Core::EmulatorManager Manager;
             Core::AdbService Adb;
+            Core::FridaHost Frida;
 
             explicit Host(Core::SdkInfo sdk) : Sdk(std::move(sdk)), Manager(Sdk), Adb(Sdk) {
             }
@@ -93,6 +97,7 @@ namespace CoreDeck::Gui {
             } Home;
 
             AdbState Adb;
+            FridaState Frida;
             ApkAnalyzerState ApkAnalyzer;
             ApkSignerState ApkSigner;
             JarSignerState JarSigner;

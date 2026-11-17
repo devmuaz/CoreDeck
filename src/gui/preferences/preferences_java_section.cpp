@@ -18,7 +18,7 @@
 #include "gui/theme/theme.h"
 #include "gui/widgets/widgets.h"
 
-#include "app/app_settings.h"
+#include "app/app_config.h"
 #include "core/sdk/jdk.h"
 #include "core/sdk/sdk.h"
 #include "platform/desktop.h"
@@ -156,7 +156,7 @@ namespace CoreDeck::Gui {
             job.Action = action;
             job.Future = std::async(std::launch::async, [sdk] {
                 JdkPathResult result;
-                result.Jdk = Core::DetectJdk(App::LoadAppSettings().JdkPath);
+                result.Jdk = Core::DetectJdk(App::LoadAppConfig().Environment->JdkPath.value());
                 result.Sdk = sdk;
                 Core::ApplyJdkToSdk(result.Sdk, result.Jdk);
                 result.Catalog = LoadAvdCatalog(result.Sdk);
@@ -194,7 +194,7 @@ namespace CoreDeck::Gui {
                 return;
             }
 
-            App::UpdateAppSettings([&](App::AppSettings &settings) { settings.JdkPath = jdk.JavaHome; });
+            App::UpdateAppConfig([&](App::AppConfig &config) { config.Environment->JdkPath = jdk.JavaHome; });
             context.Host.Jdk = jdk;
             context.Host.Jdk.Source = Core::JdkSource::Override;
             Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
@@ -301,7 +301,7 @@ namespace CoreDeck::Gui {
         }
         catalog.Loaded = false;
         catalog.Scan = std::async(std::launch::async, [] {
-            return Core::ListInstalledJdks(App::LoadAppSettings().JdkPath);
+            return Core::ListInstalledJdks(App::LoadAppConfig().Environment->JdkPath.value());
         });
     }
 
@@ -389,7 +389,7 @@ namespace CoreDeck::Gui {
         const bool discoveringPath = pathBusy && pathJob.Action == JdkPathAction::Discover;
 
         if (PrimaryButton(Platform::Tr("Apply JDK Path"), (!pathBusy && binExists) || applyingPath, ImVec2(0, 0), applyingPath)) {
-            App::UpdateAppSettings([&](App::AppSettings &settings) { settings.JdkPath = pathStr; });
+            App::UpdateAppConfig([&](App::AppConfig &config) { config.Environment->JdkPath = pathStr; });
             StartJdkPathJob(JdkPathAction::Apply, context.Host.Sdk);
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !binExists) {
@@ -398,7 +398,7 @@ namespace CoreDeck::Gui {
 
         ImGui::SameLine();
         if (PrimaryButton(Platform::Tr("Use Default Discovery"), !pathBusy || discoveringPath, ImVec2(0, 0), discoveringPath)) {
-            App::UpdateAppSettings([](App::AppSettings &settings) { settings.JdkPath.clear(); });
+            App::UpdateAppConfig([](App::AppConfig &config) { config.Environment->JdkPath.value().clear(); });
             StartJdkPathJob(JdkPathAction::Discover, context.Host.Sdk);
         }
         if (ImGui::IsItemHovered()) {

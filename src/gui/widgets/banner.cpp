@@ -236,7 +236,8 @@ namespace CoreDeck::Gui {
         }
 
         ImGui::SetCursorPosX(columnX);
-        ImGui::ProgressBar(std::clamp(task.Fraction, 0.0F, 1.0F), ImVec2(width, 0.0F));
+        const float fraction = task.Fraction < 0.0F ? task.Fraction : std::clamp(task.Fraction, 0.0F, 1.0F);
+        ImGui::ProgressBar(fraction, ImVec2(width, 0.0F));
 
         if (hasStatus) {
             ImGui::Spacing();

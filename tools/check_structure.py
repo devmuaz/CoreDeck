@@ -21,7 +21,7 @@ ALLOWED_DEPENDENCIES = {
     "gui": set(LIBRARIES),
 }
 BANNED_NAMES = {"utilities", "helpers", "common", "misc"}
-FEATURE_FOLDERS = {"sdk", "home", "adb", "apk", "preferences", "extensions"}
+FEATURE_FOLDERS = {"sdk", "home", "adb", "apk", "preferences", "frida", "extensions"}
 KIND_SUFFIXES = (
     "_workspace",
     "_panel",

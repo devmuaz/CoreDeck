@@ -1,0 +1,13 @@
+#ifndef COREDECK_FRIDA_RELEASE_H
+#define COREDECK_FRIDA_RELEASE_H
+
+namespace CoreDeck::Core {
+    inline constexpr const char *FRIDA_VERSION = "@COREDECK_FRIDA_VERSION@";
+    inline constexpr const char *FRIDA_RELEASE_URL = "https://github.com/frida/frida/releases/download/@COREDECK_FRIDA_VERSION@/";
+    inline constexpr const char *FRIDA_SERVER_SHA256_ANDROID_ARM = "@COREDECK_FRIDA_SERVER_SHA256_ANDROID_ARM@";
+    inline constexpr const char *FRIDA_SERVER_SHA256_ANDROID_ARM64 = "@COREDECK_FRIDA_SERVER_SHA256_ANDROID_ARM64@";
+    inline constexpr const char *FRIDA_SERVER_SHA256_ANDROID_X86 = "@COREDECK_FRIDA_SERVER_SHA256_ANDROID_X86@";
+    inline constexpr const char *FRIDA_SERVER_SHA256_ANDROID_X86_64 = "@COREDECK_FRIDA_SERVER_SHA256_ANDROID_X86_64@";
+}
+
+#endif // COREDECK_FRIDA_RELEASE_H

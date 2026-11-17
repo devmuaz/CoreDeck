@@ -5,7 +5,7 @@
 #ifndef COREDECK_GUI_SHELL_APPLICATION_H
 #define COREDECK_GUI_SHELL_APPLICATION_H
 
-#include "app/app_settings_types.h"
+#include "app/app_config_types.h"
 #include "app/version_check.h"
 #include "gui/shell/context.h"
 
@@ -74,11 +74,11 @@ namespace CoreDeck::Gui {
 
     void ApplyWindowChrome(GLFWwindow *window);
 
-    App::AppSettings CaptureAppSettingsFromContext(const Context &context);
+    App::AppConfig CaptureAppConfigFromContext(const Context &context);
 
-    void ApplyAppSettingsToContext(Context &context, const App::AppSettings &settings);
+    void ApplyAppConfigToContext(Context &context, const App::AppConfig &config);
 
-    void PersistAppSettings(const Context &context);
+    void PersistAppConfig(const Context &context);
 
     struct AvdCatalogSnapshot {
         std::vector<std::string> Names;

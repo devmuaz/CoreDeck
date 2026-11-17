@@ -471,7 +471,7 @@ namespace CoreDeck::Gui {
             if (SubtitledCheckbox(
                     "##KeyPasswordMatches",
                     &work.KeyPasswordMatches,
-                    Platform::Tr("Key password matches keystore password"),
+                    Platform::Tr("Key Password Matches Keystore Password"),
                     Platform::Tr("Turn this off if the key entry has a different password.")
                 ) &&
                 work.KeyPasswordMatches) {

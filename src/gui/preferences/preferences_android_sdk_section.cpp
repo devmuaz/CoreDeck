@@ -9,7 +9,7 @@
 #include "imgui.h"
 
 #include "gui/preferences/preferences_android_sdk_section.h"
-#include "app/app_settings.h"
+#include "app/app_config.h"
 #include "core/sdk/jdk.h"
 #include "core/sdk/sdk.h"
 #include "gui/preferences/preferences_dialog.h"
@@ -52,7 +52,7 @@ namespace CoreDeck::Gui {
             const bool updateBuffer = action == SdkPathAction::Discover;
             job.Future = std::async(std::launch::async, [jdk, updateBuffer] {
                 SdkPathResult result;
-                result.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+                result.Sdk = Core::DetectAndroidSdk(App::LoadAppConfig().Environment->SdkPath.value());
                 Core::ApplyJdkToSdk(result.Sdk, jdk);
                 result.Catalog = LoadAvdCatalog(result.Sdk);
                 result.UpdateBuffer = updateBuffer;
@@ -79,7 +79,7 @@ namespace CoreDeck::Gui {
         if (result.UpdateBuffer) {
             PendingSdkPath() = context.Host.Sdk.SdkPath;
         }
-        PersistAppSettings(context);
+        PersistAppConfig(context);
     }
 
     void BuildPreferencesAndroidSdkSection(const Context &context, char *sdkPathBuffer, const size_t bufferSize) {
@@ -125,7 +125,7 @@ namespace CoreDeck::Gui {
         const bool discoveringPath = pathBusy && pathJob.Action == SdkPathAction::Discover;
 
         if (PrimaryButton(Platform::Tr("Apply SDK Path"), (!pathBusy && pathOk) || applyingPath, ImVec2(0, 0), applyingPath)) {
-            App::UpdateAppSettings([&](App::AppSettings &settings) { settings.SdkPath = pathStr; });
+            App::UpdateAppConfig([&](App::AppConfig &config) { config.Environment->SdkPath = pathStr; });
             StartSdkPathJob(SdkPathAction::Apply, context.Host.Jdk);
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !pathOk) {
@@ -134,7 +134,7 @@ namespace CoreDeck::Gui {
 
         ImGui::SameLine();
         if (PrimaryButton(Platform::Tr("Use Default Discovery"), !pathBusy || discoveringPath, ImVec2(0, 0), discoveringPath)) {
-            App::UpdateAppSettings([](App::AppSettings &settings) { settings.SdkPath.clear(); });
+            App::UpdateAppConfig([](App::AppConfig &config) { config.Environment->SdkPath.value().clear(); });
             StartSdkPathJob(SdkPathAction::Discover, context.Host.Jdk);
         }
         if (ImGui::IsItemHovered()) {

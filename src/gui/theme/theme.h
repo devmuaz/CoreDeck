@@ -7,7 +7,7 @@
 
 #include "imgui.h"
 
-#include "app/app_settings_types.h"
+#include "app/app_config_types.h"
 
 namespace CoreDeck::Gui {
     namespace Icons {
@@ -30,6 +30,7 @@ namespace CoreDeck::Gui {
         constexpr const char *SEARCH = "\xef\x80\x82";
         constexpr const char *FILTER = "\xef\x82\xb0";
         constexpr const char *PLUS = "\xef\x81\xa7";
+        constexpr const char *MINUS = "\xef\x81\xa8";
         constexpr const char *SORT_UP = "\xef\x83\x9e";
         constexpr const char *SORT_DOWN = "\xef\x83\x9d";
         constexpr const char *SORT = "\xef\x83\x9c";
@@ -53,6 +54,11 @@ namespace CoreDeck::Gui {
         constexpr const char *HEART_PULSE = "\xef\x88\x9e";
         constexpr const char *SIGNATURE = "\xef\x96\xb7";
         constexpr const char *KEY = "\xef\x82\x84";
+        constexpr const char *BUG = "\xef\x86\x88";
+        constexpr const char *LINK = "\xef\x83\x81";
+        constexpr const char *LINK_SLASH = "\xef\x84\xa7";
+        constexpr const char *PLUG = "\xef\x87\xa6";
+        constexpr const char *ROCKET = "\xef\x84\xb5";
     }
 
     struct ColorToken {

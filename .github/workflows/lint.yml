@@ -30,7 +30,15 @@ jobs:
       - name: Install host dependencies
         run: bash ./.github/scripts/shared-install-host-deps.sh
 
+      - name: Cache Frida devkit
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/frida-devkit
+          key: frida-devkit-${{ hashFiles('cmake/Frida.cmake') }}-${{ runner.os }}-${{ runner.arch }}
+
       - name: Configure CMake
+        env:
+          COREDECK_FRIDA_CACHE: ${{ github.workspace }}/.cache/frida-devkit
         run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCOREDECK_BUILD_TESTS=ON -DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON
 
       - name: Run clang-tidy

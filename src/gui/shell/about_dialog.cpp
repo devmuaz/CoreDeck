@@ -51,6 +51,7 @@ namespace CoreDeck::Gui {
                 Platform::OpenUrl(App::AUTHOR_WEBSITE_URL);
             }
             PropertyText(Platform::Tr("License"), Platform::Tr("MIT"));
+            PropertyText(Platform::Tr("Third-party"), Platform::Tr("Frida and editor components. See THIRD_PARTY_NOTICES."));
             if (PropertyText(Platform::Tr("Website"), App::WEBSITE_URL, true)) {
                 Platform::OpenUrl(App::WEBSITE_URL);
             }

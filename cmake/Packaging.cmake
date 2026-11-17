@@ -88,6 +88,8 @@ endif()
 
 if(NOT APPLE)
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/fonts DESTINATION assets)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets/frida DESTINATION assets)
+    install(FILES ${CMAKE_SOURCE_DIR}/THIRD_PARTY_NOTICES.md DESTINATION assets)
     install(DIRECTORY ${COREDECK_LOCALE_DIR}/ DESTINATION assets/locales)
 endif()
 

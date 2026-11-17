@@ -5,9 +5,11 @@
 #ifndef COREDECK_CORE_AVD_EMULATOR_OPTIONS_H
 #define COREDECK_CORE_AVD_EMULATOR_OPTIONS_H
 
+#include <rfl/Rename.hpp>
+
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <rfl.hpp>
 
 #include "platform/i18n.h"
 
@@ -31,20 +33,16 @@ namespace CoreDeck::Core {
     }
 
     struct EmulatorOption {
-        std::string Flag;
-        std::string DisplayName;
-        std::string Description;
-        bool Enabled = false;
-        OptionType Type;
-        std::string Category;
-
-        // TextInput
-        std::string Hint;
-        std::string InputValue;
-
-        // Selection
-        std::vector<std::string> Items;
-        int SelectedItem = 0;
+        rfl::Rename<"flag", std::string> Flag;
+        rfl::Rename<"display_name", std::string> DisplayName;
+        rfl::Rename<"description", std::string> Description;
+        rfl::Rename<"enabled", bool> Enabled = false;
+        rfl::Rename<"type", OptionType> Type;
+        rfl::Rename<"category", std::string> Category;
+        rfl::Rename<"hint", std::string> Hint;
+        rfl::Rename<"input_value", std::string> InputValue;
+        rfl::Rename<"items", std::vector<std::string>> Items;
+        rfl::Rename<"selected_item", int> SelectedItem = 0;
     };
 
     struct OptionValueLabel {

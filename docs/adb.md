@@ -109,17 +109,18 @@ to **Recent commands** only when it exits 0. The newest successful command is
 first, duplicates collapse, and the list stops at 64. Choosing one copies it
 back into the field. Failed and cancelled commands are not saved.
 
-The history is stored per serial in `settings.json` under `AdbDeviceProfiles`.
-Reopening the ADB workspace reads it again, so an edit you made in that file
-shows up without restarting CoreDeck.
+The history is stored per serial in `config.json` under `adb.device_profiles`.
+The serial is the object key. Reopening the ADB workspace reads it again, so an
+edit you made in that file shows up without restarting CoreDeck.
 
 ```json
-"AdbDeviceProfiles": [
-  {
-    "Serial": "192.168.68.102:5555",
-    "ShellCommands": ["getprop ro.build.version.release", "getprop"]
+"adb": {
+  "device_profiles": {
+    "192.168.68.102:5555": {
+      "shell_commands": ["getprop ro.build.version.release", "getprop"]
+    }
   }
-]
+}
 ```
 
 ## Packages and files
@@ -284,13 +285,15 @@ adb disconnect 192.168.68.102:5555
 ```
 
 The remove button forgets the address. CoreDeck remembers at most 16. The list
-is global, not per device, in `AdbWirelessDevices`:
+is global, not per device, in `adb.wireless_devices`:
 
 ```json
-"AdbWirelessDevices": [
-  "192.168.68.102:5555",
-  "192.168.68.105:5555"
-]
+"adb": {
+  "wireless_devices": [
+    "192.168.68.102:5555",
+    "192.168.68.105:5555"
+  ]
+}
 ```
 
 An address has to look like `host:port`, with a port from 1 to 65535 and no
@@ -298,10 +301,10 @@ spaces. `192.168.68.102` alone is rejected.
 
 A Wi-Fi device that is already online is added to this list when you open the
 workspace, unless you removed it during this visit. Reopening the workspace
-reads `settings.json` again. A phone you connected from a terminal shows up
+reads `config.json` again. A phone you connected from a terminal shows up
 after you leave ADB and open it again. You do not have to restart CoreDeck.
 
-On macOS and Linux the file is `~/.config/coredeck/settings.json`.
+On macOS and Linux the file is `~/.config/coredeck/config.json`.
 
 ## Where a command runs
 
@@ -336,7 +339,8 @@ connected.** when the report is empty.
 - It does not install or uninstall split APKs, app bundles, or more than one
   package at a time.
 - It does not edit `adb` server settings, kill the server, or backup the device.
-- It does not keep port routes in `settings.json`. Those belong to `adb`.
+- It does not keep port routes in `config.json`. Those belong to `adb`.
+- It does not host Frida. That is the Frida workspace under Analysis.
 
 ## Code map
 
@@ -346,4 +350,4 @@ connected.** when the report is empty.
 | `track-devices` and logcat processes         | `src/core/adb/adb_service.cpp` |
 | Device and forward parsers                   | `src/core/adb/adb_devices.cpp` |
 | Workspace, per-device state, saved profiles  | `src/gui/adb/`                 |
-| Settings fields                              | `src/app/app_settings_types.h` |
+| Config fields                                | `src/app/app_config_types.h`   |

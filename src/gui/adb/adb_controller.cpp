@@ -7,7 +7,7 @@
 #include <cctype>
 #include <chrono>
 
-#include "app/app_settings.h"
+#include "app/app_config.h"
 #include "platform/i18n.h"
 #include "platform/strings.h"
 
@@ -130,15 +130,12 @@ namespace CoreDeck::Gui::Adb {
         }
 
         const App::AdbDeviceProfile *FindDeviceProfile(
-            const App::AppSettings &settings,
+            const App::AppConfig &config,
             const std::string &serial
         ) {
-            const auto found = std::ranges::find(
-                settings.AdbDeviceProfiles,
-                serial,
-                &App::AdbDeviceProfile::Serial
-            );
-            return found == settings.AdbDeviceProfiles.end() ? nullptr : &*found;
+            const auto &profiles = config.Adb->DeviceProfiles.value();
+            const auto found = profiles.find(serial);
+            return found == profiles.end() ? nullptr : &found->second;
         }
 
         void EnsureWirelessDevices(Context &context) {
@@ -146,9 +143,9 @@ namespace CoreDeck::Gui::Adb {
             if (workspace.WirelessLoaded) {
                 return;
             }
-            const App::AppSettings settings = App::LoadAppSettings();
+            const App::AppConfig config = App::LoadAppConfig();
             workspace.WirelessDevices = TrimProfileEntries(
-                settings.AdbWirelessDevices,
+                config.Adb->WirelessDevices.value(),
                 SAVED_WIRELESS_DEVICE_LIMIT,
                 true
             );
@@ -166,15 +163,15 @@ namespace CoreDeck::Gui::Adb {
             return true;
         }
 
-        void ApplyDeviceProfile(AdbDeviceSession &session, const App::AppSettings &settings) {
+        void ApplyDeviceProfile(AdbDeviceSession &session, const App::AppConfig &config) {
             if (session.ProfileLoaded || session.Serial.empty()) {
                 return;
             }
 
-            const App::AdbDeviceProfile *profile = FindDeviceProfile(settings, session.Serial);
+            const App::AdbDeviceProfile *profile = FindDeviceProfile(config, session.Serial);
             if (profile) {
                 session.ShellHistory = TrimProfileEntries(
-                    profile->ShellCommands,
+                    profile->ShellCommands.value(),
                     RECENT_SHELL_COMMAND_LIMIT,
                     false
                 );
@@ -186,30 +183,19 @@ namespace CoreDeck::Gui::Adb {
             if (session.ProfileLoaded || session.Serial.empty()) {
                 return;
             }
-            ApplyDeviceProfile(session, App::LoadAppSettings());
+            ApplyDeviceProfile(session, App::LoadAppConfig());
         }
 
-        void StoreDeviceProfile(App::AppSettings &settings, const AdbDeviceSession &session) {
-            App::AdbDeviceProfile profile{
-                .Serial = session.Serial,
-                .ShellCommands = session.ShellHistory,
-            };
-            const auto found = std::ranges::find(
-                settings.AdbDeviceProfiles,
-                session.Serial,
-                &App::AdbDeviceProfile::Serial
-            );
-            if (found == settings.AdbDeviceProfiles.end()) {
-                settings.AdbDeviceProfiles.push_back(std::move(profile));
-            } else {
-                *found = std::move(profile);
-            }
+        void StoreDeviceProfile(App::AppConfig &config, const AdbDeviceSession &session) {
+            App::AdbDeviceProfile profile;
+            profile.ShellCommands = session.ShellHistory;
+            config.Adb->DeviceProfiles.value().insert_or_assign(session.Serial, std::move(profile));
         }
 
         bool PersistDeviceProfiles(const Context &context) {
-            App::AppSettings settings = App::LoadAppSettings();
+            App::AppConfig config = App::LoadAppConfig();
             if (context.Workspaces.Adb.WirelessLoaded) {
-                settings.AdbWirelessDevices = context.Workspaces.Adb.WirelessDevices;
+                config.Adb->WirelessDevices = context.Workspaces.Adb.WirelessDevices;
             }
             for (const auto &entry: context.Workspaces.Adb.Sessions) {
                 if (entry.second == nullptr ||
@@ -217,9 +203,9 @@ namespace CoreDeck::Gui::Adb {
                     entry.second->Serial.empty()) {
                     continue;
                 }
-                StoreDeviceProfile(settings, *entry.second);
+                StoreDeviceProfile(config, *entry.second);
             }
-            return App::SaveAppSettings(settings);
+            return App::SaveAppConfig(config);
         }
 
         void NoteOnlineWirelessDevices(Context &context, const Core::AdbDeviceSnapshot &snapshot) {
@@ -639,10 +625,10 @@ namespace CoreDeck::Gui::Adb {
             });
         }
         if (needsLoad) {
-            const App::AppSettings settings = App::LoadAppSettings();
+            const App::AppConfig config = App::LoadAppConfig();
             const auto apply = [&](const std::string &serial) {
                 if (!serial.empty()) {
-                    ApplyDeviceProfile(workspace.Session(serial), settings);
+                    ApplyDeviceProfile(workspace.Session(serial), config);
                 }
             };
             for (const Core::AdbDevice &device: snapshot.Devices) {
