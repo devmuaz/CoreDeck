@@ -29,7 +29,7 @@ namespace CoreDeck::Gui::Frida {
             FillIfEmpty(workspace.ServerCachePath, sizeof(workspace.ServerCachePath), App::FridaServerCacheDirectory(Core::FRIDA_VERSION));
             if (workspace.ProjectPath[0] == '\0') {
                 std::string error;
-                FillIfEmpty(workspace.ProjectPath, sizeof(workspace.ProjectPath), App::EnsureFridaProject(error));
+                FillIfEmpty(workspace.ProjectPath, sizeof(workspace.ProjectPath), App::BundledFridaProject(error));
             }
             FillIfEmpty(workspace.ScriptsPath, sizeof(workspace.ScriptsPath), App::FridaScriptsDirectory());
             if (!workspace.PathsCommitted) {
@@ -168,12 +168,20 @@ namespace CoreDeck::Gui::Frida {
             }
             if (PrimaryButton(Platform::Tr("Reset Agent Project"))) {
                 std::string error;
-                const std::string reset = App::ResetFridaProject(error);
+                const std::string before = workspace.ProjectPath;
+                const std::string bundled = App::BundledFridaProject(error);
+                const std::string reset = error.empty() ? App::ResetFridaProject(before, error) : std::string{};
+                const char *message = error.c_str();
+                if (!reset.empty()) {
+                    message = reset == bundled
+                                  ? Platform::Tr("The shipped agent project is already in use.")
+                                  : Platform::Tr("The agent project was copied again.");
+                }
                 SetTabStatus(
                     session,
                     FridaWorkspaceTab::Settings,
                     reset.empty() ? Tone::Negative : Tone::Positive,
-                    reset.empty() ? error : Platform::Tr("The agent project was copied again.")
+                    message
                 );
             }
         }
@@ -252,6 +260,7 @@ namespace CoreDeck::Gui::Frida {
             spacing
         );
         ImGui::Spacing();
-        FittedDetailCard("##FridaPaths", [&] { PathsCard(workspace, session); }, avail);
+        const float pathsHeight = std::max(Em(18.0F), ImGui::GetContentRegionAvail().y);
+        DetailCard("##FridaPaths", pathsHeight, [&] { PathsCard(workspace, session); });
     }
 }

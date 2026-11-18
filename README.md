@@ -192,7 +192,7 @@ CoreDeck is built on top of these excellent open source projects:
 - [Dear ImGui](https://github.com/ocornut/imgui) — immediate-mode GUI
 - [GLFW](https://github.com/glfw/glfw) — windowing and input
 - [reflect-cpp](https://github.com/getml/reflect-cpp) — reflection and serialization
-- [tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/) — native file dialogs
+- [nativefiledialog-extended](https://github.com/btzy/nativefiledialog-extended) — native file dialogs
 - [Catch2](https://github.com/catchorg/Catch2) — testing framework
 - [sentry-native](https://github.com/getsentry/sentry-native) — crash reporting
 

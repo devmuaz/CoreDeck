@@ -80,7 +80,7 @@ namespace CoreDeck::Gui::Frida {
                 return workspace.ProjectPath;
             }
             std::string error;
-            const std::string project = App::EnsureFridaProject(error);
+            const std::string project = App::BundledFridaProject(error);
             if (project.empty()) {
                 SetTabStatus(session, session.Tab, Tone::Negative, error);
             }

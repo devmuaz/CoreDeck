@@ -16,7 +16,7 @@ Every platform needs **CMake 3.23+**, **Ninja**, and **Git** with submodule supp
 | -------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | macOS    | Apple Clang           | `xcode-select --install`, then `brew install cmake ninja`                                                                                                                         |
 | Windows  | MSVC 19.30+ (VS 2022) | [Build Tools for VS 2022](https://visualstudio.microsoft.com/downloads/), then the _Desktop development with C++_ workload. Then `winget install Kitware.CMake Ninja-build.Ninja` |
-| Linux    | GCC 11+ / Clang 14+   | `sudo apt-get install build-essential cmake ninja-build libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev`       |
+| Linux    | GCC 11+ / Clang 14+   | `sudo apt-get install build-essential cmake ninja-build pkg-config libgtk-3-dev libcurl4-openssl-dev libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev` |
 
 On macOS, two extra compilers are optional. They exist so this machine can run the same app through more than Apple Clang:
 
@@ -204,18 +204,21 @@ on Windows). Set `COREDECK_FRIDA_CACHE` to put that cache somewhere else, or set
 `COREDECK_FRIDA_DEVKIT_DIR` to a directory that already contains `frida-core.h` and
 the static library. The cache path cannot contain spaces.
 
-`COREDECK_FRIDA_VERSION` in `cmake/Frida.cmake` pins the client. The downloaded
-`frida-server` and `assets/frida/project/STAMP` use that same version.
-`tools/pin_frida.py` prints the nine SHA-256 values for a release:
+`COREDECK_FRIDA_VERSION` in `cmake/Frida.cmake` pins the client and the downloaded
+`frida-server`. The Java bridge version lives only in
+`assets/frida/project/node_modules/frida-java-bridge/package.json`. The agent
+source is `assets/frida/project/agent/coredeck_agent.js`. There is no separate
+stamp file. `tools/pin_frida.py` prints the nine SHA-256 values for a release:
 
 ```bash
 python3 tools/pin_frida.py 17.9.2
 ```
 
 Paste those into `cmake/Frida.cmake`, confirm `frida-java-bridge` still compiles
-with that devkit, update `assets/frida/project/STAMP`, and rebuild
-`coredeck_frida_smoke` on every platform. The smoke test calls `frida_init` and
-lists local devices. It is the check that the static library actually linked.
+with that devkit, and rebuild `coredeck_frida_smoke` on every platform. The
+smoke test calls `frida_init` and lists local devices. It is the check that the
+static library actually linked. An agent edit ships with the bundle. Bump the
+bridge package only when that library has to change.
 
 MinGW cannot link the devkit. On Windows the process uses the release static CRT
 (`/MT`) in every configuration, including Debug, because the devkit is `/MT`.
@@ -233,6 +236,9 @@ running, Start and Use existing both resume it on port 27099, and Stop shuts it
 down. Use existing attaches to a separate `frida-server` on the Settings port
 (27042 by default) and leaves that process running.
 Snippet mode compiles with `frida-java-bridge` imported. Module mode compiles the
-buffer unchanged. Paths, the script runtime, and resetting the agent project live
-on the Settings tab and are stored in `config.json`. Leaving the workspace
-detaches sessions and stops a server CoreDeck started.
+buffer unchanged. The compiler reads `assets/frida/project` from the app bundle
+unless the Settings path points somewhere else. Reset Agent Project copies that
+bundled project onto the override, and does nothing when Settings still points
+at the bundle. Paths and the script runtime live on the Settings tab and are
+stored in `config.json`. Leaving the workspace detaches sessions and stops a
+server CoreDeck started.

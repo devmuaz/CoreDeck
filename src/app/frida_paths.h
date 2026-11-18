@@ -12,9 +12,9 @@ namespace CoreDeck::App {
 
     std::string FridaScriptsDirectory();
 
-    std::string EnsureFridaProject(std::string &error);
+    std::string BundledFridaProject(std::string &error);
 
-    std::string ResetFridaProject(std::string &error);
+    std::string ResetFridaProject(const std::string &target, std::string &error);
 }
 
 #endif // COREDECK_APP_FRIDA_PATHS_H
