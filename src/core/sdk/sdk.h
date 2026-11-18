@@ -14,7 +14,6 @@ namespace CoreDeck::Core {
 
     constexpr const char *SDK_LICENSE_URL = "https://developer.android.com/studio/terms";
     constexpr const char *ANDROID_REPOSITORY_URL = "https://dl.google.com/android/repository/";
-    constexpr const char *CMDLINE_TOOLS_VERSION = "15859902";
     constexpr const char *BOOTSTRAP_BUILD_TOOLS_PACKAGE = "build-tools;37.0.0";
     constexpr const char *SDK_MANAGER_PROGRESS_COLUMNS = "16384";
     constexpr std::uint64_t BOOTSTRAP_REQUIRED_BYTES = 2ULL * 1024ULL * 1024ULL * 1024ULL;

@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "app/frida_paths.h"
-#include "frida_release.h"
+#include "core/frida_release.h"
 #include "gui/frida/frida_controller.h"
 #include "gui/widgets/widgets.h"
 #include "platform/i18n.h"

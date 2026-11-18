@@ -4,25 +4,26 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "core/frida/frida_abi.h"
 #include "core/frida/frida_messages.h"
 #include "core/frida/frida_prelude.h"
 #include "core/frida/frida_server.h"
-#include "frida_release.h"
+#include "core/frida_release.h"
 
 using namespace CoreDeck::Core;
 
 TEST_CASE("Android ABIs map onto Frida server assets", "[frida]") {
-    REQUIRE(FridaAndroidAsset("arm64-v8a\n") == "android-arm64");
-    REQUIRE(FridaAndroidAsset("armeabi-v7a") == "android-arm");
-    REQUIRE(FridaAndroidAsset("armeabi") == "android-arm");
-    REQUIRE(FridaAndroidAsset("x86_64") == "android-x86_64");
-    REQUIRE(FridaAndroidAsset("x86") == "android-x86");
-    REQUIRE(FridaAndroidAsset("mips").empty());
-    REQUIRE(FirstFridaAndroidAsset("foo, arm64-v8a, x86") == "android-arm64");
-    REQUIRE(FirstFridaAndroidAsset("mips,riscv").empty());
+    REQUIRE(std::string_view(FridaAndroidAsset("arm64-v8a\n")) == "android-arm64");
+    REQUIRE(std::string_view(FridaAndroidAsset("armeabi-v7a")) == "android-arm");
+    REQUIRE(std::string_view(FridaAndroidAsset("armeabi")) == "android-arm");
+    REQUIRE(std::string_view(FridaAndroidAsset("x86_64")) == "android-x86_64");
+    REQUIRE(std::string_view(FridaAndroidAsset("x86")) == "android-x86");
+    REQUIRE(FridaAndroidAsset("mips") == nullptr);
+    REQUIRE(std::string_view(FirstFridaAndroidAsset("foo, arm64-v8a, x86")) == "android-arm64");
+    REQUIRE(FirstFridaAndroidAsset("mips,riscv") == nullptr);
 }
 
 TEST_CASE("Frida server URLs and checksums stay pinned to the linked release", "[frida]") {

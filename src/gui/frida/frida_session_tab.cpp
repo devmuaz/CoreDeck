@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-#include "frida_release.h"
+#include "core/frida_release.h"
 #include "gui/adb/adb_controller.h"
 #include "gui/frida/frida_controller.h"
 #include "gui/frida/frida_widgets.h"

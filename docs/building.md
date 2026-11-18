@@ -60,7 +60,7 @@ The first build compiles the bundled dependencies, including sentry-native, Dear
 
 ## Source layout
 
-`src/` is four static libraries. A library includes only itself and the libraries it is allowed to use. `tools/check_structure.py` enforces the table, the file names, and the include rules, and CI runs it.
+`src/` is four static libraries. A library includes only itself and the libraries it is allowed to use. `tools/check_structure.py` enforces the table, the file names, and the include rules. Run it locally before a pull request.
 
 | Library | Folder | May include | Holds |
 | --- | --- | --- | --- |
@@ -204,21 +204,23 @@ on Windows). Set `COREDECK_FRIDA_CACHE` to put that cache somewhere else, or set
 `COREDECK_FRIDA_DEVKIT_DIR` to a directory that already contains `frida-core.h` and
 the static library. The cache path cannot contain spaces.
 
-`COREDECK_FRIDA_VERSION` in `cmake/Frida.cmake` pins the client and the downloaded
-`frida-server`. The Java bridge version lives only in
-`assets/frida/project/node_modules/frida-java-bridge/package.json`. The agent
-source is `assets/frida/project/agent/coredeck_agent.js`. There is no separate
-stamp file. `tools/pin_frida.py` prints the nine SHA-256 values for a release:
+`pins/frida.json` pins the client version, each devkit and `frida-server`
+download URL, and their SHA-256 checksums. CMake reads that file. To move to another Frida
+release, run:
 
 ```bash
-python3 tools/pin_frida.py 17.9.2
+python3 tools/update_frida_pins.py 17.9.2
 ```
 
-Paste those into `cmake/Frida.cmake`, confirm `frida-java-bridge` still compiles
-with that devkit, and rebuild `coredeck_frida_smoke` on every platform. The
-smoke test calls `frida_init` and lists local devices. It is the check that the
-static library actually linked. An agent edit ships with the bundle. Bump the
-bridge package only when that library has to change.
+The script writes the version, the nine download URLs, and their SHA-256 values into `pins/frida.json`.
+Configure again after that. The Java bridge version lives only in
+`assets/frida/project/node_modules/frida-java-bridge/package.json`. The agent
+source is `assets/frida/project/agent/coredeck_agent.js`. There is no separate
+stamp file. Confirm `frida-java-bridge` still compiles with the new devkit, and
+rebuild `coredeck_frida_smoke` on every platform. The smoke test calls
+`frida_init` and lists local devices. It is the check that the static library
+actually linked. An agent edit ships with the bundle. Bump the bridge package
+only when that library has to change.
 
 MinGW cannot link the devkit. On Windows the process uses the release static CRT
 (`/MT`) in every configuration, including Debug, because the devkit is `/MT`.

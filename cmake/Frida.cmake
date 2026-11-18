@@ -4,19 +4,18 @@ if(MINGW)
         "Build CoreDeck with the Visual Studio toolchain on Windows.")
 endif()
 
-set(COREDECK_FRIDA_VERSION "17.9.2" CACHE STRING "Frida release statically linked into CoreDeck")
 set(COREDECK_FRIDA_DEVKIT_DIR "" CACHE PATH "Pre-extracted frida-core devkit. Empty downloads the pinned release.")
 
-set(COREDECK_FRIDA_SERVER_SHA256_ANDROID_ARM "b49895b2bd806e81cf2a1c0daf27cc45a41cd81b6863c37a33625567ec8b2d59")
-set(COREDECK_FRIDA_SERVER_SHA256_ANDROID_ARM64 "1c6107a51d53f364e273373a34640e28d017d79bd7e72a30e93a53b28de06e4f")
-set(COREDECK_FRIDA_SERVER_SHA256_ANDROID_X86 "ea4643ddfc9899c24042edd38ddf0315cfe6fedf7e4b73511bbfd84d77916cb9")
-set(COREDECK_FRIDA_SERVER_SHA256_ANDROID_X86_64 "bc071af88daae6d424f9160de0330331ac3b88577e2f5a0b559cfb85fefcb0f5")
-
-set(_coredeck_frida_devkit_macos_arm64 "7560f21a5e25df541454137b43e36995bb4f2f487617e2f4e358d95cee41ae1c")
-set(_coredeck_frida_devkit_macos_x86_64 "10f534345f1a58aa344f66d8de848d8bbe54e22f6f79de3546a4cef3d0272ad6")
-set(_coredeck_frida_devkit_linux_x86_64 "1fd9d2b3cd3fb56a6cb6ebd7931b0abda8304cbb176c0ff34698d1b2a1a31587")
-set(_coredeck_frida_devkit_linux_arm64 "016579301ad2ef71c40496b49aa9d701e935758402cc3fcda3a9d72ae11a5f7c")
-set(_coredeck_frida_devkit_windows_x86_64 "394d47d38ef5895dfe2d88db2ce4cfe54a1aeb3f3a1d4d79230d2d0698fb349a")
+file(READ "${CMAKE_SOURCE_DIR}/pins/frida.json" _coredeck_frida_pins)
+string(JSON COREDECK_FRIDA_VERSION GET "${_coredeck_frida_pins}" version)
+string(JSON COREDECK_FRIDA_SERVER_URL_ANDROID_ARM GET "${_coredeck_frida_pins}" server "android-arm" url)
+string(JSON COREDECK_FRIDA_SERVER_SHA256_ANDROID_ARM GET "${_coredeck_frida_pins}" server "android-arm" sha256)
+string(JSON COREDECK_FRIDA_SERVER_URL_ANDROID_ARM64 GET "${_coredeck_frida_pins}" server "android-arm64" url)
+string(JSON COREDECK_FRIDA_SERVER_SHA256_ANDROID_ARM64 GET "${_coredeck_frida_pins}" server "android-arm64" sha256)
+string(JSON COREDECK_FRIDA_SERVER_URL_ANDROID_X86 GET "${_coredeck_frida_pins}" server "android-x86" url)
+string(JSON COREDECK_FRIDA_SERVER_SHA256_ANDROID_X86 GET "${_coredeck_frida_pins}" server "android-x86" sha256)
+string(JSON COREDECK_FRIDA_SERVER_URL_ANDROID_X86_64 GET "${_coredeck_frida_pins}" server "android-x86_64" url)
+string(JSON COREDECK_FRIDA_SERVER_SHA256_ANDROID_X86_64 GET "${_coredeck_frida_pins}" server "android-x86_64" sha256)
 
 set(_coredeck_frida_arch "${CMAKE_OSX_ARCHITECTURES}")
 if(NOT _coredeck_frida_arch)
@@ -26,10 +25,8 @@ endif()
 if(APPLE)
     if(_coredeck_frida_arch STREQUAL "arm64" OR _coredeck_frida_arch STREQUAL "aarch64")
         set(COREDECK_FRIDA_HOST "macos-arm64")
-        set(_coredeck_frida_devkit_sha "${_coredeck_frida_devkit_macos_arm64}")
     elseif(_coredeck_frida_arch STREQUAL "x86_64" OR _coredeck_frida_arch STREQUAL "AMD64")
         set(COREDECK_FRIDA_HOST "macos-x86_64")
-        set(_coredeck_frida_devkit_sha "${_coredeck_frida_devkit_macos_x86_64}")
     else()
         message(FATAL_ERROR
             "Frida supports one macOS architecture at a time (arm64 or x86_64). "
@@ -38,23 +35,23 @@ if(APPLE)
 elseif(WIN32)
     if(_coredeck_frida_arch STREQUAL "AMD64" OR _coredeck_frida_arch STREQUAL "x86_64")
         set(COREDECK_FRIDA_HOST "windows-x86_64")
-        set(_coredeck_frida_devkit_sha "${_coredeck_frida_devkit_windows_x86_64}")
     else()
         message(FATAL_ERROR "Frida is linked for windows-x86_64. This build is '${_coredeck_frida_arch}'.")
     endif()
 elseif(UNIX)
     if(_coredeck_frida_arch STREQUAL "x86_64" OR _coredeck_frida_arch STREQUAL "amd64")
         set(COREDECK_FRIDA_HOST "linux-x86_64")
-        set(_coredeck_frida_devkit_sha "${_coredeck_frida_devkit_linux_x86_64}")
     elseif(_coredeck_frida_arch STREQUAL "aarch64" OR _coredeck_frida_arch STREQUAL "arm64")
         set(COREDECK_FRIDA_HOST "linux-arm64")
-        set(_coredeck_frida_devkit_sha "${_coredeck_frida_devkit_linux_arm64}")
     else()
         message(FATAL_ERROR "Frida is linked for linux-x86_64 and linux-arm64. This build is '${_coredeck_frida_arch}'.")
     endif()
 else()
     message(FATAL_ERROR "Frida is not supported on this platform.")
 endif()
+
+string(JSON _coredeck_frida_url GET "${_coredeck_frida_pins}" devkit "${COREDECK_FRIDA_HOST}" url)
+string(JSON _coredeck_frida_devkit_sha GET "${_coredeck_frida_pins}" devkit "${COREDECK_FRIDA_HOST}" sha256)
 
 if(COREDECK_FRIDA_DEVKIT_DIR)
     set(_coredeck_frida_root "${COREDECK_FRIDA_DEVKIT_DIR}")
@@ -71,11 +68,10 @@ else()
     if(_coredeck_frida_cache MATCHES " ")
         message(FATAL_ERROR "The Frida devkit cache path must not contain spaces: ${_coredeck_frida_cache}")
     endif()
+    get_filename_component(_coredeck_frida_archive_name "${_coredeck_frida_url}" NAME)
     set(_coredeck_frida_archive
-        "${_coredeck_frida_cache}/${COREDECK_FRIDA_VERSION}/frida-core-devkit-${COREDECK_FRIDA_VERSION}-${COREDECK_FRIDA_HOST}.tar.xz")
+        "${_coredeck_frida_cache}/${COREDECK_FRIDA_VERSION}/${_coredeck_frida_archive_name}")
     set(_coredeck_frida_root "${_coredeck_frida_cache}/${COREDECK_FRIDA_VERSION}/${COREDECK_FRIDA_HOST}")
-    set(_coredeck_frida_url
-        "https://github.com/frida/frida/releases/download/${COREDECK_FRIDA_VERSION}/frida-core-devkit-${COREDECK_FRIDA_VERSION}-${COREDECK_FRIDA_HOST}.tar.xz")
     get_filename_component(_coredeck_frida_archive_dir "${_coredeck_frida_archive}" DIRECTORY)
     file(MAKE_DIRECTORY "${_coredeck_frida_archive_dir}")
 
@@ -190,8 +186,8 @@ set(COREDECK_FRIDA_DEVKIT_INCLUDE "${_coredeck_frida_root}" CACHE INTERNAL "Extr
 message(STATUS "Frida ${COREDECK_FRIDA_VERSION} (${COREDECK_FRIDA_HOST}): ${_coredeck_frida_lib}")
 
 configure_file(
-    "${CMAKE_SOURCE_DIR}/cmake/frida_release.h.in"
-    "${CMAKE_BINARY_DIR}/generated/frida_release.h"
+    "${CMAKE_SOURCE_DIR}/src/core/frida/frida_release.h.in"
+    "${CMAKE_BINARY_DIR}/generated/core/frida_release.h"
     @ONLY
 )
 

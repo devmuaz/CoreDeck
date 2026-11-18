@@ -21,9 +21,10 @@ remembered via `Paths::Onboarding::SaveSdkPathOverride`.
 
 ## The pin, and why it goes stale rather than breaking
 
-`GetBundledCmdlineToolsRelease()` returns a hardcoded URL, SHA-256, and size per platform
-(currently build `15859902`). It's pinned so a tampered or truncated download is rejected —
-you can't verify a download whose hash you learned from the same server.
+`GetBundledCmdlineToolsRelease()` returns the URL, SHA-256, and size from
+`pins/cmdline-tools.json` (currently build `15859902`). It's pinned so a tampered
+or truncated download is rejected — you can't verify a download whose hash you learned
+from the same server. `tools/update_cmdline_tools_pins.py` rewrites that file.
 
 The cost: bumping it needs a code change and a release.
 

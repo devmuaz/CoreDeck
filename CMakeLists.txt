@@ -42,6 +42,7 @@ endif()
 
 include(cmake/Dependencies.cmake)
 include(cmake/Frida.cmake)
+include(cmake/CmdlineTools.cmake)
 
 find_package(Threads REQUIRED)
 

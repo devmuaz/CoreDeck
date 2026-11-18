@@ -135,12 +135,13 @@ namespace CoreDeck::Core {
                 return Failed(FridaStatusCode::DownloadFailed, parentError);
             }
             const char *expected = FridaServerSha256(asset);
-            if (expected == nullptr) {
+            const char *url = FridaServerUrl(asset);
+            if (expected == nullptr || url == nullptr) {
                 return Failed(FridaStatusCode::HashMismatch, "No checksum is pinned for this server.");
             }
             std::string downloadError;
             const bool downloaded = Platform::HttpDownloadToFile(
-                FridaServerUrl(asset),
+                url,
                 archive.string(),
                 Platform::StrConcat(Platform::BuildInfo::TITLE, "/", Platform::BuildInfo::VERSION),
                 [&request](const std::uint64_t received, const std::uint64_t total) {
@@ -318,8 +319,8 @@ namespace CoreDeck::Core {
         if (abiResult.Error == AdbError::Cancelled) {
             return Failed(FridaStatusCode::Cancelled, "Cancelled.");
         }
-        std::string_view resolved = FridaAndroidAsset(abiResult.Stdout);
-        if (resolved.empty()) {
+        const char *resolved = FridaAndroidAsset(abiResult.Stdout);
+        if (resolved == nullptr) {
             const AdbCommandResult listResult = RunAdbShell(
                 request.Sdk,
                 request.Serial,
@@ -328,11 +329,11 @@ namespace CoreDeck::Core {
             );
             resolved = FirstFridaAndroidAsset(listResult.Stdout);
         }
-        if (resolved.empty()) {
+        if (resolved == nullptr) {
             return Failed(FridaStatusCode::CommandFailed, "This device ABI is not supported by frida-server.");
         }
         if (request.AssetLabel != nullptr) {
-            request.AssetLabel->store(resolved.data());
+            request.AssetLabel->store(resolved);
         }
         const std::string asset(resolved);
 

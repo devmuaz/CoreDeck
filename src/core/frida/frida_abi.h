@@ -18,13 +18,13 @@ namespace CoreDeck::Core {
     inline constexpr std::uint32_t FRIDA_PAGE_SIZE = 4096U;
     inline constexpr std::uint32_t FRIDA_SCAN_LIMIT = 16U * 1024U * 1024U;
 
-    std::string_view FridaAndroidAsset(std::string_view abi);
+    const char *FridaAndroidAsset(std::string_view abi);
 
-    std::string_view FirstFridaAndroidAsset(std::string_view abiList);
+    const char *FirstFridaAndroidAsset(std::string_view abiList);
 
     std::string FridaServerArchiveName(std::string_view asset);
 
-    std::string FridaServerUrl(std::string_view asset);
+    const char *FridaServerUrl(std::string_view asset);
 
     const char *FridaServerSha256(std::string_view asset);
 

@@ -79,38 +79,24 @@ Prefix with `fix:`, `refactor:`, or `chore:` when it helps clarify intent, but i
 - C++20 standard
 - No comments unless the "why" is non-obvious
 - Keep changes minimal — don't refactor unrelated code in the same PR
-- File names, layers, and entry points follow [the source layout](docs/building.md#source-layout). `tools/check_structure.py` checks them locally, and CI runs that script with `clang-format` and `clang-tidy`
+- File names, layers, and entry points follow [the source layout](docs/building.md#source-layout). `tools/check_structure.py` checks them locally
 
 ## Bumping the bundled command-line tools
 
-The in-app SDK installer downloads a specific Android command-line tools archive per platform. The URL, SHA-256, and size are pinned in `GetBundledCmdlineToolsRelease` (`src/core/sdk/sdk_bootstrap.cpp`) so a tampered or truncated download is rejected. The scheduled `SDK Bootstrap Check` workflow re-downloads the pinned archives monthly.
+The in-app SDK installer downloads a specific Android command-line tools archive per platform. The build number, SHA-256, and size are pinned in `pins/cmdline-tools.json` so a tampered or truncated download is rejected. The scheduled `SDK Bootstrap Check` workflow re-downloads the pinned archives monthly.
 
 This is routine maintenance, not a hotfix: Google keeps old archives available for years, so a stale pin means users install slightly older tools rather than hitting a broken installer. A red monthly check is more often a transient CDN blip than a real removal — re-run it before assuming the pin is dead. See [docs/sdk-bootstrap.md](docs/sdk-bootstrap.md) for how the whole thing fits together.
 
-1. Find the current release in Google's manifest and note the four archive names:
+1. Pin the current `cmdline-tools;latest` release, or pass a build number. The script checks Google's SHA-1, then writes the SHA-256 and size:
 
    ```bash
-   curl -sSL https://dl.google.com/android/repository/repository2-3.xml | grep -A40 'cmdline-tools;latest'
+   python3 tools/update_cmdline_tools_pins.py
+   python3 tools/update_cmdline_tools_pins.py 15859902
    ```
 
-2. Download all four archives and compute their SHA-256 (Google only publishes SHA-1, so we verify SHA-1 against the
-   manifest and pin the stronger hash):
+2. Configure again so the generated header picks up the new pins.
 
-   ```bash
-   for f in commandlinetools-linux-<build>_latest.zip \
-            commandlinetools-mac_x86_64-<build>_latest.zip \
-            commandlinetools-mac_arm64-<build>_latest.zip \
-            commandlinetools-win-<build>_latest.zip; do
-     curl -sS -O "https://dl.google.com/android/repository/$f"
-   done
-   shasum -a 1 *.zip    # must match the <checksum type="sha1"> values in the manifest
-   shasum -a 256 *.zip  # these are what we pin
-   ```
-
-3. Update `CMDLINE_TOOLS_VERSION` plus the per-platform `PlatformArchiveSha256` and `PlatformArchiveSize` values in
-   `src/core/sdk/sdk_bootstrap.cpp`.
-
-4. Verify the new pins actually resolve:
+3. Verify the new pins actually resolve:
 
    ```bash
    COREDECK_TEST_NETWORK=1 ctest --test-dir build -L network --output-on-failure

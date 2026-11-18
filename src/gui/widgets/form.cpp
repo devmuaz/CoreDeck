@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
-#include <iostream>
 #include <vector>
 
 #include "imgui.h"
@@ -316,15 +315,11 @@ namespace CoreDeck::Gui {
         if (PrimaryButton(browseLabel.c_str(), interactive, ImVec2(browseWidth, 0)) && interactive) {
             if (const auto picked = App::FileDialog::PickDirectory(dialogTitle != nullptr ? dialogTitle : "", buffer)) {
                 CopyToBuffer(buffer, bufferSize, *picked);
-                std::cout << "Picked: " << *picked << '\n';
-                std::cout << "Buffer: " << buffer << '\n';
                 ImGuiContext &context = *ImGui::GetCurrentContext();
                 if (context.InputTextState.ID != 0) {
                     context.InputTextState.WantReloadUserBuf = true;
                 }
                 context.InputTextDeactivatedState.ID = 0;
-            } else {
-                std::cout << "No directory picked\n";
             }
         }
         return buffer;

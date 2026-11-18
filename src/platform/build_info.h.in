@@ -1,0 +1,14 @@
+#ifndef COREDECK_PLATFORM_BUILD_INFO_H
+#define COREDECK_PLATFORM_BUILD_INFO_H
+
+namespace CoreDeck::Platform::BuildInfo {
+    inline constexpr const char *TITLE = "@PROJECT_NAME@";
+    inline constexpr const char *VERSION = "@PROJECT_VERSION_FULL@";
+    inline constexpr const char *BUILD_NUMBER = "@PROJECT_BUILD_NUMBER@";
+    inline constexpr const char *VENDOR = "@APP_VENDOR@";
+    inline constexpr const char *DESCRIPTION = "@APP_DESCRIPTION_SHORT@";
+    inline constexpr const char *COPYRIGHT = "@APP_COPYRIGHT@";
+    inline constexpr const char *APP_ID = "@APP_BUNDLE_ID@";
+}
+
+#endif // COREDECK_PLATFORM_BUILD_INFO_H

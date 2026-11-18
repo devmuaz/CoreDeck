@@ -6,7 +6,7 @@
 
 #include <cctype>
 
-#include "frida_release.h"
+#include "core/frida_release.h"
 #include "platform/strings.h"
 
 namespace CoreDeck::Core {
@@ -22,7 +22,7 @@ namespace CoreDeck::Core {
         }
     }
 
-    std::string_view FridaAndroidAsset(const std::string_view abi) {
+    const char *FridaAndroidAsset(const std::string_view abi) {
         const std::string_view trimmed = TrimView(abi);
         if (trimmed == "arm64-v8a") {
             return "android-arm64";
@@ -36,16 +36,16 @@ namespace CoreDeck::Core {
         if (trimmed == "x86") {
             return "android-x86";
         }
-        return {};
+        return nullptr;
     }
 
-    std::string_view FirstFridaAndroidAsset(const std::string_view abiList) {
+    const char *FirstFridaAndroidAsset(const std::string_view abiList) {
         std::size_t start = 0;
         while (start <= abiList.size()) {
             const std::size_t comma = abiList.find(',', start);
             const std::string_view item = abiList.substr(start, comma == std::string_view::npos ? std::string_view::npos : comma - start);
-            const std::string_view asset = FridaAndroidAsset(item);
-            if (!asset.empty()) {
+            const char *asset = FridaAndroidAsset(item);
+            if (asset != nullptr) {
                 return asset;
             }
             if (comma == std::string_view::npos) {
@@ -53,15 +53,36 @@ namespace CoreDeck::Core {
             }
             start = comma + 1;
         }
-        return {};
+        return nullptr;
     }
 
     std::string FridaServerArchiveName(const std::string_view asset) {
-        return Platform::StrConcat("frida-server-", FRIDA_VERSION, "-", asset, ".xz");
+        const char *url = FridaServerUrl(asset);
+        if (url == nullptr) {
+            return {};
+        }
+        const std::string_view value(url);
+        const std::size_t slash = value.rfind('/');
+        if (slash == std::string_view::npos) {
+            return std::string(value);
+        }
+        return std::string(value.substr(slash + 1));
     }
 
-    std::string FridaServerUrl(const std::string_view asset) {
-        return Platform::StrConcat(FRIDA_RELEASE_URL, FridaServerArchiveName(asset));
+    const char *FridaServerUrl(const std::string_view asset) {
+        if (asset == "android-arm") {
+            return FRIDA_SERVER_URL_ANDROID_ARM;
+        }
+        if (asset == "android-arm64") {
+            return FRIDA_SERVER_URL_ANDROID_ARM64;
+        }
+        if (asset == "android-x86") {
+            return FRIDA_SERVER_URL_ANDROID_X86;
+        }
+        if (asset == "android-x86_64") {
+            return FRIDA_SERVER_URL_ANDROID_X86_64;
+        }
+        return nullptr;
     }
 
     const char *FridaServerSha256(const std::string_view asset) {

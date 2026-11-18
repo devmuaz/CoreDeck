@@ -13,7 +13,7 @@
 #include "app/frida_paths.h"
 #include "core/frida/frida_abi.h"
 #include "core/frida/frida_messages.h"
-#include "frida_release.h"
+#include "core/frida_release.h"
 #include "gui/adb/adb_controller.h"
 #include "platform/i18n.h"
 #include "platform/strings.h"

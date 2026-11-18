@@ -54,6 +54,14 @@ def library_of(relative: Path) -> str | None:
     return relative.parts[0] if len(relative.parts) > 1 and relative.parts[0] in LIBRARIES else None
 
 
+def header_source_exists(target: str) -> bool:
+    source = SRC / target
+    if source.exists() or source.with_suffix(source.suffix + ".in").exists():
+        return True
+    library = target.split("/", 1)[0]
+    return any((SRC / library).rglob(Path(target).name + ".in"))
+
+
 def expected_guard(relative: Path) -> str:
     name = relative.with_name(stem_of(relative)).as_posix()
     return "COREDECK_" + re.sub(r"[^A-Za-z0-9]", "_", name).upper() + "_H"
@@ -86,7 +94,7 @@ def check() -> list[str]:
                 if (file.parent / target).exists():
                     problems.append(f"{relative}: include \"{target}\" is relative; root it at src/")
                 continue
-            if not (SRC / target).exists():
+            if not header_source_exists(target):
                 problems.append(f"{relative}: include \"{target}\" does not exist under src/")
             if library and included_library not in ALLOWED_DEPENDENCIES[library]:
                 problems.append(f"{relative}: {library} must not include {included_library} (\"{target}\")")

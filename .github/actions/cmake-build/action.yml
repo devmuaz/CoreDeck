@@ -58,7 +58,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.cache/frida-devkit
-        key: frida-devkit-${{ hashFiles('cmake/Frida.cmake') }}-${{ runner.os }}-${{ runner.arch }}
+        key: frida-devkit-${{ hashFiles('cmake/Frida.cmake', 'pins/frida.json') }}-${{ runner.os }}-${{ runner.arch }}
 
     - name: Configure CMake
       shell: bash

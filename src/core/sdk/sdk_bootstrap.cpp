@@ -6,6 +6,8 @@
 #include <filesystem>
 
 #include "core/sdk/sdk_bootstrap.h"
+
+#include "core/cmdline_tools_release.h"
 #include "platform/archive.h"
 #include "platform/build_info.h"
 #include "platform/http_download.h"
@@ -131,37 +133,49 @@ namespace CoreDeck::Core {
             }
         }
 
-        std::string PlatformArchiveName() {
+        const char *PlatformArchiveUrl() {
             switch (Platform::GetCurrentOs()) {
                 case Platform::Os::Windows:
-                    return Platform::StrConcat("commandlinetools-win-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                    return CMDLINE_TOOLS_URL_WINDOWS;
                 case Platform::Os::MacOS:
 #if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
-                    return Platform::StrConcat("commandlinetools-mac_arm64-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                    return CMDLINE_TOOLS_URL_MAC_ARM64;
 #else
-                    return Platform::StrConcat("commandlinetools-mac_x86_64-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                    return CMDLINE_TOOLS_URL_MAC_X86_64;
 #endif
                 case Platform::Os::Linux:
-                    // Google publishes a single Linux archive; the tools themselves are Java.
-                    return Platform::StrConcat("commandlinetools-linux-", CMDLINE_TOOLS_VERSION, "_latest.zip");
+                    return CMDLINE_TOOLS_URL_LINUX;
                 case Platform::Os::Unknown:
                 default:
-                    return {};
+                    return nullptr;
             }
+        }
+
+        std::string PlatformArchiveName() {
+            const char *url = PlatformArchiveUrl();
+            if (url == nullptr) {
+                return {};
+            }
+            const std::string_view value(url);
+            const std::size_t slash = value.rfind('/');
+            if (slash == std::string_view::npos) {
+                return std::string(value);
+            }
+            return std::string(value.substr(slash + 1));
         }
 
         std::string_view PlatformArchiveSha256() {
             switch (Platform::GetCurrentOs()) {
                 case Platform::Os::Windows:
-                    return "90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a";
+                    return CMDLINE_TOOLS_SHA256_WINDOWS;
                 case Platform::Os::MacOS:
 #if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
-                    return "835b62a26162b229b441d1f6d4680383815a270809eb33522c0d480fa5002c4e";
+                    return CMDLINE_TOOLS_SHA256_MAC_ARM64;
 #else
-                    return "c5a6378ab5cf7e0d5701921405115befff13e9ff7417fb588389338f8bd050f3";
+                    return CMDLINE_TOOLS_SHA256_MAC_X86_64;
 #endif
                 case Platform::Os::Linux:
-                    return "4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583";
+                    return CMDLINE_TOOLS_SHA256_LINUX;
                 case Platform::Os::Unknown:
                 default:
                     return {};
@@ -171,15 +185,15 @@ namespace CoreDeck::Core {
         std::uint64_t PlatformArchiveSize() {
             switch (Platform::GetCurrentOs()) {
                 case Platform::Os::Windows:
-                    return 155655386ULL;
+                    return CMDLINE_TOOLS_SIZE_WINDOWS;
                 case Platform::Os::MacOS:
 #if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
-                    return 156083281ULL;
+                    return CMDLINE_TOOLS_SIZE_MAC_ARM64;
 #else
-                    return 156281494ULL;
+                    return CMDLINE_TOOLS_SIZE_MAC_X86_64;
 #endif
                 case Platform::Os::Linux:
-                    return 181833628ULL;
+                    return CMDLINE_TOOLS_SIZE_LINUX;
                 case Platform::Os::Unknown:
                 default:
                     return 0ULL;
@@ -189,12 +203,13 @@ namespace CoreDeck::Core {
 
     CmdlineToolsRelease GetBundledCmdlineToolsRelease() {
         CmdlineToolsRelease release;
-        release.Version = CMDLINE_TOOLS_VERSION;
-        release.FileName = PlatformArchiveName();
-        if (release.FileName.empty()) {
+        const char *url = PlatformArchiveUrl();
+        if (url == nullptr) {
             return release;
         }
-        release.DownloadUrl = Platform::StrConcat(ANDROID_REPOSITORY_URL, release.FileName);
+        release.Version = CMDLINE_TOOLS_VERSION;
+        release.FileName = PlatformArchiveName();
+        release.DownloadUrl = url;
         release.Sha256 = PlatformArchiveSha256();
         release.DownloadSize = PlatformArchiveSize();
 
