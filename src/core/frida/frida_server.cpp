@@ -6,20 +6,16 @@
 
 #include <chrono>
 #include <filesystem>
-#include <fstream>
 #include <optional>
 #include <thread>
-#include <vector>
 
 #include "core/adb/adb_client.h"
 #include "core/frida/frida_abi.h"
+#include "platform/archive.h"
 #include "platform/build_info.h"
 #include "platform/http_download.h"
 #include "platform/sha256.h"
 #include "platform/strings.h"
-
-#define XZ_USE_CRC64
-#include "xz.h"
 
 namespace CoreDeck::Core {
     namespace {
@@ -57,69 +53,7 @@ namespace CoreDeck::Core {
             }
             return true;
         }
-    }
 
-    bool DecompressXz(const std::string &sourcePath, const std::string &destPath, std::string &error) {
-        std::ifstream input(sourcePath, std::ios::binary);
-        if (!input) {
-            error = "Could not read the xz archive.";
-            return false;
-        }
-        const std::vector<std::uint8_t> compressed{
-            std::istreambuf_iterator<char>(input),
-            std::istreambuf_iterator<char>(),
-        };
-        if (compressed.empty()) {
-            error = "The xz archive is empty.";
-            return false;
-        }
-        if (!EnsureParent(destPath, error)) {
-            return false;
-        }
-        xz_crc32_init();
-        xz_crc64_init();
-        struct xz_dec *decoder = xz_dec_init(XZ_DYNALLOC, static_cast<uint32_t>(1U << 26U));
-        if (decoder == nullptr) {
-            error = "Could not start the xz decoder.";
-            return false;
-        }
-        std::ofstream output(destPath, std::ios::binary | std::ios::trunc);
-        if (!output) {
-            xz_dec_end(decoder);
-            error = "Could not write the decompressed server.";
-            return false;
-        }
-        std::vector<std::uint8_t> chunk(static_cast<std::size_t>(1U << 20U));
-        xz_buf stream{};
-        stream.in = compressed.data();
-        stream.in_size = compressed.size();
-        xz_ret result = XZ_OK;
-        while (result == XZ_OK) {
-            const std::size_t inPos = stream.in_pos;
-            stream.out = chunk.data();
-            stream.out_pos = 0;
-            stream.out_size = chunk.size();
-            result = xz_dec_run(decoder, &stream);
-            if (stream.out_pos > 0) {
-                output.write(reinterpret_cast<const char *>(chunk.data()), static_cast<std::streamsize>(stream.out_pos));
-            }
-            if (result == XZ_OK && stream.in_pos == inPos && stream.out_pos == 0) {
-                result = XZ_DATA_ERROR;
-                break;
-            }
-        }
-        xz_dec_end(decoder);
-        output.close();
-        if (result != XZ_STREAM_END || !output) {
-            std::error_code failure;
-            std::filesystem::remove(destPath, failure);
-            error = "The xz archive could not be decompressed.";
-            return false;
-        }
-        return true;
-    }
-
-    namespace {
         std::optional<FridaEndpoint> CacheServerBinary(
             const FridaServerRequest &request,
             const std::filesystem::path &binary,
@@ -167,7 +101,7 @@ namespace CoreDeck::Core {
                 return Failed(FridaStatusCode::HashMismatch, "The downloaded frida-server checksum did not match.");
             }
             std::string decompressError;
-            if (!DecompressXz(archive.string(), binary.string(), decompressError)) {
+            if (!Platform::DecompressXz(archive.string(), binary.string(), decompressError)) {
                 std::filesystem::remove(archive, failure);
                 return Failed(FridaStatusCode::DecompressFailed, decompressError);
             }

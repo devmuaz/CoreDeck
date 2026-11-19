@@ -10,8 +10,8 @@
 #include "core/frida/frida_abi.h"
 #include "core/frida/frida_messages.h"
 #include "core/frida/frida_prelude.h"
-#include "core/frida/frida_server.h"
 #include "core/frida_release.h"
+#include "platform/archive.h"
 
 using namespace CoreDeck::Core;
 
@@ -233,7 +233,7 @@ TEST_CASE("xz archives decompress to the original bytes", "[frida]") {
         output.write(reinterpret_cast<const char *>(archive.data()), static_cast<std::streamsize>(archive.size()));
     }
     std::string error;
-    REQUIRE(DecompressXz(source.string(), dest.string(), error));
+    REQUIRE(CoreDeck::Platform::DecompressXz(source.string(), dest.string(), error));
     std::ifstream input(dest, std::ios::binary);
     const std::string text((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
     REQUIRE(text == "hello\n");

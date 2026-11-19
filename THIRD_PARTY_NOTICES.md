@@ -26,13 +26,17 @@ CoreDeck is MIT licensed. The components below are distributed with it, or used 
 
 [reflect-cpp](https://github.com/getml/reflect-cpp) is Copyright (c) 2023-2025 Code17 GmbH, licensed under the MIT License. See `extern/reflect-cpp/LICENSE`.
 
-## miniz
+## libarchive
 
-[miniz](https://github.com/richgel999/miniz) is Copyright (c) 2013-2014 RAD Game Tools and Valve Software, and Copyright (c) 2010-2014 Rich Geldreich and Tenacious Software LLC, licensed under the MIT License. See `extern/miniz/LICENSE`.
+[libarchive](https://github.com/libarchive/libarchive) 3.8.11 reads `.zip` and `.xz` archives. It is Copyright (c) 2003-2018 Tim Kientzle and contributors and is licensed under the 2-clause BSD license. See `extern/libarchive/COPYING`.
 
-## XZ Embedded
+## zlib
 
-[XZ Embedded](https://github.com/tukaani-project/xz-embedded) is Copyright (C) The XZ Embedded authors and contributors and is distributed under the 0BSD licence. See `extern/xz-embedded/COPYING`.
+[zlib](https://zlib.net/) 1.4 provides the DEFLATE codec used by zip entries and PNG image data. It is Copyright (C) 1995-2026 Jean-loup Gailly and Mark Adler and is licensed under the zlib license. See `extern/zlib/LICENSE`.
+
+## XZ Utils
+
+[XZ Utils](https://github.com/tukaani-project/xz) 5.8.4 provides `liblzma`, the `.xz` codec used by libarchive. `liblzma` is under the BSD Zero Clause License. See `extern/xz/COPYING`. CoreDeck builds `liblzma` only. It does not build the XZ Utils command-line programs.
 
 ## Frida
 

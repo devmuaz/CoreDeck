@@ -65,8 +65,6 @@ namespace CoreDeck::Core {
         std::atomic<const char *> *AssetLabel = nullptr;
     };
 
-    bool DecompressXz(const std::string &sourcePath, const std::string &destPath, std::string &error);
-
     FridaEndpoint StartFridaServer(const FridaServerRequest &request);
 
     FridaStatus StopFridaServer(const FridaServerRequest &request, int localPort);
