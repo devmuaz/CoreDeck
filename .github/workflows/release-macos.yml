@@ -18,7 +18,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.artifact_name }}
+    name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
 

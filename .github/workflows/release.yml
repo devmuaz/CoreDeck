@@ -1,4 +1,4 @@
-name: Release (Windows, Linux, and Mac)
+name: Release
 
 on:
   push:
