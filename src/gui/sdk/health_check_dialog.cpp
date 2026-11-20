@@ -9,7 +9,7 @@
 #include "imgui.h"
 
 #include "gui/sdk/health_check_dialog.h"
-#include "app/app_settings.h"
+#include "app/app_config.h"
 #include "gui/home/install_image_dialog.h"
 #include "gui/sdk/accept_licenses_dialog.h"
 #include "gui/sdk/onboarding_screen.h"
@@ -196,7 +196,7 @@ namespace CoreDeck::Gui {
         context.Dialogs.HealthCheck.Open = true;
         if (context.Host.Sdk.SdkPath.empty()) {
             const auto toolEnv = context.Host.Sdk.ToolEnv;
-            context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppConfig().Environment->SdkPath.value());
             context.Host.Sdk.ToolEnv = toolEnv;
         } else {
             Core::RefreshAndroidSdk(context.Host.Sdk);

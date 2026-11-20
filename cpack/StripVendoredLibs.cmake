@@ -1,0 +1,5 @@
+foreach(_dir bin include lib lib64)
+    if(EXISTS "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
+        file(REMOVE_RECURSE "${CPACK_TEMPORARY_DIRECTORY}/${_dir}")
+    endif()
+endforeach()

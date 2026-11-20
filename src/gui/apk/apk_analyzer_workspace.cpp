@@ -26,7 +26,7 @@
 #include "gui/theme/theme.h"
 #include "gui/widgets/widgets.h"
 
-#include "app/app_settings.h"
+#include "app/app_config.h"
 #include "app/file_dialog.h"
 #include "platform/i18n.h"
 #include "platform/files.h"
@@ -213,13 +213,13 @@ namespace CoreDeck::Gui {
                 return;
             }
             work.RecentLoaded = true;
-            work.RecentApks = App::LoadAppSettings().RecentApks;
+            work.RecentApks = App::LoadAppConfig().History->RecentApks.value();
         }
 
         void SaveRecentApks(const Context &context) {
             const auto &recent = context.Workspaces.ApkAnalyzer.RecentApks;
-            App::UpdateAppSettings([&recent](App::AppSettings &settings) {
-                settings.RecentApks = recent;
+            App::UpdateAppConfig([&recent](App::AppConfig &config) {
+                config.History->RecentApks = recent;
             });
         }
 

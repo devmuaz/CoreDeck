@@ -1,8 +1,7 @@
-configure_file(build_info.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/build_info.cpp @ONLY)
+configure_file(build_info.h.in ${CMAKE_BINARY_DIR}/generated/platform/build_info.h @ONLY)
 
 add_library(coredeck_platform STATIC
     archive.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/build_info.cpp
     desktop.cpp
     files.cpp
     http_download.cpp
@@ -18,9 +17,15 @@ add_library(coredeck_platform STATIC
     strings.cpp
 )
 
-target_include_directories(coredeck_platform PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(coredeck_platform PUBLIC
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_BINARY_DIR}/generated
+)
 target_precompile_headers(coredeck_platform PRIVATE ${CMAKE_SOURCE_DIR}/src/pch.h)
-target_link_libraries(coredeck_platform PUBLIC miniz)
+target_link_libraries(coredeck_platform PUBLIC archive_static zlibstatic)
+if(NOT WIN32)
+    target_link_libraries(coredeck_platform PUBLIC Threads::Threads)
+endif()
 
 if(WIN32)
     target_compile_definitions(coredeck_platform PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)

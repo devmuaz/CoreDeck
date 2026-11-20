@@ -40,7 +40,7 @@ extern "C" id glfwGetCocoaWindow(GLFWwindow *window);
 #endif
 
 #include "gui/shell/application.h"
-#include "app/app_settings.h"
+#include "app/app_config.h"
 #include "gui/theme/theme.h"
 #include "gui/widgets/widgets.h"
 #include "platform/build_info.h"
@@ -53,6 +53,7 @@ extern "C" id glfwGetCocoaWindow(GLFWwindow *window);
 #include "app/app_paths.h"
 #include "app/version_check.h"
 #include "gui/adb/adb_workspace.h"
+#include "gui/frida/frida_workspace.h"
 #include "gui/apk/apk_analyzer_workspace.h"
 #include "gui/apk/apk_signer_workspace.h"
 #include "gui/apk/jar_signer_workspace.h"
@@ -90,17 +91,17 @@ namespace CoreDeck::Gui {
         }
     }
 
-    Application::Application() : m_Context(Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath)) {
+    Application::Application() : m_Context(Core::DetectAndroidSdk(App::LoadAppConfig().Environment->SdkPath.value())) {
         App::EnsureOptionsConfigDirectoryExists();
-        ApplyAppSettingsToContext(m_Context, App::LoadAppSettings());
+        ApplyAppConfigToContext(m_Context, App::LoadAppConfig());
         Platform::SetLocalesDirectory(Platform::JoinPaths({App::GetAssetsDirectory(), "locales"}));
         Platform::SetLanguage(m_Context.Prefs.Language);
 
-        m_Context.Host.Jdk = Core::DetectJdk(App::LoadAppSettings().JdkPath);
+        m_Context.Host.Jdk = Core::DetectJdk(App::LoadAppConfig().Environment->JdkPath.value());
         Core::ApplyJdkToSdk(m_Context.Host.Sdk, m_Context.Host.Jdk);
         m_Context.Host.SyncSdk();
 
-        if (!App::LoadAppSettings().FirstRunComplete || !m_Context.Host.Sdk.IsFound) {
+        if (!App::LoadAppConfig().Preferences->OnboardingInitialized.value() || !m_Context.Host.Sdk.IsFound) {
             m_Context.Shell.CurrentScreen = Screen::Onboarding;
         } else {
             m_Context.Shell.CurrentScreen = Screen::Main;
@@ -162,7 +163,7 @@ namespace CoreDeck::Gui {
 
         if (m_Context.Host.Sdk.SdkPath.empty()) {
             const auto toolEnv = m_Context.Host.Sdk.ToolEnv;
-            m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
+            m_Context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppConfig().Environment->SdkPath.value());
             m_Context.Host.Sdk.ToolEnv = toolEnv;
             m_Context.Host.SyncSdk();
         } else {
@@ -254,6 +255,7 @@ namespace CoreDeck::Gui {
         }
         BuildHealthCheckDialog(m_Context);
         BuildAdbWorkspace(m_Context);
+        BuildFridaWorkspace(m_Context);
         BuildApkAnalyzerWorkspace(m_Context);
         BuildKeytoolWorkspace(m_Context);
         BuildApkSignerWorkspace(m_Context);
@@ -579,48 +581,48 @@ namespace CoreDeck::Gui {
         }
     }
 
-    App::AppSettings CaptureAppSettingsFromContext(const Context &context) {
-        App::AppSettings s = App::LoadAppSettings();
-        s.SchemaVersion = 1;
-        s.AutoScroll = context.Prefs.AutoScroll;
-        s.ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
-        s.CrashReportingEnabled = context.Prefs.CrashReportingEnabled;
-        s.CheckForUpdatesOnLaunch = context.Prefs.CheckForUpdatesOnLaunch;
-        s.IncludeBetaReleases = context.Prefs.IncludeBetaReleases;
-        s.ShowAvdListPanel = context.Shell.AvdListPanel;
-        s.ShowOptionsPanel = context.Shell.OptionsPanel;
-        s.ShowDetailsPanel = context.Shell.DetailsPanel;
-        s.ShowLogPanel = context.Shell.LogPanel;
-        s.AvdSortMode = static_cast<int>(context.Workspaces.Home.Catalog.SortMode);
-        s.AvdSortAscending = context.Workspaces.Home.Catalog.SortAscending;
-        s.Theme = static_cast<int>(context.Prefs.Theme);
-        s.Language = context.Prefs.Language;
-        return s;
+    App::AppConfig CaptureAppConfigFromContext(const Context &context) {
+        App::AppConfig config = App::LoadAppConfig();
+        config.SchemaVersion = App::CONFIG_SCHEMA_VERSION;
+        config.Preferences->AutoScroll = context.Prefs.AutoScroll;
+        config.Preferences->ConfirmBeforeDeleteAvd = context.Prefs.ConfirmBeforeDeleteAvd;
+        config.Preferences->CrashReportingEnabled = context.Prefs.CrashReportingEnabled;
+        config.Preferences->CheckForUpdatesOnLaunch = context.Prefs.CheckForUpdatesOnLaunch;
+        config.Preferences->IncludeBetaReleases = context.Prefs.IncludeBetaReleases;
+        config.Preferences->Theme = static_cast<int>(context.Prefs.Theme);
+        config.Preferences->Language = context.Prefs.Language;
+        config.Ui->Panels->ShowAvdList = context.Shell.AvdListPanel;
+        config.Ui->Panels->ShowOptions = context.Shell.OptionsPanel;
+        config.Ui->Panels->ShowDetails = context.Shell.DetailsPanel;
+        config.Ui->Panels->ShowLog = context.Shell.LogPanel;
+        config.Ui->Avd->SortMode = static_cast<int>(context.Workspaces.Home.Catalog.SortMode);
+        config.Ui->Avd->SortAscending = context.Workspaces.Home.Catalog.SortAscending;
+        return config;
     }
 
-    void ApplyAppSettingsToContext(Context &context, const App::AppSettings &settings) {
-        context.Prefs.AutoScroll = settings.AutoScroll;
-        context.Prefs.ConfirmBeforeDeleteAvd = settings.ConfirmBeforeDeleteAvd;
-        context.Prefs.CrashReportingEnabled = settings.CrashReportingEnabled;
-        context.Prefs.CheckForUpdatesOnLaunch = settings.CheckForUpdatesOnLaunch;
-        context.Prefs.IncludeBetaReleases = settings.IncludeBetaReleases;
-        context.Shell.AvdListPanel = settings.ShowAvdListPanel;
-        context.Shell.OptionsPanel = settings.ShowOptionsPanel;
-        context.Shell.DetailsPanel = settings.ShowDetailsPanel;
-        context.Shell.LogPanel = settings.ShowLogPanel;
+    void ApplyAppConfigToContext(Context &context, const App::AppConfig &config) {
+        context.Prefs.AutoScroll = config.Preferences->AutoScroll.value();
+        context.Prefs.ConfirmBeforeDeleteAvd = config.Preferences->ConfirmBeforeDeleteAvd.value();
+        context.Prefs.CrashReportingEnabled = config.Preferences->CrashReportingEnabled.value();
+        context.Prefs.CheckForUpdatesOnLaunch = config.Preferences->CheckForUpdatesOnLaunch.value();
+        context.Prefs.IncludeBetaReleases = config.Preferences->IncludeBetaReleases.value();
+        context.Shell.AvdListPanel = config.Ui->Panels->ShowAvdList.value();
+        context.Shell.OptionsPanel = config.Ui->Panels->ShowOptions.value();
+        context.Shell.DetailsPanel = config.Ui->Panels->ShowDetails.value();
+        context.Shell.LogPanel = config.Ui->Panels->ShowLog.value();
 
-        if (const int sortMode = settings.AvdSortMode; sortMode >= 0 && sortMode <= 2) {
+        if (const int sortMode = config.Ui->Avd->SortMode.value(); sortMode >= 0 && sortMode <= 2) {
             context.Workspaces.Home.Catalog.SortMode = static_cast<AvdSortMode>(sortMode);
         }
-        context.Workspaces.Home.Catalog.SortAscending = settings.AvdSortAscending;
+        context.Workspaces.Home.Catalog.SortAscending = config.Ui->Avd->SortAscending.value();
 
-        const int theme = settings.Theme;
+        const int theme = config.Preferences->Theme.value();
         const auto preference = theme >= static_cast<int>(App::ThemePreference::System) &&
                                         theme <= static_cast<int>(App::ThemePreference::Light)
                                     ? static_cast<App::ThemePreference>(theme)
                                     : App::ThemePreference::System;
         context.Prefs.Theme = preference;
-        context.Prefs.Language = settings.Language;
+        context.Prefs.Language = config.Preferences->Language.value();
         SetThemePreference(preference);
     }
 
@@ -653,8 +655,8 @@ namespace CoreDeck::Gui {
 #endif
     }
 
-    void PersistAppSettings(const Context &context) {
-        App::SaveAppSettings(CaptureAppSettingsFromContext(context));
+    void PersistAppConfig(const Context &context) {
+        App::SaveAppConfig(CaptureAppConfigFromContext(context));
     }
 
     namespace {

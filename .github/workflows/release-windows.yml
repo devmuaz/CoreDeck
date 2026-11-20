@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: coredeck-windows-x86-64
+    name: windows-latest
     runs-on: windows-latest
     timeout-minutes: 45
 

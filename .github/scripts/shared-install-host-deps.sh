@@ -9,6 +9,8 @@ case "${RUNNER_OS}" in
     sudo apt-get install -y --no-install-recommends \
       build-essential \
       gettext \
+      pkg-config \
+      libgtk-3-dev \
       libcurl4-openssl-dev \
       libgl1-mesa-dev \
       libx11-dev \

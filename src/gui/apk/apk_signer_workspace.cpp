@@ -609,9 +609,9 @@ namespace CoreDeck::Gui {
 
         void ApkSignerOptions(ApkSignerState &work, const float spacing, const float avail) {
             const ImGuiStyle &style = ImGui::GetStyle();
-            const char *alignTitle = Platform::Tr("Align before signing");
+            const char *alignTitle = Platform::Tr("Align Before Signing");
             const char *alignSubtitle = Platform::Tr("Zip-align the APK before the signature is written.");
-            const char *matchTitle = Platform::Tr("Key password matches keystore password");
+            const char *matchTitle = Platform::Tr("Key Password Matches Keystore Password");
             const char *matchSubtitle = Platform::Tr("Turn this off if the key entry has a different password.");
             const float box = 28.0F;
             const auto blockWidth = [&](const char *title, const char *subtitle) {

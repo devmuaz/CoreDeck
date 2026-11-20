@@ -6,7 +6,7 @@ Feature background: [issue #28](https://github.com/devmuaz/CoreDeck/issues/28).
 ## The pipeline
 
 `BootstrapAndroidSdk` (`src/core/sdk/sdk_bootstrap.cpp`) downloads Google's official
-command-line tools, verifies the SHA-256, extracts with miniz, accepts the SDK
+command-line tools, verifies the SHA-256, extracts the zip with libarchive, accepts the SDK
 licenses, then installs `platform-tools`, `emulator`, and `build-tools;37.0.0` via `sdkmanager`.
 `build-tools` is pinned because sdkmanager will not install that package without a revision.
 apkanalyzer needs `aapt2` from it. APK Signer needs `apksigner` and `zipalign`.
@@ -21,9 +21,10 @@ remembered via `Paths::Onboarding::SaveSdkPathOverride`.
 
 ## The pin, and why it goes stale rather than breaking
 
-`GetBundledCmdlineToolsRelease()` returns a hardcoded URL, SHA-256, and size per platform
-(currently build `15859902`). It's pinned so a tampered or truncated download is rejected —
-you can't verify a download whose hash you learned from the same server.
+`GetBundledCmdlineToolsRelease()` returns the URL, SHA-256, and size from
+`pins/cmdline-tools.json` (currently build `15859902`). It's pinned so a tampered
+or truncated download is rejected — you can't verify a download whose hash you learned
+from the same server. `tools/update_cmdline_tools_pins.py` rewrites that file.
 
 The cost: bumping it needs a code change and a release.
 

@@ -36,6 +36,13 @@ namespace CoreDeck::Core {
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(25));
             }
+            for (;;) {
+                const Platform::PipeReadResult read = Platform::ReadProcessPipe(fd, buffer.data(), buffer.size());
+                if (read.Status != Platform::PipeReadStatus::Data) {
+                    break;
+                }
+                decoder.Push(buffer.data(), read.Size, onLine);
+            }
             decoder.Flush(onLine);
         }
 

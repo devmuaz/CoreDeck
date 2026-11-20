@@ -1,11 +1,10 @@
-#include "app/app_settings.h"
-#include "app/app_settings_types.h"
+#include "app/app_config.h"
 #include "app/crash_reporter.h"
 #include "gui/shell/application.h"
 
 int main() {
-    const CoreDeck::App::AppSettings settings = CoreDeck::App::LoadAppSettings();
-    const bool isCrashReportingEnabled = settings.CrashReportingEnabled;
+    const CoreDeck::App::AppConfig config = CoreDeck::App::LoadAppConfig();
+    const bool isCrashReportingEnabled = config.Preferences->CrashReportingEnabled.value();
 
     CoreDeck::App::CrashReporter::Init(isCrashReportingEnabled);
     CoreDeck::Gui::Application app;

@@ -66,11 +66,13 @@ are not in the current fonts, and the layout stays left to right.
 After strings change, from the repository root:
 
 ```
-tools/update_translations.sh
+python3 tools/update_translations.py
 ```
 
 The script needs GNU gettext (`xgettext` and `msgmerge`). On macOS, Homebrew
-installs them with `brew install gettext`. It rewrites `locales/coredeck.pot`
+installs them with `brew install gettext`. On Linux, use `apt install gettext`.
+On Windows, install the gettext tools and put them on `PATH`, or set
+`COREDECK_GETTEXT_TOOLS` to their `bin` directory. It rewrites `locales/coredeck.pot`
 from `Tr`, `TrNoop`, `TrFormat`, and the other helpers in `src`, sets `charset=UTF-8` in
 the template header, and merges that template into every `locales/*.po` file.
 New strings arrive with an empty `msgstr`. A slightly changed English sentence

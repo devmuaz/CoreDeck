@@ -19,7 +19,7 @@
 #include "gui/theme/theme.h"
 #include "gui/widgets/widgets.h"
 
-#include "app/app_settings.h"
+#include "app/app_config.h"
 #include "platform/build_info.h"
 #include "platform/i18n.h"
 #include "platform/desktop.h"
@@ -371,7 +371,7 @@ namespace CoreDeck::Gui {
                 return;
             }
             wizard.JdkScan = std::async(std::launch::async, [] {
-                return Core::ListInstalledJdks(App::LoadAppSettings().JdkPath);
+                return Core::ListInstalledJdks(App::LoadAppConfig().Environment->JdkPath.value());
             });
         }
 
@@ -392,7 +392,7 @@ namespace CoreDeck::Gui {
         }
 
         void UseInstalledJdk(Context &context, const Core::JdkInfo &jdk) {
-            App::UpdateAppSettings([&](App::AppSettings &settings) { settings.JdkPath = jdk.JavaHome; });
+            App::UpdateAppConfig([&](App::AppConfig &config) { config.Environment->JdkPath = jdk.JavaHome; });
             context.Host.Jdk = jdk;
             context.Host.Jdk.Source = Core::JdkSource::Override;
             Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
@@ -445,11 +445,11 @@ namespace CoreDeck::Gui {
         }
 
         void CommitSdkPath(Context &context, const std::string &sdkPath) {
-            App::UpdateAppSettings([&](App::AppSettings &settings) { settings.SdkPath = sdkPath; });
-            App::UpdateAppSettings([](App::AppSettings &settings) { settings.FirstRunComplete = true; });
+            App::UpdateAppConfig([&](App::AppConfig &config) { config.Environment->SdkPath = sdkPath; });
+            App::UpdateAppConfig([](App::AppConfig &config) { config.Preferences->OnboardingInitialized = true; });
 
-            context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppSettings().SdkPath);
-            context.Host.Jdk = Core::DetectJdk(App::LoadAppSettings().JdkPath);
+            context.Host.Sdk = Core::DetectAndroidSdk(App::LoadAppConfig().Environment->SdkPath.value());
+            context.Host.Jdk = Core::DetectJdk(App::LoadAppConfig().Environment->JdkPath.value());
             Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);
             context.Host.SyncSdk();
 
@@ -855,7 +855,7 @@ namespace CoreDeck::Gui {
             ImGui::SameLine();
             ImGui::SetCursorPosX(rowStart + innerWidth - useWidth);
             if (PositiveButton(Platform::Tr("Use this JDK"), candidate.IsValid, ImVec2(useWidth, 0))) {
-                App::UpdateAppSettings([&](App::AppSettings &settings) { settings.JdkPath = javaHome; });
+                App::UpdateAppConfig([&](App::AppConfig &config) { config.Environment->JdkPath = javaHome; });
                 context.Host.Jdk = candidate;
                 context.Host.Jdk.Source = Core::JdkSource::Override;
                 Core::ApplyJdkToSdk(context.Host.Sdk, context.Host.Jdk);

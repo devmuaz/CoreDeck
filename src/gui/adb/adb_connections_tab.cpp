@@ -220,17 +220,7 @@ namespace CoreDeck::Gui::Adb {
             }
         }
 
-    }
-
-    void BuildAdbConnectionsTab(Context &context, const Core::AdbDeviceSnapshot &snapshot) {
-        auto &workspace = context.Workspaces.Adb;
-        auto &session = SelectedSession(workspace);
-        const Core::AdbDevice *device = SelectedDevice(snapshot, workspace.SelectedSerial);
-        const bool usable = DeviceUsable(device);
-        const float portHeight = std::max(Eh(12.0F), ImGui::GetContentRegionAvail().y);
-        DetailCard("##PortMapping", portHeight, [&] {
-            PortRoutesHeading(context, session, usable);
-            PortRouteForm(context, session, usable);
+        void PortRouteList(Context &context, AdbDeviceSession &session) {
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::Spacing();
@@ -265,6 +255,19 @@ namespace CoreDeck::Gui::Adb {
                 }
             }
             ImGui::EndChild();
+        }
+    }
+
+    void BuildAdbConnectionsTab(Context &context, const Core::AdbDeviceSnapshot &snapshot) {
+        auto &workspace = context.Workspaces.Adb;
+        auto &session = SelectedSession(workspace);
+        const Core::AdbDevice *device = SelectedDevice(snapshot, workspace.SelectedSerial);
+        const bool usable = DeviceUsable(device);
+        const float portHeight = std::max(Eh(12.0F), ImGui::GetContentRegionAvail().y);
+        DetailCard("##PortMapping", portHeight, [&] {
+            PortRoutesHeading(context, session, usable);
+            PortRouteForm(context, session, usable);
+            PortRouteList(context, session);
         });
     }
 }

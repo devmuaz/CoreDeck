@@ -283,10 +283,11 @@ namespace CoreDeck::Gui {
         ImGui::EndDisabled();
     }
 
-    void SearchField(const char *id, const char *hint, char *buffer, const std::size_t bufferSize) {
-        ImGui::SetNextItemWidth(-1.0F);
+    void SearchField(const char *id, const char *hint, char *buffer, const std::size_t bufferSize, const float width) {
+        ImGui::SetNextItemWidth(width);
         const std::string searchHint = IconWithLabel(Icons::SEARCH, hint);
         ImGui::InputTextWithHint(id, searchHint.c_str(), buffer, bufferSize);
+        HoverTooltip(hint);
     }
 
     std::string PathPicker(
@@ -310,9 +311,15 @@ namespace CoreDeck::Gui {
         ImGui::SetNextItemWidth(std::max(1.0F, totalWidth - browseWidth - spacing));
         ImGui::InputTextWithHint(id, hint, buffer, bufferSize);
         ImGui::SameLine();
-        if (PrimaryButton(browseLabel.c_str(), true, ImVec2(browseWidth, 0))) {
-            if (const auto picked = App::FileDialog::PickDirectory(dialogTitle, buffer)) {
+        const bool interactive = (ImGui::GetCurrentContext()->CurrentItemFlags & ImGuiItemFlags_Disabled) == 0;
+        if (PrimaryButton(browseLabel.c_str(), interactive, ImVec2(browseWidth, 0)) && interactive) {
+            if (const auto picked = App::FileDialog::PickDirectory(dialogTitle != nullptr ? dialogTitle : "", buffer)) {
                 CopyToBuffer(buffer, bufferSize, *picked);
+                ImGuiContext &context = *ImGui::GetCurrentContext();
+                if (context.InputTextState.ID != 0) {
+                    context.InputTextState.WantReloadUserBuf = true;
+                }
+                context.InputTextDeactivatedState.ID = 0;
             }
         }
         return buffer;
@@ -337,7 +344,7 @@ namespace CoreDeck::Gui {
         const ImVec2 size(boxSize + style.ItemInnerSpacing.x + textW, rowH);
         const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
 
-        ImGui::ItemSize(size, 0.0F);
+        ImGui::ItemSize(size, -1.0F);
         if (!ImGui::ItemAdd(bb, itemId)) {
             return false;
         }

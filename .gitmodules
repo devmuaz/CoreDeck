@@ -8,15 +8,21 @@
 [submodule "extern/reflect-cpp"]
 	path = extern/reflect-cpp
 	url = https://github.com/getml/reflect-cpp.git
-[submodule "extern/tinyfiledialogs"]
-	path = extern/tinyfiledialogs
-	url = https://github.com/native-toolkit/libtinyfiledialogs.git
+[submodule "extern/nativefiledialog-extended"]
+	path = extern/nativefiledialog-extended
+	url = https://github.com/btzy/nativefiledialog-extended.git
 [submodule "extern/catch2"]
 	path = extern/catch2
 	url = https://github.com/catchorg/Catch2.git
 [submodule "extern/sentry-native"]
 	path = extern/sentry-native
 	url = https://github.com/getsentry/sentry-native.git
-[submodule "extern/miniz"]
-	path = extern/miniz
-	url = https://github.com/richgel999/miniz.git
+[submodule "extern/libarchive"]
+	path = extern/libarchive
+	url = https://github.com/libarchive/libarchive.git
+[submodule "extern/zlib"]
+	path = extern/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "extern/xz"]
+	path = extern/xz
+	url = https://github.com/tukaani-project/xz.git

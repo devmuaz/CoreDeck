@@ -34,7 +34,7 @@ namespace CoreDeck::Gui {
                 SetThemePreference(preference);
                 RefreshThemeColors();
                 ApplyWindowChrome(context.Shell.MainWindow);
-                PersistAppSettings(context);
+                PersistAppConfig(context);
             }
         }
 
@@ -94,7 +94,7 @@ namespace CoreDeck::Gui {
                 )) {
                 context.Prefs.Language = tags.at(static_cast<std::size_t>(selectedIndex));
                 Platform::SetLanguage(context.Prefs.Language);
-                PersistAppSettings(context);
+                PersistAppConfig(context);
             }
         }
     }
@@ -117,10 +117,10 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "AutoScrollLogs",
                 &context.Prefs.AutoScroll,
-                Platform::Tr("Enable auto-scrolling of output logs"),
+                Platform::Tr("Enable Auto-Scrolling"),
                 Platform::Tr("Keep the log view pinned to the most recent line as new output arrives.")
             )) {
-            PersistAppSettings(context);
+            PersistAppConfig(context);
         }
 
         ImGui::Dummy(ImVec2(0, 4));
@@ -128,10 +128,10 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "ConfirmDeleteAvd",
                 &context.Prefs.ConfirmBeforeDeleteAvd,
-                Platform::Tr("Confirm before deleting an AVD"),
+                Platform::Tr("Confirm Before Deleting an AVD"),
                 Platform::Tr("Show a confirmation dialog when you delete a virtual device.")
             )) {
-            PersistAppSettings(context);
+            PersistAppConfig(context);
         }
 
         ImGui::Dummy(ImVec2(0, 4));
@@ -139,10 +139,10 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "CrashReporting",
                 &context.Prefs.CrashReportingEnabled,
-                Platform::Tr("Send crash reports and diagnostics to CoreDeck"),
+                Platform::Tr("Opt-In to Crash Reporting"),
                 Platform::Tr("Share anonymous crash reports and error diagnostics (Restart Required).")
             )) {
-            PersistAppSettings(context);
+            PersistAppConfig(context);
         }
 
         ImGui::Dummy(ImVec2(0, 4));
@@ -150,10 +150,10 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "CheckForUpdatesOnLaunch",
                 &context.Prefs.CheckForUpdatesOnLaunch,
-                Platform::Tr("Check for updates on launch"),
+                Platform::Tr("Check for Updates on Launch"),
                 Platform::Tr("Look for a new CoreDeck release when the app starts.")
             )) {
-            PersistAppSettings(context);
+            PersistAppConfig(context);
         }
 
         ImGui::Dummy(ImVec2(0, 4));
@@ -161,10 +161,10 @@ namespace CoreDeck::Gui {
         if (SubtitledCheckbox(
                 "IncludeBetaReleases",
                 &context.Prefs.IncludeBetaReleases,
-                Platform::Tr("Include beta releases"),
+                Platform::Tr("Include Beta Releases"),
                 Platform::Tr("Also look for newer beta releases when checking for updates.")
             )) {
-            PersistAppSettings(context);
+            PersistAppConfig(context);
         }
     }
 }

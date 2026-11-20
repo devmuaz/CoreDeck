@@ -173,7 +173,7 @@ namespace CoreDeck::Gui {
         const char *sortDirTooltip = context.Workspaces.Home.Catalog.SortAscending ? Platform::Tr("Ascending") : Platform::Tr("Descending");
         if (PrimaryButton(sortDirIcon)) {
             context.Workspaces.Home.Catalog.SortAscending = !context.Workspaces.Home.Catalog.SortAscending;
-            PersistAppSettings(context);
+            PersistAppConfig(context);
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", sortDirTooltip);
@@ -185,7 +185,7 @@ namespace CoreDeck::Gui {
         const char *const sortModeLabels[] = {Platform::Tr("Name"), Platform::Tr("API Level"), Platform::Tr("Device")};
         if (RoundedCombo("##AvdSort", sortModeLabels[currentSortIdx], sortModeLabels, SORT_MODE_COUNT, currentSortIdx, Em(17.0F))) {
             context.Workspaces.Home.Catalog.SortMode = static_cast<AvdSortMode>(currentSortIdx);
-            PersistAppSettings(context);
+            PersistAppConfig(context);
         }
 
         ImGui::SameLine();

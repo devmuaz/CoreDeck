@@ -34,9 +34,9 @@ namespace CoreDeck::Gui::Adb {
             auto &session = SelectedSession(context.Workspaces.Adb);
             SectionHeading(Platform::Tr("Install APK"));
             const CheckboxRowItem options[] = {
-                {.Id = "##ReplaceExisting", .Value = &session.InstallReplace, .Label = Platform::Tr("Replace existing")},
-                {.Id = "##AllowDowngrade", .Value = &session.InstallDowngrade, .Label = Platform::Tr("Allow downgrade")},
-                {.Id = "##GrantPermissions", .Value = &session.InstallGrantPermissions, .Label = Platform::Tr("Grant runtime permissions")},
+                {.Id = "##ReplaceExisting", .Value = &session.InstallReplace, .Label = Platform::Tr("Replace Existing")},
+                {.Id = "##AllowDowngrade", .Value = &session.InstallDowngrade, .Label = Platform::Tr("Allow Downgrade")},
+                {.Id = "##GrantPermissions", .Value = &session.InstallGrantPermissions, .Label = Platform::Tr("Grant Runtime Permissions")},
             };
             const float spacing = ImGui::GetStyle().ItemSpacing.x;
             const float installW = ActionWidth(Platform::Tr("Install"));
@@ -181,54 +181,65 @@ namespace CoreDeck::Gui::Adb {
             if (NegativeButton(Platform::Tr("Uninstall"), usable && !session.Busy.load() && session.PackageName[0] != '\0', ImVec2(uninstallW, 0.0F))) {
                 session.ShowUninstallDialog = true;
             }
-            SubtitledCheckbox("##KeepAppData", &session.UninstallKeepData, Platform::Tr("Keep app data"));
+            SubtitledCheckbox("##KeepAppData", &session.UninstallKeepData, Platform::Tr("Keep App Data"));
+        }
+
+        void PackageActions(Context &context, const Core::AdbDevice *device) {
+            const bool usable = DeviceUsable(device);
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const float column = PairWidth();
+            FittedCardPair(
+                "##InstallApk",
+                [&] { InstallBody(context, usable); },
+                "##UninstallPackage",
+                [&] { UninstallBody(context, usable); },
+                column,
+                spacing
+            );
+        }
+
+        void FileTransfers(Context &context, const Core::AdbDevice *device) {
+            const bool usable = DeviceUsable(device);
+            const float spacing = ImGui::GetStyle().ItemSpacing.x;
+            const char *browseLabel = Platform::Tr("Browse...");
+            const float transferButtonW = std::max(
+                Em(12.0F),
+                ImGui::CalcTextSize(browseLabel).x + (ImGui::GetStyle().FramePadding.x * 2.0F)
+            );
+            const float transferColumn = PairWidth();
+            FittedCardPair(
+                "##PushFile",
+                [&] { PushBody(context, usable, browseLabel, transferButtonW); },
+                "##PullFile",
+                [&] { PullBody(context, usable, browseLabel, transferButtonW); },
+                transferColumn,
+                spacing
+            );
+        }
+
+        void PackageOutput(Context &context) {
+            auto &session = SelectedSession(context.Workspaces.Adb);
+            const std::string empty = PackageEmptyText(session);
+            LogViewer(
+                "AdbPackageOutput",
+                session.PackageOutput,
+                session.HasPackageOutput,
+                session.PackageView,
+                {
+                    .EmptyText = empty.c_str(),
+                    .AutoScroll = false,
+                    .MinBodyHeight = Eh(6.0F),
+                }
+            );
         }
     }
 
     void BuildAdbPackagesFilesTab(Context &context, const Core::AdbDevice *device) {
-        auto &session = SelectedSession(context.Workspaces.Adb);
-        const bool usable = DeviceUsable(device);
-        const float spacing = ImGui::GetStyle().ItemSpacing.x;
-        const float column = PairWidth();
-        FittedCardPair(
-            "##InstallApk",
-            [&] { InstallBody(context, usable); },
-            "##UninstallPackage",
-            [&] { UninstallBody(context, usable); },
-            column,
-            spacing
-        );
+        PackageActions(context, device);
         ImGui::Spacing();
-
-        const char *browseLabel = Platform::Tr("Browse...");
-        const float transferButtonW = std::max(
-            Em(12.0F),
-            ImGui::CalcTextSize(browseLabel).x + (ImGui::GetStyle().FramePadding.x * 2.0F)
-        );
-        const float transferColumn = PairWidth();
-        FittedCardPair(
-            "##PushFile",
-            [&] { PushBody(context, usable, browseLabel, transferButtonW); },
-            "##PullFile",
-            [&] { PullBody(context, usable, browseLabel, transferButtonW); },
-            transferColumn,
-            spacing
-        );
-
+        FileTransfers(context, device);
         ImGui::Spacing();
-
-        const std::string empty = PackageEmptyText(session);
-        LogViewer(
-            "AdbPackageOutput",
-            session.PackageOutput,
-            session.HasPackageOutput,
-            session.PackageView,
-            {
-                .EmptyText = empty.c_str(),
-                .AutoScroll = false,
-                .MinBodyHeight = Eh(6.0F),
-            }
-        );
+        PackageOutput(context);
     }
 
     void BuildUninstallPackageDialog(Context &context) {
