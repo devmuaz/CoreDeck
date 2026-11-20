@@ -34,6 +34,7 @@
 - **Storage Overview** — Inspect per-AVD disk usage and clear heavy or unused data
 - **Health Check** — Reviews the SDK, emulator, platform-tools, build-tools, command-line tools, JDK, licenses, system images, and free disk space, and offers a fix for each problem
 - **ADB** — Tracks connected devices and provides isolated logcat, one-shot shell commands, APK installation, file transfers, wireless connections, and port forwarding through the official `adb`
+- **Frida** — Inspects a running Android process from Analysis. Start or join `frida-server` on a USB, Wi-Fi, or emulator device, attach or spawn a package, and use the session, script, hooks, Java, modules, and memory tools
 - **APK Analyzer** — Opens an APK with the official `apkanalyzer` and shows package info, download size, compression, and alignment
 - **APK Signer** — Verifies an APK and signs a new copy with the official `apksigner` and `zipalign`. The original APK is left unchanged, and the report shows which of the v1, v2, v3, v3.1, and v4 schemes verified
 - **Java Keytool** — Creates and inspects keystores with the JDK's `keytool`. Templates fill the Flutter upload, Android release, and Android debug recipes, and a private-key entry can be opened in APK Signer or Java Jar Signer

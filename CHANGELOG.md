@@ -1,3 +1,11 @@
+## [v0.17.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.1) — 2026-11-20
+
+- Add Frida (Analysis, Frida) so a running Android process can be inspected on a USB, Wi-Fi, or emulator device, without a separate Frida setup. Start downloads the matching `frida-server` on first use, and Use Existing joins a server that is already running. CoreDeck can resume a server it left running. Attach to a process, or spawn a package and resume it, then use Session, Script, Hooks, Java, Modules, and Memory. Settings keeps the script runtime, snippet or module mode, the existing server port, and the server, project, and scripts paths
+- Add a Devices menu that lists USB devices, then Wi-Fi devices, then emulators, using the same names as the device list in Android Debug Bridge and Frida. An online device shows the same green status dot as that list. Choosing a device selects it for the open Android Debug Bridge or Frida workspace
+- Browse the packages installed on a device when uninstalling, and filter the list, instead of typing the package name
+- File pickers use the system open and save dialogs. Choosing a folder returns that folder
+- On Linux, look in `share/coredeck/assets` when the assets are not beside the binary
+
 ## [v0.16.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.16.0) — 2026-11-08
 
 - Replace the application icon on macOS, Windows, and Linux
