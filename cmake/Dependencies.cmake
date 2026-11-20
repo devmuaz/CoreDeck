@@ -184,6 +184,18 @@ if(COREDECK_SENTRY_ENABLED)
     set(SENTRY_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(SENTRY_BACKEND "crashpad" CACHE STRING "" FORCE)
     coredeck_add_extern(${CMAKE_SOURCE_DIR}/extern/sentry-native ${CMAKE_BINARY_DIR}/extern/sentry-native)
+    # Non-MSVC crashpad links its exported interface library crashpad_zlib to
+    # ZLIB::ZLIB. That alias is the in-tree zlibstatic, which is not installed,
+    # so install(EXPORT crashpad_export) rejects the dependency. Keep the build
+    # link and omit it from the exported interface.
+    if(TARGET crashpad_zlib)
+        get_target_property(_coredeck_crashpad_zlib_type crashpad_zlib TYPE)
+        if(_coredeck_crashpad_zlib_type STREQUAL "INTERFACE_LIBRARY")
+            set_property(TARGET crashpad_zlib PROPERTY INTERFACE_LINK_LIBRARIES
+                "$<BUILD_INTERFACE:zlibstatic>")
+        endif()
+        unset(_coredeck_crashpad_zlib_type)
+    endif()
     message(STATUS "Sentry: Enabled (Release only)")
 elseif(COREDECK_SENTRY_DSN)
     message(STATUS "Sentry: Disabled (non-Release build)")
