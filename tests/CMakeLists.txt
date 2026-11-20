@@ -68,6 +68,7 @@ include(Catch)
 catch_discover_tests(coredeck_tests)
 
 add_executable(coredeck_frida_smoke frida_smoke.cpp)
+target_include_directories(coredeck_frida_smoke SYSTEM PRIVATE "${COREDECK_FRIDA_DEVKIT_INCLUDE}")
 target_link_libraries(coredeck_frida_smoke PRIVATE coredeck_frida)
 coredeck_frida_finalize(coredeck_frida_smoke)
 add_test(NAME frida_smoke COMMAND coredeck_frida_smoke)

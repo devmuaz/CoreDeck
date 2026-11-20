@@ -1,15 +1,15 @@
 #include <cstdlib>
 #include <iostream>
-#include <string>
 
-#include "core/frida/frida_host.h"
+#include <frida-core.h>
 
 int main() {
-    CoreDeck::Core::FridaHost host;
-    std::string error;
-    const bool ok = host.Probe(error);
+    frida_init();
+    const char *version = frida_version_string();
+    const bool ok = version != nullptr && version[0] != '\0';
     if (!ok) {
-        std::cerr << error << '\n';
+        std::cerr << "Frida did not report a version.\n";
     }
+    frida_deinit();
     std::_Exit(ok ? 0 : 1);
 }
