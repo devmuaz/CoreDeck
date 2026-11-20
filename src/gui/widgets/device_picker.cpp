@@ -12,23 +12,23 @@
 #include "platform/i18n.h"
 
 namespace CoreDeck::Gui {
+    std::string DeviceLabel(const Core::AdbDevice &device) {
+        std::string title = device.Serial;
+        if (!device.AvdName.empty()) {
+            title = device.AvdName;
+        } else if (!device.Model.empty()) {
+            title = device.Model;
+            std::ranges::replace(title, '_', ' ');
+        }
+        if (title == device.Serial) {
+            return title;
+        }
+        return title + " (" + device.Serial + ")";
+    }
+
     namespace {
         bool DeviceReady(const Core::AdbDevice &device) {
             return device.State == Core::AdbDeviceState::Device || device.State == Core::AdbDeviceState::Recovery;
-        }
-
-        std::string DeviceOptionLabel(const Core::AdbDevice &device) {
-            std::string title = device.Serial;
-            if (!device.AvdName.empty()) {
-                title = device.AvdName;
-            } else if (!device.Model.empty()) {
-                title = device.Model;
-                std::ranges::replace(title, '_', ' ');
-            }
-            if (title == device.Serial) {
-                return title;
-            }
-            return title + " (" + device.Serial + ")";
         }
     }
 
@@ -60,7 +60,7 @@ namespace CoreDeck::Gui {
             options.reserve(snapshot.Devices.size());
             dots.reserve(snapshot.Devices.size());
             for (const Core::AdbDevice &device: snapshot.Devices) {
-                options.push_back(DeviceOptionLabel(device));
+                options.push_back(DeviceLabel(device));
                 dots.push_back(HexColor(DeviceReady(device) ? Colors::POSITIVE : Colors::NEGATIVE));
             }
             labels.reserve(options.size());

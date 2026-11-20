@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "gui/shell/main_menu_bar.h"
+#include "gui/shell/devices_menu.h"
 #include "gui/adb/adb_workspace.h"
 #include "gui/frida/frida_workspace.h"
 #include "gui/apk/apk_analyzer_workspace.h"
@@ -158,6 +159,8 @@ namespace CoreDeck::Gui {
                 }
                 ImGui::EndMenu();
             }
+
+            BuildDevicesMenu(context);
 
             if (RoundedBeginMenu(Platform::Tr("Help"))) {
                 if (RoundedMenuItem(IconWithLabel(Icons::INFO, Platform::Tr("About CoreDeck")).c_str())) {

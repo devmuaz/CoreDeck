@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-11-18 21:31+0300\n"
+"POT-Creation-Date: 2026-11-20 22:24+0300\n"
 "PO-Revision-Date: 2026-09-29 09:20+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: German\n"
@@ -114,6 +114,7 @@ msgstr "Emuliert"
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/avd/emulator_options.cpp:95
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/avd_details_panel.cpp:216
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/preferences/preferences_java_section.cpp:271
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/devices_menu.cpp:150
 msgid "None"
 msgstr "Keine"
 
@@ -1461,6 +1462,7 @@ msgid "Switches the USB device selected in the list to Wi-Fi."
 msgstr "Schaltet das in der Liste ausgewählte USB-Gerät auf WLAN um."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/adb/adb_devices_dialog.cpp:315
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/devices_menu.cpp:177
 msgid "Devices"
 msgstr "Geräte"
 
@@ -1675,7 +1677,7 @@ msgstr "APK-Datei auswählen..."
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/jar_signer_workspace.cpp:531
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/keytool_workspace.cpp:964
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/sdk/onboarding_screen.cpp:338
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets/form.cpp:302
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets/form.cpp:306
 msgid "Browse..."
 msgstr "Durchsuchen..."
 
@@ -1927,7 +1929,7 @@ msgid "Connections"
 msgstr "Verbindungen"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/adb/adb_workspace.cpp:96
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:135
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:136
 msgid "Android Debug Bridge (ADB)"
 msgstr "Android Debug Bridge (ADB)"
 
@@ -2029,7 +2031,7 @@ msgid "Debuggable: {0}"
 msgstr "Debuggbar: {0}"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/apk_analyzer_workspace.cpp:828
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:96
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:97
 msgid "File"
 msgstr "Datei"
 
@@ -2162,7 +2164,7 @@ msgid "The comparison could not be read."
 msgstr "Der Vergleich konnte nicht gelesen werden."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/apk_analyzer_workspace.cpp:1191
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:132
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:133
 msgid "APK Analyzer"
 msgstr "APK-Analysator"
 
@@ -2475,7 +2477,7 @@ msgid "Install build-tools..."
 msgstr "build-tools installieren..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/apk_signer_workspace.cpp:907
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:138
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:139
 msgid "APK Signer"
 msgstr "APK-Signierer"
 
@@ -2603,7 +2605,7 @@ msgid "Choose a JDK..."
 msgstr "JDK auswählen..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/jar_signer_workspace.cpp:750
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:145
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:146
 msgid "Java Jar Signer"
 msgstr "Java-Jar-Signer"
 
@@ -2974,7 +2976,8 @@ msgstr "Angehängt."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/frida/frida_controller.cpp:211
 msgid "Spawned and suspended. Load a script, then resume."
-msgstr "Gestartet und angehalten. Laden Sie ein Skript und setzen Sie dann fort."
+msgstr ""
+"Gestartet und angehalten. Laden Sie ein Skript und setzen Sie dann fort."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/frida/frida_controller.cpp:222
 msgid "Process resumed."
@@ -3322,7 +3325,7 @@ msgstr "frida-server wird heruntergeladen..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/frida/frida_settings_tab.cpp:103
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/frida/frida_workspace.cpp:92
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:156
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:157
 msgid "Frida"
 msgstr "Frida"
 
@@ -3459,7 +3462,9 @@ msgstr "Einstellungen"
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/frida/frida_workspace.cpp:109
 msgid ""
 "Install Google's official platform-tools before starting Frida on a device."
-msgstr "Installieren Sie die offiziellen platform-tools von Google, bevor Sie Frida auf einem Gerät starten."
+msgstr ""
+"Installieren Sie die offiziellen platform-tools von Google, bevor Sie Frida "
+"auf einem Gerät starten."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/avd_details_panel.cpp:22
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/install_image_dialog.cpp:298
@@ -3580,7 +3585,7 @@ msgstr "Stoppen Sie den Emulator, bevor Sie die Daten löschen"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/avd_details_panel.cpp:271
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/storage_dialog.cpp:102
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:149
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:150
 msgid "Storage Overview"
 msgstr "Speicherübersicht"
 
@@ -4836,7 +4841,7 @@ msgstr ""
 "Befehlszeilentools."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/about_dialog.cpp:18
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:163
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:166
 msgid "About CoreDeck"
 msgstr "Über CoreDeck"
 
@@ -4893,75 +4898,75 @@ msgstr ""
 "Das Fenster konnte nicht erstellt werden.\n"
 "Ihr System unterstützt möglicherweise kein OpenGL 3.3."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:60
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:61
 msgid "Close Workspace"
 msgstr "Arbeitsbereich schließen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:97
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:98
 msgid "Preferences..."
 msgstr "Einstellungen..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:101
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:102
 msgid "Quit"
 msgstr "Beenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:107
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:108
 msgid "View"
 msgstr "Ansicht"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:108
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:109
 msgid "Hide AVD List"
 msgstr "AVD-Liste ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:108
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:109
 msgid "Show AVD List"
 msgstr "AVD-Liste anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:112
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:113
 msgid "Hide Options"
 msgstr "Optionen ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:112
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:113
 msgid "Show Options"
 msgstr "Optionen anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:116
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:117
 msgid "Hide Details"
 msgstr "Details ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:116
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:117
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:120
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:121
 msgid "Hide Output Log"
 msgstr "Ausgabeprotokoll ausblenden"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:120
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:121
 msgid "Show Output Log"
 msgstr "Ausgabeprotokoll anzeigen"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:127
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:128
 msgid "Tools"
 msgstr "Werkzeuge"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:128
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:129
 msgid "Health Check..."
 msgstr "Statusprüfung..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:142
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:143
 msgid "Java Keytool"
 msgstr "Java-Keytool"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:155
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:156
 msgid "Analysis"
 msgstr "Analyse"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:162
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:165
 msgid "Help"
 msgstr "Hilfe"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:166
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:169
 msgid "Check for Updates..."
 msgstr "Nach Updates suchen..."
 

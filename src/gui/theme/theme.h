@@ -18,6 +18,7 @@ namespace CoreDeck::Gui {
         constexpr const char *TRASH = "\xef\x87\xb8";
         constexpr const char *CIRCLE = "\xef\x84\x91";
         constexpr const char *DESKTOP = "\xef\x84\x88";
+        constexpr const char *LAPTOP_CODE = "\xef\x97\xbc";
         constexpr const char *HARD_DRIVE = "\xef\x82\xa0";
         constexpr const char *GEAR = "\xef\x80\x93";
         constexpr const char *POWER_OFF = "\xef\x80\x91";

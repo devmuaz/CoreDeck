@@ -243,6 +243,8 @@ namespace CoreDeck::Gui {
         float width = 0.0F
     );
 
+    float ComboDotRadius();
+
     float ComboDotSlot();
 
     bool RoundedCombo(

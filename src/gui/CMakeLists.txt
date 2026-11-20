@@ -42,6 +42,7 @@ add_library(coredeck_gui STATIC
     sdk/onboarding_screen.cpp
     shell/about_dialog.cpp
     shell/application.cpp
+    shell/devices_menu.cpp
     shell/main_menu_bar.cpp
     shell/update_dialog.cpp
     theme/theme.cpp

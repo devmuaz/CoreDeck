@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: CoreDeck\n"
 "Report-Msgid-Bugs-To: https://github.com/devmuaz/CoreDeck/issues/new?"
 "template=translation.md\n"
-"POT-Creation-Date: 2026-11-18 21:31+0300\n"
+"POT-Creation-Date: 2026-11-20 22:24+0300\n"
 "PO-Revision-Date: 2026-09-29 19:30+0300\n"
 "Last-Translator: CoreDeck contributors\n"
 "Language-Team: Chinese (Traditional)\n"
@@ -114,6 +114,7 @@ msgstr "模擬"
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/core/avd/emulator_options.cpp:95
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/avd_details_panel.cpp:216
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/preferences/preferences_java_section.cpp:271
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/devices_menu.cpp:150
 msgid "None"
 msgstr "無"
 
@@ -1430,6 +1431,7 @@ msgid "Switches the USB device selected in the list to Wi-Fi."
 msgstr "將清單中所選的 USB 裝置切換為 Wi-Fi 連線。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/adb/adb_devices_dialog.cpp:315
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/devices_menu.cpp:177
 msgid "Devices"
 msgstr "裝置"
 
@@ -1642,7 +1644,7 @@ msgstr "選擇 APK 檔案..."
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/jar_signer_workspace.cpp:531
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/keytool_workspace.cpp:964
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/sdk/onboarding_screen.cpp:338
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets/form.cpp:302
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/widgets/form.cpp:306
 msgid "Browse..."
 msgstr "瀏覽..."
 
@@ -1882,7 +1884,7 @@ msgid "Connections"
 msgstr "連線"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/adb/adb_workspace.cpp:96
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:135
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:136
 msgid "Android Debug Bridge (ADB)"
 msgstr "Android Debug Bridge (ADB)"
 
@@ -1981,7 +1983,7 @@ msgid "Debuggable: {0}"
 msgstr "可偵錯：{0}"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/apk_analyzer_workspace.cpp:828
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:96
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:97
 msgid "File"
 msgstr "檔案"
 
@@ -2112,7 +2114,7 @@ msgid "The comparison could not be read."
 msgstr "無法讀取比較結果。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/apk_analyzer_workspace.cpp:1191
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:132
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:133
 msgid "APK Analyzer"
 msgstr "APK 分析器"
 
@@ -2417,7 +2419,7 @@ msgid "Install build-tools..."
 msgstr "安裝 build-tools..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/apk_signer_workspace.cpp:907
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:138
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:139
 msgid "APK Signer"
 msgstr "APK 簽署器"
 
@@ -2540,7 +2542,7 @@ msgid "Choose a JDK..."
 msgstr "選擇 JDK..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/apk/jar_signer_workspace.cpp:750
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:145
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:146
 msgid "Java Jar Signer"
 msgstr "Java Jar 簽署器"
 
@@ -3256,7 +3258,7 @@ msgstr "正在下載 frida-server..."
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/frida/frida_settings_tab.cpp:103
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/frida/frida_workspace.cpp:92
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:156
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:157
 msgid "Frida"
 msgstr "Frida"
 
@@ -3514,7 +3516,7 @@ msgstr "清除資料前請停止模擬器"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/avd_details_panel.cpp:271
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/home/storage_dialog.cpp:102
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:149
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:150
 msgid "Storage Overview"
 msgstr "儲存概覽"
 
@@ -4695,7 +4697,7 @@ msgid "sdkmanager is not in this SDK. Install the command-line tools first."
 msgstr "此 SDK 中沒有 sdkmanager。請先安裝指令列工具。"
 
 #: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/about_dialog.cpp:18
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:163
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:166
 msgid "About CoreDeck"
 msgstr "關於 CoreDeck"
 
@@ -4752,75 +4754,75 @@ msgstr ""
 "建立視窗失敗。\n"
 "您的系統可能不支援 OpenGL 3.3。"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:60
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:61
 msgid "Close Workspace"
 msgstr "關閉工作區"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:97
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:98
 msgid "Preferences..."
 msgstr "偏好設定..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:101
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:102
 msgid "Quit"
 msgstr "結束"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:107
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:108
 msgid "View"
 msgstr "檢視"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:108
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:109
 msgid "Hide AVD List"
 msgstr "隱藏 AVD 清單"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:108
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:109
 msgid "Show AVD List"
 msgstr "顯示 AVD 清單"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:112
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:113
 msgid "Hide Options"
 msgstr "隱藏選項"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:112
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:113
 msgid "Show Options"
 msgstr "顯示選項"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:116
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:117
 msgid "Hide Details"
 msgstr "隱藏詳細資訊"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:116
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:117
 msgid "Show Details"
 msgstr "顯示詳細資訊"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:120
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:121
 msgid "Hide Output Log"
 msgstr "隱藏輸出記錄"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:120
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:121
 msgid "Show Output Log"
 msgstr "顯示輸出記錄"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:127
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:128
 msgid "Tools"
 msgstr "工具"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:128
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:129
 msgid "Health Check..."
 msgstr "健康檢查..."
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:142
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:143
 msgid "Java Keytool"
 msgstr "Java Keytool"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:155
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:156
 msgid "Analysis"
 msgstr "分析"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:162
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:165
 msgid "Help"
 msgstr "說明"
 
-#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:166
+#: /Users/devmuaz/Development/projects/cpp-projects/CoreDeck/src/gui/shell/main_menu_bar.cpp:169
 msgid "Check for Updates..."
 msgstr "檢查更新..."
 

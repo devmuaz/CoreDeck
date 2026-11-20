@@ -10,6 +10,8 @@
 #include "core/adb/adb_service.h"
 
 namespace CoreDeck::Gui {
+    std::string DeviceLabel(const Core::AdbDevice &device);
+
     void DevicePicker(
         const char *id,
         std::string &selectedSerial,

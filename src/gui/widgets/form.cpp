@@ -200,6 +200,10 @@ namespace CoreDeck::Gui {
         }
     }
 
+    float ComboDotRadius() {
+        return DotRadius();
+    }
+
     float ComboDotSlot() {
         return DotSlotWidth();
     }
