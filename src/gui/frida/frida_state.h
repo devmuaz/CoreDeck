@@ -49,7 +49,7 @@ namespace CoreDeck::Gui {
     };
 
     struct FridaTabStatus {
-        Tone Tone = Tone::Neutral;
+        ::CoreDeck::Gui::Tone Tone = ::CoreDeck::Gui::Tone::Neutral;
         std::string Message;
     };
 

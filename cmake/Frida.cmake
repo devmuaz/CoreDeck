@@ -199,7 +199,9 @@ if(WIN32)
         # has to be on the link path, and the static library has initializers
         # that the linker drops unless the whole archive is included.
         target_link_directories(coredeck_frida_devkit INTERFACE "${_coredeck_frida_root}")
-        target_link_libraries(coredeck_frida_devkit INTERFACE "frida-core.lib" ${_coredeck_frida_extra})
+        # Whole-archive pulls the USB monitor, which needs SetupAPI. The devkit
+        # header does not pragma-comment that library.
+        target_link_libraries(coredeck_frida_devkit INTERFACE "frida-core.lib" ${_coredeck_frida_extra} "setupapi.lib")
         target_link_options(coredeck_frida_devkit INTERFACE "/WHOLEARCHIVE:frida-core.lib")
     else()
         target_link_libraries(coredeck_frida_devkit INTERFACE "${_coredeck_frida_lib}" ${_coredeck_frida_extra})
@@ -212,7 +214,10 @@ elseif(APPLE)
     )
 else()
     target_link_directories(coredeck_frida_devkit INTERFACE "${_coredeck_frida_root}")
-    target_link_options(coredeck_frida_devkit INTERFACE
+    # Libraries belong here, after libfrida-core. Link options are emitted
+    # before the archives, and --as-needed then drops -lresolv before the
+    # unresolved __res_search reference exists.
+    target_link_libraries(coredeck_frida_devkit INTERFACE
         "-Wl,--whole-archive"
         "-lfrida-core"
         "-Wl,--no-whole-archive"

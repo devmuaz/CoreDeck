@@ -50,11 +50,15 @@ namespace CoreDeck::Core {
     struct FridaHostState {
         std::mutex StartMutex;
         std::thread Thread;
+        std::thread LoopThread;
         std::atomic<bool> Running{false};
         std::mutex QueueMutex;
         std::condition_variable QueueCv;
         std::deque<std::function<void()>> Jobs;
         bool Stop = false;
+        bool Ready = false;
+        bool LoopRunning = false;
+        GMainLoop *Loop = nullptr;
         FridaDeviceManager *Manager = nullptr;
         FridaCompiler *Compiler = nullptr;
         std::unordered_map<std::string, DeviceSlot> Sessions;
@@ -65,7 +69,8 @@ namespace CoreDeck::Core {
     };
 
     namespace {
-        // Sync Frida calls run on this worker. Frida delivers signals on its own loop thread, and a *_sync call made there re-enters that loop.
+        // frida_init's thread has to pump the GLib loop. Sync calls made on
+        // that same thread never return, so jobs run on a second thread.
         std::string TakeError(GError *&error) {
             std::string message = "Frida call failed.";
             if (error != nullptr) {
@@ -464,22 +469,7 @@ namespace CoreDeck::Core {
             PushEvent(state, std::move(event));
         }
 
-        void ThreadMain(FridaHostState *state) {
-            frida_init();
-            state->Manager = frida_device_manager_new();
-            for (;;) {
-                std::function<void()> job;
-                {
-                    std::unique_lock lock(state->QueueMutex);
-                    state->QueueCv.wait(lock, [&state] { return state->Stop || !state->Jobs.empty(); });
-                    if (state->Stop && state->Jobs.empty()) {
-                        break;
-                    }
-                    job = std::move(state->Jobs.front());
-                    state->Jobs.pop_front();
-                }
-                job();
-            }
+        void ReleaseHost(FridaHostState *state) {
             for (auto &entry: state->Sessions) {
                 ReleaseSession(state, entry.second);
             }
@@ -497,7 +487,62 @@ namespace CoreDeck::Core {
                 frida_unref(state->Manager);
                 state->Manager = nullptr;
             }
+        }
+
+        void LoopMain(FridaHostState *state) {
+            frida_init();
+            state->Manager = frida_device_manager_new();
+            GMainLoop *loop = g_main_loop_new(g_main_context_default(), FALSE);
+            bool run = false;
+            {
+                const std::lock_guard lock(state->QueueMutex);
+                state->Loop = loop;
+                state->Ready = true;
+                state->LoopRunning = !state->Stop;
+                run = state->LoopRunning;
+            }
+            state->QueueCv.notify_all();
+            if (run) {
+                g_main_loop_run(loop);
+            } else if (state->Manager != nullptr) {
+                frida_unref(state->Manager);
+                state->Manager = nullptr;
+            }
+            g_main_loop_unref(loop);
+            {
+                const std::lock_guard lock(state->QueueMutex);
+                if (state->Loop == loop) {
+                    state->Loop = nullptr;
+                }
+            }
             frida_deinit();
+        }
+
+        void WorkerMain(FridaHostState *state) {
+            for (;;) {
+                std::function<void()> job;
+                {
+                    std::unique_lock lock(state->QueueMutex);
+                    state->QueueCv.wait(lock, [&state] {
+                        return state->Stop || (state->Ready && !state->Jobs.empty());
+                    });
+                    if (!state->Ready || (state->Stop && state->Jobs.empty())) {
+                        break;
+                    }
+                    job = std::move(state->Jobs.front());
+                    state->Jobs.pop_front();
+                }
+                job();
+            }
+            bool cleanup = false;
+            {
+                const std::scoped_lock lock(state->QueueMutex);
+                cleanup = state->LoopRunning;
+            }
+            // Sync teardown needs the loop thread to still be pumping.
+            if (cleanup) {
+                ReleaseHost(state);
+            }
         }
     }
 
@@ -523,13 +568,14 @@ namespace CoreDeck::Core {
     void FridaHost::m_Post(std::function<void()> job) {
         Start();
         {
-            const std::scoped_lock lock(m_State->QueueMutex);
+            std::unique_lock lock(m_State->QueueMutex);
+            m_State->QueueCv.wait(lock, [state = m_State.get()] { return state->Ready || state->Stop; });
             if (m_State->Stop) {
                 return;
             }
             m_State->Jobs.push_back(std::move(job));
         }
-        m_State->QueueCv.notify_one();
+        m_State->QueueCv.notify_all();
     }
 
     void FridaHost::Start() {
@@ -538,25 +584,45 @@ namespace CoreDeck::Core {
             return;
         }
         m_State->Stop = false;
+        m_State->Ready = false;
+        m_State->LoopRunning = false;
         m_State->Running.store(true);
-        m_State->Thread = std::thread([state = m_State.get()] { ThreadMain(state); });
+        m_State->LoopThread = std::thread([state = m_State.get()] { LoopMain(state); });
+        m_State->Thread = std::thread([state = m_State.get()] { WorkerMain(state); });
     }
 
     void FridaHost::Shutdown() {
         std::thread worker;
+        std::thread loop;
         {
             const std::scoped_lock lock(m_State->StartMutex);
             {
                 const std::scoped_lock queue(m_State->QueueMutex);
                 m_State->Stop = true;
             }
-            m_State->QueueCv.notify_one();
+            m_State->QueueCv.notify_all();
             if (m_State->Thread.joinable()) {
                 worker = std::move(m_State->Thread);
+            }
+            if (m_State->LoopThread.joinable()) {
+                loop = std::move(m_State->LoopThread);
             }
         }
         if (worker.joinable()) {
             worker.join();
+        }
+        GMainLoop *mainLoop = nullptr;
+        {
+            const std::scoped_lock queue(m_State->QueueMutex);
+            if (m_State->LoopRunning) {
+                mainLoop = m_State->Loop;
+            }
+        }
+        if (mainLoop != nullptr) {
+            g_main_loop_quit(mainLoop);
+        }
+        if (loop.joinable()) {
+            loop.join();
         }
         m_State->Running.store(false);
     }
