@@ -44,6 +44,54 @@ target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 set(REFLECTCPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(REFLECTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 coredeck_add_extern(${CMAKE_SOURCE_DIR}/extern/reflect-cpp ${CMAKE_BINARY_DIR}/extern/reflect-cpp)
+if(MSVC)
+    # MSVC rejects std::invoke_result_t<decltype(fn), ...> when fn is declared
+    # with a deduced return type: the function type still contains auto, and a
+    # template argument may not. Use the return type of a call instead, from a
+    # copy of the headers so the reflect-cpp submodule stays untouched.
+    set(_coredeck_rfl_overlay "${CMAKE_BINARY_DIR}/generated/reflect-cpp")
+    file(REMOVE_RECURSE "${_coredeck_rfl_overlay}")
+    file(COPY "${CMAKE_SOURCE_DIR}/extern/reflect-cpp/include" DESTINATION "${_coredeck_rfl_overlay}")
+    function(coredeck_patch_reflect_header relative old new)
+        set(path "${_coredeck_rfl_overlay}/include/${relative}")
+        file(READ "${path}" contents)
+        string(FIND "${contents}" "${old}" found)
+        if(found EQUAL -1)
+            message(FATAL_ERROR "reflect-cpp overlay no longer contains the expected text in ${relative}")
+        endif()
+        string(REPLACE "${old}" "${new}" contents "${contents}")
+        file(WRITE "${path}" "${contents}")
+    endfunction()
+    coredeck_patch_reflect_header("rfl/internal/ptr_named_tuple_t.hpp"
+        "#include <type_traits>"
+        "#include <type_traits>\n#include <utility>")
+    coredeck_patch_reflect_header("rfl/internal/ptr_named_tuple_t.hpp"
+        "using ptr_named_tuple_t =\n    std::invoke_result_t<decltype(to_ptr_named_tuple<T>), T>;"
+        "using ptr_named_tuple_t = decltype(to_ptr_named_tuple(std::declval<T>()));")
+    coredeck_patch_reflect_header("rfl/view_t.hpp"
+        "#include <type_traits>"
+        "#include <type_traits>\n#include <utility>")
+    coredeck_patch_reflect_header("rfl/view_t.hpp"
+        "using view_t =\n    std::invoke_result_t<decltype(Processors<Ps...>::template process<\n                                  T, internal::ptr_named_tuple_t<T>>),\n                         internal::ptr_named_tuple_t<T>>;"
+        "using view_t = decltype(Processors<Ps...>::template process<T>(\n    std::declval<internal::ptr_named_tuple_t<T>>()));")
+    coredeck_patch_reflect_header("rfl/internal/processed_t.hpp"
+        "#include <type_traits>"
+        "#include <type_traits>\n#include <utility>")
+    coredeck_patch_reflect_header("rfl/internal/processed_t.hpp"
+        "using type = typename remove_ptrs_nt<\n      std::invoke_result_t<decltype(Processors<Ps...>::template process<\n                                    StructType, PtrNamedTupleType>),\n                           PtrNamedTupleType>>::NamedTupleType;"
+        "using type = typename remove_ptrs_nt<\n      decltype(Processors<Ps...>::template process<StructType>(\n          std::declval<PtrNamedTupleType>()))>::NamedTupleType;")
+    coredeck_patch_reflect_header("rfl/internal/tag_t.hpp"
+        "#include <type_traits>"
+        "#include <type_traits>\n#include <utility>")
+    coredeck_patch_reflect_header("rfl/internal/tag_t.hpp"
+        "using tag_t = std::invoke_result_t<decltype(make_tag<_discriminator, T>), T>;"
+        "using tag_t = decltype(make_tag<_discriminator, T>(std::declval<const T&>()));")
+    coredeck_patch_reflect_header("rfl/internal/nth_element_t.hpp"
+        "using nth_element_t =\n    typename std::invoke_result_t<decltype(nth_element<N, TypeWrapper<Ts>...>),\n                                  TypeWrapper<Ts>...>::Type;"
+        "using nth_element_t =\n    typename decltype(nth_element<N>(std::declval<TypeWrapper<Ts>>()...))::Type;")
+    target_include_directories(reflectcpp BEFORE PUBLIC "${_coredeck_rfl_overlay}/include")
+    unset(_coredeck_rfl_overlay)
+endif()
 if(MINGW)
     target_compile_options(reflectcpp PRIVATE
         -Wa,-mbig-obj

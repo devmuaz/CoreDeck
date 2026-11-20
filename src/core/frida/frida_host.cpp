@@ -566,16 +566,25 @@ namespace CoreDeck::Core {
         auto future = promise->get_future();
         m_Post([state = m_State.get(), promise] {
             GError *gerror = nullptr;
-            FridaDeviceList *devices = frida_device_manager_enumerate_devices_sync(state->Manager, nullptr, &gerror);
+            // enumerate_devices_sync waits for every backend, including USB, and that
+            // wait does not return on some CI hosts. The local device is enough to
+            // prove the devkit loaded, and this lookup has its own deadline.
+            FridaDevice *local = frida_device_manager_find_device_by_type_sync(
+                state->Manager,
+                FRIDA_DEVICE_TYPE_LOCAL,
+                5000,
+                nullptr,
+                &gerror
+            );
             std::string message;
-            const bool ok = gerror == nullptr && devices != nullptr && frida_device_list_size(devices) > 0;
+            const bool ok = gerror == nullptr && local != nullptr;
             if (!ok) {
                 message = gerror != nullptr ? TakeError(gerror) : "Frida did not report a local device.";
             } else if (gerror != nullptr) {
                 g_error_free(gerror);
             }
-            if (devices != nullptr) {
-                frida_unref(devices);
+            if (local != nullptr) {
+                frida_unref(local);
             }
             promise->set_value({ok, std::move(message)});
         });

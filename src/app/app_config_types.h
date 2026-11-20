@@ -22,7 +22,6 @@ namespace CoreDeck::App {
         Light = 2,
     };
 
-    // Shell history for one device. The serial is the key of Adb::DeviceProfiles.
     struct AdbDeviceProfile {
         rfl::Rename<"shell_commands", std::vector<std::string>> ShellCommands;
     };
@@ -80,12 +79,12 @@ namespace CoreDeck::App {
 
     struct AppConfig {
         rfl::Rename<"schema_version", int> SchemaVersion = CONFIG_SCHEMA_VERSION;
-        rfl::Rename<"environment", Environment> Environment;
-        rfl::Rename<"preferences", Preferences> Preferences;
-        rfl::Rename<"ui", Ui> Ui;
-        rfl::Rename<"history", History> History;
-        rfl::Rename<"adb", Adb> Adb;
-        rfl::Rename<"frida", Frida> Frida;
+        rfl::Rename<"environment", ::CoreDeck::App::Environment> Environment;
+        rfl::Rename<"preferences", ::CoreDeck::App::Preferences> Preferences;
+        rfl::Rename<"ui", ::CoreDeck::App::Ui> Ui;
+        rfl::Rename<"history", ::CoreDeck::App::History> History;
+        rfl::Rename<"adb", ::CoreDeck::App::Adb> Adb;
+        rfl::Rename<"frida", ::CoreDeck::App::Frida> Frida;
     };
 }
 
