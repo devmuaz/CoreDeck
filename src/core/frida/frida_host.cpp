@@ -50,15 +50,11 @@ namespace CoreDeck::Core {
     struct FridaHostState {
         std::mutex StartMutex;
         std::thread Thread;
-        std::thread LoopThread;
         std::atomic<bool> Running{false};
         std::mutex QueueMutex;
         std::condition_variable QueueCv;
         std::deque<std::function<void()>> Jobs;
         bool Stop = false;
-        bool Ready = false;
-        bool LoopRunning = false;
-        GMainLoop *Loop = nullptr;
         FridaDeviceManager *Manager = nullptr;
         FridaCompiler *Compiler = nullptr;
         std::unordered_map<std::string, DeviceSlot> Sessions;
@@ -69,8 +65,7 @@ namespace CoreDeck::Core {
     };
 
     namespace {
-        // frida_init's thread has to pump the GLib loop. Sync calls made on
-        // that same thread never return, so jobs run on a second thread.
+        // Sync Frida calls run on this worker. Frida delivers signals on its own loop thread, and a *_sync call made there re-enters that loop.
         std::string TakeError(GError *&error) {
             std::string message = "Frida call failed.";
             if (error != nullptr) {
@@ -469,7 +464,22 @@ namespace CoreDeck::Core {
             PushEvent(state, std::move(event));
         }
 
-        void ReleaseHost(FridaHostState *state) {
+        void ThreadMain(FridaHostState *state) {
+            frida_init();
+            state->Manager = frida_device_manager_new();
+            for (;;) {
+                std::function<void()> job;
+                {
+                    std::unique_lock lock(state->QueueMutex);
+                    state->QueueCv.wait(lock, [&state] { return state->Stop || !state->Jobs.empty(); });
+                    if (state->Stop && state->Jobs.empty()) {
+                        break;
+                    }
+                    job = std::move(state->Jobs.front());
+                    state->Jobs.pop_front();
+                }
+                job();
+            }
             for (auto &entry: state->Sessions) {
                 ReleaseSession(state, entry.second);
             }
@@ -487,78 +497,7 @@ namespace CoreDeck::Core {
                 frida_unref(state->Manager);
                 state->Manager = nullptr;
             }
-        }
-
-        void EnsureManager(FridaHostState *state) {
-            if (state->Manager != nullptr) {
-                return;
-            }
-            std::promise<FridaDeviceManager *> created;
-            g_main_context_invoke(
-                nullptr,
-                [](gpointer data) -> gboolean {
-                    static_cast<std::promise<FridaDeviceManager *> *>(data)->set_value(frida_device_manager_new());
-                    return G_SOURCE_REMOVE;
-                },
-                &created
-            );
-            state->Manager = created.get_future().get();
-        }
-
-        void LoopMain(FridaHostState *state) {
-            frida_init();
-            GMainLoop *loop = g_main_loop_new(g_main_context_default(), FALSE);
-            bool run = false;
-            {
-                const std::lock_guard lock(state->QueueMutex);
-                state->Loop = loop;
-                state->Ready = true;
-                state->LoopRunning = !state->Stop;
-                run = state->LoopRunning;
-            }
-            state->QueueCv.notify_all();
-            if (run) {
-                g_main_loop_run(loop);
-            } else if (state->Manager != nullptr) {
-                frida_unref(state->Manager);
-                state->Manager = nullptr;
-            }
-            g_main_loop_unref(loop);
-            {
-                const std::lock_guard lock(state->QueueMutex);
-                if (state->Loop == loop) {
-                    state->Loop = nullptr;
-                }
-            }
             frida_deinit();
-        }
-
-        void WorkerMain(FridaHostState *state) {
-            for (;;) {
-                std::function<void()> job;
-                {
-                    std::unique_lock lock(state->QueueMutex);
-                    state->QueueCv.wait(lock, [&state] {
-                        return state->Stop || (state->Ready && !state->Jobs.empty());
-                    });
-                    if (!state->Ready || (state->Stop && state->Jobs.empty())) {
-                        break;
-                    }
-                    job = std::move(state->Jobs.front());
-                    state->Jobs.pop_front();
-                }
-                EnsureManager(state);
-                job();
-            }
-            bool cleanup = false;
-            {
-                const std::scoped_lock lock(state->QueueMutex);
-                cleanup = state->LoopRunning;
-            }
-            // Sync teardown needs the loop thread to still be pumping.
-            if (cleanup) {
-                ReleaseHost(state);
-            }
         }
     }
 
@@ -584,14 +523,13 @@ namespace CoreDeck::Core {
     void FridaHost::m_Post(std::function<void()> job) {
         Start();
         {
-            std::unique_lock lock(m_State->QueueMutex);
-            m_State->QueueCv.wait(lock, [state = m_State.get()] { return state->Ready || state->Stop; });
+            const std::scoped_lock lock(m_State->QueueMutex);
             if (m_State->Stop) {
                 return;
             }
             m_State->Jobs.push_back(std::move(job));
         }
-        m_State->QueueCv.notify_all();
+        m_State->QueueCv.notify_one();
     }
 
     void FridaHost::Start() {
@@ -600,45 +538,25 @@ namespace CoreDeck::Core {
             return;
         }
         m_State->Stop = false;
-        m_State->Ready = false;
-        m_State->LoopRunning = false;
         m_State->Running.store(true);
-        m_State->LoopThread = std::thread([state = m_State.get()] { LoopMain(state); });
-        m_State->Thread = std::thread([state = m_State.get()] { WorkerMain(state); });
+        m_State->Thread = std::thread([state = m_State.get()] { ThreadMain(state); });
     }
 
     void FridaHost::Shutdown() {
         std::thread worker;
-        std::thread loop;
         {
             const std::scoped_lock lock(m_State->StartMutex);
             {
                 const std::scoped_lock queue(m_State->QueueMutex);
                 m_State->Stop = true;
             }
-            m_State->QueueCv.notify_all();
+            m_State->QueueCv.notify_one();
             if (m_State->Thread.joinable()) {
                 worker = std::move(m_State->Thread);
-            }
-            if (m_State->LoopThread.joinable()) {
-                loop = std::move(m_State->LoopThread);
             }
         }
         if (worker.joinable()) {
             worker.join();
-        }
-        GMainLoop *mainLoop = nullptr;
-        {
-            const std::scoped_lock queue(m_State->QueueMutex);
-            if (m_State->LoopRunning) {
-                mainLoop = m_State->Loop;
-            }
-        }
-        if (mainLoop != nullptr) {
-            g_main_loop_quit(mainLoop);
-        }
-        if (loop.joinable()) {
-            loop.join();
         }
         m_State->Running.store(false);
     }
@@ -648,25 +566,16 @@ namespace CoreDeck::Core {
         auto future = promise->get_future();
         m_Post([state = m_State.get(), promise] {
             GError *gerror = nullptr;
-            // enumerate_devices_sync waits for every backend, including USB, and that
-            // wait does not return on some CI hosts. The local device is enough to
-            // prove the devkit loaded, and this lookup has its own deadline.
-            FridaDevice *local = frida_device_manager_find_device_by_type_sync(
-                state->Manager,
-                FRIDA_DEVICE_TYPE_LOCAL,
-                5000,
-                nullptr,
-                &gerror
-            );
+            FridaDeviceList *devices = frida_device_manager_enumerate_devices_sync(state->Manager, nullptr, &gerror);
             std::string message;
-            const bool ok = gerror == nullptr && local != nullptr;
+            const bool ok = gerror == nullptr && devices != nullptr && frida_device_list_size(devices) > 0;
             if (!ok) {
                 message = gerror != nullptr ? TakeError(gerror) : "Frida did not report a local device.";
             } else if (gerror != nullptr) {
                 g_error_free(gerror);
             }
-            if (local != nullptr) {
-                frida_unref(local);
+            if (devices != nullptr) {
+                frida_unref(devices);
             }
             promise->set_value({ok, std::move(message)});
         });

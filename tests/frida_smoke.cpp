@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -6,9 +7,9 @@
 int main() {
     CoreDeck::Core::FridaHost host;
     std::string error;
-    if (!host.Probe(error)) {
+    const bool ok = host.Probe(error);
+    if (!ok) {
         std::cerr << error << '\n';
-        return 1;
     }
-    return 0;
+    std::_Exit(ok ? 0 : 1);
 }
