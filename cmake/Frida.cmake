@@ -213,16 +213,18 @@ elseif(APPLE)
         ${_coredeck_frida_extra}
     )
 else()
+    if(NOT TARGET coredeck_frida_resolv)
+        add_library(coredeck_frida_resolv STATIC "${CMAKE_SOURCE_DIR}/src/core/frida/frida_resolv.c")
+        target_link_libraries(coredeck_frida_resolv PUBLIC resolv)
+    endif()
     target_link_directories(coredeck_frida_devkit INTERFACE "${_coredeck_frida_root}")
-    # Libraries belong here, after libfrida-core. Link options are emitted
-    # before the archives, and --as-needed then drops -lresolv before the
-    # unresolved __res_search reference exists.
     target_link_libraries(coredeck_frida_devkit INTERFACE
         "-Wl,--whole-archive"
         "-lfrida-core"
         "-Wl,--no-whole-archive"
         "-Wl,--exclude-libs,libfrida-core.a"
         ${_coredeck_frida_extra}
+        coredeck_frida_resolv
     )
 endif()
 

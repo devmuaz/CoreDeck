@@ -489,9 +489,24 @@ namespace CoreDeck::Core {
             }
         }
 
+        void EnsureManager(FridaHostState *state) {
+            if (state->Manager != nullptr) {
+                return;
+            }
+            std::promise<FridaDeviceManager *> created;
+            g_main_context_invoke(
+                nullptr,
+                [](gpointer data) -> gboolean {
+                    static_cast<std::promise<FridaDeviceManager *> *>(data)->set_value(frida_device_manager_new());
+                    return G_SOURCE_REMOVE;
+                },
+                &created
+            );
+            state->Manager = created.get_future().get();
+        }
+
         void LoopMain(FridaHostState *state) {
             frida_init();
-            state->Manager = frida_device_manager_new();
             GMainLoop *loop = g_main_loop_new(g_main_context_default(), FALSE);
             bool run = false;
             {
@@ -532,6 +547,7 @@ namespace CoreDeck::Core {
                     job = std::move(state->Jobs.front());
                     state->Jobs.pop_front();
                 }
+                EnsureManager(state);
                 job();
             }
             bool cleanup = false;

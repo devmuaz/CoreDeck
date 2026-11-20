@@ -234,8 +234,11 @@ TEST_CASE("xz archives decompress to the original bytes", "[frida]") {
     }
     std::string error;
     REQUIRE(CoreDeck::Platform::DecompressXz(source.string(), dest.string(), error));
-    std::ifstream input(dest, std::ios::binary);
-    const std::string text((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+    std::string text;
+    {
+        std::ifstream input(dest, std::ios::binary);
+        text.assign(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+    }
     REQUIRE(text == "hello\n");
     std::filesystem::remove_all(directory);
 }
