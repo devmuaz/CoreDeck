@@ -1,25 +1,10 @@
-## [v0.17.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0) — 2026-11-21
+## [v0.16.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.16.1) — 2026-11-21
 
 - Add a Devices menu that lists USB devices, then Wi-Fi devices, then emulators, using the same names as the device list in Android Debug Bridge. An online device shows the same green status dot as that list. Choosing a device selects it for Android Debug Bridge
 - Browse the packages installed on a device when uninstalling, and filter the list, instead of typing the package name
 - File pickers use the system open and save dialogs. Choosing a folder returns that folder
 - On Linux, look in `share/coredeck/assets` when the assets are not beside the binary
 - The Third-party row in About opens the notices file on GitHub
-
-## [v0.17.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.2) — 2026-11-21
-
-- Remove Frida, including the Analysis workspace, the bundled agent, and the downloaded `frida-server`
-- Read zip archives and PNG images with miniz again
-- Keep the macOS disk image to `CoreDeck.app` and the Applications shortcut. Vendored libraries were also installing `bin`, `include`, and `lib` beside the app, which broke the drag-to-Applications window
-- Those extra files included an unsigned `crashpad_handler`, so Apple rejected notarization and Gatekeeper blocked the app until it was opened from Privacy & Security. A rejected notarization now fails the macOS release job instead of publishing the disk image
-
-## [v0.17.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.1) — 2026-11-20
-
-- Add Frida (Analysis, Frida) so a running Android process can be inspected on a USB, Wi-Fi, or emulator device, without a separate Frida setup. Start downloads the matching `frida-server` on first use, and Use Existing joins a server that is already running. CoreDeck can resume a server it left running. Attach to a process, or spawn a package and resume it, then use Session, Script, Hooks, Java, Modules, and Memory. Settings keeps the script runtime, snippet or module mode, the existing server port, and the server, project, and scripts paths
-- Add a Devices menu that lists USB devices, then Wi-Fi devices, then emulators, using the same names as the device list in Android Debug Bridge and Frida. An online device shows the same green status dot as that list. Choosing a device selects it for the open Android Debug Bridge or Frida workspace
-- Browse the packages installed on a device when uninstalling, and filter the list, instead of typing the package name
-- File pickers use the system open and save dialogs. Choosing a folder returns that folder
-- On Linux, look in `share/coredeck/assets` when the assets are not beside the binary
 
 ## [v0.16.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.16.0) — 2026-11-08
 
