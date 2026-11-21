@@ -1,3 +1,11 @@
+## [v0.17.0](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0) — 2026-11-21
+
+- Add a Devices menu that lists USB devices, then Wi-Fi devices, then emulators, using the same names as the device list in Android Debug Bridge. An online device shows the same green status dot as that list. Choosing a device selects it for Android Debug Bridge
+- Browse the packages installed on a device when uninstalling, and filter the list, instead of typing the package name
+- File pickers use the system open and save dialogs. Choosing a folder returns that folder
+- On Linux, look in `share/coredeck/assets` when the assets are not beside the binary
+- The Third-party row in About opens the notices file on GitHub
+
 ## [v0.17.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.2) — 2026-11-21
 
 - Remove Frida, including the Analysis workspace, the bundled agent, and the downloaded `frida-server`
