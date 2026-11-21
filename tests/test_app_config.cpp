@@ -141,13 +141,7 @@ namespace {
             {"Serial": "emulator-5554", "ShellCommands": ["pwd"]},
             {"Serial": "", "ShellCommands": ["ignored"]},
             {"Serial": "emulator-5554", "ShellCommands": ["getprop", "ls"]}
-        ],
-        "FridaScriptRuntime": 1,
-        "FridaScriptMode": 1,
-        "FridaExistingPort": "27111",
-        "FridaServerCachePath": "/cache",
-        "FridaProjectPath": "/project",
-        "FridaScriptsPath": "/scripts"
+        ]
     })";
 }
 
@@ -169,10 +163,6 @@ TEST_CASE("App config round-trips nested snake_case keys", "[app_config]") {
     AdbDeviceProfile profile;
     profile.ShellCommands = {"getprop"};
     config.Adb->DeviceProfiles.value().emplace("emulator-5554", std::move(profile));
-    config.Frida->Runtime = 1;
-    config.Frida->Mode = 1;
-    config.Frida->ExistingPort = "27099";
-    config.Frida->ScriptsPath = "/scripts";
 
     const std::string json = rfl::json::write(config);
     REQUIRE(json.find("\"schema_version\":2") != std::string::npos);
@@ -189,12 +179,8 @@ TEST_CASE("App config round-trips nested snake_case keys", "[app_config]") {
     REQUIRE(json.find("\"wireless_devices\"") != std::string::npos);
     REQUIRE(json.find("\"device_profiles\"") != std::string::npos);
     REQUIRE(json.find("\"shell_commands\"") != std::string::npos);
-    REQUIRE(json.find("\"runtime\":1") != std::string::npos);
-    REQUIRE(json.find("\"mode\":1") != std::string::npos);
-    REQUIRE(json.find("\"existing_port\":\"27099\"") != std::string::npos);
     REQUIRE(json.find("\"Serial\"") == std::string::npos);
     REQUIRE(json.find("AdbDeviceProfiles") == std::string::npos);
-    REQUIRE(json.find("FridaScriptRuntime") == std::string::npos);
 
     const AppConfig loaded = rfl::json::read<AppConfig, rfl::DefaultIfMissing>(json).value();
     REQUIRE(loaded.SchemaVersion.value() == CONFIG_SCHEMA_VERSION);
@@ -213,10 +199,6 @@ TEST_CASE("App config round-trips nested snake_case keys", "[app_config]") {
     const auto found = loaded.Adb->DeviceProfiles.value().find("emulator-5554");
     REQUIRE(found != loaded.Adb->DeviceProfiles.value().end());
     REQUIRE(found->second.ShellCommands.value() == std::vector<std::string>{"getprop"});
-    REQUIRE(loaded.Frida->Runtime.value() == 1);
-    REQUIRE(loaded.Frida->Mode.value() == 1);
-    REQUIRE(loaded.Frida->ExistingPort.value() == "27099");
-    REQUIRE(loaded.Frida->ScriptsPath.value() == "/scripts");
 }
 
 TEST_CASE("settings.json migrates into nested config.json", "[app_config]") {
@@ -250,12 +232,6 @@ TEST_CASE("settings.json migrates into nested config.json", "[app_config]") {
     const auto found = config.Adb->DeviceProfiles.value().find("emulator-5554");
     REQUIRE(found != config.Adb->DeviceProfiles.value().end());
     REQUIRE(found->second.ShellCommands.value() == std::vector<std::string>{"getprop", "ls"});
-    REQUIRE(config.Frida->Runtime.value() == 1);
-    REQUIRE(config.Frida->Mode.value() == 1);
-    REQUIRE(config.Frida->ExistingPort.value() == "27111");
-    REQUIRE(config.Frida->ServerCachePath.value() == "/cache");
-    REQUIRE(config.Frida->ProjectPath.value() == "/project");
-    REQUIRE(config.Frida->ScriptsPath.value() == "/scripts");
 
     const std::filesystem::path configPath = home.Directory() / "config.json";
     REQUIRE(std::filesystem::is_regular_file(configPath));

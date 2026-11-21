@@ -5,11 +5,6 @@ if(APPLE)
         $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/fonts
     )
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets/frida
-        $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/frida
-    )
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/THIRD_PARTY_NOTICES.md
         $<TARGET_BUNDLE_CONTENT_DIR:${PROJECT_NAME}>/Resources/assets/THIRD_PARTY_NOTICES.md
@@ -24,11 +19,6 @@ else()
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets/fonts
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/fonts
-    )
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets/frida
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/frida
     )
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy

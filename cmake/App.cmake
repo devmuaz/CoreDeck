@@ -1,0 +1,12 @@
+file(READ "${CMAKE_SOURCE_DIR}/app.json" _coredeck_app)
+string(JSON APP_NAME GET "${_coredeck_app}" name)
+string(JSON APP_VENDOR GET "${_coredeck_app}" vendor)
+string(JSON APP_BUNDLE_ID GET "${_coredeck_app}" bundle_id)
+string(JSON APP_DESCRIPTION_SHORT GET "${_coredeck_app}" description_short)
+string(JSON APP_DESCRIPTION GET "${_coredeck_app}" description)
+string(JSON APP_COPYRIGHT GET "${_coredeck_app}" copyright)
+unset(_coredeck_app)
+
+string(TIMESTAMP CURRENT_YEAR "%Y")
+string(REPLACE "{year}" "${CURRENT_YEAR}" APP_COPYRIGHT "${APP_COPYRIGHT}")
+string(REPLACE "{name}" "${APP_NAME}" APP_COPYRIGHT "${APP_COPYRIGHT}")

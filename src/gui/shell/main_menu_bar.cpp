@@ -10,7 +10,6 @@
 #include "gui/shell/main_menu_bar.h"
 #include "gui/shell/devices_menu.h"
 #include "gui/adb/adb_workspace.h"
-#include "gui/frida/frida_workspace.h"
 #include "gui/apk/apk_analyzer_workspace.h"
 #include "gui/apk/apk_signer_workspace.h"
 #include "gui/apk/jar_signer_workspace.h"
@@ -24,7 +23,7 @@
 namespace CoreDeck::Gui {
     namespace {
         bool ToolWorkspaceOpen(const WorkspacePage page) {
-            return page == WorkspacePage::Adb || page == WorkspacePage::Frida || page == WorkspacePage::ApkAnalyzer || page == WorkspacePage::ApkSigner ||
+            return page == WorkspacePage::Adb || page == WorkspacePage::ApkAnalyzer || page == WorkspacePage::ApkSigner ||
                    page == WorkspacePage::Keytool || page == WorkspacePage::JarSigner;
         }
 
@@ -32,9 +31,6 @@ namespace CoreDeck::Gui {
             switch (context.Shell.Workspace) {
                 case WorkspacePage::Adb:
                     CloseAdbWorkspace(context);
-                    break;
-                case WorkspacePage::Frida:
-                    CloseFridaWorkspace(context);
                     break;
                 case WorkspacePage::ApkAnalyzer:
                     CloseApkAnalyzerWorkspace(context);
@@ -149,13 +145,6 @@ namespace CoreDeck::Gui {
                 ImGui::Separator();
                 if (RoundedMenuItem(IconWithLabel(Icons::HARD_DRIVE, Platform::Tr("Storage Overview")).c_str())) {
                     OpenStorageDialog(context);
-                }
-                ImGui::EndMenu();
-            }
-
-            if (RoundedBeginMenu(Platform::Tr("Analysis"))) {
-                if (RoundedMenuItem(IconWithLabel(Icons::BUG, Platform::Tr("Frida")).c_str())) {
-                    context.Shell.Workspace = WorkspacePage::Frida;
                 }
                 ImGui::EndMenu();
             }

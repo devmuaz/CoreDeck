@@ -131,23 +131,16 @@ namespace CoreDeck::Gui {
         }
 
         const std::string &ListedSelection(const Context &context) {
-            if (context.Shell.Workspace == WorkspacePage::Frida) {
-                return context.Workspaces.Frida.SelectedSerial;
-            }
             return context.Workspaces.Adb.SelectedSerial;
         }
 
         void ChooseListedDevice(Context &context, const std::string &serial) {
-            if (context.Shell.Workspace == WorkspacePage::Frida) {
-                context.Workspaces.Frida.SelectedSerial = serial;
-                return;
-            }
             context.Workspaces.Adb.HeldSerial.clear();
             context.Workspaces.Adb.SelectedSerial = serial;
         }
 
         void DeviceNoneItem(const char *id) {
-            const std::string label = Platform::StrConcat(Platform::Tr("None"), "##", id);
+            const std::string label = Platform::StrConcat(Platform::Tr("No Available Devices"), "##", id);
             RoundedMenuItem(label.c_str(), nullptr, false, false);
         }
 

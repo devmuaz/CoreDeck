@@ -1,8 +1,9 @@
 ## [v0.17.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.2) — 2026-11-21
 
-- Keep the macOS disk image to `CoreDeck.app` and the Applications shortcut. xz and Crashpad were also installing `bin`, `include`, and `lib` beside the app, which broke the drag-to-Applications window
+- Remove Frida, including the Analysis workspace, the bundled agent, and the downloaded `frida-server`
+- Read zip archives and PNG images with miniz again
+- Keep the macOS disk image to `CoreDeck.app` and the Applications shortcut. Vendored libraries were also installing `bin`, `include`, and `lib` beside the app, which broke the drag-to-Applications window
 - Those extra files included an unsigned `crashpad_handler`, so Apple rejected notarization and Gatekeeper blocked the app until it was opened from Privacy & Security. A rejected notarization now fails the macOS release job instead of publishing the disk image
-- Fix quitting so CoreDeck no longer hangs or shows the macOS crash dialog. The statically linked Frida runtime was aborting while the process exited
 
 ## [v0.17.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.1) — 2026-11-20
 

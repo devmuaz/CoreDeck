@@ -68,15 +68,6 @@ namespace CoreDeck::App {
         rfl::Rename<"device_profiles", std::unordered_map<std::string, AdbDeviceProfile>> DeviceProfiles;
     };
 
-    struct Frida {
-        rfl::Rename<"runtime", int> Runtime = 0;
-        rfl::Rename<"mode", int> Mode = 0;
-        rfl::Rename<"existing_port", std::string> ExistingPort = "27042";
-        rfl::Rename<"server_cache_path", std::string> ServerCachePath;
-        rfl::Rename<"project_path", std::string> ProjectPath;
-        rfl::Rename<"scripts_path", std::string> ScriptsPath;
-    };
-
     struct AppConfig {
         rfl::Rename<"schema_version", int> SchemaVersion = CONFIG_SCHEMA_VERSION;
         rfl::Rename<"environment", ::CoreDeck::App::Environment> Environment;
@@ -84,7 +75,6 @@ namespace CoreDeck::App {
         rfl::Rename<"ui", ::CoreDeck::App::Ui> Ui;
         rfl::Rename<"history", ::CoreDeck::App::History> History;
         rfl::Rename<"adb", ::CoreDeck::App::Adb> Adb;
-        rfl::Rename<"frida", ::CoreDeck::App::Frida> Frida;
     };
 }
 

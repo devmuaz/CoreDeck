@@ -9,10 +9,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <limits>
 #include <vector>
 
-#include <zlib.h>
+#include <miniz.h>
 
 namespace CoreDeck::Platform {
     namespace {
@@ -110,7 +109,7 @@ namespace CoreDeck::Platform {
             const unsigned char *type = data + offset + 4;
             const unsigned char *chunk = type + 4;
             const std::uint32_t expectedCrc = ReadBe32(chunk + length);
-            const auto actualCrc = static_cast<std::uint32_t>(crc32_z(0, type, static_cast<z_size_t>(4u) + length));
+            const auto actualCrc = static_cast<std::uint32_t>(mz_crc32(0, type, 4u + length));
             if (expectedCrc != actualCrc) {
                 return std::nullopt;
             }
@@ -164,12 +163,9 @@ namespace CoreDeck::Platform {
         const std::size_t rowBytes = stride + 1;
         const std::size_t rawSize = rowBytes * static_cast<std::size_t>(height);
         std::vector<unsigned char> raw(rawSize);
-        if (idat.size() > static_cast<std::size_t>(std::numeric_limits<uLong>::max()) ||
-            rawSize > static_cast<std::size_t>(std::numeric_limits<uLong>::max())) {
-            return std::nullopt;
-        }
-        auto destLen = static_cast<uLongf>(rawSize);
-        if (uncompress(raw.data(), &destLen, idat.data(), static_cast<uLong>(idat.size())) != Z_OK || destLen != rawSize) {
+        auto destLen = static_cast<mz_ulong>(rawSize);
+        if (mz_uncompress(raw.data(), &destLen, idat.data(), static_cast<mz_ulong>(idat.size())) != MZ_OK ||
+            destLen != rawSize) {
             return std::nullopt;
         }
         if (!Unfilter(raw.data(), width, height, channels)) {

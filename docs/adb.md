@@ -340,7 +340,6 @@ connected.** when the report is empty.
   package at a time.
 - It does not edit `adb` server settings, kill the server, or backup the device.
 - It does not keep port routes in `config.json`. Those belong to `adb`.
-- It does not host Frida. That is the Frida workspace under Analysis.
 
 ## Code map
 

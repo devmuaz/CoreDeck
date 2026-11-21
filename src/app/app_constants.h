@@ -9,6 +9,7 @@ namespace CoreDeck::App {
     constexpr const char *WEBSITE_URL = "https://coredeck.dev";
     constexpr const char *AUTHOR_WEBSITE_URL = "https://devmuaz.com";
     constexpr const char *GITHUB_URL = "https://github.com/devmuaz/CoreDeck";
+    constexpr const char *THIRD_PARTY_NOTICES_URL = "https://github.com/devmuaz/CoreDeck/blob/main/THIRD_PARTY_NOTICES.md";
     constexpr const char *GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/devmuaz/CoreDeck/releases/latest";
     constexpr const char *GITHUB_RELEASES_URL = "https://api.github.com/repos/devmuaz/CoreDeck/releases?per_page=100";
     constexpr const char *USER_AGENT_PREFIX = "CoreDeck/";

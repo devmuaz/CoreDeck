@@ -22,10 +22,7 @@ target_include_directories(coredeck_platform PUBLIC
     ${CMAKE_BINARY_DIR}/generated
 )
 target_precompile_headers(coredeck_platform PRIVATE ${CMAKE_SOURCE_DIR}/src/pch.h)
-target_link_libraries(coredeck_platform PUBLIC archive_static zlibstatic)
-if(NOT WIN32)
-    target_link_libraries(coredeck_platform PUBLIC Threads::Threads)
-endif()
+target_link_libraries(coredeck_platform PUBLIC miniz)
 
 if(WIN32)
     target_compile_definitions(coredeck_platform PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)

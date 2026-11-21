@@ -7,12 +7,14 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <sstream>
 #include <unordered_map>
 #include <utility>
 
+#include <miniz.h>
+
 #include "core/apk/apk_analyzer.h"
-#include "platform/archive.h"
 #include "platform/process.h"
 
 namespace CoreDeck::Core {
@@ -298,6 +300,17 @@ namespace CoreDeck::Core {
             return path;
         }
 
+        bool ReadLocalExtraLength(std::ifstream &file, const std::uint64_t localOffset, std::uint16_t &extraLength) {
+            file.clear();
+            file.seekg(static_cast<std::streamoff>(localOffset + 28));
+            unsigned char bytes[2] = {};
+            file.read(reinterpret_cast<char *>(bytes), 2);
+            if (!file) {
+                return false;
+            }
+            extraLength = static_cast<std::uint16_t>(bytes[0] | (bytes[1] << 8));
+            return true;
+        }
     }
 
     void ApplyApkZipAlignment(std::vector<ApkFileEntry> &entries, const std::string &apkPath) {
@@ -305,23 +318,28 @@ namespace CoreDeck::Core {
             return;
         }
 
-        std::vector<Platform::ZipPayload> payloads;
-        std::string error;
-        if (!Platform::ReadZipPayloads(apkPath, payloads, error)) {
+        mz_zip_archive zip = {};
+        if (!mz_zip_reader_init_file(&zip, apkPath.c_str(), 0)) {
             return;
         }
 
+        std::ifstream file(apkPath, std::ios::binary);
         std::unordered_map<std::string, std::pair<std::uint32_t, bool>> layouts;
-        layouts.reserve(payloads.size());
-        for (const Platform::ZipPayload &payload: payloads) {
-            if (payload.Directory) {
+        const mz_uint count = mz_zip_reader_get_num_files(&zip);
+        layouts.reserve(count);
+        for (mz_uint index = 0; index < count; ++index) {
+            mz_zip_archive_file_stat stat = {};
+            if (!mz_zip_reader_file_stat(&zip, index, &stat) || stat.m_is_directory) {
                 continue;
             }
-            layouts.emplace(
-                ZipLookupKey(payload.Name),
-                std::pair{ZipDataAlignment(payload.DataOffset), payload.Stored}
-            );
+            std::uint16_t extraLength = 0;
+            if (!ReadLocalExtraLength(file, stat.m_local_header_ofs, extraLength)) {
+                continue;
+            }
+            const std::uint64_t dataOffset = stat.m_local_header_ofs + 30 + std::char_traits<char>::length(stat.m_filename) + extraLength;
+            layouts.emplace(ZipLookupKey(stat.m_filename), std::pair{ZipDataAlignment(dataOffset), stat.m_method == 0});
         }
+        mz_zip_reader_end(&zip);
 
         for (auto &entry: entries) {
             const auto found = layouts.find(ZipLookupKey(entry.Path));
@@ -334,12 +352,7 @@ namespace CoreDeck::Core {
     }
 
     namespace {
-        bool AdvanceApkLoad(
-            const ApkLoadProgressFn onProgress,
-            void *user,
-            const float progress,
-            const int stage
-        ) {
+        bool AdvanceApkLoad(const ApkLoadProgressFn onProgress, void *user, const float progress, const int stage) {
             return onProgress == nullptr || onProgress(user, progress, stage);
         }
     }

@@ -158,12 +158,6 @@ namespace CoreDeck::App {
             std::vector<std::string> RecentApks;
             std::vector<std::string> AdbWirelessDevices;
             std::vector<LegacyAdbDeviceProfile> AdbDeviceProfiles;
-            int FridaScriptRuntime = 0;
-            int FridaScriptMode = 0;
-            std::string FridaExistingPort = "27042";
-            std::string FridaServerCachePath;
-            std::string FridaProjectPath;
-            std::string FridaScriptsPath;
         };
 
         AppConfig MapLegacySettings(const LegacySettings &legacy) {
@@ -195,12 +189,6 @@ namespace CoreDeck::App {
                 mapped.ShellCommands = profile.ShellCommands;
                 config.Adb->DeviceProfiles.value().insert_or_assign(profile.Serial, std::move(mapped));
             }
-            config.Frida->Runtime = legacy.FridaScriptRuntime;
-            config.Frida->Mode = legacy.FridaScriptMode;
-            config.Frida->ExistingPort = legacy.FridaExistingPort;
-            config.Frida->ServerCachePath = legacy.FridaServerCachePath;
-            config.Frida->ProjectPath = legacy.FridaProjectPath;
-            config.Frida->ScriptsPath = legacy.FridaScriptsPath;
             return config;
         }
 

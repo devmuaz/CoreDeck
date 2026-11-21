@@ -31,7 +31,6 @@ add_executable(coredeck_tests
         test_sdk_manager.cpp
         test_system_image.cpp
         test_sdk_bootstrap_network.cpp
-        test_frida.cpp
 )
 
 target_link_libraries(coredeck_tests PRIVATE
@@ -66,13 +65,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/extern/catch2/extras)
 include(Catch)
 catch_discover_tests(coredeck_tests)
-
-add_executable(coredeck_frida_smoke frida_smoke.cpp)
-target_include_directories(coredeck_frida_smoke SYSTEM PRIVATE "${COREDECK_FRIDA_DEVKIT_INCLUDE}")
-target_link_libraries(coredeck_frida_smoke PRIVATE coredeck_frida)
-coredeck_frida_finalize(coredeck_frida_smoke)
-add_test(NAME frida_smoke COMMAND coredeck_frida_smoke)
-set_tests_properties(frida_smoke PROPERTIES TIMEOUT 60)
 
 add_test(NAME sdk_bootstrap_network COMMAND coredeck_tests "[.network]")
 set_tests_properties(sdk_bootstrap_network PROPERTIES

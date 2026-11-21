@@ -20,7 +20,12 @@ namespace CoreDeck::Gui {
             return;
         }
 
-        if (BeginCenteredModal(title.c_str(), &context.Dialogs.About.Open, ImVec2(Em(65.0F), 0), WINDOW_NO_RESIZE_FLAGS)) {
+        const ImGuiStyle &style = ImGui::GetStyle();
+        const float noticesRow = ImGui::CalcTextSize(Platform::Tr("Third-party")).x + style.ItemSpacing.x +
+                                  ImGui::CalcTextSize(App::THIRD_PARTY_NOTICES_URL).x;
+        const float noticesWidth = noticesRow + (style.WindowPadding.x * 2.0F) + Em(2.0F);
+        const float width = noticesWidth > Em(65.0F) ? noticesWidth : Em(65.0F);
+        if (BeginCenteredModal(title.c_str(), &context.Dialogs.About.Open, ImVec2(width, 0), WINDOW_NO_RESIZE_FLAGS)) {
             const auto centerCursor = [](const float textWidth) {
                 ImGui::SetCursorPosX(
                     ((ImGui::GetContentRegionAvail().x - textWidth) * 0.5F) + ImGui::GetCursorStartPos().x
@@ -51,7 +56,9 @@ namespace CoreDeck::Gui {
                 Platform::OpenUrl(App::AUTHOR_WEBSITE_URL);
             }
             PropertyText(Platform::Tr("License"), Platform::Tr("MIT"));
-            PropertyText(Platform::Tr("Third-party"), Platform::Tr("Frida and editor components. See THIRD_PARTY_NOTICES."));
+            if (PropertyText(Platform::Tr("Third-party"), App::THIRD_PARTY_NOTICES_URL, true)) {
+                Platform::OpenUrl(App::THIRD_PARTY_NOTICES_URL);
+            }
             if (PropertyText(Platform::Tr("Website"), App::WEBSITE_URL, true)) {
                 Platform::OpenUrl(App::WEBSITE_URL);
             }

@@ -54,16 +54,9 @@ runs:
       shell: bash
       run: bash ./.github/scripts/shared-install-host-deps.sh
 
-    - name: Cache Frida devkit
-      uses: actions/cache@v4
-      with:
-        path: ${{ github.workspace }}/.cache/frida-devkit
-        key: frida-devkit-${{ hashFiles('cmake/Frida.cmake', 'pins/frida.json') }}-${{ runner.os }}-${{ runner.arch }}
-
     - name: Configure CMake
       shell: bash
       env:
-        COREDECK_FRIDA_CACHE: ${{ github.workspace }}/.cache/frida-devkit
         COREDECK_SENTRY_DSN: ${{ inputs.sentry-dsn }}
         COREDECK_VERSION_REF: ${{ inputs.version-ref }}
         BUILD_TYPE: ${{ inputs.build-type }}

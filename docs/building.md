@@ -71,7 +71,7 @@ The first build compiles the bundled dependencies, including sentry-native, Dear
 
 Core and App do not include each other. The executable is `src/main.cpp` and links only `coredeck_gui`. A call names the layer: `Platform::JoinPaths`, `Core::SignApk`, `App::LoadAppConfig`.
 
-Folders name the area a person sees: `gui/shell/`, `gui/home/`, `gui/adb/`, `gui/frida/`, `gui/apk/`, `gui/sdk/`, `gui/preferences/`, and `gui/widgets/` for controls with no feature knowledge. No two files under `src/` share a name. These file names are banned because they say nothing: `utilities`, `helpers`, `common`, `misc`.
+Folders name the area a person sees: `gui/shell/`, `gui/home/`, `gui/adb/`, `gui/apk/`, `gui/sdk/`, `gui/preferences/`, and `gui/widgets/` for controls with no feature knowledge. No two files under `src/` share a name. These file names are banned because they say nothing: `utilities`, `helpers`, `common`, `misc`.
 
 A GUI feature file ends with the kind of thing it is:
 
@@ -194,53 +194,3 @@ Both launches compile with GCC and Ninja into `build-debug`. Release uses `build
 | `[Linux · Debug] CoreDeck [GCC · Ninja · LLDB]` | LLDB     |
 
 Each one has a matching `CoreDeck Tests` launch, and the same set exists for Release.
-
-## Frida
-
-CoreDeck statically links the official `frida-core` devkit. CMake downloads the
-tarball for the host you are compiling, checks its SHA-256, and links it. The
-archive is cached under `~/.cache/coredeck/frida` (or `%LOCALAPPDATA%\coredeck\frida`
-on Windows). Set `COREDECK_FRIDA_CACHE` to put that cache somewhere else, or set
-`COREDECK_FRIDA_DEVKIT_DIR` to a directory that already contains `frida-core.h` and
-the static library. The cache path cannot contain spaces.
-
-`pins/frida.json` pins the client version, each devkit and `frida-server`
-download URL, and their SHA-256 checksums. CMake reads that file. To move to another Frida
-release, run:
-
-```bash
-python3 tools/update_frida_pins.py 17.9.2
-```
-
-The script writes the version, the nine download URLs, and their SHA-256 values into `pins/frida.json`.
-Configure again after that. The Java bridge version lives only in
-`assets/frida/project/node_modules/frida-java-bridge/package.json`. The agent
-source is `assets/frida/project/agent/coredeck_agent.js`. There is no separate
-stamp file. Confirm `frida-java-bridge` still compiles with the new devkit, and
-rebuild `coredeck_frida_smoke` on every platform. The smoke test calls
-`frida_init` and lists local devices. It is the check that the static library
-actually linked. An agent edit ships with the bundle. Bump the bridge package
-only when that library has to change.
-
-MinGW cannot link the devkit. On Windows the process uses the release static CRT
-(`/MT`) in every configuration, including Debug, because the devkit is `/MT`.
-Debug builds still emit PDBs. Iterator debugging and the debug heap are off.
-
-macOS loads the whole archive with `-Wl,-load_hidden` so Frida's constructors run
-and its GLib symbols stay hidden. Linux uses `--whole-archive` and `--exclude-libs`.
-Windows uses `/WHOLEARCHIVE`. Sync Frida calls run on a worker thread. Frida's own
-loop thread only delivers signals. Calling a sync API on that loop re-enters it.
-
-The Frida window is its own workspace under Analysis, drawn from `src/gui/frida/`.
-Start pushes `coredeck-frida-server` to the device, binds `127.0.0.1:27099`, and
-forwards it with the SDK `adb`. The device needs root. If that process is already
-running, Start and Use existing both resume it on port 27099, and Stop shuts it
-down. Use existing attaches to a separate `frida-server` on the Settings port
-(27042 by default) and leaves that process running.
-Snippet mode compiles with `frida-java-bridge` imported. Module mode compiles the
-buffer unchanged. The compiler reads `assets/frida/project` from the app bundle
-unless the Settings path points somewhere else. Reset Agent Project copies that
-bundled project onto the override, and does nothing when Settings still points
-at the bundle. Paths and the script runtime live on the Settings tab and are
-stored in `config.json`. Leaving the workspace detaches sessions and stops a
-server CoreDeck started.

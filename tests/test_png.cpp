@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include <zlib.h>
+#include <miniz.h>
 
 #include "platform/png.h"
 
@@ -28,7 +28,7 @@ namespace {
         AppendBe32(chunk, static_cast<std::uint32_t>(data.size()));
         chunk.insert(chunk.end(), type, type + 4);
         chunk.insert(chunk.end(), data.begin(), data.end());
-        const auto crc = static_cast<std::uint32_t>(crc32_z(0, chunk.data() + 4, 4u + data.size()));
+        const auto crc = static_cast<std::uint32_t>(mz_crc32(0, chunk.data() + 4, 4u + data.size()));
         AppendBe32(chunk, crc);
         return chunk;
     }
@@ -43,9 +43,9 @@ namespace {
         ihdr.push_back(0);
         ihdr.push_back(0);
 
-        uLongf compressedSize = compressBound(static_cast<uLong>(raw.size()));
+        mz_ulong compressedSize = mz_compressBound(static_cast<mz_ulong>(raw.size()));
         std::vector<unsigned char> compressed(compressedSize);
-        REQUIRE(compress(compressed.data(), &compressedSize, raw.data(), static_cast<uLong>(raw.size())) == Z_OK);
+        REQUIRE(mz_compress(compressed.data(), &compressedSize, raw.data(), static_cast<mz_ulong>(raw.size())) == MZ_OK);
         compressed.resize(compressedSize);
 
         constexpr unsigned char signature[8] = {137, 80, 78, 71, 13, 10, 26, 10};

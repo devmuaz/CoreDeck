@@ -9,16 +9,6 @@ add_library(coredeck_gui STATIC
     adb/adb_widgets.cpp
     adb/adb_wifi_help_dialog.cpp
     adb/adb_workspace.cpp
-    frida/frida_controller.cpp
-    frida/frida_hooks_tab.cpp
-    frida/frida_java_tab.cpp
-    frida/frida_memory_tab.cpp
-    frida/frida_modules_tab.cpp
-    frida/frida_script_tab.cpp
-    frida/frida_session_tab.cpp
-    frida/frida_settings_tab.cpp
-    frida/frida_widgets.cpp
-    frida/frida_workspace.cpp
     apk/apk_analyzer_workspace.cpp
     apk/apk_signer_workspace.cpp
     apk/jar_signer_workspace.cpp
@@ -58,19 +48,7 @@ add_library(coredeck_gui STATIC
 )
 
 target_precompile_headers(coredeck_gui PRIVATE ${CMAKE_SOURCE_DIR}/src/pch.h)
-add_library(imgui_text_editor STATIC
-    ${CMAKE_SOURCE_DIR}/extern/ImGuiColorTextEdit/TextEditor.cpp
-)
-target_include_directories(imgui_text_editor PUBLIC ${CMAKE_SOURCE_DIR}/extern/ImGuiColorTextEdit)
-target_link_libraries(imgui_text_editor PUBLIC imgui)
-target_compile_options(imgui_text_editor PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-w>
-    $<$<CXX_COMPILER_ID:MSVC>:/w>
-)
-
-target_link_libraries(coredeck_gui PUBLIC coredeck_app coredeck_core coredeck_frida imgui)
-target_link_libraries(coredeck_gui PRIVATE imgui_text_editor)
-target_include_directories(coredeck_gui PRIVATE ${CMAKE_SOURCE_DIR}/extern/imgui_club)
+target_link_libraries(coredeck_gui PUBLIC coredeck_app coredeck_core imgui)
 
 if(WIN32)
     target_link_libraries(coredeck_gui PRIVATE dwmapi)

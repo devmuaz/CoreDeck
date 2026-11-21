@@ -1,0 +1,8 @@
+{
+  "name": "CoreDeck",
+  "vendor": "AbdulMuaz Aqeel",
+  "bundle_id": "com.devmuaz.coredeck",
+  "description_short": "Native Desktop Interface for Official Android Command-Line Tools",
+  "description": "Engineered for fast, low-overhead workflows, CoreDeck brings a sleek desktop interface to official Android SDK tools. Create and launch emulators, connect and control hardware devices, inspect and sign application builds, configure environment health, and manage system resources without ever touching Android Studio. Powered natively by C++20 and Dear ImGui.",
+  "copyright": "Copyright © {year} {name}"
+}

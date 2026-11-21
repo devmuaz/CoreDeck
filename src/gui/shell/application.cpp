@@ -53,7 +53,6 @@ extern "C" id glfwGetCocoaWindow(GLFWwindow *window);
 #include "app/app_paths.h"
 #include "app/version_check.h"
 #include "gui/adb/adb_workspace.h"
-#include "gui/frida/frida_workspace.h"
 #include "gui/apk/apk_analyzer_workspace.h"
 #include "gui/apk/apk_signer_workspace.h"
 #include "gui/apk/jar_signer_workspace.h"
@@ -132,7 +131,6 @@ namespace CoreDeck::Gui {
         m_SetupCallbacks();
         m_RunLoop();
         m_Shutdown();
-        m_Context.Host.Frida.Shutdown();
         m_Context.Host.Adb.StopTracking();
         m_Context.Host.Adb.StopAllLogcat(true);
 
@@ -258,7 +256,6 @@ namespace CoreDeck::Gui {
         }
         BuildHealthCheckDialog(m_Context);
         BuildAdbWorkspace(m_Context);
-        BuildFridaWorkspace(m_Context);
         BuildApkAnalyzerWorkspace(m_Context);
         BuildKeytoolWorkspace(m_Context);
         BuildApkSignerWorkspace(m_Context);

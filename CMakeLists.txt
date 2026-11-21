@@ -1,22 +1,9 @@
 cmake_minimum_required(VERSION 3.23)
 
 include(cmake/Version.cmake)
+include(cmake/App.cmake)
 
-project(CoreDeck VERSION ${PROJECT_VERSION})
-
-string(TIMESTAMP CURRENT_YEAR "%Y")
-
-set(APP_VENDOR "AbdulMuaz Aqeel")
-string(CONCAT APP_DESCRIPTION
-    "Engineered for fast, low-overhead workflows, CoreDeck brings a sleek desktop "
-    "interface to official Android SDK tools. Create and launch emulators, "
-    "connect and control hardware devices, inspect and sign application builds, "
-    "configure environment health, and manage system resources without ever "
-    "touching Android Studio. Powered natively by C++20 and Dear ImGui."
-)
-set(APP_DESCRIPTION_SHORT "Native Desktop Interface for Official Android Command-Line Tools")
-set(APP_BUNDLE_ID "com.devmuaz.coredeck")
-set(APP_COPYRIGHT "Copyright © ${CURRENT_YEAR} ${PROJECT_NAME}")
+project(${APP_NAME} VERSION ${PROJECT_VERSION})
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,8 +19,7 @@ if(APPLE)
 endif()
 
 if(WIN32)
-    # The Frida devkit is /MT. One process can contain one CRT, including Debug.
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     if(MSVC)
         add_compile_options(/utf-8)
         add_compile_options($<$<CONFIG:Debug>:/Zi>)
@@ -41,7 +27,6 @@ if(WIN32)
 endif()
 
 include(cmake/Dependencies.cmake)
-include(cmake/Frida.cmake)
 include(cmake/CmdlineTools.cmake)
 
 find_package(Threads REQUIRED)
@@ -84,7 +69,6 @@ add_subdirectory(src/gui)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE coredeck_gui)
-coredeck_frida_finalize(${PROJECT_NAME})
 
 include(cmake/Locales.cmake)
 include(cmake/Runtime.cmake)
