@@ -1,3 +1,9 @@
+## [v0.17.0-beta.2](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.2) — 2026-11-21
+
+- Keep the macOS disk image to `CoreDeck.app` and the Applications shortcut. xz and Crashpad were also installing `bin`, `include`, and `lib` beside the app, which broke the drag-to-Applications window
+- Those extra files included an unsigned `crashpad_handler`, so Apple rejected notarization and Gatekeeper blocked the app until it was opened from Privacy & Security. A rejected notarization now fails the macOS release job instead of publishing the disk image
+- Fix quitting so CoreDeck no longer hangs or shows the macOS crash dialog. The statically linked Frida runtime was aborting while the process exited
+
 ## [v0.17.0-beta.1](https://github.com/devmuaz/CoreDeck/releases/tag/v0.17.0-beta.1) — 2026-11-20
 
 - Add Frida (Analysis, Frida) so a running Android process can be inspected on a USB, Wi-Fi, or emulator device, without a separate Frida setup. Start downloads the matching `frida-server` on first use, and Use Existing joins a server that is already running. CoreDeck can resume a server it left running. Attach to a process, or spawn a package and resume it, then use Session, Script, Hooks, Java, Modules, and Memory. Settings keeps the script runtime, snippet or module mode, the existing server port, and the server, project, and scripts paths

@@ -140,7 +140,9 @@ else()
     unset(_coredeck_shared_libs)
 endif()
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CMAKE_SKIP_INSTALL_RULES TRUE)
 coredeck_add_extern(${CMAKE_SOURCE_DIR}/extern/xz ${CMAKE_BINARY_DIR}/extern/xz)
+set(CMAKE_SKIP_INSTALL_RULES FALSE)
 if(NOT WIN32)
     target_link_libraries(liblzma INTERFACE Threads::Threads)
 endif()
@@ -226,7 +228,13 @@ if(COREDECK_SENTRY_ENABLED)
     set(SENTRY_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(SENTRY_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(SENTRY_BACKEND "crashpad" CACHE STRING "" FORCE)
+    set(SENTRY_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+    set(CRASHPAD_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+    set(CRASHPAD_ENABLE_INSTALL_DEV OFF CACHE BOOL "" FORCE)
+    # Crashpad still installs its handler with an unconditional install() call.
+    set(CMAKE_SKIP_INSTALL_RULES TRUE)
     coredeck_add_extern(${CMAKE_SOURCE_DIR}/extern/sentry-native ${CMAKE_BINARY_DIR}/extern/sentry-native)
+    set(CMAKE_SKIP_INSTALL_RULES FALSE)
     # Non-MSVC crashpad links its exported interface library crashpad_zlib to
     # ZLIB::ZLIB. That alias is the in-tree zlibstatic, which is not installed,
     # so install(EXPORT crashpad_export) rejects the dependency. Keep the build

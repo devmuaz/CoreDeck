@@ -132,6 +132,9 @@ namespace CoreDeck::Gui {
         m_SetupCallbacks();
         m_RunLoop();
         m_Shutdown();
+        m_Context.Host.Frida.Shutdown();
+        m_Context.Host.Adb.StopTracking();
+        m_Context.Host.Adb.StopAllLogcat(true);
 
         return 0;
     }

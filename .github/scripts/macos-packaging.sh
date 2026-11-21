@@ -117,7 +117,7 @@ if [ "$NOTARY_STATUS" != "Accepted" ]; then
       --password "${APPLE_PASSWORD}" \
       --team-id "${APPLE_TEAM_ID}" || true
   fi
-  exit ${NOTARY_EXIT:-1}
+  exit 1
 fi
 
 xcrun stapler staple "release/${ASSET_NAME}"

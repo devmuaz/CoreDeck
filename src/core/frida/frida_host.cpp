@@ -7,6 +7,7 @@
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
 #include <deque>
 #include <filesystem>
 #include <future>
@@ -489,15 +490,9 @@ namespace CoreDeck::Core {
                 state->Compiler = nullptr;
             }
             if (state->Manager != nullptr) {
-                GError *error = nullptr;
-                frida_device_manager_close_sync(state->Manager, nullptr, &error);
-                if (error != nullptr) {
-                    g_error_free(error);
-                }
                 frida_unref(state->Manager);
                 state->Manager = nullptr;
             }
-            frida_deinit();
         }
     }
 
@@ -555,9 +550,24 @@ namespace CoreDeck::Core {
                 worker = std::move(m_State->Thread);
             }
         }
-        if (worker.joinable()) {
-            worker.join();
+        if (!worker.joinable()) {
+            m_State->Running.store(false);
+            return;
         }
+        std::atomic<bool> finished{false};
+        std::thread joiner([&worker, &finished] {
+            worker.join();
+            finished.store(true);
+        });
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (!finished.load() && std::chrono::steady_clock::now() < deadline) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+        if (!finished.load()) {
+            joiner.detach();
+            std::_Exit(0);
+        }
+        joiner.join();
         m_State->Running.store(false);
     }
 

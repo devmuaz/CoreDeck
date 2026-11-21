@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "app/app_config.h"
 #include "app/crash_reporter.h"
 #include "gui/shell/application.h"
@@ -7,8 +9,11 @@ int main() {
     const bool isCrashReportingEnabled = config.Preferences->CrashReportingEnabled.value();
 
     CoreDeck::App::CrashReporter::Init(isCrashReportingEnabled);
-    CoreDeck::Gui::Application app;
-    const int code = app.Run();
+    int code = 0;
+    {
+        CoreDeck::Gui::Application app;
+        code = app.Run();
+    }
     CoreDeck::App::CrashReporter::Shutdown(isCrashReportingEnabled);
-    return code;
+    std::_Exit(code);
 }
